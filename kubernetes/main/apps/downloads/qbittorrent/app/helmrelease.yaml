@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/qbittorrent-beta
-              tag: 5.0.3@sha256:24dab6c41959115371d00cc983e4c3ee6226e95d57cad387a123c82c5e459b98
+              tag: 5.0.3@sha256:7314805710adddde613a9bb7f937fe2db1ebd57f63a874f08cb96de57b8cc6a3
             env:
               TZ: ${TIMEZONE}
               QBT_WEBUI_PORT: &port 80

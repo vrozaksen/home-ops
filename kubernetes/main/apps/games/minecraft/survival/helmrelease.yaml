@@ -126,7 +126,6 @@ spec:
       - https://cdn.modrinth.com/data/OhduvhIc/versions/cCaIdWST/veinminer-paper-2.3.2.jar
       - https://cdn.modrinth.com/data/J6U9o3JG/versions/yxOA7Kr0/HuskHomes-Paper-4.9.3-e56ef72.jar
       - https://cdn.modrinth.com/data/z4mHgUYG/versions/NhVJjanv/InteractionVisualizer-1.18.13.0.jar
-      - https://cdn.modrinth.com/data/kTmEpjUi/versions/FFLh4suE/MTimer-130.jar
       - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
       spigetResources:
       - 36618 #Prom Exporter

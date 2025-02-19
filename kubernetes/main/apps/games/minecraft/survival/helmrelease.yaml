@@ -120,15 +120,19 @@ spec:
       - https://cdn.modrinth.com/data/IEt1Yy3F/versions/QXCh3qCi/SeeMore-1.0.2.jar
       - https://cdn.modrinth.com/data/N38KJjIT/versions/tcbqRM4z/BetterReload-plugin-1.4.0.jar
       #- https://cdn.modrinth.com/data/PviisYrr/versions/HDQLwfeA/LightOptimizer-4.0.2-BETA.jar
-      - https://cdn.modrinth.com/data/Cz6msz34/versions/12mBIJ2C/AxGraves-1.17.1.jar
+      - https://cdn.modrinth.com/data/Cz6msz34/versions/8jpMx97k/AxGraves-1.18.0.jar
       - https://cdn.modrinth.com/data/pZ2wrerK/versions/QaJSSuMq/emotecraft-paper-for-MC1.21.4-2.5.1-b.build.72.jar
       - https://cdn.modrinth.com/data/fALzjamp/versions/ytBhnGfO/Chunky-Bukkit-1.4.28.jar
       - https://cdn.modrinth.com/data/OhduvhIc/versions/cCaIdWST/veinminer-paper-2.3.2.jar
+      - https://cdn.modrinth.com/data/J6U9o3JG/versions/yxOA7Kr0/HuskHomes-Paper-4.9.3-e56ef72.jar
+      - https://cdn.modrinth.com/data/z4mHgUYG/versions/NhVJjanv/InteractionVisualizer-1.18.13.0.jar
+      - https://cdn.modrinth.com/data/kTmEpjUi/versions/FFLh4suE/MTimer-130.jar
+      - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
       spigetResources:
       - 36618 #Prom Exporter
       - 105695 #Xaero Map Spigot
       - 31585 #One Player Sleep
-      - 64270 #Simple Tpa
+      #- 64270 #Simple Tpa
       #- 81534 #Chunky
       #- 18494 #DiscordSRV
       rcon:

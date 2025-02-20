@@ -84,14 +84,16 @@ spec:
               - prune
               - --exclude-category
               - manual
+              - --exclude-category
+              - "*Sheller*"
               - --include-tag
               - expired
               - --exclude-tag
               - activity:24h
-              - --exclude-tag
-              - site:cinemamovies
-              - --exclude-tag
-              - site:exitorrent
+              #- --exclude-tag
+              #- site:cinemamovies
+              #- --exclude-tag
+              #- site:exitorrent
               - --dry-run
               - --server
               - qbittorrent.$(POD_NAMESPACE).svc.cluster.local

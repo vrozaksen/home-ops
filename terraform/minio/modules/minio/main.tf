@@ -12,6 +12,15 @@ resource "minio_s3_bucket" "bucket" {
   acl    = "private"
 }
 
+resource "minio_s3_bucket_versioning" "bucket" {
+  depends_on = [minio_s3_bucket.bucket]
+  bucket     = minio_s3_bucket.bucket.bucket
+  versioning_configuration {
+    status = "Enabled"
+  }
+  count = var.versioning ? 1 : 0
+}
+
 resource "minio_iam_user" "user" {
   name   = var.user_name
   secret = var.user_secret

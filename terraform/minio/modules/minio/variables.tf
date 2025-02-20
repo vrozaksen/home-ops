@@ -11,3 +11,8 @@ variable "user_secret" {
   type      = string
   sensitive = true
 }
+
+variable "versioning" {
+  type    = bool
+  default = false
+}

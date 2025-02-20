@@ -41,6 +41,19 @@ spec:
               TZ: ${TIMEZONE}
               QBT_WEBUI_PORT: &port 80
               QBT_TORRENTING_PORT: &torrentPort 50413
+              QBT_Application__MemoryWorkingSetLimit:
+                valueFrom:
+                  resourceFieldRef:
+                    resource: limits.memory
+                    containerName: app
+                    divisor: 1Mi
+              QBT_Preferences__WebUI__AlternativeUIEnabled: true
+              QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
+              QBT_Preferences__WebUI__AuthSubnetWhitelist: |-
+                10.69.0.0/16, 10.10.0.0/24
+              QBT_Preferences__WebUI__LocalHostAuth: false
+              QBT_Preferences__WebUI__RootFolder: /addons/VueTorrent
+              QBT_Preferences__WebUI__UseUPNP: false
             probes:
               liveness:
                 enabled: true
@@ -61,9 +74,25 @@ spec:
             resources:
               requests:
                 cpu: 25m
-                memory: 1Gi
+                memory: 500Mi
               limits:
                 memory: 8Gi
+          vuetorrent:
+            dependsOn: app
+            image:
+              repository: registry.k8s.io/git-sync/git-sync
+              tag: v4.4.0
+            args:
+              - --repo=https://github.com/WDaan/VueTorrent
+              - --ref=latest-release
+              - --period=86400s
+              - --root=/addons
+            resources:
+              requests:
+                cpu: 10m
+                memory: 25Mi
+              limits:
+                memory: 50Mi
     # defaultPodOptions:
     #   terminationGracePeriodSeconds: 120
     #   nodeSelector:
@@ -121,3 +150,7 @@ spec:
             subPath: torrents
       tmp:
         type: emptyDir
+      addons:
+        type: emptyDir
+        globalMounts:
+          - path: /addons

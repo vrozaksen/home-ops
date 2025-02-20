@@ -1,5 +1,7 @@
 locals {
   buckets = [
+    "dragonfly",
+    "nextcloud",
     "postgresql",
     "outline",
     "rresume",

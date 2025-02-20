@@ -30,7 +30,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
    - ../../../../../shared/components/gatus/external
-   - ../../../../../shared/meta/components/volsync
+   - ../../../../../shared/components/volsync
   dependsOn:
     - name: bitwarden-store
       namespace: external-secrets

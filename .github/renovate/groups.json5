@@ -19,7 +19,6 @@
         "commitMessageTopic": "{{{groupName}}} group"
       }
     },
-
     {
       "description": ["Flux Operator Group"],
       "groupName": "Flux Operator",

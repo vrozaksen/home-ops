@@ -4,8 +4,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kube-tools
 components:
-  - ../../flux/meta/components/common
-  - ../../../shared/meta/components/common
+  - ../../components/common
+  - ../../../shared/components/common
 resources:
   - ./descheduler/ks.yaml
   - ./fstrim/ks.yaml

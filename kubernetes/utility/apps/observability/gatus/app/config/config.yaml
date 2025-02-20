@@ -10,34 +10,3 @@ connectivity:
   checker:
     target: 1.1.1.1:53
     interval: 1m
-endpoints:
-  - name: OPNsense
-    group: ICMP
-    url: icmp://192.168.1.1
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]
-  - name: Kubernetes Node 1 (Alfheim)
-    group: ICMP
-    url: icmp://10.10.0.21
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]
-  - name: Kubernetes Node 2 (Alne)
-    group: ICMP
-    url: icmp://10.10.0.22
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]
-  - name: Kubernetes Node 3 (Ainias)
-    group: ICMP
-    url: icmp://10.10.0.23
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]
-  - name: Kubernetes Utility Node 0 (Inertia)
-    group: ICMP
-    url: icmp://10.10.0.121
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]
-  - name: NAS
-    group: ICMP
-    url: icmp://10.10.0.11
-    conditions: ["[CONNECTED] == true"]
-    alerts: [{ type: discord }]

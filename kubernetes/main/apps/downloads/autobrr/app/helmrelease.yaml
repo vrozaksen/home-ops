@@ -95,6 +95,15 @@ spec:
     ingress:
       app:
         className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Downloads
+          gethomepage.dev/name: Autobrr
+          gethomepage.dev/icon: autobrr.png
+          gethomepage.dev/description: Subtitle Downloads
+          gethomepage.dev/widget.type: autobrr
+          gethomepage.dev/widget.url: http://autobrr.downloads:80
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_AUTOBRR_TOKEN}}` }}"
         hosts:
         - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
           paths:

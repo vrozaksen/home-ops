@@ -70,7 +70,7 @@ spec:
           gethomepage.dev/description: Media Request Management
           gethomepage.dev/widget.type: jellyseerr
           gethomepage.dev/widget.url: http://jellyseerr.media:5055
-          #gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYSEERR_TOKEN}}` }}"
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYSEERR_TOKEN}}` }}"
         hosts:
           - host: requests.${SECRET_DOMAIN}
             paths:

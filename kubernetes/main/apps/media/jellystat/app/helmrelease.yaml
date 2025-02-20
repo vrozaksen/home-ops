@@ -57,6 +57,12 @@ spec:
     ingress:
       app:
         className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Video
+          gethomepage.dev/name: jellystat
+          gethomepage.dev/icon: jellystat.png
+          gethomepage.dev/description: Jellyfin Stream Monitoring
         hosts:
           - host: "jellystat.${SECRET_DOMAIN}"
             paths:

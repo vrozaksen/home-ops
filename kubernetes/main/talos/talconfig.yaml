@@ -25,10 +25,20 @@ nodes:
     talosImageURL: &talosImage factory.talos.dev/installer/00058d1df723e50386d6912d3803ffff46978b8f69fdb51c10da7e7d56890510
     controlPlane: true
     networkInterfaces:
+      # 1G Internal Port
       - deviceSelector:
           hardwareAddr: f8:75:a4:09:50:fd
         dhcp: true
         mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PICe Port
+      # - deviceSelector:
+      #     hardwareAddr: 00:00:00:00:00
+      #   dhcp: true
+      #   mtu: 1500
+      #   dhcpOptions:
+      #       routeMetric: 1024
         vip:
           ip: *vip
   - hostname: "alne"
@@ -37,10 +47,20 @@ nodes:
     talosImageURL: *talosImage
     controlPlane: true
     networkInterfaces:
+      # 1G Internal Port
       - deviceSelector:
           hardwareAddr: e8:6a:64:47:fe:44
         dhcp: true
         mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PICe Port
+      # - deviceSelector:
+      #     hardwareAddr: 00:00:00:00:00
+      #   dhcp: true
+      #   mtu: 1500
+      #   dhcpOptions:
+      #       routeMetric: 1024
         vip:
           ip: *vip
   - hostname: "ainias"
@@ -53,6 +73,15 @@ nodes:
           hardwareAddr: 8c:16:45:9d:0e:6f
         dhcp: true
         mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PICe Port
+      # - deviceSelector:
+      #     hardwareAddr: 00:00:00:00:00
+      #   dhcp: true
+      #   mtu: 1500
+      #   dhcpOptions:
+      #       routeMetric: 1024
         vip:
           ip: *vip
 patches:
@@ -121,6 +150,14 @@ patches:
       sysctls:
         fs.inotify.max_user_watches: 1048576   # Watchdog
         fs.inotify.max_user_instances: 8192    # Watchdog
+        net.core.default_qdisc: fq             # 2.5Gb/s
+        net.core.rmem_max: 67108864            # 2.5Gb/s | Cloudflared / QUIC
+        net.core.wmem_max: 67108864            # 2.5Gb/s | Cloudflared / QUIC
+        net.ipv4.tcp_congestion_control: bbr   # 2.5Gb/s
+        net.ipv4.tcp_fastopen: 3               # TCP Fast Open
+        net.ipv4.tcp_rmem: 4096 87380 33554432 # 2.5Gb/s
+        net.ipv4.tcp_wmem: 4096 65536 33554432 # 2.5Gb/s
+        net.ipv4.tcp_window_scaling: 1         # 2.5Gb/s
         vm.nr_hugepages: "1024"
 
   # Mount openebs-hostpath in kubelet
@@ -188,6 +225,21 @@ controlPlane:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
             - "10.10.0.0/24"
+
+    # Prometheus CRD configuration
+    - |-
+      cluster:
+        extraManifests:
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusagents.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+          - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
 
     # Disable default API server admission plugins.
     - |-

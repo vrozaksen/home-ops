@@ -70,5 +70,6 @@ spec:
       defaults:
         interval: 1m
       targets:
-        - { name: &name opnsense.home.arpa, module: icmp, url: *name }
         - { name: &name aincrad.home.arpa, module: icmp, url: *name }
+        - { name: &name opnsense.home.arpa, module: icmp, url: *name }
+        - { name: &name inertia.home.arpa, module: icmp, url: *name }

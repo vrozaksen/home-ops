@@ -4,6 +4,36 @@ version: '3'
 
 tasks:
 
+  default:
+    desc: Bootstrap Talos nodes and Cluster apps [CSI_DISK=required]
+    dir: '{{.TALOS_DIR}}'
+    summary: |
+      IMPORTANT: CSI_DISK must be set to the disk model used across all the nodes (e.g. WD_BLACK SN770)
+    cmds:
+      - talhelper genconfig  --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
+      - talhelper --config-file talconfig.yaml --env-file talenv.yaml gencommand apply --extra-flags=--insecure | bash
+      - until talosctl --talosconfig clusterconfig/talosconfig --nodes {{.TALOS_CONTROLLER}} bootstrap; do sleep 5; done
+      - talosctl --talosconfig clusterconfig/talosconfig kubeconfig --nodes {{.TALOS_CONTROLLER}} --force --force-context-name {{.CLUSTER}} {{.CLUSTER_DIR}}
+      - bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
+      - '{{if eq .NODE_COUNT 1}}talosctl --talosconfig clusterconfig/talosconfig reboot -n {{.TALOS_CONTROLLER}}{{end}}' ## Reboot my single node cluster
+    vars:
+      TALOS_CONTROLLER:
+        sh: talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig config info --output json | jq --raw-output '.endpoints[]'
+    env:
+      NODE_COUNT:
+        sh: talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig config info --output json | jq --raw-output '.nodes | length'
+      CSI_DISK: '{{.CSI_DISK}}'
+      CLUSTER: '{{.CLUSTER}}'
+      SHARED_DIR: '{{.SHARED_DIR}}'
+      CLUSTER_DIR: '{{.CLUSTER_DIR}}'
+    requires:
+      vars: [CLUSTER, CSI_DISK]
+    preconditions:
+      - op user get --me
+      - talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig config info
+      - test -f {{.TALOS_DIR}}/clusterconfig/talosconfig
+      - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
+
   quick-strap:
     desc: Do a bunch of commands in a row because I'm really tired of this shit [CLUSTER=main] [CSI_DISK=required]
     cmds:
@@ -16,19 +46,8 @@ tasks:
       - bws -V
       - talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig config info
       - test -f {{.TALOS_DIR}}/clusterconfig/talosconfig
-      - test -f {{.SHARED_DIR}}/bootstrap/helmfile.yaml
-      - test -f {{.SHARED_DIR}}/bootstrap/resources/prepare.sh
-      - which curl gum jq helmfile kubectl kustomize bws talosctl yq
-
-  # gs:
-  #   desc: Bootstrap the Talos cluster
-  #   cmds:
-  #     - '[ -f /home/vrozaksen/git/home-ops/kubernetes/utility/talos/talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override /home/vrozaksen/git/home-ops/kubernetes/utility/talos/talsecret.sops.yaml --encrypt /dev/stdin > /home/vrozaksen/git/home-ops/kubernetes/utility/talos/talsecret.sops.yaml'
-  #   preconditions:
-  #     - test -f /home/vrozaksen/git/home-ops/.sops.yaml
-  #     - test -f /home/vrozaksen/git/home-ops/age.key
-  #     - test -f /home/vrozaksen/git/home-ops/kubernetes/utility/talos/talconfig.yaml
-  #     - which talhelper sops
+      - test -f {{.BOOTSTRAP_DIR}}/helmfile.yaml
+      - which helmfile bws talosctl
 
   gen-secrets:
     desc: Generate the Talos secrets
@@ -41,27 +60,31 @@ tasks:
       vars: [CLUSTER]
     preconditions:
       - test -f {{.TALOS_DIR}}/talconfig.yaml
+      - which talhelper
     status:
       - test -f "{{.TALOS_DIR}}/talsecret.sops.yaml"
 
   gen-config:
     desc: Generate the Talos configs
-    cmd: talhelper -c {{.TALOS_DIR}}/talconfig.yaml genconfig -s {{.TALOS_DIR}}/talsecret.sops.yaml -o {{.TALOS_DIR}}/clusterconfig
+    dir: '{{.TALOS_DIR}}'
+    cmd: talhelper talconfig.yaml genconfig --secret-file talsecret.sops.yaml --out-dir clusterconfig
     requires:
       vars: [CLUSTER]
     preconditions:
       - test -f {{.TALOS_DIR}}/talconfig.yaml
       - test -f {{.TALOS_DIR}}/talsecret.sops.yaml
+      - which talhelper
 
   apply-config:
     desc: Apply the Talos config on a nodes for a new cluster
-    dir: "{{.TALOS_DIR}}/"
-    cmd: talhelper gencommand apply --extra-flags=--insecure | bash
+    dir: '{{.TALOS_DIR}}'
+    cmd: talhelper --config-file talconfig.yaml gencommand apply --extra-flags=--insecure | bash
     requires:
       vars: [CLUSTER]
     preconditions:
       - test -f {{.TALOS_DIR}}/talconfig.yaml
       - test -f {{.TALOS_DIR}}/talsecret.sops.yaml
+      - which talhelper
 
   talos:
     desc: Bootstrap Talos [CLUSTER=main]
@@ -82,9 +105,9 @@ tasks:
     desc: Bootstrap Apps [CLUSTER=main] [CSI_DISK=required]
     summary: |
       IMPORTANT: CSI_DISK must be set to the disk model used across all the nodes (e.g. WD_BLACK SN770 1TB)
-    prompt: Bootstrap apps into the Talos cluster?
     cmds:
-      - helmfile --quiet --file {{.SHARED_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff --kube-context {{.CLUSTER}}
+      - bash {{.BOOTSTRAP_DIR}}/resources/prepare.sh
+      - helmfile --file {{.BOOTSTRAP_DIR}}/helmfile.yaml apply --skip-diff-on-install --suppress-diff --kube-context {{.CLUSTER}}
       - '{{if eq .NODE_COUNT 1}}talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig reboot -n {{.TALOS_CONTROLLER}}{{end}}'
     vars:
       TALOS_CONTROLLER:
@@ -102,6 +125,6 @@ tasks:
       - bws -V
       - talosctl --talosconfig {{.TALOS_DIR}}/clusterconfig/talosconfig config info
       - test -f {{.TALOS_DIR}}/clusterconfig/talosconfig
-      - test -f {{.SHARED_DIR}}/bootstrap/helmfile.yaml
-      - test -f {{.SHARED_DIR}}/bootstrap/resources/prepare.sh
-      - which curl gum jq helmfile kubectl kustomize bws talosctl yq
+      - test -f {{.BOOTSTRAP_DIR}}/helmfile.yaml
+      - test -f {{.BOOTSTRAP_DIR}}/resources/prepare.sh
+      - which helmfile bws talosctl

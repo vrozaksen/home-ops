@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app qbtools-reannounce
+  name: qbtools-orphaned
 spec:
   interval: 30m
   chart:
@@ -27,36 +27,49 @@ spec:
       namespace: downloads
   values:
     controllers:
-      reannounce:
+      main:
+        type: cronjob
+        cronjob:
+          schedule: "@daily"
         containers:
-          app: &container
+          main:
             image:
               repository: ghcr.io/buroa/qbtools
               tag: v0.19.14@sha256:905617dfc1a8aa1510381d8e177cc5581a49bfa9d56f3f05e0574f6c83987d3c
+            args:
+              - orphaned
+              - --exclude-pattern
+              - "*_unpackerred"
+              - --exclude-pattern
+              - "*/manual/*"
+              - --dry-run
+              - --server
+              - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
+              - --port
+              - "80"
             env:
               TZ: ${TIMEZONE}
               POD_NAMESPACE:
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.namespace
-            args: [
-              "reannounce",
-              "--process-seeding",
-              "--server", "qbittorrent.$(POD_NAMESPACE).svc.cluster.local",
-              "--port", "80"
-            ]
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 25m
+                cpu: 5m
+                memory: 64M
               limits:
-                memory: 256M
+                memory: 128M
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      config-file:
+        type: configMap
+        name: qbtools-configmap
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true

@@ -127,6 +127,7 @@ spec:
       - https://cdn.modrinth.com/data/J6U9o3JG/versions/yxOA7Kr0/HuskHomes-Paper-4.9.3-e56ef72.jar
       - https://cdn.modrinth.com/data/z4mHgUYG/versions/NhVJjanv/InteractionVisualizer-1.18.13.0.jar
       - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
+      - https://cdn.modrinth.com/data/Wnxd13zP/versions/1ZHtT6Xo/Clumps-fabric-1.21.4-22.0.0.1.jar
       spigetResources:
       - 36618 #Prom Exporter
       - 105695 #Xaero Map Spigot

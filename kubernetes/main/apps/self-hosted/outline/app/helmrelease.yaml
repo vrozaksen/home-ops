@@ -72,11 +72,11 @@ spec:
         className: external
         annotations:
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: outline.png
+          gethomepage.dev/group: Home
           gethomepage.dev/name: Outline
-          gethomepage.dev/group: Applications
-          gethomepage.dev/app: outline
+          gethomepage.dev/icon: outline.png
           gethomepage.dev/description: A fast, collaborative, knowledge base.
+          gethomepage.dev/app: outline
         hosts:
           - host: "docs.${SECRET_DOMAIN}"
             paths:

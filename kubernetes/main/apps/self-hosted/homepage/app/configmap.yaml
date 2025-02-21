@@ -69,18 +69,18 @@ data:
               username: {{HOMEPAGE_VAR_OPNSENSE_USERNAME}}
               password: {{HOMEPAGE_VAR_OPNSENSE_PASSWORD}}
     - Games:
-        - Create:
-            icon: minecraft.png
-            description: Create Server
-            widget:
-              type: minecraft
-              url: udp://minecraft-create-minecraft.games:25565
         - Survival:
             icon: minecraft.png
             description: Survival Server
             widget:
               type: minecraft
               url: udp://minecraft-survival-minecraft.games:25565
+        - Create:
+            icon: minecraft.png
+            description: Create Server
+            widget:
+              type: minecraft
+              url: udp://minecraft-create-minecraft.games:25565
     - Calendar:
         - Agenda:
             widget:
@@ -94,16 +94,16 @@ data:
                 - type: radarr # active widget type that is currently enabled on homepage - possible values: radarr, sonarr>
                   service_group: Downloads # group name where widget exists
                   service_name: Radarr # service name for that widget
-                - type: readarr # active widget type that is currently enabled on homepage - possible values: radarr, sonar>
-                  service_group: Downloads # group name where widget exists
-                  service_name: Readarr # service name for that widget
+                # - type: readarr # active widget type that is currently enabled on homepage - possible values: radarr, sonar>
+                #   service_group: Downloads # group name where widget exists
+                #   service_name: Readarr # service name for that widget
     - Infrastructure:
         - Unraid:
-            href: https://aincrad.home.arpa:8443
+            href: https://aincrad.home.arpa:4443
             icon: unraid.png
             description: Unraid NAS
             ping: https://aincrad.home.arpa
-            siteMonitor: https://aincrad.home.arpa:8443
+            siteMonitor: https://aincrad.home.arpa:4443
     - Home:
         - Home-Assistant:
             href: https://hass.${SECRET_DOMAIN}
@@ -164,10 +164,10 @@ data:
         columns: 3
         icon: mdi-download-circle
   widgets.yaml: |
-    - logo:
-        icon: https://raw.githubusercontent.com/joryirving/home-ops/main/docs/src/assets/icons/lds-transparent.png
+    # - logo:
+    #     icon: https://raw.githubusercontent.com/joryirving/home-ops/main/docs/src/assets/icons/lds-transparent.png
     - search:
-        provider: [duckduckgo, google]
+        provider: [brave]
         focus: false
         target: _blank
     - greeting:
@@ -192,6 +192,7 @@ data:
         cache: 5
     - datetime:
         text_size: l
+        locale: pl
         format:
           timeStyle: short
           dateStyle: short

@@ -75,18 +75,12 @@ data:
             widget:
               type: minecraft
               url: udp://minecraft-create-minecraft.games:25565
-        - Takocraft:
+        - Survival:
             icon: minecraft.png
-            description: Takocraft Server
+            description: Survival Server
             widget:
               type: minecraft
-              url: udp://minecraft-takocraft-minecraft.games:25565
-        - Vibecraft:
-            icon: minecraft.png
-            description: Vibecraft Server
-            widget:
-              type: minecraft
-              url: udp://minecraft-vibecraft-minecraft.games:25565
+              url: udp://minecraft-survival-minecraft.games:25565
     - Calendar:
         - Agenda:
             widget:
@@ -105,11 +99,11 @@ data:
                   service_name: Readarr # service name for that widget
     - Infrastructure:
         - Unraid:
-            href: https://aincrad.home.arpa
+            href: https://aincrad.home.arpa:8443
             icon: unraid.png
             description: Unraid NAS
             ping: https://aincrad.home.arpa
-            siteMonitor: https://aincrad.home.arpa
+            siteMonitor: https://aincrad.home.arpa:8443
     - Home:
         - Home-Assistant:
             href: https://hass.${SECRET_DOMAIN}

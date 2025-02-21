@@ -1,0 +1,94 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app tdarr
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      nodeSelector:
+        intel.feature.node.kubernetes.io/gpu: "true"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 44 # video
+          - 109 # render
+    controllers:
+      tdarr:
+        replicas: 3
+        containers:
+          node:
+            image:
+              repository: ghcr.io/haveagitgat/tdarr_node
+              tag: 2.32.01
+              pullPolicy: IfNotPresent
+            env:
+              - name: TZ
+                value: ${TIMEZONE}
+              - name: nodeID
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+              - name: serverIP
+                value: aincrad.home.arpa
+              - name: serverPort
+                value: 8266
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 8Gi
+                gpu.intel.com/i915: 1
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          tdarr:
+            node:
+              - path: /app/configs
+                subPath: config
+      media:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: aincrad.home.arpa
+            path: &mediaPath ${SECRET_NFS_MEDIA}
+        globalMounts:
+          - path: *mediaPath
+            readOnly: false
+      cache:
+        enabled: true
+        type: nfs
+        server: aincrad.home.arpa
+        path: ${SECRET_NFS_TDARR_TEMP}
+        globalMounts:
+          - path: /temp

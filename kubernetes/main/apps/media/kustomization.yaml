@@ -10,4 +10,5 @@ resources:
   - ./jellyfin/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./jellystat/ks.yaml
+  - ./tdarr/ks.yaml
   - ./wizarr/ks.yaml

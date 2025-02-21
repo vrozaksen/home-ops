@@ -22,6 +22,9 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  dependsOn:
+  - name: volsync
+    namespace: storage
   values:
     defaultPodOptions:
       nodeSelector:
@@ -80,8 +83,8 @@ spec:
         externalName: aincrad.home.arpa
         ports:
           http:
-            port: 8265
-            targetPort: 8265
+            port: &port 8265
+            targetPort: *port
     ingress:
       app:
         className: internal
@@ -92,7 +95,7 @@ spec:
           gethomepage.dev/group: Video
           gethomepage.dev/description: Media Transcoding
           gethomepage.dev/widget.type: tdarr
-          gethomepage.dev/widget.url: http://tdarr.${SECRET_DOMAIN}
+          gethomepage.dev/widget.url: http://aincrad.home.arpa:8265
           #gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_TDARR_API_KEY}}" }}'
         hosts:
           - host: tdarr.${SECRET_DOMAIN}

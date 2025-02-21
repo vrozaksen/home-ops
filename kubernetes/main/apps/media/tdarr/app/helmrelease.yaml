@@ -73,6 +73,34 @@ spec:
               limits:
                 memory: 8Gi
                 gpu.intel.com/i915: 1
+    service:
+      app:
+        controller: *app
+        type: ExternalName
+        externalName: aincrad.home.arpa
+        ports:
+          http:
+            port: 8265
+            targetPort: 8265
+    ingress:
+      app:
+        className: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/icon: tdarr.png
+          gethomepage.dev/name: Tdarr
+          gethomepage.dev/group: Video
+          gethomepage.dev/description: Media Transcoding
+          gethomepage.dev/widget.type: tdarr
+          gethomepage.dev/widget.url: http://tdarr.${SECRET_DOMAIN}
+          #gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_TDARR_API_KEY}}" }}'
+        hosts:
+          - host: tdarr.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
     persistence:
       config:
         enabled: true

@@ -60,7 +60,7 @@ spec:
         annotations:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Video
-          gethomepage.dev/name: jellystat
+          gethomepage.dev/name: Jellystat
           gethomepage.dev/icon: jellystat.png
           gethomepage.dev/description: Jellyfin Stream Monitoring
         hosts:

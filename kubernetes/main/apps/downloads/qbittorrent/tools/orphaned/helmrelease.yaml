@@ -42,7 +42,7 @@ spec:
               - "*_unpackerred"
               - --exclude-pattern
               - "*/manual/*"
-              - --dry-run
+              # - --dry-run
               - --server
               - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
               - --port

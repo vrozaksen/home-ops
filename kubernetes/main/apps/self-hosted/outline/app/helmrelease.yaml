@@ -69,9 +69,8 @@ spec:
     ingress:
       app:
         enabled: true
-        className: internal
+        className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: internal.${SECRET_DOMAIN}
           gethomepage.dev/enabled: "true"
           gethomepage.dev/icon: outline.png
           gethomepage.dev/name: Outline

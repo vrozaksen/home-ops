@@ -8,7 +8,7 @@ components:
   - ../../../shared/components/common
 resources:
   - ./atuin/ks.yaml
-#  - ./homepage/ks.yaml
+  - ./homepage/ks.yaml
   - ./paperless/ks.yaml
   - ./outline/ks.yaml
   - ./reactive-resume/ks.yaml

@@ -133,18 +133,21 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 | Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
 |---------|--------------|----------|-----------|------------|------|-------|-------------|
 | Alfheim | Lenovo M920q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
-| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 16GB | Talos | k8s worke   |
+| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
+| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 16GB | Talos | k8s control |
 
-Total CPU: 12 threads
-Total RAM: 48GB
+Total CPU: 18 threads
+Total RAM: 80 GB
 
 ### Utility Kubernetes Cluster
 
-| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
-|---------|--------------|----------|-----------|------------|------|-------|-------------|
+| Name    | Device     | CPU     | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
+|---------|------------|---------|-----------|------------|------|-------|-------------|
+| Inertia | Aincrad VM | 5 Cores | 32GB Virt | 128GB Virt | 10GB | Talos | k8s control |
 
-Total CPU: 0 threads
-Total RAM: 0GB
+
+Total CPU: 5 threads
+Total RAM: 10 GB
 
 ### Supporting Hardware
 

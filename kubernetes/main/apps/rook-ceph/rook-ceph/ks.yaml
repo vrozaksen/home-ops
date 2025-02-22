@@ -34,7 +34,7 @@ spec:
   components:
     - ../../../../../shared/components/gatus/guarded
   dependsOn:
-    - name: onepassword-store
+    - name: bitwarden-store
       namespace: external-secrets
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2

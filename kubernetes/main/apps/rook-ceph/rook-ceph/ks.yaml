@@ -33,9 +33,9 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../../shared/components/gatus/guarded
-  dependsOn:
-    - name: bitwarden-store
-      namespace: external-secrets
+  # dependsOn:
+  #   - name: bitwarden-store
+  #     namespace: external-secrets
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease

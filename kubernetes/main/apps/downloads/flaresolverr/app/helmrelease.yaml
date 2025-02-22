@@ -32,11 +32,10 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/21hsmw/flaresolverr
-              tag: nodriver
+              repository: docker.io/alexfozor/flaresolverr
+              tag: pr-1300-experimental
             env:
               TZ: ${TIMEZONE}
-              DRIVER: "nodriver"
             resources:
               requests:
                 cpu: 15m

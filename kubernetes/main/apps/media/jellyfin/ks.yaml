@@ -11,6 +11,11 @@ spec:
   components:
     - ../../../../../shared/components/gatus/external
     - ../../../../../shared/components/volsync
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: storage
   interval: 30m
   path: ./kubernetes/main/apps/media/jellyfin/app
   postBuild:

@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: loki
-      version: 6.20.0-weekly.229
+      version: 6.27.0
       sourceRef:
         kind: HelmRepository
         name: grafana
@@ -24,9 +24,6 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  dependsOn:
-    - name: volsync
-      namespace: storage
   values:
     deploymentMode: SingleBinary
     loki:
@@ -43,6 +40,8 @@ spec:
         retention_enabled: true
       ingester:
         chunk_encoding: snappy
+      limits_config:
+        retention_period: 14d
       storage:
         type: filesystem
       schemaConfig:
@@ -54,8 +53,16 @@ spec:
             index:
               prefix: loki_index_
               period: 24h
-      limits_config:
-        retention_period: 14d
+      structuredConfig:
+        ruler:
+          enable_api: true
+          enable_alertmanager_v2: true
+          alertmanager_url: http://alertmanager-operated.observability.svc.cluster.local:9093
+          storage:
+            type: local
+            local:
+              directory: /rules
+          rule_path: /rules/fake
     singleBinary:
       replicas: 1
       persistence:

@@ -265,11 +265,6 @@ spec:
           gnetId: 20842
           revision: 3
           datasource: Prometheus
-        unifi-insights:
-          # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
-          gnetId: 11315
-          revision: 9
-          datasource: Prometheus
         cloudflared:
           # renovate: depName="Cloudflare Tunnels (cloudflared)"
           gnetId: 17457
@@ -293,21 +288,6 @@ spec:
           revision: 4
           datasource:
             - { name: datasource, value: Prometheus }
-        unifi-network-sites:
-          # renovate: depName="UniFi-Poller: Network Sites - Prometheus"
-          gnetId: 11311
-          revision: 5
-          datasource: Prometheus
-        unifi-uap:
-          # renovate: depName="UniFi-Poller: UAP Insights - Prometheus"
-          gnetId: 11314
-          revision: 10
-          datasource: Prometheus
-        unifi-usw:
-          # renovate: depName="UniFi-Poller: USW Insights - Prometheus"
-          gnetId: 11312
-          revision: 9
-          datasource: Prometheus
       storage:
         etcd-storage:
           # renovate: depName="etcd"

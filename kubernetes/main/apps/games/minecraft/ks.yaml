@@ -59,7 +59,7 @@ spec:
 #   commonMetadata:
 #     labels:
 #       app.kubernetes.io/name: *app
-#  components:
+#   components:
 #    - ../../../../../shared/components/gatus/external
 #    - ../../../../../shared/components/volsync
 #   dependsOn:
@@ -89,7 +89,7 @@ spec:
 #   commonMetadata:
 #     labels:
 #       app.kubernetes.io/name: *app
-#  components:
+#   components:
 #    - ../../../../../shared/components/gatus/external
 #    - ../../../../../shared/components/volsync
 #   dependsOn:

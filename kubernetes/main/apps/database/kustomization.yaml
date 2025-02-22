@@ -9,4 +9,3 @@ components:
 resources:
   - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
-  # - ./pgadmin/ks.yaml

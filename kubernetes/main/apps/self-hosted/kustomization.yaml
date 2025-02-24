@@ -6,11 +6,18 @@ namespace: self-hosted
 components:
   - ../../components/common
   - ../../../shared/components/common
-resources:
+resources: # TODO Move some apps to new home-tools ns.
   - ./atuin/ks.yaml
+  - ./free-game-notifier/ks.yaml
   - ./homepage/ks.yaml
-  - ./paperless/ks.yaml
+  - ./meshcentral/ks.yaml
   - ./outline/ks.yaml
+  - ./paperless/ks.yaml
   - ./reactive-resume/ks.yaml
+# Others
+  - ./excalidraw/ks.yaml
+  - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
   - ./neko/ks.yaml
+  - ./stirling-pdf/ks.yaml
+  - ./thelounge/ks.yaml

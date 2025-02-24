@@ -3,26 +3,25 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app recyclarr
+  name: &app zigbee2mqtt
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   components:
+    - ../../../../../shared/components/gatus/guarded
     - ../../../../../shared/components/volsync
   dependsOn:
-    - name: radarr
-      namespace: downloads
-    - name: sonarr
-      namespace: downloads
     - name: bitwarden-store
       namespace: external-secrets
+    - name: mosquitto
+      namespace: home-automation
     - name: rook-ceph-cluster
       namespace: rook-ceph
     - name: volsync
       namespace: storage
   interval: 30m
-  path: ./kubernetes/main/apps/downloads/recyclarr/app
+  path: ./kubernetes/main/apps/home-automation/zigbee2mqtt/app
   postBuild:
     substitute:
       APP: *app
@@ -31,6 +30,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
+  targetNamespace: home-automation
   timeout: 5m
   wait: false

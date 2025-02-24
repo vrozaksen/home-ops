@@ -6,10 +6,10 @@ namespace: self-hosted
 components:
   - ../../components/common
   - ../../../shared/components/common
-resources:
-  - ./excalidraw/ks.yaml
-  - ./free-game-notifier/ks.yaml
-  - ./it-tools/ks.yaml
-  - ./meshcentral/ks.yaml
-  - ./stirling-pdf/ks.yaml
-  - ./thelounge/ks.yaml
+resources: []
+  # - ./excalidraw/ks.yaml
+  # - ./free-game-notifier/ks.yaml
+  # - ./it-tools/ks.yaml
+  # - ./meshcentral/ks.yaml
+  # - ./stirling-pdf/ks.yaml
+  # - ./thelounge/ks.yaml

@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app mumble
+  name: &app thelounge
 spec:
   interval: 30m
   chart:
@@ -24,28 +24,32 @@ spec:
       retries: 3
   values:
     controllers:
-      mumble:
+      thelounge:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
-              repository: ghcr.io/mumble-voip/mumble-server
-              tag: v1.5.735@sha256:e0936b5895359a3f21eb1b4d8c332b412255260eb969f9ef3c50801ddbb20a27
+              repository: ghcr.io/thelounge/thelounge
+              tag: 4.4.3@sha256:1683c78c07d3bbdd6722d137df49174be13819dd67e297ace3143a3fc3d35e63
             env:
-              TZ: ${TIMEZONE}
+              # Ref: https://github.com/thelounge/thelounge/issues/2656
+              THELOUNGE_HOME: /config/thelounge
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-            envFrom:
-              - secretRef:
-                  name: mumble-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
             resources:
               requests:
                 cpu: 10m
+                memory: 64Mi
               limits:
-                memory: 2Gi
+                memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -56,24 +60,21 @@ spec:
     service:
       app:
         controller: *app
-        type: LoadBalancer
-        externalTrafficPolicy: Cluster
-        annotations:
-          lbipam.cilium.io/ips: ${SVC_MUMBLE_ADDR}
-          external-dns.alpha.kubernetes.io/hostname: mumble.${SECRET_DOMAIN}
         ports:
           http:
-            port: 80
-          control:
-            enabled: true
-            port: 64738
-            protocol: TCP
-          voice:
-            enabled: true
-            port: 64738
-            protocol: UDP
+            port: 9000
+    ingress:
+      app:
+        className: external
+        hosts:
+          - host: tl.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
     persistence:
       config:
         existingClaim: *app
         globalMounts:
-          - path: /data
+          - path: /config

@@ -34,6 +34,10 @@ spec:
   dependsOn:
     - name: bitwarden-store
       namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: storage
   interval: 30m
   path: ./kubernetes/main/apps/games/minecraft/survival
   postBuild:

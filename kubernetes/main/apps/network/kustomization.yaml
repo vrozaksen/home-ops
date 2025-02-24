@@ -10,3 +10,4 @@ resources:
   - ./external/ks.yaml
   - ./internal/ks.yaml
   - ./e1000e-fix/ks.yaml
+  - ./openspeedtest/ks.yaml

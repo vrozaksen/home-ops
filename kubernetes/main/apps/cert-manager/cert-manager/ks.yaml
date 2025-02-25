@@ -39,7 +39,7 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: cert-manager
-  timeout: 5m
+  timeout: 10m
   wait: true
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -67,7 +67,7 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: cert-manager
-  timeout: 5m
+  timeout: 10m
   wait: true
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -97,5 +97,5 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: cert-manager
-  timeout: 5m
+  timeout: 15m
   wait: true

@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/home-assistant
-              tag: 2025.2.5@sha256:2cd7badedc9d065c8b8746a7d1871d500f79c0c9346f2b9231c02c64e4e4c6aa
+              tag: 2025.2.5@sha256:0cacb11e8023999a493a2518929efef1da0336a03902d8c6b9ceced419fe8338
             env:
               TZ: ${TIMEZONE}
             securityContext:

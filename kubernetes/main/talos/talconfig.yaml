@@ -25,20 +25,20 @@ nodes:
     talosImageURL: &talosImage factory.talos.dev/installer/00058d1df723e50386d6912d3803ffff46978b8f69fdb51c10da7e7d56890510
     controlPlane: true
     networkInterfaces:
-      # 1G Internal Port
+      # 1G Internal Port / eno1
       - deviceSelector:
           hardwareAddr: f8:75:a4:09:50:fd
         dhcp: true
         mtu: 1500
         dhcpOptions:
             routeMetric: 2048
-      # 2.5G PICe Port
-      # - deviceSelector:
-      #     hardwareAddr: 00:00:00:00:00
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
+      # 2.5G PCIe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:2c
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
   - hostname: "alne"
@@ -54,13 +54,13 @@ nodes:
         mtu: 1500
         dhcpOptions:
             routeMetric: 2048
-      # 2.5G PICe Port
-      # - deviceSelector:
-      #     hardwareAddr: 00:00:00:00:00
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
+      # 2.5G PICe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:90
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
   - hostname: "ainias"
@@ -75,13 +75,13 @@ nodes:
         mtu: 1500
         dhcpOptions:
             routeMetric: 2048
-      # 2.5G PICe Port
-      # - deviceSelector:
-      #     hardwareAddr: 00:00:00:00:00
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
+      # 2.5G PICe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:b6
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
 patches:

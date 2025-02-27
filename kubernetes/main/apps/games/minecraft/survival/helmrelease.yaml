@@ -23,26 +23,6 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    affinity: # TODO Until ainias upgrade
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: NotIn
-              values:
-              - ainias
-      podAntiAffinity: # TODO Until ainias upgrade
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - minecraft-survival
-            topologyKey: kubernetes.io/hostname
     # deploymentAnnotations:
     #   secret.reloader.stakater.com/reload: minecraft-survival-secret
     image:
@@ -122,6 +102,8 @@ spec:
       - https://cdn.modrinth.com/data/J6U9o3JG/versions/yxOA7Kr0/HuskHomes-Paper-4.9.3-e56ef72.jar
       - https://cdn.modrinth.com/data/z4mHgUYG/versions/NhVJjanv/InteractionVisualizer-1.18.13.0.jar
       - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
+      - https://cdn.modrinth.com/data/IahtO7tM/versions/5TtMuJbn/Clumps-3.0.jar
+      - https://cdn.modrinth.com/data/iOwOrlzi/versions/6Odsq6wI/xpDisplay.jar
       spigetResources:
       - 36618 #Prom Exporter
       - 105695 #Xaero Map Spigot

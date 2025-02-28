@@ -104,6 +104,7 @@ spec:
       - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
       - https://cdn.modrinth.com/data/IahtO7tM/versions/5TtMuJbn/Clumps-3.0.jar
       - https://cdn.modrinth.com/data/iOwOrlzi/versions/6Odsq6wI/xpDisplay.jar
+      - https://cdn.modrinth.com/data/swbUV1cr/versions/NeDjOeW8/bluemap-5.7-paper.jar
       spigetResources:
       - 36618 #Prom Exporter
       - 105695 #Xaero Map Spigot
@@ -129,7 +130,28 @@ spec:
             external-dns.alpha.kubernetes.io/target: mc.${SECRET_DOMAIN}
             external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           hosts:
-           - name: *host
+            - name: *host
+      - name: bluemap
+        containerPort: 8100
+        protocol: TCP
+        service:
+          enabled: true
+          embedded: false
+          type: ClusterIP
+          port: 8100
+        ingress:
+          ingressClassName: external
+          enabled: true
+          annotations:
+            external-dns.alpha.kubernetes.io/target: mc.${SECRET_DOMAIN}
+            external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+          hosts:
+            - name: *host
+              paths:
+                - path: /
+                  service:
+                    identifier: app
+                    port: http
   valuesFrom:
   - kind: Secret
     name: minecraft-survival-secret

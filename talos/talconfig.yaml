@@ -6,7 +6,7 @@ talosVersion: v1.9.4
 kubernetesVersion: v1.32.2
 
 clusterName: &cluster main
-endpoint: https://10.10.0.20:644
+endpoint: https://10.10.0.20:6443
 clusterPodNets:
   - "10.69.0.0/16"
 clusterSvcNets:

@@ -3,7 +3,7 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: &name bitwarden-tls
+  name: &name bitwarden-tls-certs
 spec:
   secretName: *name
   dnsNames:
@@ -28,7 +28,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: &name bitwarden-css
+  name: &name bitwarden-css-certs
 spec:
   secretName: *name
   dnsNames:

@@ -12,15 +12,13 @@ tasks:
     cmds:
       - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
       - talhelper gencommand apply --config-file talconfig.yaml --env-file talenv.yaml --extra-flags=--insecure | bash
-      - until talosctl {{.ROOT_DIR}}/talosconfig --nodes {{.TALOS_CONTROLLER}} bootstrap; do sleep 5; done
-      - talosctl {{.ROOT_DIR}}/talosconfig kubeconfig --nodes {{.TALOS_CONTROLLER}} --force {{.ROOT_DIR}}
+      - until talosctl --talosconfig {{.ROOT_DIR}}/talosconfig --nodes {{.TALOS_CONTROLLER}} bootstrap; do sleep 5; done
+      - talosctl --talosconfig {{.ROOT_DIR}}/talosconfig kubeconfig --nodes {{.TALOS_CONTROLLER}} --force {{.ROOT_DIR}}
       - bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
     vars:
       TALOS_CONTROLLER:
-        sh: talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info --output json | jq --raw-output '.endpoints[]'
+        sh: talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1
     env:
-      NODE_COUNT:
-        sh: talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info --output json | jq --raw-output '.nodes | length'
       CSI_DISK: '{{.CSI_DISK}}'
     requires:
       vars: [CSI_DISK]

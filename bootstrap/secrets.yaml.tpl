@@ -1,10 +1,3 @@
-{% for namespace in ["cert-manager", "external-secrets", "flux-system"] %}
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ namespace }}
-{% endfor %}
 ---
 apiVersion: v1
 kind: Secret
@@ -30,7 +23,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bitwarden
+  name: bitwarden-secret
   namespace: external-secrets
 stringData:
   token: ${BITWARDEN_KUBERNETES_TOKEN}
@@ -50,7 +43,7 @@ metadata:
   namespace: cert-manager
   annotations:
     cert-manager.io/alt-names: 'bitwarden-sdk-server.external-secrets.svc.cluster.local,external-secrets-bitwarden-sdk-server.external-secrets.svc.cluster.local,localhost'
-    cert-manager.io/certificate-name: bitwarden-tls-certs
+    cert-manager.io/certificate-name: bitwarden-tls
     cert-manager.io/common-name: ""
     cert-manager.io/ip-sans: '127.0.0.1,::1'
     cert-manager.io/issuer-group: cert-manager.io
@@ -72,7 +65,7 @@ metadata:
   namespace: cert-manager
   annotations:
     cert-manager.io/alt-names: 'bitwarden.external-secrets.svc.cluster.local'
-    cert-manager.io/certificate-name: bitwarden-css-certs
+    cert-manager.io/certificate-name: bitwarden-css
     cert-manager.io/common-name: ""
     cert-manager.io/ip-sans: ""
     cert-manager.io/issuer-group: cert-manager.io

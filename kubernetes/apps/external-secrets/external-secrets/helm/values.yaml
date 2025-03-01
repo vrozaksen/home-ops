@@ -22,4 +22,4 @@ serviceMonitor:
 bitwarden-sdk-server:
   enabled: true
   podAnnotations:
-    secret.reloader.stakater.com/reload: "bitwarden-css,bitwarden,bitwarden-tls"
+    secret.reloader.stakater.com/reload: "bitwarden-css-certs,bitwarden,bitwarden-tls-certs"

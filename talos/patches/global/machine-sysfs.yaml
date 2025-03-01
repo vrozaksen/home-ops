@@ -8,8 +8,3 @@ machine:
     devices.system.cpu.cpu4.cpufreq.energy_performance_preference: balance_power
     devices.system.cpu.cpu5.cpufreq.energy_performance_preference: balance_power
     devices.system.cpu.cpu6.cpufreq.energy_performance_preference: balance_power
-    devices.system.cpu.cpu7.cpufreq.energy_performance_preference: balance_power
-    devices.system.cpu.cpu8.cpufreq.energy_performance_preference: balance_power
-    devices.system.cpu.cpu9.cpufreq.energy_performance_preference: balance_power
-    devices.system.cpu.cpu10.cpufreq.energy_performance_preference: balance_power
-    devices.system.cpu.cpu11.cpufreq.energy_performance_preference: balance_power

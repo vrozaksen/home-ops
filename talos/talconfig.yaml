@@ -93,7 +93,7 @@ patches:
   - "@./patches/global/machine-network.yaml" # Search Domain
   - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
-#  - "@./patches/global/machine-sysfs.yaml"   # CPU Power
+  - "@./patches/global/machine-sysfs.yaml"   # CPU Power
 
 # Controller patches
 controlPlane:

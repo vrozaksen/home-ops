@@ -8,16 +8,21 @@ area/docs:
           - "README.md"
 area/github:
   - changed-files:
-      - any-glob-to-any-file: .github/**/*
+      - any-glob-to-any-file: ".github/**/*"
 area/kubernetes:
   - changed-files:
-      - any-glob-to-any-file: kubernetes/**/*
+      - any-glob-to-any-file: "kubernetes/**/*"
+area/renovate:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".renovate/**/*"
+          - ".renovaterc.json5"
 area/scripts:
   - changed-files:
       - any-glob-to-any-file: "scripts/**/*"
 area/talos:
   - changed-files:
-      - any-glob-to-any-file: "kubernetes/**/talos/**/*"
+      - any-glob-to-any-file: "talos/**/*"
 area/taskfile:
   - changed-files:
       - any-glob-to-any-file:
@@ -26,10 +31,3 @@ area/taskfile:
 area/terraform:
   - changed-files:
       - any-glob-to-any-file: terraform/**/*
-# Cluster
-cluster/main:
-  - changed-files:
-      - any-glob-to-any-file: kubernetes/main/**/*
-cluster/utility:
-  - changed-files:
-      - any-glob-to-any-file: kubernetes/utility/**/*

@@ -15,7 +15,7 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 [![Talos](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Ftalos_version&style=for-the-badge&logo=talos&logoColor=white&color=blue&label=%20)](https://talos.dev)&nbsp;&nbsp;
 [![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fkubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://kubernetes.io)&nbsp;&nbsp;
 [![Flux](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fflux_version&style=for-the-badge&logo=flux&logoColor=white&color=blue&label=%20)](https://fluxcd.io)&nbsp;&nbsp;
-[![Renovate](https://img.shields.io/github/actions/workflow/status/vrozaksen/vrozaksen/scheduled-renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/vrozaksen/vrozaksen/actions/workflows/scheduled-renovate.yaml)
+[![Renovate](https://img.shields.io/github/actions/workflow/status/vrozaksen/home-ops/renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/vrozaksen/home-ops/actions/workflows/renovate.yaml)
 
 </div>
 
@@ -73,7 +73,7 @@ There is a template over at [onedr0p/cluster-template](https://github.com/onedr0
 
 [Flux](https://github.com/fluxcd/flux2) watches the clusters in my [kubernetes](./kubernetes/) folder (see Directories below) and makes the changes to my clusters based on the state of my Git repository.
 
-The way Flux works for me here is it will recursively search the `kubernetes/${cluster}/apps` folder until it finds the most top level `kustomization.yaml` per directory and then apply all the resources listed in it. That aforementioned `kustomization.yaml` will generally only have a namespace resource and one or many Flux kustomizations (`ks.yaml`). Under the control of those Flux kustomizations there will be a `HelmRelease` or other resources related to the application which will be applied.
+The way Flux works for me here is it will recursively search the `kubernetes/apps` folder until it finds the most top level `kustomization.yaml` per directory and then apply all the resources listed in it. That aforementioned `kustomization.yaml` will generally only have a namespace resource and one or many Flux kustomizations (`ks.yaml`). Under the control of those Flux kustomizations there will be a `HelmRelease` or other resources related to the application which will be applied.
 
 [Renovate](https://github.com/renovatebot/renovate) watches my **entire** repository looking for dependency updates, when they are found a PR is automatically created. When some PRs are merged Flux applies the changes to my cluster.
 
@@ -83,17 +83,22 @@ This Git repository contains the following directories under [Kubernetes](./kube
 
 ```sh
 📁 kubernetes
-├── 📁 main             # main cluster
-│   ├── 📁 apps         # applications
-│   ├── 📁 flux         # core flux configuration
-│   ├── 📁 talos        # talos configuration
-├── 📁 shared           # shared cluster resources
-│   ├── 📁 bootstrap    # bootstrap procedures
-│   ├── 📁 meta         # re-useable components
-└── 📁 utility          # utility cluster
-    ├── 📁 apps         # applications
-    ├── 📁 flux         # core flux configuration
-    └── 📁 talos        # talos configuration
+├── 📁 apps       # applications
+├── 📁 components # re-useable kustomize components
+└── 📁 flux       # flux system configuration
+```
+
+### Flux Workflow
+
+This is a high-level look how Flux deploys my applications with dependencies. In most cases a `HelmRelease` will depend on other `HelmRelease`'s, in other cases a `Kustomization` will depend on other `Kustomization`'s, and in rare situations an app can depend on a `HelmRelease` and a `Kustomization`. The example below shows that `atuin` won't be deployed or upgrade until the `rook-ceph-cluster` Helm release is installed or in a healthy state.
+
+```mermaid
+graph TD
+    A>Kustomization: rook-ceph] -->|Creates| B[HelmRelease: rook-ceph]
+    A>Kustomization: rook-ceph] -->|Creates| C[HelmRelease: rook-ceph-cluster]
+    C>HelmRelease: rook-ceph-cluster] -->|Depends on| B>HelmRelease: rook-ceph]
+    D>Kustomization: atuin] -->|Creates| E(HelmRelease: atuin)
+    E>HelmRelease: atuin] -->|Depends on| C>HelmRelease: rook-ceph-cluster]
 ```
 
 ### Networking

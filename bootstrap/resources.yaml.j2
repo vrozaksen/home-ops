@@ -42,3 +42,47 @@ metadata:
   namespace: flux-system
 stringData:
   age.agekey: ${FLUX_SOPS_PRIVATE_KEY}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bitwarden-tls
+  namespace: cert-manager
+  annotations:
+    cert-manager.io/alt-names: 'bitwarden-sdk-server.external-secrets.svc.cluster.local,external-secrets-bitwarden-sdk-server.external-secrets.svc.cluster.local,localhost'
+    cert-manager.io/certificate-name: bitwarden-tls
+    cert-manager.io/common-name: ""
+    cert-manager.io/ip-sans: '127.0.0.1,::1'
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: home-ca-issuer
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+type: kubernetes.io/tls
+data:
+  ca.crt: ${BITWARDEN_TLS_CA_CRT}
+  tls.crt: ${BITWARDEN_TLS_TLS_CRT}
+  tls.key: ${BITWARDEN_TLS_TLS_KEY}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bitwarden-css
+  namespace: cert-manager
+  annotations:
+    cert-manager.io/alt-names: 'bitwarden.external-secrets.svc.cluster.local'
+    cert-manager.io/certificate-name: bitwarden-css
+    cert-manager.io/common-name: ""
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: home-ca-issuer
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+type: kubernetes.io/tls
+data:
+  ca.crt: ${BITWARDEN_CSS_CA_CRT}
+  tls.crt: ${BITWARDEN_CSS_TLS_CRT}
+  tls.key: ${BITWARDEN_CSS_TLS_KEY}

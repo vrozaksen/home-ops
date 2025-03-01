@@ -1,0 +1,7 @@
+machine:
+  kubelet:
+    defaultRuntimeSeccompProfileEnabled: true
+    disableManifestsDirectory: true
+    nodeIP:
+      validSubnets:
+        - 10.10.0.0/24

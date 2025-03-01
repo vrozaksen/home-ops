@@ -1,0 +1,5 @@
+[monuser]
+  password = "YAX3u73fTK9$MrLikz5$%*"
+  actions = SET
+  instcmds = ALL
+  upsmon secondary

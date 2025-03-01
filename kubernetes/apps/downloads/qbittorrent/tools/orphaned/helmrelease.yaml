@@ -1,0 +1,82 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: qbtools-orphaned
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  dependsOn:
+    - name: qbittorrent
+      namespace: downloads
+  values:
+    controllers:
+      main:
+        type: cronjob
+        cronjob:
+          schedule: "@daily"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/buroa/qbtools
+              tag: v0.19.15@sha256:4145020bab12b2ed892f548c2812c4979793def80dce5f907e49640329e54933
+            args:
+              - orphaned
+              - --exclude-pattern
+              - "*_unpackerred"
+              - --exclude-pattern
+              - "*/manual/*"
+              # - --dry-run
+              - --server
+              - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
+              - --port
+              - "80"
+            env:
+              TZ: ${TIMEZONE}
+              POD_NAMESPACE:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+            resources:
+              requests:
+                cpu: 5m
+                memory: 64M
+              limits:
+                memory: 128M
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      config-file:
+        type: configMap
+        name: qbtools-configmap
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      downloads:
+        type: nfs
+        server: aincrad.home.arpa
+        path: ${SECRET_NFS_DATA}
+        globalMounts:
+          - path: /downloads
+            subPath: torrents

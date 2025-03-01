@@ -10,10 +10,7 @@
   jobs:
     sync:
       name: Deployment Restart
-      runs-on: [home-ops-runner]
-      strategy:
-        matrix:
-          cluster: ["main", "utility"]
+      runs-on: home-ops-runner
       steps:
         - name: Get Secrets
           uses: bitwarden/sm-action@v2
@@ -46,20 +43,16 @@
             KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
           run: |
             kubectl \
-                --context ${{ matrix.cluster }} \
                 get deployments \
                 --all-namespaces \
                 -l nfsMount=true \
                 -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name" \
                 --no-headers | \
-                awk '{print "kubectl --context ${{ matrix.cluster }} rollout restart deployment/"$2" -n "$1}' | \
+                awk '{print "kubectl rollout restart deployment/"$2" -n "$1}' | \
                 sh
 
         - name: Restart Database Deployments
-          if: matrix.cluster == 'main'
           env:
             KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
           run: |
-            kubectl \
-                --context ${{ matrix.cluster }} \
-                rollout restart statefulset postgres-repo-host -n database
+            kubectl rollout restart statefulset postgres-repo-host -n database

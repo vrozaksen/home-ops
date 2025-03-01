@@ -1,25 +1,24 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: "3"
+version: '3'
 
 set: [pipefail]
 shopt: [globstar]
 
 vars:
-  BOOSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
-  CLUSTER: '{{.CLUSTER | default "main"}}'
-  CLUSTER_DIR: '{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}'
+  BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
+  KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
   SCRIPTS_DIR: '{{.ROOT_DIR}}/scripts'
-  SHARED: '{{.ROOT_DIR}}/kubernetes/shared'
-  TALOS_DIR: '{{.CLUSTER_DIR}}/talos'
+  TALOS_DIR: '{{.ROOT_DIR}}/talos'
 
 dotenv:
-  - '{{.KUBERNETES_DIR}}/components/system-upgrade/.env'
+  - '{{.KUBERNETES_DIR}}/apps/kube-tools/.env'
 
 env:
+  KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
   MINIJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/.minijinja.toml'
   SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
-  TALOSCONFIG: '{{.TALOS_DIR}}/clusterconfig/talosconfig'
+  TALOSCONFIG: '{{.ROOT_DIR}}/talosconfig'
 
 includes:
   bootstrap: .taskfiles/bootstrap

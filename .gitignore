@@ -8,6 +8,7 @@ kubeconfig
 *.secret.env
 *.secret.yaml
 *.agekey
+*.crt
 *.pub
 *.key
 *.pem

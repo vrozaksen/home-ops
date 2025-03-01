@@ -17,36 +17,16 @@ env:
 jobs:
   publish:
     name: Schemas
-    runs-on: [home-ops-runner]
+    runs-on: home-ops-runner
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Get Secrets
-        uses: bitwarden/sm-action@v2
-        with:
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
-          secrets: |
-            7888f846-9c9d-4849-8ee4-b256018a3883 > KUBECONFIG_BASE64
-            3f64c843-529c-42bf-8888-b25501021966 > CLOUDFLARE_API_TOKEN
-            46580ab1-41fe-4c55-9e5f-b25501022356 > CLOUDFLARE_ACCOUNT_ID
-
-      - name: Generate Token
-        uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ secrets.BOT_APP_ID }}
-          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
-
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Homebrew
         uses: Homebrew/actions/setup-homebrew@master
-        with:
-          stable: true
 
       - name: Setup Workflow Tools
         run: brew install kubectl uv
@@ -54,7 +34,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12.x
+          python-version: 3.13.x
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -64,22 +44,13 @@ jobs:
       - name: Install Python Dependencies
         run: uv pip install pyyaml
 
-      - name: Write kubeconfig
-        id: kubeconfig
-        uses: timheuer/base64-to-file@v1
-        with:
-          encodedString: "${{ env.KUBECONFIG_BASE64 }}"
-          fileName: kubeconfig
-
       - name: Run crd-extractor
-        env:
-          KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
-        run: curl -fsSL https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/Utilities/crd-extractor.sh | bash
+        run: curl -fsSL https://raw.githubusercontent.com/datreeio/CRDs-catalog/43e4407642d4c37683c88711f37caa6c9c20ca40/Utilities/crd-extractor.sh | bash
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          accountId: "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           workingDirectory: /home/runner/.datree/crdSchemas
-          command: pages deploy --project-name=kube-schemas --branch main .
+          command: pages deploy --project-name=kubernetes-schemas --branch main .

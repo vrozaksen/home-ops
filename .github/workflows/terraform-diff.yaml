@@ -113,7 +113,6 @@ jobs:
         run: tofu plan -lock=false -var "bw_access_token=${{ secrets.BW_ACCESS_TOKEN }}" -out .planfile | grep -v "Refreshing state...\|Reading...\|Read complete after"
 
       - name: Post PR comment
-        if: github.event_name == 'pull_request'
         continue-on-error: true
         uses: borchero/terraform-plan-comment@v2
         with:

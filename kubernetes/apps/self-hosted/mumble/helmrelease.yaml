@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mumble
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      mumble:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/mumble-voip/mumble-server
+              tag: v1.5.735@sha256:e0936b5895359a3f21eb1b4d8c332b412255260eb969f9ef3c50801ddbb20a27
+            env:
+              TZ: ${TIMEZONE}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            envFrom:
+              - secretRef:
+                  name: mumble-secret
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        type: LoadBalancer
+        externalTrafficPolicy: Cluster
+        annotations:
+          lbipam.cilium.io/ips: ${SVC_MUMBLE_ADDR}
+          external-dns.alpha.kubernetes.io/hostname: mumble.${SECRET_DOMAIN}
+        ports:
+          http:
+            port: 80
+          control:
+            enabled: true
+            port: 64738
+            protocol: TCP
+          voice:
+            enabled: true
+            port: 64738
+            protocol: UDP
+    persistence:
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /data

@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - https://raw.githubusercontent.com/external-secrets/external-secrets/main/config/crds/bases/external-secrets.io_clusterexternalsecrets.yaml
+  - https://raw.githubusercontent.com/external-secrets/external-secrets/main/config/crds/bases/external-secrets.io_secretstores.yaml
+configMapGenerator:
+  - name: external-secrets-values
+    files:
+      - values.yaml=./helm/values.yaml
+configurations:
+  - ./helm/kustomizeconfig.yaml

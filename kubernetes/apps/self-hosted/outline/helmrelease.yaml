@@ -1,0 +1,86 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app outline
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      outline:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          secret.reloader.stakater.com/reload: outline-secret
+        containers:
+          app:
+            image:
+              repository: docker.io/outlinewiki/outline
+              tag: 0.82.0@sha256:494dfb9249a6799ca3d38e2bb1bdf3c9f63632634737bd996ce0b3509fe93499
+            envFrom:
+              - secretRef:
+                  name: outline-secret
+            env:
+              REDIS_URL: redis://dragonfly.database.svc.cluster.local.:6379
+              ENABLE_UPDATES: "false"
+              LOG_LEVEL: debug
+              NODE_TLS_REJECT_UNAUTHORIZED: "0"
+              PORT: 8080
+              URL: "https://docs.${SECRET_DOMAIN}"
+              WEB_CONCURRENCY: 10
+            command:
+              [
+                /bin/sh,
+                -c,
+                yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled,
+              ]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 250Mi
+              limits:
+                memory: 750Mi
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: 8080
+    ingress:
+      app:
+        enabled: true
+        className: external
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/name: Outline
+          gethomepage.dev/icon: outline.png
+          gethomepage.dev/description: A fast, collaborative, knowledge base.
+          gethomepage.dev/app: outline
+        hosts:
+          - host: "docs.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http

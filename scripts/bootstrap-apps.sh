@@ -11,45 +11,23 @@ function wait_for_nodes() {
     log debug "Waiting for nodes to be available"
 
     # Skip waiting if all nodes are 'Ready=True'
-    if kubectl --context ${CLUSTER}  wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
+    if kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
         log info "Nodes are available and ready, skipping wait for nodes"
         return
     fi
 
     # Wait for all nodes to be 'Ready=False'
-    until kubectl --context ${CLUSTER} wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
+    until kubectl wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
         log info "Nodes are not available, waiting for nodes to be available. Retrying in 10 seconds..."
         sleep 10
     done
 }
 
-# Resources to be applied before the helmfile charts are installed
-# function apply_resources() {
-#     log debug "Applying resources"
-
-#     local -r resources_file="${ROOT_DIR}/bootstrap/resources.yaml.j2"
-
-#     if ! output=$(render_template "${resources_file}") || [[ -z "${output}" ]]; then
-#         exit 1
-#     fi
-
-#     if echo "${output}" | kubectl --context ${CLUSTER} diff --filename - &>/dev/null; then
-#         log info "Resources are up-to-date"
-#         return
-#     fi
-
-#     if echo "${output}" | kubectl --context ${CLUSTER} apply --server-side --filename - &>/dev/null; then
-#         log info "Resources applied"
-#     else
-#         log error "Failed to apply resources"
-#     fi
-# }
-
 # The application namespaces are created before applying the resources
 function apply_namespaces() {
     gum "${LOG_ARGS[@]}" debug "Applying namespaces"
 
-    local -r apps_dir="${CLUSTER_DIR}/apps"
+    local -r apps_dir="${KUBERNETES_DIR}/apps"
 
     if [[ ! -d "${apps_dir}" ]]; then
         gum "${LOG_ARGS[@]}" fatal "Directory does not exist" directory "${apps_dir}"
@@ -59,14 +37,14 @@ function apply_namespaces() {
         namespace=$(basename "${app}")
 
         # Check if the namespace resources are up-to-date
-        if kubectl --context ${CLUSTER} get namespace "${namespace}" &>/dev/null; then
+        if kubectl get namespace "${namespace}" &>/dev/null; then
             gum "${LOG_ARGS[@]}" info "Namespace resource is up-to-date" resource "${namespace}"
             continue
         fi
 
         # Apply the namespace resources
-        if kubectl --context ${CLUSTER} create namespace "${namespace}" --dry-run=client --output=yaml \
-            | kubectl --context ${CLUSTER} apply --server-side --filename - &>/dev/null;
+        if kubectl create namespace "${namespace}" --dry-run=client --output=yaml \
+            | kubectl apply --server-side --filename - &>/dev/null;
         then
             gum "${LOG_ARGS[@]}" info "Namespace resource applied" resource "${namespace}"
         else
@@ -103,13 +81,13 @@ function apply_secrets() {
     fi
 
     # Check if the secret resources are up-to-date
-    if echo "${resources}" | kubectl --context ${CLUSTER} diff --filename - &>/dev/null; then
+    if echo "${resources}" | kubectl diff --filename - &>/dev/null; then
         gum "${LOG_ARGS[@]}" info "Secret resources are up-to-date"
         return
     fi
 
     # Apply secret resources
-    if echo "${resources}" | kubectl --context ${CLUSTER} apply --server-side --filename - &>/dev/null; then
+    if echo "${resources}" | kubectl apply --server-side --filename - &>/dev/null; then
         gum "${LOG_ARGS[@]}" info "Secret resources applied"
     else
         gum "${LOG_ARGS[@]}" fatal "Failed to apply secret resources"
@@ -128,12 +106,12 @@ function wipe_rook_disks() {
 
     # Skip disk wipe if Rook is detected running in the cluster
     # TODO: Is there a better way to detect Rook / OSDs?
-    if kubectl --context ${CLUSTER} --namespace rook-ceph get kustomization rook-ceph &>/dev/null; then
+    if kubectl --namespace rook-ceph get kustomization rook-ceph &>/dev/null; then
         log warn "Rook is detected running in the cluster, skipping disk wipe"
         return
     fi
 
-    if ! nodes=$(talosctl --talosconfig ${TALOS_DIR}/clusterconfig/talosconfig config info --output json 2>/dev/null | jq --exit-status --raw-output '.nodes | join(" ")') || [[ -z "${nodes}" ]]; then
+    if ! nodes=$(talosctl config info --output json 2>/dev/null | jq --exit-status --raw-output '.nodes | join(" ")') || [[ -z "${nodes}" ]]; then
         log error "No Talos nodes found"
     fi
 
@@ -141,7 +119,7 @@ function wipe_rook_disks() {
 
     # Wipe disks on each node that match the ROOK_DISK environment variable
     for node in ${nodes}; do
-        if ! disks=$(talosctl --talosconfig ${TALOS_DIR}/clusterconfig/talosconfig --nodes "${node}" get disk --output json 2>/dev/null \
+        if ! disks=$(talosctl --nodes "${node}" get disk --output json 2>/dev/null \
             | jq --exit-status --raw-output --slurp '. | map(select(.spec.model == env.ROOK_DISK) | .metadata.id) | join(" ")') || [[ -z "${nodes}" ]];
         then
             log error "No disks found" "node=${node}" "model=${CSI_DISK}"
@@ -151,7 +129,7 @@ function wipe_rook_disks() {
 
         # Wipe each disk on the node
         for disk in ${disks}; do
-            if talosctl --talosconfig ${TALOS_DIR}/clusterconfig/talosconfig --nodes "${node}" wipe disk "${disk}" &>/dev/null; then
+            if talosctl --nodes "${node}" wipe disk "${disk}" &>/dev/null; then
                 log info "Disk wiped" "node=${node}" "disk=${disk}"
             else
                 log error "Failed to wipe disk" "node=${node}" "disk=${disk}"
@@ -170,7 +148,7 @@ function apply_helm_releases() {
         log error "File does not exist" "file=${helmfile_file}"
     fi
 
-    if ! helmfile --kube-context ${CLUSTER} --file "${helmfile_file}" apply --hide-notes --skip-diff-on-install --suppress-diff --suppress-secrets; then
+    if ! helmfile --file "${helmfile_file}" apply --hide-notes --skip-diff-on-install --suppress-diff --suppress-secrets; then
         log error "Failed to apply Helm releases"
     fi
 
@@ -178,13 +156,19 @@ function apply_helm_releases() {
 }
 
 function main() {
-    check_env KUBECONFIG KUBERNETES_VERSION CSI_DISK TALOS_VERSION CLUSTER
-    check_cli helmfile jq kubectl kustomize minijinja-cli op talosctl yq
+    check_env KUBECONFIG KUBERNETES_VERSION CSI_DISK TALOS_VERSION
+    check_cli helmfile jq kubectl kustomize minijinja-cli bws talosctl yq
+
+    # TODO
+    # Bootstrap the Talos node configuration
+    # apply_talos_config
+    # bootstrap_talos
+    # fetch_kubeconfig
 
     # Apply resources and Helm releases
     wait_for_nodes
     wipe_rook_disks
-    #apply_resources
+    #apply_resources # TODO Maybe I can use that someday when bws-cli will be released
     apply_namespaces
     apply_secrets
     apply_helm_releases

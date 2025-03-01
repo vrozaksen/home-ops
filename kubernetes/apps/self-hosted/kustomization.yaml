@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: self-hosted
+components:
+  - ../../components/common
+resources: # TODO Move some apps to new home-tools ns.
+  - ./atuin/ks.yaml
+  - ./free-game-notifier/ks.yaml
+  - ./homepage/ks.yaml
+  - ./meshcentral/ks.yaml
+  - ./outline/ks.yaml
+  - ./paperless/ks.yaml
+  - ./reactive-resume/ks.yaml
+# Others
+  - ./excalidraw/ks.yaml
+  - ./it-tools/ks.yaml
+  - ./mumble/ks.yaml
+  - ./neko/ks.yaml
+  - ./stirling-pdf/ks.yaml
+  - ./thelounge/ks.yaml

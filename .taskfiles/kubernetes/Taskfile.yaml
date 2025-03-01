@@ -5,107 +5,98 @@ version: '3'
 tasks:
 
   apply-ks:
-    desc: Apply a Flux Kustomization resource for a cluster [CLUSTER=main] [PATH=required] [NS=flux-system]
+    desc: Apply a Flux Kustomization resource for a cluster [PATH=required] [NS=flux-system]
     cmd: >
       flux build --namespace {{.NS}} ks {{base .PATH}}
-      --kustomization-file {{.CLUSTER_DIR}}/apps/{{.PATH}}/ks.yaml
-      --path {{.CLUSTER_DIR}}/apps/{{.PATH}}
+      --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
+      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}
       {{- if contains "not found" .KS }}--dry-run \{{ end }}
       | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "{{.NS}}")' -
       | kubectl apply --server-side --field-manager=kustomize-controller --filename -
     requires:
-      vars: [CLUSTER, PATH]
+      vars: [PATH]
     vars:
       NS: '{{.NS | default "flux-system"}}'
       KS:
         sh: flux --namespace {{.NS}} get kustomizations {{base .PATH}} 2>&1
     preconditions:
-      - test -f {{.CLUSTER_DIR}}/apps/{{.PATH}}/ks.yaml
+      - test -f {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
 
   browse-pvc:
-    desc: Mount a PVC to an temp container [CLUSTER=main] [NS=default] [CLAIM=required]
+    desc: Mount a PVC to an temp container [NS=default] [CLAIM=required]
     interactive: true
     cmd: kubectl browse-pvc --namespace {{.NS}} --image docker.io/library/alpine:latest {{.CLAIM}}
     vars:
       NS: '{{.NS | default "default"}}'
     requires:
-      vars: [CLUSTER, CLAIM]
+      vars: [CLAIM]
     preconditions:
       - kubectl --namespace {{.NS}} get persistentvolumeclaims {{.CLAIM}}
+      - kubectl browse-pvc --version
+      - which kubectl
 
   node-shell:
-    desc: Open a shell to a node [CLUSTER=main] [NODE=required]
+    desc: Open a shell to a node [NODE=required]
     interactive: true
     cmd: kubectl node-shell -n kube-system -x {{.NODE}}
     requires:
-      vars: [CLUSTER, NODE]
+      vars: [NODE]
     preconditions:
       - kubectl get nodes {{.NODE}}
       - kubectl node-shell --version
       - which kubectl
 
   sync-secrets:
-    desc: Sync all ExternalSecrets [CLUSTER=main]
+    desc: Sync all ExternalSecrets
     cmds:
       - for: { var: SECRETS, split: "\n" }
-        cmd: kubectl --namespace {{splitList "," .ITEM | first}} annotate externalsecret {{splitList "," .ITEM | last}} force-sync="{{.TS}}" --overwrite  --context {{.CLUSTER}}
+        cmd: kubectl --namespace {{splitList "," .ITEM | first}} annotate externalsecret {{splitList "," .ITEM | last}} force-sync="{{now | unixEpoch}}" --overwrite
     vars:
-      TS: '{{now | unixEpoch}}'
       SECRETS:
-        sh: kubectl get externalsecret --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}' --context {{.CLUSTER}}
-    requires:
-      vars: [CLUSTER]
+        sh: kubectl get externalsecret --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}'
+    preconditions:
+      - which kubectl
 
-  delete-failed-pods:
-    desc: Delete pods with a Failed/Pending/Succeeded phase [CLUSTER=main]
+  cleanse-pods:
+    desc: Cleanse pods with a Failed/Pending/Succeeded phase
     cmds:
       - for:
           matrix:
             PHASE: [Failed, Pending, Succeeded]
-        cmd: kubectl delete pods --field-selector status.phase={{.ITEM.PHASE}} -A --ignore-not-found=true
-    requires:
-      vars: [CLUSTER]
+        cmd: kubectl delete pods --all-namespaces --field-selector status.phase={{.ITEM.PHASE}} --ignore-not-found=true
+    preconditions:
+      - which kubectl
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux get ks --no-header -n flux-system --context {{.CLUSTER}} | awk '{print $1, $2}' | xargs -L1 bash -c 'flux reconcile ks -n flux-system $0 --context {{.CLUSTER}}'
-      - flux get ks --all-namespaces --no-header --context {{.CLUSTER}} | awk '{print $1, $2}' | xargs -L1 bash -c 'flux reconcile ks -n $0 $1 --context {{.CLUSTER}}'
-    requires:
-      vars: [CLUSTER]
+      - flux get ks --no-header -n flux-system | awk '{print $1, $2}' | xargs -L1 bash -c 'flux reconcile ks -n flux-system $0'
+      - flux get ks --all-namespaces --no-header | awk '{print $1, $2}' | xargs -L1 bash -c 'flux reconcile ks -n $0 $1'
 
   hr-restart:
     desc: Restart all failed Helm Releases
     cmds:
-      - kubectl get hr --all-namespaces --context {{.CLUSTER}} | grep False | awk '{print $1, $2}' | xargs -L1 bash -c 'flux suspend hr ks -n $0 $1 --context {{.CLUSTER}}'
-      - kubectl get hr --all-namespaces --context {{.CLUSTER}} | grep False | awk '{print $1, $2}' | xargs -L1 bash -c 'flux resume hr ks -n $0 $1 --context {{.CLUSTER}}'
-    requires:
-      vars: [CLUSTER]
+      - kubectl get hr --all-namespaces | grep False | awk '{print $1, $2}' | xargs -L1 bash -c 'flux suspend hr ks -n $0 $1'
+      - kubectl get hr --all-namespaces | grep False | awk '{print $1, $2}' | xargs -L1 bash -c 'flux resume hr ks -n $0 $1'
 
   ks-*:
-    desc: Suspend or resume Kustomizations [CLUSTER=main]
+    desc: Suspend or resume Kustomizations
     cmds:
       - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 flux {{.STATE}} ks --all --namespace
     vars:
       STATE: '{{index .MATCH 0}}'
-    requires:
-      vars: [CLUSTER]
     preconditions:
       - '[[ "{{.STATE}}" == "suspend" || "{{.STATE}}" == "resume" ]]'
       - which flux kubectl
 
   # https://docs.github.com/en/enterprise-cloud@latest/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/deploying-runner-scale-sets-with-actions-runner-controller#upgrading-arc
   upgrade-arc:
-    desc: Upgrade the ARC [CLUSTER=main]
+    desc: Upgrade the ARC
     cmds:
-      - helm -n actions-runner-system uninstall home-ops-runner || true
-      - helm -n actions-runner-system uninstall actions-runner-controller || true
-      - flux delete -s -n actions-runner-system helmrelease home-ops-runner || true
-      - flux delete -s -n actions-runner-system helmrelease actions-runner-controller || true
+      - helm -n actions-runner-system uninstall home-ops-runner
+      - helm -n actions-runner-system uninstall actions-runner-controller
       - sleep 5
-      - flux -n flux-system reconcile ks actions-runner-controller
-      - flux -n flux-system reconcile ks actions-runner-controller-runners
-    requires:
-      vars: [CLUSTER]
+      - flux -n actions-runner-system reconcile hr actions-runner-controller
+      - flux -n actions-runner-system reconcile hr home-ops-runner
     preconditions:
       - which flux helm

@@ -8,7 +8,7 @@ tasks:
     desc: Generate the Talos configs
     dir: '{{.TALOS_DIR}}'
     cmds:
-      - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir nodes
+      - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
       - cp nodes/talosconfig {{.TALOSCONFIG}}
     preconditions:
       - test -f talconfig.yaml
@@ -20,7 +20,7 @@ tasks:
     dir: '{{.TALOS_DIR}}'
     cmds:
       # - task: down
-      - talosctl apply-config --nodes {{.HOSTNAME}} --mode={{.MODE}} --file nodes/main-{{.HOSTNAME}}.yaml {{.ROOT_DIR}}/talosconfig
+      - talosctl apply-config --nodes {{.HOSTNAME}} --mode={{.MODE}} --file clusterconfig/main-{{.HOSTNAME}}.yaml {{.ROOT_DIR}}/talosconfig
       - talosctl --nodes {{.HOSTNAME}} health{{.ROOT_DIR}}/talosconfig
       # - task: up
     vars:
@@ -53,7 +53,7 @@ tasks:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: '{{.TALOS_DIR}}'
-    cmd: talhelper gencommand reset --out-dir nodes --config-file talconfig.yaml --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+    cmd: talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
     preconditions:
       - test -n main
 
@@ -61,7 +61,7 @@ tasks:
     desc: Resets nodes back completely and reboots them
     prompt: This will destroy your cluster and reset the nodes... continue?
     dir: '{{.TALOS_DIR}}'
-    cmd: talhelper gencommand reset --out-dir nodes --config-file talconfig.yaml --extra-flags "--reboot --graceful=false --wait=false" | bash
+    cmd: talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml --extra-flags "--reboot --graceful=false --wait=false" | bash
     preconditions:
       - test -n main
 

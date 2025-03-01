@@ -9,8 +9,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/guarded
-    - ../../../../components/volsync # TODO Is it needed?
+    - ../../../components/gatus/guarded
+    - ../../../components/volsync # TODO Is it needed?
   dependsOn:
     - name: volsync
       namespace: storage

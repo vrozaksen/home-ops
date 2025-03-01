@@ -30,8 +30,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-   - ../../../../components/gatus/external
-   - ../../../../components/volsync
+   - ../../../components/gatus/external
+   - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/survival
   postBuild:
@@ -58,8 +58,8 @@ spec:
 #     labels:
 #       app.kubernetes.io/name: *app
 #   components:
-#    - ../../../../components/gatus/external
-#    - ../../../../components/volsync
+#    - ../../../components/gatus/external
+#    - ../../../components/volsync
 #   interval: 1h
 #   path: ./kubernetes/apps/games/minecraft/create
 #   postBuild:
@@ -85,8 +85,8 @@ spec:
 #     labels:
 #       app.kubernetes.io/name: *app
 #   components:
-#    - ../../../../components/gatus/external
-#    - ../../../../components/volsync
+#    - ../../../components/gatus/external
+#    - ../../../components/volsync
 #   interval: 1h
 #   path: ./kubernetes/apps/games/minecraft/vibecraft
 #   postBuild:

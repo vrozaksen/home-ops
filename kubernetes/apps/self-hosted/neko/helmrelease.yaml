@@ -28,15 +28,6 @@ spec:
         pod:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
-          affinity: # TODO Until ainias upgrade
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                    - ainias
         replicas: 1 # active nas
         type: statefulset
         annotations:

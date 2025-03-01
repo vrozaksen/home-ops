@@ -1,13 +1,12 @@
 ---
 autoDirectNodeRoutes: true
 bandwidthManager:
-  enabled: true # TODO Check if it's worth it.
+  enabled: false
   bbr: true
 bpf:
   datapathMode: netkit
-  # hostLegacyRouting: true
+  hostLegacyRouting: true
   masquerade: true
-  preallocateMaps: true # NEW
   tproxy: true
 bgpControlPlane:
   enabled: true
@@ -21,7 +20,7 @@ cluster:
 cni:
   exclusive: false
 devices: enp+
-enableIPv4BIGTCP: true # NEW
+enableRuntimeDeviceDetection: true
 endpointRoutes:
   enabled: true
 envoy:

@@ -40,7 +40,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: bitwarden-tls-certs
-  namespace: cert-manager
+  namespace: external-secrets
   annotations:
     cert-manager.io/alt-names: 'bitwarden-sdk-server.external-secrets.svc.cluster.local,external-secrets-bitwarden-sdk-server.external-secrets.svc.cluster.local,localhost'
     cert-manager.io/certificate-name: bitwarden-tls
@@ -62,7 +62,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: bitwarden-css-certs
-  namespace: cert-manager
+  namespace: external-secrets
   annotations:
     cert-manager.io/alt-names: 'bitwarden.external-secrets.svc.cluster.local'
     cert-manager.io/certificate-name: bitwarden-css

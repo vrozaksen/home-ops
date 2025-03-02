@@ -10,7 +10,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  interval: 1h
+  interval: 30m
   path: ./kubernetes/flux/meta
   prune: true
   retryInterval: 2m
@@ -35,12 +35,10 @@ spec:
       name: sops-age
   dependsOn:
     - name: cluster-meta
-      namespace: flux-system
-  interval: 10m0s
-  path: ./kubernetes/apps
+  interval: 30m
+  path: ./kubernetes/main/apps
   patches:
-    - # Add Sops decryption to child Kustomizations
-      patch: |-
+    - patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
         kind: Kustomization
         metadata:
@@ -61,11 +59,14 @@ spec:
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
-        labelSelector: substitution.flux/enabled!=false
   postBuild:
-    substitute:
-      CLUSTER: main
-      SECRET_DOMAIN: vzkn.eu
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-settings
+        optional: true
+      - kind: Secret
+        name: cluster-secrets
+        optional: true
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -73,4 +74,4 @@ spec:
     name: flux-system
     namespace: flux-system
   timeout: 5m
-  wait: true
+  wait: false

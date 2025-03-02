@@ -62,7 +62,7 @@ nodes:
             routeMetric: 2048
       # 2.5G PICe Port / enp2s0
       - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:90
+          hardwareAddr: 00:e0:4c:68:07:b6
         dhcp: true
         mtu: 1500
         dhcpOptions:
@@ -85,7 +85,7 @@ nodes:
             routeMetric: 2048
       # 2.5G PICe Port / enp2s0
       - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:b6
+          hardwareAddr: 00:e0:4c:68:07:90
         dhcp: true
         mtu: 1500
         dhcpOptions:

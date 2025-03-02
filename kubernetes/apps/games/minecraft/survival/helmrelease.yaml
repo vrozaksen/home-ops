@@ -145,13 +145,17 @@ spec:
           annotations:
             external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
             external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+            nginx.ingress.kubernetes.io/rewrite-target: /map
           hosts:
             - name: *host
               paths:
-                - path: /
-                  service:
-                    identifier: app
-                    port: http
+                - path: /map
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: *app
+                      port:
+                        number: 8100
   valuesFrom:
   - kind: Secret
     name: minecraft-survival-secret

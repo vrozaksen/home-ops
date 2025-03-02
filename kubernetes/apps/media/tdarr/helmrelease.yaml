@@ -126,7 +126,7 @@ spec:
         volumeSpec:
           nfs:
             server: aincrad.home.arpa
-            path: &mediaPath ${SECRET_NFS_MEDIA}
+            path: &mediaPath /mnt/user/data/media
         globalMounts:
           - path: *mediaPath
             readOnly: false
@@ -134,6 +134,6 @@ spec:
         enabled: true
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_TDARR_TEMP}
+        path: /mnt/user/temp/tdarr
         globalMounts:
           - path: /temp

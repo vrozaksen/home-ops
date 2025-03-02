@@ -10,7 +10,7 @@ spec:
   storageClassName: nfs-slow #csi-driver-nfs
   nfs:
     server: aincrad.home.arpa
-    path: ${SECRET_NFS_POSTGRES}
+    path: /mnt/user/kubernetes/postgres
   mountOptions:
     - nfsvers=4.2
     - hard

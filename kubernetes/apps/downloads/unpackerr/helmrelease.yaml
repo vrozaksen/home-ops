@@ -83,6 +83,6 @@ spec:
       data:
         type: nfs
         server: aincrad
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /data

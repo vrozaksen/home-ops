@@ -103,6 +103,6 @@ spec:
       nas:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_PAPERLESS}
+        path: /mnt/user/kubernetes/paperless
         globalMounts:
           - path: /data/nas

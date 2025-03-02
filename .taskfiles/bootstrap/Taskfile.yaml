@@ -28,6 +28,23 @@ tasks:
       - test -f {{.ROOT_DIR}}/talosconfig
       - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
 
+  apps:
+    desc: Bootstrap Cluster apps [CSI_DISK=required]
+    dir: '{{.TALOS_DIR}}'
+    summary: |
+      IMPORTANT: CSI_DISK must be set to the disk model used across all the nodes (e.g. WD_BLACK SN770)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
+    env:
+      CSI_DISK: '{{.CSI_DISK}}'
+    requires:
+      vars: [CSI_DISK]
+    preconditions:
+      - which bws
+      - talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info
+      - test -f {{.ROOT_DIR}}/talosconfig
+      - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
+
   gen-secrets:
     desc: Generate the Talos secrets
     cmds:

@@ -132,7 +132,7 @@ spec:
       media:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /data
             subPath: media

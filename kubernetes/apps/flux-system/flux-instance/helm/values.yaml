@@ -12,7 +12,6 @@ instance:
     - notification-controller
   sync:
     kind: GitRepository
-    name: flux-system
     url: https://github.com/vrozaksen/home-ops
     ref: refs/heads/main
     path: kubernetes/flux/cluster

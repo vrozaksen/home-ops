@@ -61,14 +61,14 @@ spec:
       failureThreshold: 30
       periodSeconds: 10
     extraEnv:
-      TZ: ${TIMEZONE}
+      TZ: Europe/Warsaw
       ENABLE_AUTOPAUSE: TRUE # Doesn't work in Kubes
     persistence:
       dataDir:
         enabled: true
         existingClaim: *app
     serviceAnnotations:
-      mc-router.itzg.me/externalServerName: &host survival.${SECRET_DOMAIN}
+      mc-router.itzg.me/externalServerName: &host survival.vzkn.eu
     minecraftServer:
       eula: true
       version: "1.21.4"
@@ -87,7 +87,7 @@ spec:
       worldSaveName: survival
       viewDistance: 16
       # serviceAnnotations:
-      #   lbipam.cilium.io/ips: ${SVC_SURVIVAL_ADDR}
+      #   lbipam.cilium.io/ips: 10.10.0.91
       # serviceType: LoadBalancer
       pluginUrls:
       - https://github.com/Norbit4/TreeCuter/releases/download/v1.8.8/TreeCuter-v1.8.8.jar
@@ -127,7 +127,7 @@ spec:
           ingressClassName: external
           enabled: true
           annotations:
-            external-dns.alpha.kubernetes.io/target: mc.${SECRET_DOMAIN}
+            external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
             external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           hosts:
             - name: *host
@@ -143,7 +143,7 @@ spec:
           ingressClassName: external
           enabled: true
           annotations:
-            external-dns.alpha.kubernetes.io/target: mc.${SECRET_DOMAIN}
+            external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
             external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           hosts:
             - name: *host

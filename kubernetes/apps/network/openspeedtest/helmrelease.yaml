@@ -68,7 +68,7 @@ spec:
             add_header X-XSS-Protection "1; mode=block";
           nginx.ingress.kubernetes.io/proxy-body-size: 35m
         hosts:
-          - host: speedtest.${SECRET_DOMAIN}
+          - host: speedtest.vzkn.eu
             paths:
               - path: /
                 service:

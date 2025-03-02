@@ -171,7 +171,7 @@ spec:
         - name: repo2
           s3: &r2
             bucket: crunchy-pgo
-            endpoint: ${R2_ENDPOINT}
+            endpoint: 018e06e568a4c8fc72f1b05604114870.r2.cloudflarestorage.com
             region: us-east-1 #https://developers.cloudflare.com/r2/api/s3/api/#bucket-region
           schedules:
             full: "30 2 * * 0" # Sunday at 02:30
@@ -199,8 +199,8 @@ spec:
       service:
         metadata:
           annotations:
-            external-dns.alpha.kubernetes.io/hostname: cpgo.${SECRET_DOMAIN}
-            lbipam.cilium.io/ips: ${SVC_CPGO_ADDR}
+            external-dns.alpha.kubernetes.io/hostname: cpgo.vzkn.eu
+            lbipam.cilium.io/ips: 10.10.0.40
         type: LoadBalancer
       port: 5432
       replicas: *replicas

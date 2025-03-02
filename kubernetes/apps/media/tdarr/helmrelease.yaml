@@ -57,7 +57,7 @@ spec:
               pullPolicy: IfNotPresent
             env:
               - name: TZ
-                value: ${TIMEZONE}
+                value: Europe/Warsaw
               - name: nodeID
                 valueFrom:
                   fieldRef:
@@ -105,7 +105,7 @@ spec:
           gethomepage.dev/widget.url: http://aincrad.home.arpa:8265
           #gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_TDARR_API_KEY}}" }}'
         hosts:
-          - host: tdarr.${SECRET_DOMAIN}
+          - host: tdarr.vzkn.eu
             paths:
               - path: /
                 service:
@@ -126,7 +126,7 @@ spec:
         volumeSpec:
           nfs:
             server: aincrad.home.arpa
-            path: &mediaPath ${SECRET_NFS_DATA}/media
+            path: &mediaPath /mnt/user/data/media
         globalMounts:
           - path: *mediaPath
             readOnly: false
@@ -134,6 +134,6 @@ spec:
         enabled: true
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_TDARR_TEMP}
+        path: /mnt/user/temp/tdarr
         globalMounts:
           - path: /temp

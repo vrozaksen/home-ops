@@ -52,7 +52,7 @@ spec:
               - --config
               - /config/config.yaml
             env: &env
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               POD_NAMESPACE:
                 valueFrom:
                   fieldRef:

@@ -6,9 +6,9 @@ metadata:
   name: palworld
 spec:
   endpoints:
-    - dnsName: "palworld.${SECRET_DOMAIN}"
+    - dnsName: "palworld.vzkn.eu"
       recordType: CNAME
-      targets: ["ipv4.${SECRET_DOMAIN}"]
+      targets: ["ipv4.vzkn.eu"]
       providerSpecific:
         - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
           value: 'false'

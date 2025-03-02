@@ -42,7 +42,7 @@ spec:
               AUTOBRR__METRICS_PORT: &metricsPort 9094
               AUTOBRR__CHECK_FOR_UPDATES: false
               AUTOBRR__LOG_LEVEL: INFO
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             envFrom:
               - secretRef:
                   name: autobrr-secret
@@ -101,7 +101,7 @@ spec:
           gethomepage.dev/widget.url: http://autobrr.downloads:80
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_AUTOBRR_TOKEN}}` }}"
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             service:

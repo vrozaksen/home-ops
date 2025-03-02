@@ -39,7 +39,7 @@ spec:
               DASHBRR__DB_PATH: /cache/._  # cache path is derived from DASHBRR__DB_PATH
               DASHBRR__LISTEN_ADDR: 0.0.0.0:8080
               GIN_MODE: debug
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             envFrom:
             - secretRef:
                 name: dashbrr-secret
@@ -86,7 +86,7 @@ spec:
           # gethomepage.dev/widget.url: http://dashbrr.downloads
           # gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_DASHBRR_TOKEN}}` }}"
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             service:

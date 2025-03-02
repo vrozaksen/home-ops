@@ -33,7 +33,7 @@ spec:
               tag: master@sha256:479ad8a97206df899a540d0b33a7ef303e1dd9a7840b412bd3db0ec9ed7a0e0e
             env:
               ## Container Settings
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               ALWAYS_UPDATE_ON_START: true
               BACKUP_ENABLED: false #volsync is backing up the PVC
               RESTART_ENABLED: false #no one is playing right now.
@@ -52,7 +52,7 @@ spec:
               PUBLIC_PORT: &port 8211
               RCON_ENABLED: true
               RCON_PORT: &rcon-port 25575
-              PUBLIC_IP: palworld.${SECRET_DOMAIN}
+              PUBLIC_IP: palworld.vzkn.eu
               ## Webhook Settings
               WEBHOOK_ENABLED: true
             envFrom:
@@ -74,7 +74,7 @@ spec:
               tag: v1.3.1
             env:
               ## Container Settings
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               RCON_HOST: localhost
               RCON_PORT: *rcon-port
               SAVE_DIRECTORY: /palworld
@@ -123,9 +123,9 @@ spec:
         enabled: false #nginx doesn't support non-https
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
+          external-dns.alpha.kubernetes.io/target: ipv4.vzkn.eu
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             service:

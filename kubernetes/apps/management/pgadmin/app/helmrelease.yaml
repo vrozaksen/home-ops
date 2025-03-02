@@ -34,7 +34,7 @@ spec:
               repository: docker.io/dpage/pgadmin4
               tag: 9.0@sha256:1b2f1ecb93ed2c20530703f77acdfa0da8c2470a4e17044504057cea2d6b4fac
             env:
-              TZ: "${TIMEZONE}"
+              TZ: "Europe/Warsaw"
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
               PGADMIN_CONFIG_ENABLE_PSQL: "True"
               PGADMIN_DISABLE_POSTFIX: "true"
@@ -77,14 +77,14 @@ spec:
       app:
         className: internal
         annotations:
-          external-dns.alpha.kubernetes.io/target: internal.${SECRET_DOMAIN}
+          external-dns.alpha.kubernetes.io/target: internal.vzkn.eu
           # gethomepage.dev/enabled: "true"
           # gethomepage.dev/group: Management
           # gethomepage.dev/name: pgAdmin
           # gethomepage.dev/icon: si-postgresql
           # gethomepage.dev/description: Postgres Database Manager
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 service:

@@ -55,7 +55,7 @@ spec:
       app:
         className: internal
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             service:
@@ -67,7 +67,7 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
         - path: /downloads
           subPath: metube

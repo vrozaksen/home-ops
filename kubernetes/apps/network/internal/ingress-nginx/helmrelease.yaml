@@ -28,8 +28,8 @@ spec:
       replicaCount: 2
       service:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: &hostname internal.${SECRET_DOMAIN}
-          lbipam.cilium.io/ips: ${SVC_NGINX_INTERNAL}
+          external-dns.alpha.kubernetes.io/hostname: &hostname internal.vzkn.eu
+          lbipam.cilium.io/ips: 10.10.0.50
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: internal
@@ -74,7 +74,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        default-ssl-certificate: cert-manager/${SECRET_DOMAIN}-tls
+        default-ssl-certificate: cert-manager/vzkn.eu-tls
         publish-status-address: *hostname
       terminationGracePeriodSeconds: 120
       publishService:

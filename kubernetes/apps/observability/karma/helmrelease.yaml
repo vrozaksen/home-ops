@@ -83,7 +83,7 @@ spec:
           gethomepage.dev/group: Observability
           gethomepage.dev/description: Alertmanger Quick View
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 service:

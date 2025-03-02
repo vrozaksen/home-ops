@@ -16,4 +16,4 @@ spec:
               name: cloudflare
               key: CLOUDFLARE_DNS_TOKEN
         selector:
-          dnsZones: ["${SECRET_DOMAIN}"]
+          dnsZones: ["vzkn.eu"]

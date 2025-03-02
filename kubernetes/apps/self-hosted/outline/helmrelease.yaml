@@ -46,7 +46,7 @@ spec:
               LOG_LEVEL: debug
               NODE_TLS_REJECT_UNAUTHORIZED: "0"
               PORT: 8080
-              URL: "https://docs.${SECRET_DOMAIN}"
+              URL: "https://docs.vzkn.eu"
               WEB_CONCURRENCY: 10
             command:
               [
@@ -78,7 +78,7 @@ spec:
           gethomepage.dev/description: A fast, collaborative, knowledge base.
           gethomepage.dev/app: outline
         hosts:
-          - host: "docs.${SECRET_DOMAIN}"
+          - host: "docs.vzkn.eu"
             paths:
               - path: /
                 service:

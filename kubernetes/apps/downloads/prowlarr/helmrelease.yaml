@@ -35,7 +35,7 @@ spec:
               repository: ghcr.io/vrozaksen/prowlarr-develop
               tag: 1.31.2.4975@sha256:9eb9e14e1c0a3f1dbce5a3d47867b645066bcdd831af6c534e5c3eb043f20df9
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               PROWLARR__APP__INSTANCENAME: Prowlarr
               PROWLARR__APP__THEME: dark
               PROWLARR__AUTH__METHOD: External
@@ -96,7 +96,7 @@ spec:
           gethomepage.dev/widget.url: http://prowlarr.downloads
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PROWLARR_TOKEN}}` }}"
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             pathType: Prefix

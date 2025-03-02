@@ -38,9 +38,9 @@ spec:
               # Configure application
               PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
               PAPERLESS_REDIS_PREFIX: pngx
-              PAPERLESS_URL: https://paperless.${SECRET_DOMAIN}
+              PAPERLESS_URL: https://paperless.vzkn.eu
               PAPERLESS_PORT: "8000"
-              PAPERLESS_TIME_ZONE: ${TIMEZONE}
+              PAPERLESS_TIME_ZONE: Europe/Warsaw
               PAPERLESS_WEBSERVER_WORKERS: "2"
               PAPERLESS_TASK_WORKERS: "2"
               # Configure Remote User auth
@@ -89,7 +89,7 @@ spec:
           gethomepage.dev/widget.url: http://paperless.self-hosted:8000
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PAPERLESS_TOKEN}}` }}"
         hosts:
-        - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - host: "{{ .Release.Name }}.vzkn.eu"
           paths:
           - path: /
             service:
@@ -103,6 +103,6 @@ spec:
       nas:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_PAPERLESS}
+        path: /mnt/user/kubernetes/paperless
         globalMounts:
           - path: /data/nas

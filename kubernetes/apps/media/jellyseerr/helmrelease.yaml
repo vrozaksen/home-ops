@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/fallenbagel/jellyseerr
               tag: 2.3.0@sha256:df53a7b06006e9da117a7072a55cf5d8b2071a6272f6bb329d8ca62b6f5c08a6
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               LOG_LEVEL: "info"
               PORT: &port 80
             envFrom:
@@ -87,7 +87,7 @@ spec:
           gethomepage.dev/widget.url: http://jellyseerr.media:5055
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYSEERR_TOKEN}}` }}"
         hosts:
-          - host: requests.${SECRET_DOMAIN}
+          - host: requests.vzkn.eu
             paths:
               - path: /
                 service:

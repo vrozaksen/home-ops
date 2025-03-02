@@ -34,9 +34,9 @@ spec:
               tag: v1.0.7@sha256:2559ab8bce963d4b46c98bf59378d66780445114a0d5e0ec97f0e06587e7219c
             args:
               - --zone-name
-              - ${SECRET_DOMAIN}
+              - vzkn.eu
               - --record-name
-              - ipv4.${SECRET_DOMAIN}
+              - ipv4.vzkn.eu
               - --provider
               - random
             env:
@@ -87,7 +87,7 @@ spec:
       app:
         className: internal
         hosts:
-          - host: "ddns.${SECRET_DOMAIN}"
+          - host: "ddns.vzkn.eu"
             paths:
               - path: /
                 service:

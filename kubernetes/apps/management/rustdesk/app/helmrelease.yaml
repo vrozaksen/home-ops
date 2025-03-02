@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/rustdesk/rustdesk-server
               tag: 1.1.12@sha256:9b1197d116f7bb4d3ad93a50bc1bc59ddb388de267df221a351f5ce10fac3dcf
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             command: ["hbbr"]
             probes: &probes
               liveness:
@@ -55,9 +55,9 @@ spec:
           hbbs:
             image: *image
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               DB_URL: /db/db_v2.sqlite3
-              RELAY: "${SVC_RUSTDESK_ADDR}:21117"
+              RELAY: "10.10.0.41:21117"
             command: [ "hbbs", "-r rustdesk:21117" ]
             probes: *probes
             securityContext: *securityContext
@@ -74,8 +74,8 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: ${SVC_RUSTDESK_ADDR}
-          external-dns.alpha.kubernetes.io/hostname: rustdesk.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: 10.10.0.41
+          external-dns.alpha.kubernetes.io/hostname: rustdesk.vzkn.eu
         ports:
           hbbr-1:
             enabled: true

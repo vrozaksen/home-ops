@@ -33,7 +33,7 @@ spec:
               repository:  ghcr.io/wizarrrr/wizarr
               tag: 4.2.0
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             resources:
               requests:
                 cpu: 15m
@@ -66,7 +66,7 @@ spec:
           # gethomepage.dev/widget.url: http://wizarr.media.svc.cluster.local:5690
           # gethomepage.dev/widget.key: ${WIZARR_TOKEN}
         hosts:
-          - host: join.${SECRET_DOMAIN}
+          - host: join.vzkn.eu
             paths:
               - path: /
                 service:

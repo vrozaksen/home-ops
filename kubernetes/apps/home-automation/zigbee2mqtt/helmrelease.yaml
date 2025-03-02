@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/koenkk/zigbee2mqtt
               tag: 2.1.1@sha256:c7b111384716247f057b449ebb242bf05f3fafb98dd6d5688c1ac1fc730d5e95
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               ZIGBEE2MQTT_DATA: /config
               ZIGBEE2MQTT_CONFIG_ADVANCED_LAST_SEEN: ISO_8601
               ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL: info # debug
@@ -96,7 +96,7 @@ spec:
       app:
         className: internal
         hosts:
-          - host: zigbee.${SECRET_DOMAIN}
+          - host: zigbee.vzkn.eu
             paths:
               - path: /
                 service:

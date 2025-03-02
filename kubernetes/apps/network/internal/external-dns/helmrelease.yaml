@@ -34,7 +34,7 @@ spec:
           pullPolicy: IfNotPresent
         env:
           - name: DOMAIN_FILTER
-            value: "${SECRET_DOMAIN}"
+            value: "vzkn.eu"
           - name: ADGUARD_URL
             value: http://adguard.home.arpa:888
           - name: DRY_RUN
@@ -67,7 +67,7 @@ spec:
     sources: ["ingress", "service"]
     txtOwnerId: default
     txtPrefix: k8s.
-    domainFilters: ["${SECRET_DOMAIN}"]
+    domainFilters: ["vzkn.eu"]
     serviceMonitor:
       enabled: true
     podAnnotations:

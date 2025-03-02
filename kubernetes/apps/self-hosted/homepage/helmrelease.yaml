@@ -35,7 +35,7 @@ spec:
               repository: ghcr.io/gethomepage/homepage
               tag: v0.10.9
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             envFrom:
               - secretRef:
                   name: homepage-secret
@@ -55,7 +55,7 @@ spec:
       app:
         className: internal
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 pathType: Prefix

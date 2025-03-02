@@ -68,7 +68,7 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: go2rtc-streams.${SECRET_DOMAIN}
+          external-dns.alpha.kubernetes.io/hostname: go2rtc-streams.vzkn.eu
           lbipam.cilium.io/ips: ${SVC_GO2RTC_ADDR}
         ports:
           http:
@@ -85,7 +85,7 @@ spec:
       app:
         className: internal
         hosts:
-          - host: go2rtc.${SECRET_DOMAIN}
+          - host: go2rtc.vzkn.eu
             paths:
               - path: /
                 service:

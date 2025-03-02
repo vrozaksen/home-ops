@@ -32,7 +32,7 @@ spec:
               repository: ghcr.io/browserless/chromium
               tag: v2.25.1@sha256:d0a9779e7a8ba9a1b49db1aeca01104a2c5072ec446e1da2e98906c57db41fd3
             env:
-              TZ: "${TIMEZONE}"
+              TZ: "Europe/Warsaw"
               DEBUG: "browserless*,-*:trace,-*:verbose"
               ENABLE_DEBUGGER: "false"
               TIMEOUT: "60000"
@@ -52,13 +52,13 @@ spec:
               repository: ghcr.io/amruthpillai/reactive-resume
               tag: v4.4.5@sha256:d6e56fa0378801f76a082b5c7a612ed9cece731729afc57e5b48f3b9d6823ff4
             env:
-              TZ: "${TIMEZONE}"
+              TZ: "Europe/Warsaw"
               PORT: "3001"
               NODE_ENV: "production"
-              PUBLIC_URL: http://rr.${SECRET_DOMAIN}
+              PUBLIC_URL: http://rr.vzkn.eu
               CHROME_URL: ws://reactive-resume-chrome.self-hosted.svc.cluster.local.:3000
               # S3
-              STORAGE_URL: https://s3.${SECRET_DOMAIN}/rresume
+              STORAGE_URL: https://s3.vzkn.eu/rresume
               STORAGE_ENDPOINT: aincrad.home.arpa
               STORAGE_PORT: "9000"
               STORAGE_REGION: main
@@ -89,7 +89,7 @@ spec:
       app:
         className: external
         hosts:
-        - host: "rr.${SECRET_DOMAIN}"
+        - host: "rr.vzkn.eu"
           paths:
           - path: /
             service:

@@ -106,12 +106,12 @@ data:
             siteMonitor: https://aincrad.home.arpa:4443
     - Home:
         - Home-Assistant:
-            href: https://hass.${SECRET_DOMAIN}
+            href: https://hass.vzkn.eu
             icon: home-assistant.png
             description: Home Automation Software
             widget:
               type: homeassistant
-              url: https://hass.${SECRET_DOMAIN}
+              url: https://hass.vzkn.eu
               key: {{HOMEPAGE_VAR_HASS_TOKEN}}
   settings.yaml: |
     title: Dashboard

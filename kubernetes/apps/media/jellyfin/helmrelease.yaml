@@ -46,8 +46,8 @@ spec:
               repository: jellyfin/jellyfin
               tag: 10.10.6@sha256:96b09723b22fdde74283274bdc1f63b9b76768afd6045dd80d4a4559fc4bb7f3
             env:
-              TZ: ${TIMEZONE}
-              JELLYFIN_PublishedServerUrl: https://jf.${SECRET_DOMAIN}
+              TZ: Europe/Warsaw
+              JELLYFIN_PublishedServerUrl: https://jf.vzkn.eu
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -88,7 +88,7 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: ${SVC_JELLYFIN_ADDR}
+          lbipam.cilium.io/ips: 10.10.0.30
         ports:
           http:
             port: *port
@@ -105,7 +105,7 @@ spec:
           gethomepage.dev/widget.url: http://jellyfin.media:8096
           gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}" }}'
         hosts:
-          - host: jf.${SECRET_DOMAIN}
+          - host: jf.vzkn.eu
             paths:
               - path: /
                 service:
@@ -132,7 +132,7 @@ spec:
       media:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /data
             subPath: media

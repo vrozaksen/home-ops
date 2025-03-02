@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/mumble-voip/mumble-server
               tag: v1.5.735@sha256:e0936b5895359a3f21eb1b4d8c332b412255260eb969f9ef3c50801ddbb20a27
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -59,8 +59,8 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Cluster
         annotations:
-          lbipam.cilium.io/ips: ${SVC_MUMBLE_ADDR}
-          external-dns.alpha.kubernetes.io/hostname: mumble.${SECRET_DOMAIN}
+          lbipam.cilium.io/ips: 10.10.0.99
+          external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
         ports:
           http:
             port: 80

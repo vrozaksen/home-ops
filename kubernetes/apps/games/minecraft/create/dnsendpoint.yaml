@@ -6,9 +6,9 @@ metadata:
   name: create
 spec:
   endpoints:
-    - dnsName: "create.${SECRET_DOMAIN}"
+    - dnsName: "create.vzkn.eu"
       recordType: CNAME
-      targets: ["mc.${SECRET_DOMAIN}"]
+      targets: ["mc.vzkn.eu"]
       providerSpecific:
         - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
           value: 'false'

@@ -36,7 +36,7 @@ spec:
       dashboard:
         ingressClassName: internal
         host:
-          name: rook.${SECRET_DOMAIN}
+          name: rook.vzkn.eu
           path: /
     toolbox:
       enabled: true
@@ -221,5 +221,5 @@ spec:
             nginx.ingress.kubernetes.io/proxy-body-size: "0"
             nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
           host:
-            name: rgw.${SECRET_DOMAIN}
+            name: rgw.vzkn.eu
             path: /

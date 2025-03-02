@@ -6,9 +6,9 @@ metadata:
   name: survival
 spec:
   endpoints:
-    - dnsName: "survival.${SECRET_DOMAIN}"
+    - dnsName: "survival.vzkn.eu"
       recordType: CNAME
-      targets: ["mc.${SECRET_DOMAIN}"]
+      targets: ["mc.vzkn.eu"]
       providerSpecific:
         - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
           value: 'false'

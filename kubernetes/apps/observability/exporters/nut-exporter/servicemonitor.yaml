@@ -28,7 +28,7 @@ spec:
           regex: (pod)
       params:
         server:
-          - network-nut.${SECRET_DOMAIN}
+          - network-nut.vzkn.eu
       path: /ups_metrics
       port: metrics
       scheme: http

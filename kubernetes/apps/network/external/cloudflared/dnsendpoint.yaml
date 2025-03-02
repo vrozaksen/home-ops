@@ -6,6 +6,6 @@ metadata:
   name: cloudflared
 spec:
   endpoints:
-    - dnsName: "external.${SECRET_DOMAIN}"
+    - dnsName: "external.vzkn.eu"
       recordType: CNAME
       targets: ["10537f24-7b64-44ce-9a3f-dafc430bbe05.cfargotunnel.com"]

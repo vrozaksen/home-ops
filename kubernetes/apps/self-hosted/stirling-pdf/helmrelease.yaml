@@ -32,7 +32,7 @@ spec:
               repository: ghcr.io/stirling-tools/s-pdf
               tag: 0.43.1
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               DOCKER_ENABLE_SECURITY: "false"
               SECURITY_ENABLE_LOGIN: "false"
               INSTALL_BOOK_AND_ADVANCED_HTML_OPS: "true"
@@ -80,7 +80,7 @@ spec:
           gethomepage.dev/pod-selector: >-
             app.kubernetes.io/name in (pdfding)
         hosts:
-          - host: pdf.${SECRET_DOMAIN}
+          - host: pdf.vzkn.eu
             paths:
               - path: /
                 service:

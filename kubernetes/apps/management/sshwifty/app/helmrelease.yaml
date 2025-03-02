@@ -31,8 +31,8 @@ spec:
               repository: docker.io/niruix/sshwifty
               tag: latest
             env:
-              TZ: "${TIMEZONE}"
-              SSHWIFTY_HOSTNAME: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+              TZ: "Europe/Warsaw"
+              SSHWIFTY_HOSTNAME: "{{ .Release.Name }}.vzkn.eu"
             probes:
               liveness:
                 enabled: true
@@ -71,14 +71,14 @@ spec:
       app:
         className: internal
         annotations:
-          external-dns.alpha.kubernetes.io/target: internal.${SECRET_DOMAIN}
+          external-dns.alpha.kubernetes.io/target: internal.vzkn.eu
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Management
           gethomepage.dev/name: Sshwifty
           gethomepage.dev/icon: https://raw.githubusercontent.com/nirui/sshwifty/master/ui/sshwifty.svg
           gethomepage.dev/description: Sshwifty Web SSH & Telnet Client
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 service:

@@ -35,7 +35,7 @@ spec:
               repository: ghcr.io/vrozaksen/free-game-notifier
               tag: 1.6.0@sha256:d0d372034f3e39cfad91f67d5128e409136a589fe14674d558b89b7b524104e0
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               SEND_UPCOMING: false
             envFrom:
               - secretRef:

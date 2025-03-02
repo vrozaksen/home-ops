@@ -35,7 +35,7 @@ spec:
               repository: ghcr.io/vrozaksen/qbittorrent-beta
               tag: 5.0.4@sha256:f7730ce9de4f1e7e06914b486c85219d37c935d8134325cf83a178d0f38c71e7
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               QBT_WEBUI_PORT: &port 80
               QBT_TORRENTING_PORT: &torrentPort 50413
               QBT_Application__MemoryWorkingSetLimit:
@@ -115,7 +115,7 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: ${SVC_QBITTTORENT_ADDR}
+          lbipam.cilium.io/ips: 10.10.0.31
         ports:
           bittorrent:
             enabled: true
@@ -139,7 +139,7 @@ spec:
             proxy_hide_header "content-security-policy";
             proxy_hide_header "X-Frame-Options";
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 service:
@@ -151,7 +151,7 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /downloads
             subPath: torrents

@@ -43,7 +43,7 @@ spec:
               SONARR__LOG__LEVEL: info
               SONARR__SERVER__PORT: &port 80
               SONARR__UPDATE__BRANCH: develop
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
             envFrom:
               - secretRef:
                   name: sonarr-secret
@@ -95,7 +95,7 @@ spec:
           gethomepage.dev/widget.url: http://sonarr.downloads
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_SONARR_TOKEN}}` }}"
         hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: "{{ .Release.Name }}.vzkn.eu"
             paths:
               - path: /
                 service:
@@ -121,7 +121,7 @@ spec:
       data:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /data
       tmp:

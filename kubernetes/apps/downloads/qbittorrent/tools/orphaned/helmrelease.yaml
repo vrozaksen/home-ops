@@ -48,7 +48,7 @@ spec:
               - --port
               - "80"
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               POD_NAMESPACE:
                 valueFrom:
                   fieldRef:
@@ -76,7 +76,7 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.arpa
-        path: ${SECRET_NFS_DATA}
+        path: /mnt/user/data
         globalMounts:
           - path: /downloads
             subPath: torrents

@@ -34,7 +34,7 @@ spec:
               repository: ghcr.io/buroa/qbtools
               tag: v0.19.15@sha256:4145020bab12b2ed892f548c2812c4979793def80dce5f907e49640329e54933
             env:
-              TZ: ${TIMEZONE}
+              TZ: Europe/Warsaw
               POD_NAMESPACE:
                 valueFrom:
                   fieldRef:

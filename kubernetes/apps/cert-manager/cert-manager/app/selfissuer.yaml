@@ -25,7 +25,7 @@ spec:
   commonName: *name
   subject:
     organizations:
-      - ${SECRET_DOMAIN}
+      - vzkn.eu
   secretName: root-secret
   privateKey:
     algorithm: ECDSA
@@ -52,7 +52,7 @@ spec:
   commonName: *name
   subject:
     organizations:
-      - ${SECRET_DOMAIN}
+      - vzkn.eu
   secretName: strong-root-secret
   privateKey:
     algorithm: ECDSA

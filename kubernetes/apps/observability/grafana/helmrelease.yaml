@@ -361,11 +361,11 @@ spec:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
       other:
-        prometheus:
-          # renovate: depName="Prometheus"
-          gnetId: 19105
-          revision: 7
-          datasource: Prometheus
+        # prometheus:
+        #   # renovate: depName="Prometheus"
+        #   gnetId: 19105
+        #   revision: 7
+        #   datasource: Prometheus
         # miniflux:
         #   url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
         #   datasource: Prometheus

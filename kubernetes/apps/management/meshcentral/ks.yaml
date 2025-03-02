@@ -3,31 +3,26 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app outline
+  name: &app meshcentral
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/gatus/external
+    - ../../../components/gatus/guarded
+    - ../../../components/volsync
   interval: 1h
-  dependsOn:
-    - name: crunchy-postgres-cluster
-      namespace: database
-    - name: dragonfly-cluster
-      namespace: database
-  path: ./kubernetes/apps/self-hosted/outline
+  path: ./kubernetes/apps/management/meshcentral
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 2Gi
-      GATUS_SUBDOMAIN: docs
+      GATUS_GROUP: management
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: management
   timeout: 5m
   wait: false

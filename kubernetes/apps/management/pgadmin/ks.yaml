@@ -17,7 +17,7 @@ spec:
     - name: crunchy-postgres-cluster
       namespace: database
   interval: 1h
-  path: ./kubernetes/apps/database/pgadmin/app
+  path: ./kubernetes/apps/management/pgadmin
   postBuild:
     substitute:
       APP: *app
@@ -25,12 +25,13 @@ spec:
       VOLSYNC_GID: "5050"
       VOLSYNC_CAPACITY: 500Mi
       VOLSYNC_CACHE_CAPACITY: 500Mi
+      GATUS_GROUP: management
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: database
+  targetNamespace: management
   timeout: 5m
   wait: false

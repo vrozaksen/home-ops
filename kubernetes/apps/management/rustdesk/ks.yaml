@@ -14,7 +14,7 @@ spec:
     - name: volsync
       namespace: storage
   interval: 1h
-  path: ./kubernetes/utility/apps/management/rustdesk/app
+  path: ./kubernetes/apps/management/rustdesk
   postBuild:
     substitute:
       APP: *app

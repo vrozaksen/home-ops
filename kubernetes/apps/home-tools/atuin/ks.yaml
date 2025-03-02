@@ -14,17 +14,18 @@ spec:
     - name: crunchy-postgres-cluster
       namespace: database
   interval: 1h
-  path: ./kubernetes/apps/self-hosted/atuin
+  path: ./kubernetes/apps/home-tools/atuin
   postBuild:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: sh
+      GATUS_GROUP: home-tools
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: home-tools
   timeout: 5m
   wait: false

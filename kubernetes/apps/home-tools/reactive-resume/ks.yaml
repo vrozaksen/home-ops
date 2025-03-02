@@ -11,17 +11,18 @@ spec:
   components:
     - ../../../components/gatus/external
   interval: 1h
-  path: ./kubernetes/apps/self-hosted/reactive-resume
+  path: ./kubernetes/apps/home-tools/reactive-resume
   postBuild:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: rr
+      GATUS_GROUP: home-tools
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: home-tools
   timeout: 5m
   wait: false

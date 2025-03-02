@@ -15,6 +15,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      GATUS_GROUP: infrastructure
   prune: true
   retryInterval: 2m
   sourceRef:

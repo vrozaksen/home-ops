@@ -24,6 +24,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: join
+      GATUS_GROUP: media
   prune: true
   retryInterval: 2m
   sourceRef:

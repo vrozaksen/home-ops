@@ -16,7 +16,7 @@ connectivity:
     interval: 1m
 endpoints:
   - name: flux-webhook
-    group: external
+    group: infrastructure
     url: https://flux-webhook.vzkn.eu
     interval: 1m
     client:

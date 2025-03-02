@@ -2,11 +2,13 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: management
+namespace: home-tools
 components:
   - ../../components/common
 resources:
-  - ./meshcentral/ks.yaml
-  - ./pgadmin/ks.yaml
-#  - ./rustdesk/ks.yaml
-  - ./sshwifty/ks.yaml
+  - ./atuin/ks.yaml
+  # - ./homepage/ks.yaml # TODO
+  - ./outline/ks.yaml
+  - ./paperless/ks.yaml
+  - ./reactive-resume/ks.yaml
+

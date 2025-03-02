@@ -22,6 +22,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: jf
+      GATUS_GROUP: media
       VOLSYNC_CAPACITY: 50Gi
       VOLSYNC_CACHE_CAPACITY: 25Gi
   prune: true

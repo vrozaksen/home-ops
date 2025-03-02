@@ -86,7 +86,7 @@ spec:
           gethomepage.dev/icon: paperless.png
           gethomepage.dev/description: Document OCR Software
           gethomepage.dev/widget.type: paperlessngx
-          gethomepage.dev/widget.url: http://paperless.self-hosted:8000
+          gethomepage.dev/widget.url: http://paperless.home-tools:8000
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PAPERLESS_TOKEN}}` }}"
         hosts:
         - host: "{{ .Release.Name }}.vzkn.eu"

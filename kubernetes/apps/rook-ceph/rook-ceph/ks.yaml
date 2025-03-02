@@ -54,6 +54,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: rook
+      GATUS_GROUP: infrastructure
   prune: false # let's not make happy accidents
   retryInterval: 2m
   sourceRef:

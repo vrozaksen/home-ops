@@ -24,6 +24,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: hass
+      GATUS_GROUP: home
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   retryInterval: 2m

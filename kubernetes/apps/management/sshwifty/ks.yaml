@@ -11,10 +11,11 @@ spec:
   components:
     - ../../../components/gatus/guarded
   interval: 1h
-  path: ./kubernetes/utility/apps/management/sshwifty/app
+  path: ./kubernetes/apps/management/sshwifty
   postBuild:
     substitute:
       APP: *app
+      GATUS_GROUP: management
   prune: true
   retryInterval: 2m
   sourceRef:

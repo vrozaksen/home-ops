@@ -20,6 +20,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 25Gi
+      GATUS_GROUP: media-guarded
   prune: true
   retryInterval: 2m
   sourceRef:

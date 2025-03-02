@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app meshcentral
+  name: &app paperless
 spec:
   commonMetadata:
     labels:
@@ -11,17 +11,24 @@ spec:
   components:
     - ../../../components/gatus/guarded
     - ../../../components/volsync
+  dependsOn:
+    - name: crunchy-postgres-cluster
+      namespace: database
+    - name: dragonfly-cluster
+      namespace: database
   interval: 1h
-  path: ./kubernetes/apps/self-hosted/meshcentral
+  path: ./kubernetes/apps/home-tools/paperless
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_CAPACITY: 15Gi
+      GATUS_GROUP: home-tools
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: home-tools
   timeout: 5m
   wait: false

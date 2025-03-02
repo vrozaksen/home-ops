@@ -5,14 +5,9 @@ kind: Kustomization
 namespace: self-hosted
 components:
   - ../../components/common
-resources: # TODO Move some apps to new home-tools ns.
-  - ./atuin/ks.yaml
+resources:
   - ./free-game-notifier/ks.yaml
-  - ./homepage/ks.yaml
-  - ./meshcentral/ks.yaml
-  - ./outline/ks.yaml
-  - ./paperless/ks.yaml
-  - ./reactive-resume/ks.yaml
+  - ./homepage/ks.yaml # TODO
 # Others
   - ./excalidraw/ks.yaml
   - ./it-tools/ks.yaml

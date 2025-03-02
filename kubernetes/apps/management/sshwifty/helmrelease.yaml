@@ -57,9 +57,9 @@ spec:
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
@@ -71,7 +71,6 @@ spec:
       app:
         className: internal
         annotations:
-          external-dns.alpha.kubernetes.io/target: internal.vzkn.eu
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Management
           gethomepage.dev/name: Sshwifty

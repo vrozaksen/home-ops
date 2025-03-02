@@ -44,8 +44,8 @@ spec:
     triggerLoopOnEvent: true
     policy: sync
     sources: ["crd", "ingress"]
-    txtOwnerId: main
-    txtPrefix: k8s.main.
+    txtOwnerId: default
+    txtPrefix: k8s.
     domainFilters: ["${SECRET_DOMAIN}"]
     serviceMonitor:
       enabled: true

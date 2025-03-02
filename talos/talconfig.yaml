@@ -26,6 +26,11 @@ nodes:
     #installDisk: /dev/sda
     talosImageURL: &talosImage factory.talos.dev/installer/00058d1df723e50386d6912d3803ffff46978b8f69fdb51c10da7e7d56890510
     controlPlane: true
+    nodeLabels: &intel
+      intel.feature.node.kubernetes.io/gpu: "true"
+      feature.node.kubernetes.io/custom-e1000e: "true"
+      topology.kubernetes.io/region: main
+      topology.kubernetes.io/zone: m
     installDiskSelector:
       model: "INTEL*"
     networkInterfaces:
@@ -50,6 +55,7 @@ nodes:
     #installDisk: /dev/sda
     talosImageURL: *talosImage
     controlPlane: true
+    nodeLabels: *intel
     installDiskSelector:
       model: "MTFD*"
     networkInterfaces:
@@ -74,6 +80,7 @@ nodes:
     #installDisk: /dev/sda
     talosImageURL: *talosImage
     controlPlane: true
+    nodeLabels: *intel
     installDiskSelector:
       model: "SAMSUNG*"
     networkInterfaces:

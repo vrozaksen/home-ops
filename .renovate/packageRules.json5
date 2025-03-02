@@ -5,7 +5,7 @@
       "description": ["Loose versioning for non-semver containers"],
       "matchDatasources": ["docker"],
       "versioning": "loose",
-      "matchPackagePatterns": ["jellyfin"]
+      "matchPackageNames": ["/jellyfin/"]
     },
     {
       "description": ["Process terraform files"],

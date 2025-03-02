@@ -34,8 +34,6 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: *app
-      nodeSelector:
-        intel.feature.node.kubernetes.io/gpu: "true"
       securityContext:
       # s6-overlay-suexec: warning: unable to gain root privileges (is the suid bit set?)
         runAsUser: 0

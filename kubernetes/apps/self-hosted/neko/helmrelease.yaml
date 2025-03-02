@@ -25,9 +25,6 @@ spec:
   values:
     controllers:
       neko:
-        pod:
-          nodeSelector:
-            intel.feature.node.kubernetes.io/gpu: "true"
         replicas: 1 # active nas
         type: statefulset
         annotations:

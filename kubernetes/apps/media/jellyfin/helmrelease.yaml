@@ -29,8 +29,6 @@ spec:
     controllers:
       jellyfin:
         pod:
-          nodeSelector:
-            intel.feature.node.kubernetes.io/gpu: "true"
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000

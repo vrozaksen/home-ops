@@ -28,7 +28,7 @@ spec:
     fullnameOverride: *app
     image:
       repository: ghcr.io/vrozaksen/smartctl_exporter
-      tag: 0.13.0@sha256:19bdf2e595184b5b79a7959123cbbab695bb2ecb219c495f7df25bdee766b5e1
+      tag: 0.13.0@sha256:082c843fc0132f814e289140c526efd8360f06a9cecb61558bb584172e5d616a
     serviceMonitor:
       enabled: true
       relabelings:

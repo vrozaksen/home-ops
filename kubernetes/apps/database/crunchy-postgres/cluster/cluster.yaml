@@ -179,7 +179,7 @@ spec:
         - name: repo3
           s3: &minio
             bucket: postgresql
-            endpoint: s3.${SECRET_DOMAIN}
+            endpoint: s3.vzkn.eu
             region: main
           schedules:
             full: "15 1 * * 0" # Sunday at 01:15

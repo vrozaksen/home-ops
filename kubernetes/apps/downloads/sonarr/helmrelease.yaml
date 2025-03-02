@@ -121,7 +121,7 @@ spec:
       data:
         type: nfs
         server: aincrad.home.arpa
-        path: /mnt/user/data
+        path: ${SECRET_NFS_DATA}
         globalMounts:
           - path: /data
       tmp:

@@ -23,7 +23,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: guarded
+      GATUS_GROUP: media-guarded
   prune: true
   retryInterval: 2m
   sourceRef:

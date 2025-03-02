@@ -152,7 +152,7 @@ spec:
         enableFeatures:
           - memory-snapshot-on-shutdown
         externalLabels:
-          cluster: ${CLUSTER}
+          cluster: main
         resources:
           requests:
             cpu: 100m

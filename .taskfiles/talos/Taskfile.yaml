@@ -9,7 +9,7 @@ tasks:
     dir: '{{.TALOS_DIR}}'
     cmds:
       - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
-      - cp nodes/talosconfig {{.TALOSCONFIG}}
+      - cp clusterconfig/talosconfig {{.TALOSCONFIG}}
     preconditions:
       - test -f talconfig.yaml
       - test -f talsecret.sops.yaml
@@ -20,8 +20,8 @@ tasks:
     dir: '{{.TALOS_DIR}}'
     cmds:
       # - task: down
-      - talosctl apply-config --nodes {{.HOSTNAME}} --mode={{.MODE}} --file nodes/main-{{.HOSTNAME}}.yaml {{.ROOT_DIR}}/talosconfig
-      - talosctl --nodes {{.HOSTNAME}} health {{.ROOT_DIR}}/talosconfig
+      - talosctl apply-config --nodes {{.HOSTNAME}} --mode={{.MODE}} --file clusterconfig/main-{{.HOSTNAME}}.yaml --talosconfig {{.ROOT_DIR}}/talosconfig
+      - talosctl --nodes {{.HOSTNAME}} health --talosconfig {{.ROOT_DIR}}/talosconfig
       # - task: up
     vars:
       MODE: '{{.MODE | default "auto"}}'

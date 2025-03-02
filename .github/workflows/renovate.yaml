@@ -11,7 +11,7 @@ on:
         required: false
       logLevel:
         description: Log Level
-        default: info
+        default: debug
         required: false
       version:
         description: Renovate version

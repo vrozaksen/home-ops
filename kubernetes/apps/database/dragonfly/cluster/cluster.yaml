@@ -23,6 +23,8 @@ spec:
         secretKeyRef:
           key: AWS_SECRET_ACCESS_KEY
           name: dragonfly-secret
+    - name: AWS_REGION
+      value: "main"
   args:
     - --maxmemory=$(MAX_MEMORY)Mi
     - --proactor_threads=2

@@ -42,7 +42,7 @@ spec:
           app:
             image:
               repository: jellyfin/jellyfin
-              tag: 10.10.6@sha256:96b09723b22fdde74283274bdc1f63b9b76768afd6045dd80d4a4559fc4bb7f3
+              tag: 10.10.6.20250216-215628@sha256:96b09723b22fdde74283274bdc1f63b9b76768afd6045dd80d4a4559fc4bb7f3
             env:
               TZ: Europe/Warsaw
               JELLYFIN_PublishedServerUrl: https://jf.vzkn.eu

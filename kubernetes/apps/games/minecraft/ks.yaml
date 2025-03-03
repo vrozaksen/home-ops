@@ -37,7 +37,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 15Gi
+      VOLSYNC_CAPACITY: 25Gi
       GATUS_SUBDOMAIN: survival
       GATUS_GROUP: games
   prune: true

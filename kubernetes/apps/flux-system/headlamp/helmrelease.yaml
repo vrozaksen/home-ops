@@ -48,7 +48,7 @@ spec:
       enabled: true
       ingressClassName: internal
       hosts:
-        - host: "{{ .Release.Name }}.vzkn.eu"
+        - host: "headlamp.vzkn.eu"
           paths:
             - path: /
               type: Prefix

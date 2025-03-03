@@ -38,7 +38,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - s3c.vzkn.eu
+        - s3.vzkn.eu
   metricsPath: /minio/v2/metrics/cluster
   relabelings:
     - action: replace

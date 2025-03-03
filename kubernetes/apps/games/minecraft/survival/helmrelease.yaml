@@ -32,7 +32,7 @@ spec:
       requests:
         cpu: 100m
       limits:
-        memory: 8Gi
+        memory: 16Gi
     securityContext:
       runAsUser: 1000
       fsGroup: 100
@@ -75,7 +75,7 @@ spec:
       type: PAPER
       overrideServerProperties: true
       jvmXXOpts: "-XX:MaxRAMPercentage=75"
-      memory: 8192M
+      memory: 16384M
       difficulty: normal
       spawnProtection: 0
       gameMode: survival

@@ -91,27 +91,26 @@ spec:
       # serviceType: LoadBalancer
       pluginUrls:
       - https://github.com/Norbit4/TreeCuter/releases/download/v1.8.8/TreeCuter-v1.8.8.jar
-      #- https://cdn.modrinth.com/data/BETNSd2r/versions/n8DhYGER/LetUrMemoryRest-4.0.jar
-      - https://cdn.modrinth.com/data/IEt1Yy3F/versions/QXCh3qCi/SeeMore-1.0.2.jar
-      - https://cdn.modrinth.com/data/N38KJjIT/versions/tcbqRM4z/BetterReload-plugin-1.4.0.jar
-      #- https://cdn.modrinth.com/data/PviisYrr/versions/HDQLwfeA/LightOptimizer-4.0.2-BETA.jar
-      - https://cdn.modrinth.com/data/Cz6msz34/versions/8jpMx97k/AxGraves-1.18.0.jar
-      - https://cdn.modrinth.com/data/pZ2wrerK/versions/QaJSSuMq/emotecraft-paper-for-MC1.21.4-2.5.1-b.build.72.jar
-      - https://cdn.modrinth.com/data/fALzjamp/versions/ytBhnGfO/Chunky-Bukkit-1.4.28.jar
-      - https://cdn.modrinth.com/data/OhduvhIc/versions/cCaIdWST/veinminer-paper-2.3.2.jar
-      - https://cdn.modrinth.com/data/J6U9o3JG/versions/yxOA7Kr0/HuskHomes-Paper-4.9.3-e56ef72.jar
-      - https://cdn.modrinth.com/data/z4mHgUYG/versions/NhVJjanv/InteractionVisualizer-1.18.13.0.jar
-      - https://cdn.modrinth.com/data/MwLGimob/versions/CnGBLQN2/TabListPing-2.00.jar
-      - https://cdn.modrinth.com/data/IahtO7tM/versions/5TtMuJbn/Clumps-3.0.jar
-      - https://cdn.modrinth.com/data/iOwOrlzi/versions/6Odsq6wI/xpDisplay.jar
-      - https://cdn.modrinth.com/data/swbUV1cr/versions/NeDjOeW8/bluemap-5.7-paper.jar
       spigetResources:
       - 36618 #Prom Exporter
-      - 105695 #Xaero Map Spigot
       - 31585 #One Player Sleep
-      #- 64270 #Simple Tpa
-      #- 81534 #Chunky
-      #- 18494 #DiscordSRV
+      modrinth:
+        projects:
+          - Cz6msz34 # AxGraves
+          - pZ2wrerK # Emotecraft
+          - fALzjamp # Chunky
+          - OhduvhIc # Veinminer
+          - J6U9o3JG # HuskHomes
+          - z4mHgUYG # InteractionVisualizer
+          - MwLGimob # TabListPing
+          - IahtO7tM # Clumps
+          - iOwOrlzi # xpDisplay
+          - swbUV1cr # BlueMap
+          - Zjb20YAx # Xaero Map Spigot
+        # Specifies whether to download Modrinth dependencies. The allowed values are: none, required, optional
+        downloadDependencies: true
+        # The version type is used to determine the newest version to use from each project. The allowed values are: release, beta, alpha
+        allowedVersionType: default
       rcon:
         enabled: true
       extraPorts:
@@ -131,31 +130,22 @@ spec:
             external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           hosts:
             - name: *host
-      - name: bluemap
+      - name: map
         containerPort: 8100
         protocol: TCP
         service:
           enabled: true
           embedded: false
           type: ClusterIP
+          externalTrafficPolicy: Cluster
           port: 8100
         ingress:
           ingressClassName: external
           enabled: true
-          annotations:
-            external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
-            external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
-            nginx.ingress.kubernetes.io/rewrite-target: /map
           hosts:
-            - name: *host
+            - name: survival-map.vzkn.eu
               paths:
-                - path: /map
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: *app
-                      port:
-                        number: 8100
+                - path: /
   valuesFrom:
   - kind: Secret
     name: minecraft-survival-secret

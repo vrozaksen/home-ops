@@ -301,7 +301,7 @@ spec:
           gnetId: 13665
           revision: 4
           datasource:
-            - { name: datasource, value: Prometheus }
+            - { name: DS_PROMETHEUS, value: Prometheus }
       storage:
         etcd-storage:
           # renovate: depName="etcd"

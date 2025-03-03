@@ -11,15 +11,6 @@ alertmanager:
           alertmanager:
             - alertname=Watchdog
             - prometheus=observability/kube-prometheus-stack
-    - name: utility
-      uri: https://alertmanager-utility.vzkn.eu
-      timeout: 10s
-      healthcheck:
-        visible: false
-        filters:
-          alertmanager:
-            - alertname=Watchdog
-            - prometheus=observability/kube-prometheus-stack
 filters:
   default:
     - "@state!=suppressed"

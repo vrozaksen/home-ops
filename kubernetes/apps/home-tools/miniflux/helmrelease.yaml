@@ -45,6 +45,7 @@ spec:
               POLLING_FREQUENCY: "15"
               PORT: &port 80
               RUN_MIGRATIONS: "1"
+              FETCH_YOUTUBE_WATCH_TIME: "1"
             envFrom:
               - secretRef:
                   name: miniflux-secret

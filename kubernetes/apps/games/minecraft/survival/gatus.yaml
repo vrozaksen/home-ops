@@ -2,18 +2,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cpgo-gatus-ep
+  name: minecraft-survival-gatus-ep
   labels:
     gatus.io/enabled: "true"
 data:
   config.yaml: |
     endpoints:
-      - name: crunchy-pgo
-        group: infrastructure
-        url: tcp://postgres-pgbouncer.database.svc.cluster.local:5432
+      - name: minecraft-survival
+        group: games
+        url: udp://survival.vzkn.eu:25565
         interval: 1m
         conditions: ["[CONNECTED] == true"]
         alerts: [{ type: pushover }]
-        ui:
-          hide-url: true
-          hide-hostname: true

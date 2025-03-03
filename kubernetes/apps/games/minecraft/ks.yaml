@@ -30,7 +30,6 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-   - ../../../../components/gatus/external
    - ../../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/survival
@@ -38,8 +37,6 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 25Gi
-      GATUS_SUBDOMAIN: survival
-      GATUS_GROUP: games
   prune: true
   retryInterval: 2m
   sourceRef:

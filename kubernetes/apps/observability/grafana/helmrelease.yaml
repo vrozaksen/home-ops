@@ -163,6 +163,14 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/storage
+          - name: rook
+            orgId: 1
+            folder: Rook-Ceph
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/rook
           - name: system
             orgId: 1
             folder: System
@@ -309,24 +317,6 @@ spec:
           revision: 1
           datasource:
             - { name: DS_VICTORIAMETRICS, value: Prometheus }
-        ceph-cluster:
-          # renovate: depName="Ceph Cluster"
-          gnetId: 2842
-          revision: 18
-          datasource: Prometheus
-        ceph-osd:
-          # renovate: depName="Ceph - OSD (Single)"
-          gnetId: 5336
-          revision: 9
-          datasource: Prometheus
-        ceph-pools:
-          # renovate: depName="Ceph - Pools"
-          gnetId: 5342
-          revision: 9
-          datasource: Prometheus
-        host-overview:
-          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/hosts-overview.json
-          datasource: Prometheus
         minio:
           # renovate: depName="MinIO Dashboard"
           gnetId: 13502
@@ -340,6 +330,55 @@ spec:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
             - { name: VAR_REPLICATIONDESTNAME, value: '.*-bootstrap'} # - { name: VAR_REPLICATIONDESTNAME, value: .*-dst }
+      rook:
+        ceph-cluster-advanced:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json
+          datasource: Prometheus
+        ceph-cluster:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-cluster.json
+          datasource: Prometheus
+        cephfs-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/cephfs-overview.json
+          datasource: Prometheus
+        host-details:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/host-details.json
+          datasource: Prometheus
+        host-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/hosts-overview.json
+          datasource: Prometheus
+        multi-cluster-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/multi-cluster-overview.json
+          datasource: Prometheus
+        osd-device-details:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/osd-device-details.json
+          datasource: Prometheus
+        osds-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/osds-overview.json
+          datasource: Prometheus
+        pool-detail:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/pool-detail.json
+          datasource: Prometheus
+        pool-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/pool-overview.json
+          datasource: Prometheus
+        radosgw-detail:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-detail.json
+          datasource: Prometheus
+        radosgw-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-overview.json
+          datasource: Prometheus
+        radosgw-sync-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-sync-overview.json
+          datasource: Prometheus
+        rbd-details:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rbd-details.json
+          datasource: Prometheus
+        rbd-overview:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rbd-overview.json
+          datasource: Prometheus
+        rgw-s3-analytics:
+          url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rgw-s3-analytics.json
+          datasource: Prometheus
       system:
         node-exporter-full:
           # renovate: depName="Node Exporter Full"

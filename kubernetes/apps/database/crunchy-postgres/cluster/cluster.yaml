@@ -121,6 +121,11 @@ spec:
       databases: ["sonarr_main"]
       password:
         type: AlphaNumeric
+    # New
+    - name: "miniflux"
+      databases: ["miniflux"]
+      password:
+        type: AlphaNumeric
   backups:
     pgbackrest:
       configuration: &backupConfig

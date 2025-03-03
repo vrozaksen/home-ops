@@ -8,6 +8,7 @@ components:
 resources:
   - ./atuin/ks.yaml
   # - ./homepage/ks.yaml # TODO
+  - ./miniflux/ks.yaml
   - ./outline/ks.yaml
   - ./paperless/ks.yaml
   - ./reactive-resume/ks.yaml

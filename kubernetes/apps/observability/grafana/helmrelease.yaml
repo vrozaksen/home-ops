@@ -62,6 +62,8 @@ spec:
         role_attribute_path: contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' || 'Viewer'
       news:
         news_feed_enabled: false
+      security:
+        allow_embedding: true
     deploymentStrategy:
       type: RollingUpdate
     resources:

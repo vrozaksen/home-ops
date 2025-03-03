@@ -172,15 +172,15 @@ spec:
             allowUiUpdates: true
             options:
               path: /var/lib/grafana/dashboards/system
-          - name: others
-            orgId: 1
-            folder: Others
-            type: file
-            disableDeletion: false
-            editable: true
-            allowUiUpdates: true
-            options:
-              path: /var/lib/grafana/dashboards/others
+          # - name: others
+          #   orgId: 1
+          #   folder: Others
+          #   type: file
+          #   disableDeletion: false
+          #   editable: true
+          #   allowUiUpdates: true
+          #   options:
+          #     path: /var/lib/grafana/dashboards/others
     dashboards:
       data:
         crunchy-pgbackrest: #https://github.com/CrunchyData/postgres-operator-examples/issues/264
@@ -358,21 +358,21 @@ spec:
           revision: 1
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
-      others:
-        prometheus:
-          # renovate: depName="Prometheus"
-          gnetId: 19105
-          revision: 7
-          datasource: Prometheus
-        miniflux:
-          url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
-          datasource: Prometheus
-        unpackerr:
-          # renovate: depName="Unpackerr"
-          gnetId: 18817
-          revision: 1
-          datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
+      # others:
+      #   prometheus:
+      #     # renovate: depName="Prometheus"
+      #     gnetId: 19105
+      #     revision: 7
+      #     datasource: Prometheus
+      #   miniflux:
+      #     url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
+      #     datasource: Prometheus
+      #   unpackerr:
+      #     # renovate: depName="Unpackerr"
+      #     gnetId: 18817
+      #     revision: 1
+      #     datasource:
+      #       - { name: DS_PROMETHEUS, value: Prometheus }
     sidecar:
       dashboards:
         enabled: true

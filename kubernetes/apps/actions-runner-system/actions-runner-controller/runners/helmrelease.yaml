@@ -34,7 +34,7 @@ spec:
   #     valuesKey: ACTION_RUNNER_CONTROLLER_GITHUB_TOKEN
   values:
     githubConfigUrl: https://github.com/vrozaksen/home-ops
-    githubConfigSecret: home-ops-runner
+    githubConfigSecret: home-ops-runner-secret
     minRunners: 1
     maxRunners: 3
     containerMode:

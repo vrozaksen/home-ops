@@ -47,7 +47,6 @@ spec:
         oauth_allow_insecure_email_lookup: true
       auth.anonymous:
         enabled: true
-        org_id: 1
         org_name: Main Org.
         org_role: Viewer
         hide_version: true
@@ -403,16 +402,6 @@ spec:
     ingress:
       enabled: true
       ingressClassName: external
-      annotations:
-        gethomepage.dev/enabled: "true"
-        gethomepage.dev/icon: grafana.png
-        gethomepage.dev/name: Grafana
-        gethomepage.dev/group: Observability
-        gethomepage.dev/description: Monitoring Dashboards
-        # gethomepage.dev/widget.type: grafana
-        # gethomepage.dev/widget.url: http://grafana.observability
-        # gethomepage.dev/widget.username: '{{`{{HOMEPAGE_VAR_GRAFANA_USERNAME}}`}}'
-        # gethomepage.dev/widget.password: '{{`{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}`}}'
       hosts:
         - "{{ .Release.Name }}.vzkn.eu"
     persistence:

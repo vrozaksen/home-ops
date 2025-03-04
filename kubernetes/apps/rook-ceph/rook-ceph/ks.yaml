@@ -13,7 +13,7 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/rook-ceph/rook-ceph/app
-  prune: false # let's not make happy accidents
+  prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
@@ -55,7 +55,7 @@ spec:
       APP: *app
       GATUS_SUBDOMAIN: rook
       GATUS_GROUP: infrastructure
-  prune: false # let's not make happy accidents
+  prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository

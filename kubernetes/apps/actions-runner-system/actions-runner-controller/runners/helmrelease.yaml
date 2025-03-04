@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: &name home-ops-runner
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: gha-runner-scale-set
@@ -27,11 +27,6 @@ spec:
       namespace: actions-runner-system
     - name: openebs
       namespace: storage
-  # valuesFrom:
-  #   - targetPath: githubConfigSecret.github_token
-  #     kind: Secret
-  #     name: home-ops-runner
-  #     valuesKey: ACTION_RUNNER_CONTROLLER_GITHUB_TOKEN
   values:
     githubConfigUrl: https://github.com/vrozaksen/home-ops
     githubConfigSecret: home-ops-runner-secret

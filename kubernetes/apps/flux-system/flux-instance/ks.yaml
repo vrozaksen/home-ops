@@ -14,7 +14,7 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/flux-system/flux-instance
-  prune: false
+  prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository

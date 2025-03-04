@@ -23,6 +23,7 @@ spec:
     crds: CreateReplace
     remediation:
       strategy: rollback
+      retries: 3
   values:
     manager:
       devices:

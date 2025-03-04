@@ -6,14 +6,10 @@ metadata:
   name: kube-prometheus-stack
 spec:
   interval: 1h
-  chart:
-    spec:
-      chart: kube-prometheus-stack
-      version: 69.7.2
-      sourceRef:
-        kind: HelmRepository
-        name: prometheus-community
-        namespace: flux-system
+  chartRef:
+    kind: OCIRepository
+    name: kube-prometheus-stack
+    namespace: observability
   install:
     remediation:
       retries: 3
@@ -48,16 +44,6 @@ spec:
               resources:
                 requests:
                   storage: 1Gi
-    grafana:
-      enabled: false
-      forceDeployDashboards: true
-      sidecar:
-        dashboards:
-          annotations:
-            grafana_folder: Kubernetes
-          multicluster:
-            etcd:
-              enabled: true
     kubeApiServer:
       serviceMonitor:
         selector:
@@ -74,6 +60,58 @@ spec:
       <<: *kubeControllerManager # etcd runs on control plane nodes
     kubeProxy:
       enabled: false
+    prometheus:
+      ingress:
+        enabled: true
+        ingressClassName: internal
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/icon: prometheus.png
+          gethomepage.dev/name: Prometheus
+          gethomepage.dev/group: Observability
+          gethomepage.dev/app: prometheus
+          gethomepage.dev/description: Monitoring Scrape Service
+          gethomepage.dev/widget.type: prometheus
+          gethomepage.dev/widget.url: http://kube-prometheus-stack-prometheus.observability:9090
+        pathType: Prefix
+        hosts: ["prometheus.vzkn.eu"]
+      prometheusSpec:
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        scrapeConfigSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        enableAdminAPI: true
+        walCompression: true
+        enableFeatures:
+          - memory-snapshot-on-shutdown
+        retention: 30d
+        retentionSize: 70GB
+        externalLabels:
+          cluster: main
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            memory: 3000Mi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              resources:
+                requests:
+                  storage: 75Gi
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+      prometheus:
+        monitor:
+          enabled: true
+          relabelings:
+            - action: replace
+              regex: (.*)
+              replacement: $1
+              sourceLabels: ["__meta_kubernetes_pod_node_name"]
+              targetLabel: kubernetes_node
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
       metricLabelsAllowlist:
@@ -89,17 +127,16 @@ spec:
               replacement: $1
               sourceLabels: ["__meta_kubernetes_pod_node_name"]
               targetLabel: kubernetes_node
-    prometheus-node-exporter:
-      fullnameOverride: node-exporter
-      prometheus:
-        monitor:
-          enabled: true
-          relabelings:
-            - action: replace
-              regex: (.*)
-              replacement: $1
-              sourceLabels: ["__meta_kubernetes_pod_node_name"]
-              targetLabel: kubernetes_node
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      sidecar:
+        dashboards:
+          annotations:
+            grafana_folder: Kubernetes
+          multicluster:
+            etcd:
+              enabled: true
     additionalPrometheusRulesMap:
       dockerhub-rules:
         groups:
@@ -131,44 +168,3 @@ spec:
                 expr: node_zfs_zpool_state{state!="online"} > 0
                 labels:
                   severity: critical
-    prometheus:
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: prometheus.png
-          gethomepage.dev/name: Prometheus
-          gethomepage.dev/group: Observability
-          gethomepage.dev/app: prometheus
-          gethomepage.dev/description: Monitoring Scrape Service
-          gethomepage.dev/widget.type: prometheus
-          gethomepage.dev/widget.url: http://kube-prometheus-stack-prometheus.observability:9090
-        pathType: Prefix
-        hosts: ["prometheus.vzkn.eu"]
-      prometheusSpec:
-        enableAdminAPI: true
-        walCompression: true
-        enableFeatures:
-          - memory-snapshot-on-shutdown
-        externalLabels:
-          cluster: main
-        resources:
-          requests:
-            cpu: 100m
-          limits:
-            memory: 3000Mi
-        ruleSelectorNilUsesHelmValues: false
-        serviceMonitorSelectorNilUsesHelmValues: false
-        podMonitorSelectorNilUsesHelmValues: false
-        probeSelectorNilUsesHelmValues: false
-        scrapeConfigSelectorNilUsesHelmValues: false
-        retention: 30d
-        retentionSize: 70GB
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: ceph-block
-              resources:
-                requests:
-                  storage: 75Gi

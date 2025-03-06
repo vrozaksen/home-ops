@@ -4,8 +4,8 @@
     {
       "description": ["Actions Runner Controller Group"],
       "groupName": "Actions Runner Controller",
-      "matchPackageNames": ["/gha-runner-scale-set/"],
       "matchDatasources": ["docker", "helm"],
+      "matchPackageNames": ["/gha-runner-scale-set/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }
@@ -13,8 +13,8 @@
     {
       "description": ["Dragonfly Operator Group"],
       "groupName": "Dragonfly Operator",
-      "matchPackageNames": ["/dragonfly/"],
       "matchDatasources": ["docker", "github-releases"],
+      "matchPackageNames": ["/dragonfly/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }
@@ -22,8 +22,8 @@
     {
       "description": ["Flux Operator Group"],
       "groupName": "Flux Operator",
-      "matchPackageNames": ["/flux-operator/", "/flux-instance/"],
       "matchDatasources": ["docker"],
+      "matchPackageNames": ["/flux-operator/", "/flux-instance/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }
@@ -31,8 +31,8 @@
     {
       "description": ["Intel Device Plugins Group"],
       "groupName": "Intel-Device-Plugins",
-      "matchPackageNames": ["/intel-device-plugins/"],
       "matchDatasources": ["helm"],
+      "matchPackageNames": ["/intel-device-plugins/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }
@@ -40,8 +40,8 @@
     {
       "description": ["Rook-Ceph Group"],
       "groupName": "Rook-Ceph",
-      "matchPackageNames": ["/rook.ceph/"],
       "matchDatasources": ["helm"],
+      "matchPackageNames": ["/rook.ceph/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }
@@ -49,8 +49,8 @@
     {
       "description": ["System Upgrade Controller Group"],
       "groupName": "System Upgrade Controller",
-      "matchPackageNames": ["/system-upgrade-controller/"],
       "matchDatasources": ["docker", "github-releases"],
+      "matchPackageNames": ["/system-upgrade-controller/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       }

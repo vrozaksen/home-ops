@@ -3,9 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: actions-runner-controller
-  namespace: flux-system
+  name: rook-ceph
 spec:
-  interval: 1h
-  type: oci
-  url: oci://ghcr.io/actions/actions-runner-controller-charts
+  interval: 2h
+  url: https://charts.rook.io/release

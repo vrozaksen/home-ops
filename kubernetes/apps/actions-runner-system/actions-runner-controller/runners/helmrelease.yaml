@@ -13,7 +13,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
-        namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -22,16 +21,11 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  dependsOn:
-    - name: actions-runner-controller
-      namespace: actions-runner-system
-    - name: openebs
-      namespace: storage
   values:
     githubConfigUrl: https://github.com/vrozaksen/home-ops
     githubConfigSecret: home-ops-runner-secret
     minRunners: 1
-    maxRunners: 3
+    maxRunners: 6
     containerMode:
       type: kubernetes
       kubernetesModeWorkVolumeClaim:

@@ -3,8 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: piraeus
-  namespace: flux-system
+  name: itzg-charts
 spec:
-  interval: 12h
-  url: https://piraeus.io/helm-charts/
+  interval: 2h
+  url: https://itzg.github.io/minecraft-server-charts/

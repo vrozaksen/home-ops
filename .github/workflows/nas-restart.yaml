@@ -1,6 +1,6 @@
 ---
   # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-  name: "Deployment Restart"
+  name: NFS Deployment Restart
 
   on:
     workflow_dispatch:
@@ -8,9 +8,9 @@
       types: [nas-restart]
 
   jobs:
-    sync:
-      name: Deployment Restart
-      runs-on: home-ops-runner
+    main:
+      name: NFS Deployment Restart - Deployment Restart
+      runs-on: [home-ops-runner]
       steps:
         - name: Get Secrets
           uses: bitwarden/sm-action@v2

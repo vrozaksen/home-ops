@@ -14,7 +14,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: rook-ceph
-        namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -25,7 +24,6 @@ spec:
       retries: 3
   dependsOn:
     - name: rook-ceph-operator
-      namespace: rook-ceph
     - name: volsync
       namespace: storage
   values:

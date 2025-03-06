@@ -11,6 +11,11 @@ spec:
   dependsOn:
     - name: bitwarden
       namespace: external-secrets
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: cert-manager
   healthCheckExprs:
     - apiVersion: cert-manager.io/v1
       kind: ClusterIssuer
@@ -26,7 +31,6 @@ spec:
     namespace: flux-system
   targetNamespace: cert-manager
   timeout: 5m
-  wait: true
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1

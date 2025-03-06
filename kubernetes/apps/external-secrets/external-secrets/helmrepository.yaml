@@ -3,14 +3,14 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: OCIRepository
 metadata:
-  name: spegel
+  name: external-secrets
 spec:
   interval: 1h
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: v0.0.30
-  url: oci://ghcr.io/spegel-org/helm-charts/spegel
+    tag: 0.14.3
+  url: oci://ghcr.io/external-secrets/charts/external-secrets
   verify:
     provider: cosign

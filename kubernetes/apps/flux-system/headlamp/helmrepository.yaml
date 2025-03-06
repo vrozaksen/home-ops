@@ -3,9 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: tofu-controller
-  namespace: flux-system
+  name: headlamp
 spec:
-  type: oci
   interval: 1h
-  url: oci://ghcr.io/flux-iac/charts
+  url: https://headlamp-k8s.github.io/headlamp/

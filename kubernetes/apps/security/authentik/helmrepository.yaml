@@ -3,9 +3,8 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: prometheus-community
-  namespace: flux-system
+  name: authentik-charts
 spec:
-  type: oci
   interval: 30m
-  url: oci://ghcr.io/prometheus-community/charts
+  url: https://charts.goauthentik.io
+  timeout: 3m

@@ -27,6 +27,6 @@ spec:
     - name: intel-device-plugin-operator
       namespace: kube-tools
   values:
-    name: intel-device-plugin-gpu
+    name: intel-gpu-plugin
+    nodeFeatureRule: false
     sharedDevNum: 99
-    nodeFeatureRule: true

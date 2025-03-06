@@ -63,7 +63,7 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.arpa
-        path: /mnt/user/data
+        path: /mnt/user/zfs_data
         globalMounts:
         - path: /downloads
           subPath: metube

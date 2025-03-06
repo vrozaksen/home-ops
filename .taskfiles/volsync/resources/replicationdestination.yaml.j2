@@ -13,8 +13,8 @@ spec:
     copyMethod: Direct
     storageClassName: {{ ENV.STORAGE_CLASS_NAME }}
     accessModes: {{ ENV.ACCESS_MODES }}
-    #previous: {{ ENV.PREVIOUS }}
-    restoreAsOf: "2025-02-26"
+    previous: {{ ENV.PREVIOUS }}
+    #restoreAsOf: '2025-02-27T20:01:03-04:00'
     moverSecurityContext:
       runAsUser: {{ ENV.PUID }}
       runAsGroup: {{ ENV.PGID }}

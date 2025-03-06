@@ -13,5 +13,5 @@ resources:
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
   - ./neko/ks.yaml
-  - ./stirling-pdf/ks.yaml
+  # - ./stirling-pdf/ks.yaml # TODO Also broken
   - ./thelounge/ks.yaml

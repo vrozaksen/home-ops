@@ -8,7 +8,7 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: intel-devices-plugin-operator
+      chart: intel-device-plugins-operator
       version: 0.32.0
       sourceRef:
         kind: HelmRepository
@@ -21,8 +21,9 @@ spec:
     cleanupOnFail: true
     crds: CreateReplace
     remediation:
-      strategy: rollback
       retries: 3
+  uninstall:
+    keepHistory: false
   values:
     manager:
       devices:

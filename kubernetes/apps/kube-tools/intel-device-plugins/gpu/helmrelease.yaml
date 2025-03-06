@@ -21,10 +21,12 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  uninstall:
+    keepHistory: false
   dependsOn:
     - name: intel-device-plugin-operator
       namespace: kube-tools
   values:
-    name: intel-gpu-plugin
-    nodeFeatureRule: false
+    name: intel-device-plugin-gpu
     sharedDevNum: 99
+    nodeFeatureRule: true

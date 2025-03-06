@@ -78,7 +78,7 @@ spec:
         type: emptyDir
       data:
         type: nfs
-        server: aincrad
+        server: aincrad.home.arpa
         path: /mnt/user/data
         globalMounts:
           - path: /data

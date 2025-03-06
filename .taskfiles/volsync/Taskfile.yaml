@@ -96,7 +96,7 @@ tasks:
     env:
       NS: '{{.NS}}'
       APP: '{{.APP}}'
-      PREVIOUS: '{{.PREVIOUS}}'
+      #PREVIOUS: '{{.PREVIOUS}}'
       CLAIM:
         sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath='{.spec.sourcePVC}'
       ACCESS_MODES:
@@ -108,7 +108,7 @@ tasks:
       PGID:
         sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath='{.spec.restic.moverSecurityContext.runAsGroup}'
     requires:
-      vars: [APP, PREVIOUS]
+      vars: [APP]
     preconditions:
       - test -f {{.VOLSYNC_RESOURCES_DIR}}/replicationdestination.yaml.j2
       - which flux kubectl minijinja-cli

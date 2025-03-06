@@ -108,8 +108,8 @@ locals {
       client_secret = local.parsed_secrets["miniflux"].client_secret
       group         = "home"
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/miniflux.png"
-      redirect_uri  = "https://rr.${var.cluster_domain}/oauth2/oidc/callback"
-      launch_url    = "https://rr.${var.cluster_domain}/"
+      redirect_uri  = "https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"
+      launch_url    = "https://miniflux.${var.cluster_domain}/"
     }
   }
 }

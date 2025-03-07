@@ -33,13 +33,7 @@ spec:
             env:
               TZ: Europe/Warsaw
               QBT_WEBUI_PORT: &port 80
-              QBT_TORRENTING_PORT: &torrentPort 50413
-              QBT_Application__MemoryWorkingSetLimit:
-                valueFrom:
-                  resourceFieldRef:
-                    resource: limits.memory
-                    containerName: app
-                    divisor: 1Mi
+              QBT_TORRENTING_PORT: &torrentPort 54535
               QBT_Preferences__WebUI__AlternativeUIEnabled: true
               QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
               QBT_Preferences__WebUI__AuthSubnetWhitelist: |-

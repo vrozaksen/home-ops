@@ -5,6 +5,8 @@ kind: HelmRelease
 metadata:
   name: rook-ceph-cluster
 spec:
+  # driftDetection:
+  #   mode: enabled
   interval: 1h
   timeout: 15m
   chart:
@@ -41,17 +43,14 @@ spec:
     cephClusterSpec:
       cephConfig:
         global:
-          bdev_enable_discard: "true" # quote
+          bdev_enable_discard: "true"
           bdev_async_discard_threads: "1" # quote
-          osd_class_update_on_start: "false" # quote
+          osd_class_update_on_start: "false"
           device_failure_prediction_mode: local # requires mgr module
         mgr:
           mgr/crash/warn_recent_interval: "7200" # 2h
       crashCollector:
         disable: false
-      csi:
-        readAffinity:
-          enabled: true
       dashboard:
         enabled: true
         urlPrefix: /
@@ -86,23 +85,6 @@ spec:
                     - key: node-role.kubernetes.io/control-plane
                       operator: Exists
         mon: *placement
-      resources:
-        api:
-          requests:
-              cpu: "500m"
-              memory: "512Mi"
-        mgr:
-          requests:
-              cpu: 100m
-              memory: 768Mi
-        mon:
-          requests:
-              cpu: 100m
-              memory: 512Mi
-        osd:
-          requests:
-              cpu: 250m
-              memory: 1024Mi
     cephBlockPools:
       - name: ceph-blockpool
         spec:
@@ -118,6 +100,9 @@ spec:
           volumeBindingMode: Immediate
           mountOptions: ["discard"]
           parameters:
+            # TODO: Consider enabling compression on cluster rebuild
+            compression_mode: aggressive
+            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
@@ -158,8 +143,8 @@ spec:
                       app.kubernetes.io/part-of: *cephFileSystemName
             resources:
               requests:
-                cpu: 50m
-                memory: 100Mi
+                cpu: 100m
+                memory: 1Gi
               limits:
                 memory: 4Gi
         storageClass:
@@ -183,46 +168,46 @@ spec:
       name: csi-ceph-filesystem
       isDefault: false
       deletionPolicy: Delete
-    cephObjectStores:
-      - name: ceph-objectstore
-        spec:
-          metadataPool:
-            failureDomain: host
-            replicated:
-              size: 3
-          dataPool:
-            failureDomain: host
-            erasureCoded:
-              dataChunks: 2
-              codingChunks: 1
-          preservePoolsOnDelete: true
-          gateway:
-            hostNetwork: false
-            port: 80
-            resources:
-              requests:
-                cpu: 100m
-                memory: 1Gi
-              limits:
-                memory: 2Gi
-            instances: 2
-            priorityClassName: system-cluster-critical
-          healthCheck:
-            bucket:
-              interval: 60s
-        storageClass:
-          enabled: true
-          name: ceph-bucket
-          reclaimPolicy: Delete
-          volumeBindingMode: Immediate
-          parameters:
-            region: pl-central-1
-        ingress:
-          enabled: true
-          ingressClassName: internal
-          annotations:
-            nginx.ingress.kubernetes.io/proxy-body-size: "0"
-            nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-          host:
-            name: rgw.vzkn.eu
-            path: /
+    cephObjectStores: []
+      # - name: ceph-objectstore
+      #   spec:
+      #     metadataPool:
+      #       failureDomain: host
+      #       replicated:
+      #         size: 3
+      #     dataPool:
+      #       failureDomain: host
+      #       erasureCoded:
+      #         dataChunks: 2
+      #         codingChunks: 1
+      #     preservePoolsOnDelete: true
+      #     gateway:
+      #       hostNetwork: false
+      #       port: 80
+      #       resources:
+      #         requests:
+      #           cpu: 100m
+      #           memory: 1Gi
+      #         limits:
+      #           memory: 2Gi
+      #       instances: 2
+      #       priorityClassName: system-cluster-critical
+      #     healthCheck:
+      #       bucket:
+      #         interval: 60s
+      #   storageClass:
+      #     enabled: true
+      #     name: ceph-bucket
+      #     reclaimPolicy: Delete
+      #     volumeBindingMode: Immediate
+      #     parameters:
+      #       region: ca-west-1
+      #   ingress:
+      #     enabled: true
+      #     ingressClassName: internal
+      #     annotations:
+      #       nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      #       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+      #     host:
+      #       name: rgw.vzkn.eu
+      #       path: /

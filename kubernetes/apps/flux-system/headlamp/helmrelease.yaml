@@ -55,7 +55,7 @@ spec:
       enabled: true
       accessModes: ["ReadWriteMany"]
       size: 1Gi
-      storageClassName: ceph-filesystem
+      storageClassName: ceph-block
     volumeMounts:
       - mountPath: /build/plugins
         name: headlamp-plugins

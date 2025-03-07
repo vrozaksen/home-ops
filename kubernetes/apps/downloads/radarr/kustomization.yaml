@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  # - ./pvc.yaml
+  - ./pvc.yaml
 configMapGenerator:
   - name: radarr-configmap
     files:

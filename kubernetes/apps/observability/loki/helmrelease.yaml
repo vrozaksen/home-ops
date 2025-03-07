@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: loki
-    namespace: observability
   install:
     crds: Skip
     remediation:

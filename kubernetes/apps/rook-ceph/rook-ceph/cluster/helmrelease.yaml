@@ -93,8 +93,8 @@ spec:
           mountOptions: ["discard"]
           parameters:
             # TODO: Consider enabling compression on cluster rebuild
-            compression_mode: aggressive
-            compression_algorithm: zstd
+            # compression_mode: aggressive
+            # compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner

@@ -53,6 +53,7 @@ spec:
               type: Prefix
     persistentVolumeClaim:
       enabled: true
+      existingClaim: *app
       accessModes: ["ReadWriteMany"]
       size: 1Gi
       storageClassName: ceph-block

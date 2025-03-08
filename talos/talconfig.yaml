@@ -34,33 +34,22 @@ nodes:
     installDiskSelector:
       model: "INTEL*"
     networkInterfaces:
-      - interface: bond0
-        bond:
-          mode: active-backup
-          primary: enp2s0
-          deviceSelectors:
-            - hardwareAddr: 00:e0:4c:68:07:2c # 2.5G - enp2s0
-            - hardwareAddr: f8:75:a4:09:50:fd # 1G - eno1
-              driver: e1000e
+      # 1G Internal Port / eno1
+      - deviceSelector:
+          hardwareAddr: f8:75:a4:09:50:fd
         dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PCIe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:2c
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
-      # # 1G Internal Port / eno1
-      # - deviceSelector:
-      #     hardwareAddr: f8:75:a4:09:50:fd
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 2048
-      # # 2.5G PCIe Port / enp2s0
-      # - deviceSelector:
-      #     hardwareAddr: 00:e0:4c:68:07:2c
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
-      #   vip:
-      #     ip: *vip
   - hostname: "alne"
     ipAddress: "10.10.0.22"
     #installDisk: /dev/sda
@@ -70,33 +59,22 @@ nodes:
     installDiskSelector:
       model: "MTFD*"
     networkInterfaces:
-      - interface: bond0
-        bond:
-          mode: active-backup
-          primary: enp2s0
-          deviceSelectors:
-            - hardwareAddr: 00:e0:4c:68:07:b6 # 2.5G - enp2s0
-            - hardwareAddr: e8:6a:64:47:fe:44 # 1G - eno1
-              driver: e1000e
+      # 1G Internal Port
+      - deviceSelector:
+          hardwareAddr: e8:6a:64:47:fe:44
         dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PICe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:b6
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
-      # # 1G Internal Port
-      # - deviceSelector:
-      #     hardwareAddr: e8:6a:64:47:fe:44
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 2048
-      # # 2.5G PICe Port / enp2s0
-      # - deviceSelector:
-      #     hardwareAddr: 00:e0:4c:68:07:b6
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
-      #   vip:
-      #     ip: *vip
   - hostname: "ainias"
     ipAddress: "10.10.0.23"
     #installDisk: /dev/sda
@@ -106,33 +84,22 @@ nodes:
     installDiskSelector:
       model: "SAMSUNG*"
     networkInterfaces:
-      - interface: bond0
-        bond:
-          mode: active-backup
-          primary: enp2s0
-          deviceSelectors:
-            - hardwareAddr: 00:e0:4c:68:07:90 # 2.5G - enp2s0
-            - hardwareAddr: 8c:16:45:9d:0e:6f # 1G - eno1
-              driver: e1000e
+      # 1G Internal Port
+      - deviceSelector:
+          hardwareAddr: 8c:16:45:9d:0e:6f
         dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 2048
+      # 2.5G PICe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 00:e0:4c:68:07:90
+        dhcp: true
+        mtu: 1500
+        dhcpOptions:
+            routeMetric: 1024
         vip:
           ip: *vip
-      # # 1G Internal Port
-      # - deviceSelector:
-      #     hardwareAddr: 8c:16:45:9d:0e:6f
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 2048
-      # # 2.5G PICe Port / enp2s0
-      # - deviceSelector:
-      #     hardwareAddr: 00:e0:4c:68:07:90
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
-      #   vip:
-      #     ip: *vip
 patches:
   - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
   - "@./patches/global/machine-install.yaml" # Less security, faster puter

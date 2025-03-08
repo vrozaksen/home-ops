@@ -10,7 +10,7 @@ resources:
   - ./fstrim/ks.yaml
   - ./intel-device-plugins/ks.yaml
   - ./reloader/ks.yaml
-#  - ./spegel/ks.yaml
+  - ./spegel/ks.yaml
   - ./system-upgrade-controller/ks.yaml
 configMapGenerator:
   - name: system-upgrade-plan-versions

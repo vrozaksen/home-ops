@@ -117,6 +117,9 @@ spec:
             enabled: true
             port: *torrentPort
             protocol: TCP
+          bittorrent-utp:
+            port: *torrentPort
+            protocol: UDP
     ingress:
       app:
         className: internal

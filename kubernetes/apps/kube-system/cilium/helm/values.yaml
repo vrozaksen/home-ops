@@ -19,7 +19,8 @@ cluster:
   name: main
 cni:
   exclusive: false
-devices: enp+
+#devices: enp+
+devices: bond0
 enableRuntimeDeviceDetection: true
 endpointRoutes:
   enabled: true

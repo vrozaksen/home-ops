@@ -124,14 +124,10 @@ spec:
         globalMounts:
           - path: *mediaPath
             readOnly: false
-      temp:
-        existingClaim: tdarr-cache
+      cache:
+        enabled: true
+        type: nfs
+        server: aincrad.home.arpa
+        path: /mnt/user/temp/tdarr
         globalMounts:
           - path: /temp
-      # cache:
-      #   enabled: true
-      #   type: nfs
-      #   server: aincrad.home.arpa
-      #   path: /mnt/user/temp/tdarr
-      #   globalMounts:
-      #     - path: /temp

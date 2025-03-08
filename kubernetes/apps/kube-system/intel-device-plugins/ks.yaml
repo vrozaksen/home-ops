@@ -9,14 +9,14 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-tools/intel-device-plugins/operator
+  path: ./kubernetes/apps/kube-system/intel-device-plugins/operator
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: kube-tools
+  targetNamespace: kube-system
   timeout: 5m
   wait: false
 ---
@@ -30,13 +30,13 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-tools/intel-device-plugins/gpu
+  path: ./kubernetes/apps/kube-system/intel-device-plugins/gpu
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: kube-tools
+  targetNamespace: kube-system
   timeout: 5m
   wait: false

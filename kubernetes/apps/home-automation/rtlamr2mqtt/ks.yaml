@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: node-feature-discovery-features
-      namespace: kube-tools
+      namespace: kube-system
     - name: mosquitto
       namespace: home-automation
   interval: 1h

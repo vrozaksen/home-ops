@@ -9,14 +9,14 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-tools/system-upgrade-controller/app
+  path: ./kubernetes/apps/kube-system/system-upgrade-controller/app
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: kube-tools
+  targetNamespace: kube-system
   timeout: 5m
   wait: true
 ---
@@ -31,9 +31,9 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: system-upgrade-controller
-      namespace: kube-tools
+      namespace: kube-system
   interval: 1h
-  path: ./kubernetes/apps/kube-tools/system-upgrade-controller/plans
+  path: ./kubernetes/apps/kube-system/system-upgrade-controller/plans
   postBuild:
     substituteFrom:
       - kind: ConfigMap
@@ -44,6 +44,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: kube-tools
+  targetNamespace: kube-system
   timeout: 5m
   wait: false

@@ -20,7 +20,7 @@ spec:
       retries: 3
   dependsOn:
     - name: intel-device-plugin-gpu
-      namespace: kube-tools
+      namespace: kube-system
   values:
     defaultPodOptions:
       topologySpreadConstraints:

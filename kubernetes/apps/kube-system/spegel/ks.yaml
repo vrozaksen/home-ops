@@ -9,13 +9,13 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-tools/spegel
+  path: ./kubernetes/apps/kube-system/spegel
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: kube-tools
+  targetNamespace: kube-system
   timeout: 5m
   wait: false

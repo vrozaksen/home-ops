@@ -12,7 +12,7 @@ vars:
   TALOS_DIR: '{{.ROOT_DIR}}/talos'
 
 dotenv:
-  - '{{.KUBERNETES_DIR}}/apps/kube-tools/.env'
+  - '{{.KUBERNETES_DIR}}/apps/kube-system/.env'
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'

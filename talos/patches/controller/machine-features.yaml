@@ -10,4 +10,4 @@ machine:
         - os:admin
       allowedKubernetesNamespaces:
         - actions-runner-system
-        - kube-tools
+        - kube-system

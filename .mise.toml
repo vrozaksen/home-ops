@@ -12,7 +12,7 @@ SCRIPTS_DIR = "{{config_root}}/scripts"
 TALOS_DIR = "{{config_root}}/talos"
 # Included file paths
 _.file = [
-  "{{config_root}}/kubernetes/apps/kube-tools/.env"
+  "{{config_root}}/kubernetes/apps/kube-system/.env"
 ]
 # _.python.venv = { path = "{{config_root}}/.venv", create = true }
 

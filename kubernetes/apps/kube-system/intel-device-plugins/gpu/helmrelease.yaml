@@ -25,7 +25,7 @@ spec:
     keepHistory: false
   dependsOn:
     - name: intel-device-plugin-operator
-      namespace: kube-tools
+      namespace: kube-system
   values:
     name: intel-gpu-plugin
     nodeFeatureRule: false

@@ -42,6 +42,8 @@ spec:
           - 109 # render
     controllers:
       tdarr:
+        labels:
+          nfsMount: "true"
         replicas: 3
         containers:
           node:

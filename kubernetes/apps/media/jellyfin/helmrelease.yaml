@@ -24,6 +24,8 @@ spec:
   values:
     controllers:
       jellyfin:
+        labels:
+          nfsMount: "true"
         pod:
           securityContext:
             runAsNonRoot: true

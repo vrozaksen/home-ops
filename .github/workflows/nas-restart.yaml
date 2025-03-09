@@ -19,9 +19,6 @@
             secrets: |
               7888f846-9c9d-4849-8ee4-b256018a3883 > KUBECONFIG
 
-        - name: Generate Token
-          uses: actions/create-github-app-token@v1
-
         - name: Checkout
           uses: actions/checkout@v4
 

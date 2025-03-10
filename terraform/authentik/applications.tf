@@ -9,7 +9,8 @@ locals {
     "paperless",
     "rresume",
     "outline",
-    "miniflux"
+    "miniflux",
+    "mealie"
   ]
 }
 
@@ -110,6 +111,14 @@ locals {
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/miniflux.png"
       redirect_uri  = "https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"
       launch_url    = "https://miniflux.${var.cluster_domain}/"
+    },
+    mealie = {
+      client_id     = local.parsed_secrets["mealie"].client_id
+      client_secret = local.parsed_secrets["mealie"].client_secret
+      group         = "home"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/mealie.png"
+      redirect_uri  = "https://mealie.${var.cluster_domain}/login"
+      launch_url    = "https://mealie.${var.cluster_domain}/"
     }
   }
 }

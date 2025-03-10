@@ -121,9 +121,13 @@ spec:
       databases: ["sonarr_main"]
       password:
         type: AlphaNumeric
-    # New
+    # Home
     - name: "miniflux"
       databases: ["miniflux"]
+      password:
+        type: AlphaNumeric
+    - name: "mealie"
+      databases: ["mealie"]
       password:
         type: AlphaNumeric
   backups:

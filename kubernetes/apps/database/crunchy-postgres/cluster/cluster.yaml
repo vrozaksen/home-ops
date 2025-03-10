@@ -126,10 +126,10 @@ spec:
       databases: ["miniflux"]
       password:
         type: AlphaNumeric
-    # - name: "mealie"
-    #   databases: ["mealie"]
-    #   password:
-    #     type: AlphaNumeric
+    - name: "mealie"
+      databases: ["mealie"]
+      password:
+        type: AlphaNumeric
   backups:
     pgbackrest:
       configuration: &backupConfig

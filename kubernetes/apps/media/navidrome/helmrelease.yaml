@@ -1,0 +1,141 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app navidrome
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      navidrome:
+        labels:
+          nfsMount: "true"
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 100
+            fsGroup: 100
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: ghcr.io/navidrome/navidrome
+              tag: 0.54.4@sha256:5c15cb7792c8e0b3a3bed212609c2072ba70bbff91e6ddff651ba2829101d4c1
+            env:
+              # Baisc
+              TZ: Europe/Warsaw
+              ND_MUSICFOLDER: /music
+              ND_DATAFOLDER: /config
+              ND_CACHEFOLDER: /config/cache
+              ND_LOGLEVEL: info
+              ND_BASEURL: https://music.vzkn.eu
+              ND_PORT: &port 8080
+              ND_ENABLEINSIGHTSCOLLECTOR: false
+              # Advanced
+              # ND_AUTHREQUESTLIMIT: 0 - Default: 5
+              ND_COVERJPEGQUALITY: 100 # Default: 75
+              ND_DEFAULTTHEME: Spotify-ish
+              ND_ENABLEDOWNLOADS: true
+              ND_ENABLEEXTERNALSERVICES: true
+              ND_ENABLEGRAVATAR: true
+              ND_ENABLESHARING: true
+              ND_ENABLESTARRATING: true # Default: false
+              ND_IMAGECACHESIZE: 1GB
+              # ND_LISTENBRAINZ_BASEURL: http://maloja.media.svc.cluster.local/apis/listenbrainz/1/
+              # ND_LISTENBRAINZ_ENABLED: true
+              ND_PROMETHEUS_ENABLED: true
+              ND_PROMETHEUS_METRICSPATH: &metrics /metrics
+              # ND_REVERSEPROXYUSERHEADER: "X-authentik-username"
+              ND_REVERSEPROXYWHITELIST: 10.0.0.0/8
+              ND_SCANNER_SCHEDULE: "@every 1h"
+              ND_SEARCHFULLSTRING: true
+              ND_TRANSCODINGCACHESIZE: 1GB
+              ND_SUBSONIC_ARTISTPARTICIPATIONS: true
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 20m
+                memory: 128Mi
+              limits:
+                memory: 2Gi
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    serviceMonitor:
+      app:
+        serviceName: *app
+        endpoints:
+          - port: http
+            scheme: http
+            path: *metrics
+    ingress:
+      app:
+        className: external
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/icon: navidrome.png
+          gethomepage.dev/name: navidrome
+          gethomepage.dev/group: Video
+          gethomepage.dev/description: Music Player
+          # gethomepage.dev/widget.type: navidrome
+          # gethomepage.dev/widget.url: http://navidrome.media:8096
+          # gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_navidrome_API_KEY}}" }}'
+        hosts:
+          - host: music.vzkn.eu
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+    persistence:
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config
+      music:
+        type: nfs
+        server: aincrad.home.arpa
+        path: /mnt/user/zfs_data/media
+        globalMounts:
+          - path: /music
+            subPath: music
+            #readOnly: true
+      tmp:
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 128Mi

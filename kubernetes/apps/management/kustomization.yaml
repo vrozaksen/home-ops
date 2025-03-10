@@ -7,6 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./meshcentral/ks.yaml
-  # - ./pgadmin/ks.yaml # TODO Something is broken here
+  - ./pgadmin/ks.yaml
 #  - ./rustdesk/ks.yaml
   - ./sshwifty/ks.yaml

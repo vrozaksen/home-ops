@@ -21,6 +21,7 @@ spec:
   values:
     controllers:
       pgadmin:
+        type: statefulset
         annotations:
           configmap.reloader.stakater.com/reload: servers-json
           secret.reloader.stakater.com/reload: pgadmin-local-config,pgadmin
@@ -32,12 +33,13 @@ spec:
             env:
               TZ: "Europe/Warsaw"
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
-              PGADMIN_CONFIG_ENABLE_PSQL: "True"
               PGADMIN_DISABLE_POSTFIX: "true"
+              AUTHENTICATION_SOURCES: ['oauth2', 'internal']
+              MASTER_PASSWORD_REQUIRED: false
               PGADMIN_LISTEN_PORT: &port 80
-            # envFrom:
-            #   - secretRef:
-            #       name: *app
+            envFrom:
+              - secretRef:
+                  name: pgadmin-secret
             probes:
               liveness: &probes
                 enabled: true

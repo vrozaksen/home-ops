@@ -34,7 +34,7 @@ spec:
               TZ: "Europe/Warsaw"
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
               PGADMIN_DISABLE_POSTFIX: "true"
-              AUTHENTICATION_SOURCES: ['oauth2', 'internal']
+              # AUTHENTICATION_SOURCES: ['oauth2', 'internal']
               MASTER_PASSWORD_REQUIRED: false
               PGADMIN_LISTEN_PORT: &port 80
             envFrom:

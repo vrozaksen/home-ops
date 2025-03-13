@@ -43,7 +43,10 @@ spec:
               tag: 10.10.6@sha256:96b09723b22fdde74283274bdc1f63b9b76768afd6045dd80d4a4559fc4bb7f3
             env:
               TZ: Europe/Warsaw
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
               JELLYFIN_PublishedServerUrl: https://jf.vzkn.eu
+              JELLYFIN_FFmpeg__probesize: 50000000
+              JELLYFIN_FFmpeg__analyzeduration: 50000000
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -92,6 +95,8 @@ spec:
       app:
         className: external
         annotations:
+          external-dns.alpha.kubernetes.io/target: ipv4.vzkn.eu
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/icon: jellyfin.png
           gethomepage.dev/name: Jellyfin
@@ -101,12 +106,15 @@ spec:
           gethomepage.dev/widget.url: http://jellyfin.media:8096
           gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}" }}'
         hosts:
-          - host: jf.vzkn.eu
+          - host: &host jf.vzkn.eu
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
+        tls:
+          - hosts:
+              - *host
     persistence:
       config:
         existingClaim: *app

@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app zipline
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      zipline:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/diced/zipline
+              tag: v4@sha256:9b06adf5323ec05c781836e2b3e092a3ea702ff565b173887c0b56b235c26ae3
+            env:
+              TZ: Europe/Warsaw
+              CORE_HOSTNAME: 0.0.0.0
+              CORE_PORT: &port 3000
+              CORE_COMPRESSION_ENABLED: "true"
+              CORE_COMPRESSION_THRESHOLD: 200mb
+              CORE_COMPRESSION_ON_DASHBOARD: "true"
+              DATASOURCE_TYPE: "s3"
+              DATASOURCE_S3_FORCE_PATH_STYLE: true
+              DATASOURCE_S3_BUCKET: "zipline"
+              DATASOURCE_S3_ENDPOINT: "https://s3.vzkn.eu"
+              DATASOURCE_S3_REGION: "main"
+              EXIF_ENABLED: "false"
+              EXIF_REMOVE_GPS: "true"
+              FEATURES_INVITES: "true"
+              FEATURES_INVITES_LENGTH: "16"
+              FEATURES_OAUTH_REGISTRATION: "true"
+              FEATURES_USER_REGISTRATION: "false"
+              FEATURES_HEADLESS: "false"
+              FEATURES_ROBOTS_TXT: "true"
+              RATELIMIT_USER: "5"
+              RATELIMIT_ADMIN: "1"
+              UPLOADER_DEFAULT_FORMAT: RANDOM
+              UPLOADER_ROUTE: /file
+              UPLOADER_ADMIN_LIMIT: 100gb
+              UPLOADER_USER_LIMIT: 500mb
+              UPLOADER_DISABLED_EXTENSIONS: ps1,pdf,bat,exe,sh,fish
+              UPLOADER_DEFAULT_EXPIRATION:
+              URLS_ROUTE: &shorten /g
+              URLS_LENGTH: "6"
+              WEBSITE_TITLE: Zipline
+              WEBSITE_SHOW_FILES_PER_USER: "false"
+              WEBSITE_EXTERNAL_LINKS: '[{label:Admin: Vrozaksen,link:https://vzkn.eu,{label:Powered by Zipline,link:https://github.com/diced/zipline}]'
+              WEBSITE_SHOW_VERSION: "true"
+              WEBSITE_DISABLE_MEDIA_PREVIEW: "false"
+            envFrom:
+              - secretRef:
+                  name: zipline-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                memory: 512Mi
+              limits:
+                memory: 4Gi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: external
+        hosts:
+          - host: z.vzkn.eu
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+    persistence:
+      tmp:
+        type: emptyDir

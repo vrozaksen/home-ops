@@ -130,8 +130,8 @@ spec:
       databases: ["mealie"]
       password:
         type: AlphaNumeric
-    - name: "nextcloud"
-      databases: ["nextcloud"]
+    - name: "zipline"
+      databases: ["zipline"]
       password:
         type: AlphaNumeric
   backups:

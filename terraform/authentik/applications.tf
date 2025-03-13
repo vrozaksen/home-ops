@@ -11,7 +11,7 @@ locals {
     "outline",
     "miniflux",
     "mealie",
-    "nextcloud"
+    "zipline"
   ]
 }
 
@@ -121,13 +121,13 @@ locals {
       redirect_uri  = "https://mealie.${var.cluster_domain}/login"
       launch_url    = "https://mealie.${var.cluster_domain}/"
     },
-    nextcloud = {
-      client_id     = local.parsed_secrets["nextcloud"].client_id
-      client_secret = local.parsed_secrets["nextcloud"].client_secret
+    zipline = {
+      client_id     = local.parsed_secrets["zipline"].client_id
+      client_secret = local.parsed_secrets["zipline"].client_secret
       group         = "home"
-      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/nextcloud.png"
-      redirect_uri  = "https://cloud.${var.cluster_domain}/apps/user_oidc/code"
-      launch_url    = "https://cloud.${var.cluster_domain}/apps/user_oidc/code"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/zipline.png"
+      redirect_uri  = "https://z.${var.cluster_domain}/api/auth/oauth/oidc"
+      launch_url    = "https://z.${var.cluster_domain}/"
     }
   }
 }

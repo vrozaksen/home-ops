@@ -124,7 +124,7 @@ locals {
     zipline = {
       client_id     = local.parsed_secrets["zipline"].client_id
       client_secret = local.parsed_secrets["zipline"].client_secret
-      group         = "home"
+      group         = "downloads"
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/zipline.png"
       redirect_uri  = "https://z.${var.cluster_domain}/api/auth/oauth/oidc"
       launch_url    = "https://z.${var.cluster_domain}/"

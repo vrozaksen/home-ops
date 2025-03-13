@@ -88,6 +88,7 @@ spec:
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: 10.10.0.30
+        externalTrafficPolicy: Local
         ports:
           http:
             port: *port
@@ -95,8 +96,6 @@ spec:
       app:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: ipv4.vzkn.eu
-          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/icon: jellyfin.png
           gethomepage.dev/name: Jellyfin

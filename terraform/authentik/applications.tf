@@ -126,8 +126,8 @@ locals {
       client_secret = local.parsed_secrets["nextcloud"].client_secret
       group         = "home"
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/nextcloud.png"
-      redirect_uri  = "https://nextcloud.${var.cluster_domain}/apps/user_oidc/code"
-      launch_url    = "https://nextcloud.${var.cluster_domain}/"
+      redirect_uri  = "https://cloud.${var.cluster_domain}/apps/user_oidc/code"
+      launch_url    = "https://cloud.${var.cluster_domain}/"
     }
   }
 }

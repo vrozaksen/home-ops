@@ -135,7 +135,7 @@ spec:
             'oidc_login_logout_url' => 'https://sso.vzkn.eu/application/o/nextcloud/end-session/',
             'oidc_login_end_session_redirect' => true,
             'oidc_login_default_quota' => '50000000000',
-            'oidc_login_button_text' => 'Authentik',
+            'oidc_login_button_text' => 'Authentik SSO',
             'oidc_login_hide_password_form' => false,
             'oidc_login_attributes' => array (
                      'id' => 'sub',

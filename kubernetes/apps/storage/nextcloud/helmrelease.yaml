@@ -61,11 +61,11 @@ spec:
         usernameKey: NEXTCLOUD_ADMIN_USER
         passwordKey: NEXTCLOUD_ADMIN_PASS
 
-      host: nextcloud.vzkn.eu
+      host: cloud.vzkn.eu
 
       mail:
         enabled: true
-        fromAddress: nextcloud.vzkn.eu
+        fromAddress: cloud.vzkn.eu
         domain: vzkn.eu
         smtp:
           secure: tls
@@ -95,7 +95,7 @@ spec:
         ingress.config.php: |-
           <?php
           $CONFIG = array (
-            'overwrite.cli.url' => 'https://nextcloud.vzkn.eu',
+            'overwrite.cli.url' => 'https://cloud.vzkn.eu',
             'overwriteprotocol' => 'https',
             'allow_local_remote_servers' => true
           );

@@ -10,7 +10,8 @@ locals {
     "rresume",
     "outline",
     "miniflux",
-    "mealie"
+    "mealie",
+    "nextcloud"
   ]
 }
 
@@ -119,6 +120,14 @@ locals {
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/mealie.png"
       redirect_uri  = "https://mealie.${var.cluster_domain}/login"
       launch_url    = "https://mealie.${var.cluster_domain}/"
+    },
+    nextcloud = {
+      client_id     = local.parsed_secrets["nextcloud"].client_id
+      client_secret = local.parsed_secrets["nextcloud"].client_secret
+      group         = "home"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/mealie.png"
+      redirect_uri  = "https://nextcloud.${var.cluster_domain}/apps/user_oidc/code"
+      launch_url    = "https://nextcloud.${var.cluster_domain}/"
     }
   }
 }

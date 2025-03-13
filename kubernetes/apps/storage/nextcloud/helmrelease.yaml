@@ -1,0 +1,225 @@
+---
+# yaml-language-server: $schema=https://github.com/fluxcd-community/flux2-schemas/raw/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app nextcloud
+spec:
+  timeout: 15m
+  interval: 30m
+  chart:
+    spec:
+      chart: nextcloud
+      version: 6.6.8
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    image:
+      flavor: fpm-alpine
+    nginx:
+      enabled: true
+
+    nextcloud:
+      extraEnv:
+        - name: REDIS_HOST
+          value: dragonfly.database.svc.cluster.local
+        - name: REDIS_HOST_PORT
+          value: "6379"
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: S3_ACCESS_KEY
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: S3_SECRET_KEY
+        - name: NEXTCLOUD_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: NEXTCLOUD_OAUTH_CLIENT_SECRET
+        - name: NEXTCLOUD_OAUTH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: NEXTCLOUD_OAUTH_CLIENT_ID
+
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-secret
+        usernameKey: NEXTCLOUD_ADMIN_USER
+        passwordKey: NEXTCLOUD_ADMIN_PASS
+
+      host: nextcloud.vzkn.eu
+
+      mail:
+        enabled: true
+        fromAddress: nextcloud.vzkn.eu
+        domain: vzkn.eu
+        smtp:
+          secure: tls
+          port: 587
+          authtype: LOGIN
+
+      defaultConfigs:
+        s3.config.php: false
+      configs:
+        logging.config.php: |-
+          <?php
+          $CONFIG = array (
+            'log_type' => 'file',
+            'logfile' => 'nextcloud.log',
+            'loglevel' => 0,
+            'logdateformat' => 'F d, Y H:i:s'
+            );
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' => array(
+              0 => '127.0.0.1',
+              1 => '10.0.0.0/8',
+            ),
+            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+          );
+        ingress.config.php: |-
+          <?php
+          $CONFIG = array (
+            'overwrite.cli.url' => 'https://nextcloud.vzkn.eu',
+            'overwriteprotocol' => 'https',
+            'allow_local_remote_servers' => true
+          );
+        misc.config.php: |-
+          <?php
+          $CONFIG = array (
+            'default_phone_region' => 'PL',
+            'auth.bruteforce.protection.enabled' => true,
+          );
+        minio.config.php: |-
+          <?php
+          $CONFIG = array (
+            'objectstore' => array(
+              'class' => '\\OC\\Files\\ObjectStore\\S3',
+              'arguments' => array(
+                'hostname'       => 's3.vzkn.eu',
+                'port'           => 443,
+                'use_path_style' => true,
+                'bucket'         => 'nextcloud',
+                'autocreate'     => false,
+                'key'            => getenv('S3_ACCESS_KEY'),
+                'secret'         => getenv('S3_SECRET_KEY'),
+                'use_ssl'        => true,
+              ),
+            ),
+          );
+        sso.config.php: |-
+          <?php
+          $CONFIG = array (
+            'allow_user_to_change_display_name' => false,
+            'lost_password_link' => 'disabled',
+            'oidc_login_provider_url' => 'https://sso.vzkn.eu/application/o/nextcloud/',
+            'oidc_login_client_id' => getenv('NEXTCLOUD_OAUTH_CLIENT_ID'),
+            'oidc_login_client_secret' => getenv('NEXTCLOUD_OAUTH_CLIENT_SECRET'),
+            'oidc_login_auto_redirect' => false,
+            'oidc_login_logout_url' => 'https://sso.vzkn.eu/application/o/nextcloud/end-session/',
+            'oidc_login_end_session_redirect' => true,
+            'oidc_login_default_quota' => '50000000000',
+            'oidc_login_button_text' => 'Authentik',
+            'oidc_login_hide_password_form' => false,
+            'oidc_login_attributes' => array (
+                     'id' => 'sub',
+                     'name' => 'name',
+                     'mail' => 'email',
+            ),
+            'oidc_create_groups' => true,
+            'oidc_login_code_challenge_method' => 'S256',
+            'oidc_login_auto_redirect' => true,
+            'oidc_login_webdav_enabled' => true,
+            'oidc_login_disable_registration' => false,
+          );
+
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+
+    internalDatabase:
+      enabled: false
+
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: postgres-primary.database.svc:5432
+      database: nextcloud
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-secret
+        usernameKey: POSTGRES_USER
+        passwordKey: POSTGRES_PASSWORD
+
+    ingress:
+      enabled: true
+      className: external
+      annotations:
+        external-dns.alpha.kubernetes.io/target: "external.vzkn.eu"
+        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
+        nginx.ingress.kubernetes.io/proxy-buffering: "off"
+        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+        nginx.ingress.kubernetes.io/server-snippet: |-
+          server_tokens off;
+          proxy_hide_header X-Powered-By;
+          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+          location = /.well-known/carddav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /.well-known/caldav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+          }
+          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+            deny all;
+          }
+          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+            deny all;
+          }
+      path: /
+      pathType: Prefix
+
+    persistence:
+      enabled: true
+      existingClaim: *app
+
+    cronjob:
+      enabled: true
+
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 10
+      successThreshold: 1
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 4
+        memory: 5Gi

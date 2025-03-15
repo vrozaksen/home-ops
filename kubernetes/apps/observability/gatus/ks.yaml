@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    #- ../../../components/postgres
+    - ../../../components/postgres
   dependsOn:
     # - name: crunchy-postgres-operator # TODO POSTGRES
     - name: crunchy-postgres-cluster

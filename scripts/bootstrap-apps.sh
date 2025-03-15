@@ -23,6 +23,32 @@ function wait_for_nodes() {
     done
 }
 
+# CRDs to be applied before the helmfile charts are installed
+function apply_crds() {
+    log debug "Applying CRDs"
+
+    local -r crds=(
+        # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
+        https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/experimental-install.yaml
+        # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.81.0/stripped-down-crds.yaml
+        # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
+        https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.16.0/docs/sources/crd/crd-manifest.yaml
+    )
+
+    for crd in "${crds[@]}"; do
+        if kubectl diff --filename "${crd}" &>/dev/null; then
+            log info "CRDs are up-to-date" "crd=${crd}"
+            continue
+        fi
+        if kubectl apply --server-side --filename "${crd}" &>/dev/null; then
+            log info "CRDs applied" "crd=${crd}"
+        else
+            log error "Failed to apply CRDs" "crd=${crd}"
+        fi
+    done
+}
+
 # Disks in use by rook-ceph must be wiped before Rook is installed
 function wipe_rook_disks() {
     log debug "Wiping Rook disks"
@@ -169,6 +195,7 @@ function main() {
     wait_for_nodes
     wipe_rook_disks
     #apply_resources # TODO Maybe I can use that someday when bws-cli will be released
+    apply_crds
     apply_namespaces
     apply_secrets
     apply_helm_releases

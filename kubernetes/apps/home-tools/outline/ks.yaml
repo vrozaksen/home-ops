@@ -15,7 +15,7 @@ spec:
   dependsOn:
     - name: crunchy-postgres-cluster # operator # TODO Postgres
       namespace: database
-    - name: dragonfly-cluster
+    - name: dragonfly-operator
       namespace: database
   # healthCheckExprs:
     # - apiVersion: postgres-operator.crunchydata.com/v1beta1

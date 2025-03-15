@@ -10,14 +10,12 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
-    - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/flux-system/headlamp
   postBuild:
     substitute:
       APP: *app
       GATUS_GROUP: infrastructure
-      VOLSYNC_CAPACITY: 2Gi
   prune: true
   retryInterval: 2m
   sourceRef:

@@ -3,8 +3,8 @@ locals {
     "autobrr",
     "dashbrr",
     "grafana",
-    "headscale",
     "headlamp",
+    "kyoo",
     "pgadmin",
     "paperless",
     "rresume",
@@ -65,13 +65,13 @@ locals {
       redirect_uri  = "https://headlamp.${var.cluster_domain}/oidc-callback"
       launch_url    = "https://headlamp.${var.cluster_domain}/"
     },
-    headscale = {
-      client_id     = local.parsed_secrets["headscale"].client_id
-      client_secret = local.parsed_secrets["headscale"].client_secret
-      group         = "infrastructure"
-      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/headscale.png"
-      redirect_uri  = "https://headscale.${var.cluster_domain}/oidc/callback"
-      launch_url    = "https://headscale.${var.cluster_domain}/"
+    kyoo = {
+      client_id     = local.parsed_secrets["kyoo"].client_id
+      client_secret = local.parsed_secrets["kyoo"].client_secret
+      group         = "media"
+      icon_url      = "https://raw.githubusercontent.com/zoriya/Kyoo/master/icons/icon-256x256.png"
+      redirect_uri  = "https://kyoo.${var.cluster_domain}/api/auth/logged/authentik"
+      launch_url    = "https://kyoo.${var.cluster_domain}/api/auth/login/authentik?redirectUrl=https://kyoo.${var.cluster_domain}/login/callback"
     },
     pgadmin = {
       client_id     = local.parsed_secrets["pgadmin"].client_id

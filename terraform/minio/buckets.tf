@@ -1,6 +1,5 @@
 locals {
   buckets = [
-    "dragonfly",
     "postgresql",
     "outline",
     "rresume",

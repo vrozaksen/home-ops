@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -47,7 +46,7 @@ spec:
         ports:
           http:
             port: 3000
-    ingress:
+    ingress: # TODO route
       app:
         className: internal
         hosts:

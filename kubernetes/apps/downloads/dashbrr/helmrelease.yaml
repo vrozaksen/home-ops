@@ -8,7 +8,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -32,6 +31,16 @@ spec:
               # tag: v0.2.0@sha256:b3b898d4bf9b463bf802e7af188de45e6ca08eb96e828b4e9cbfde6e418441ad
             env:
               DASHBRR__CONFIG_PATH: /config/config.toml
+              # DASHBRR__DB_TYPE: postgres # TODO Postgres
+              # DASHBRR__DB_NAME: *app
+              # DASHBRR__DB_HOST: dashbrr-pgbouncer.downloads.svc
+              # DASHBRR__DB_USER: *app
+              # DASHBRR__DB_PASSWORD:
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: dashbrr-pguser-dashbrr
+              #       key: password
+              # DASHBRR__DB_PORT: "5432"
               DASHBRR__DB_PATH: /cache/._  # cache path is derived from DASHBRR__DB_PATH
               DASHBRR__LISTEN_ADDR: 0.0.0.0:8080
               GIN_MODE: debug
@@ -69,25 +78,17 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        className: internal
-        annotations:
-          # gethomepage.dev/enabled: "true"
-          # gethomepage.dev/group: Downloads
-          # gethomepage.dev/name: dashbrr
-          # gethomepage.dev/icon: dashbrr.png
-          # gethomepage.dev/description: Media stack management
-          # gethomepage.dev/widget.type: dashbrr
-          # gethomepage.dev/widget.url: http://dashbrr.downloads
-          # gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_DASHBRR_TOKEN}}` }}"
-        hosts:
-        - host: "{{ .Release.Name }}.vzkn.eu"
-          paths:
-          - path: /
-            service:
-              identifier: app
-              port: http
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     serviceAccount:
       create: true
       name: dashbrr

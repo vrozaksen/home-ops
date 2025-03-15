@@ -6,7 +6,7 @@ namespace: downloads
 components:
   - ../../components/common
 resources:
-  - ./autobrr/ks.yaml
+  # - ./autobrr/ks.yaml # TODO Postgres
   - ./bazarr/ks.yaml
   - ./dashbrr/ks.yaml
   - ./flaresolverr/ks.yaml
@@ -16,4 +16,4 @@ resources:
   - ./radarr/ks.yaml
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
-  # - ./unpackerr/ks.yaml # TODO Api Key needs to be 32 chars
+  # - ./unpackerr/ks.yaml # TODO Api Key needs to be 32 chars # TODO Postgres

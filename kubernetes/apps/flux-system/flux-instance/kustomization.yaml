@@ -5,8 +5,7 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./helmrepository.yaml
-  - ./ingress.yaml
+  - ./httproute.yaml
   - ./prometheusrule.yaml
   - ./receiver.yaml
 configMapGenerator:

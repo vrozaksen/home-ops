@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   maxHistory: 2
   install:
     createNamespace: true
@@ -26,7 +25,6 @@ spec:
     controllers:
       outline:
         labels:
-          nfsMount: "true"
           postgres: "true"
         annotations:
           reloader.stakater.com/auto: "true"
@@ -40,13 +38,18 @@ spec:
               - secretRef:
                   name: outline-secret
             env:
-              REDIS_URL: redis://dragonfly.database.svc.cluster.local.:6379
+              REDIS_URL: redis://outline-dragonfly:6379
               ENABLE_UPDATES: "false"
               LOG_LEVEL: debug
               NODE_TLS_REJECT_UNAUTHORIZED: "0"
               PORT: 8080
               URL: "https://docs.vzkn.eu"
               WEB_CONCURRENCY: 10
+              # DATABASE_URL: # TODO Postgres
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: outline-pguser-outline
+              #       key: pgbouncer-uri
             command:
               [
                 /bin/sh,
@@ -64,22 +67,15 @@ spec:
         controller: *app
         ports:
           http:
-            port: 8080
-    ingress:
+            port: &port 8080
+    route:
       app:
-        enabled: true
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Home
-          gethomepage.dev/name: Outline
-          gethomepage.dev/icon: outline.png
-          gethomepage.dev/description: A fast, collaborative, knowledge base.
-          gethomepage.dev/app: outline
-        hosts:
-          - host: "docs.vzkn.eu"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["docs.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port

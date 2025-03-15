@@ -11,7 +11,7 @@ spec:
   components:
     - ../../../components/gatus/guarded
   interval: 1h
-  path: ./kubernetes/apps/home-automation/mosquitto
+  path: ./kubernetes/apps/home-automation/mosquitto/
   postBuild:
     substitute:
       APP: *app

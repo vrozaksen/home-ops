@@ -1,4 +1,18 @@
 ---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: grafana
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 8.10.3
+  url: oci://ghcr.io/grafana/helm-charts/grafana
+---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -29,6 +43,19 @@ spec:
       GF_SECURITY_COOKIE_SAMESITE: *app
       GF_SECURITY_ANGULAR_SUPPORT_ENABLED: true
       GF_SERVER_ROOT_URL: https://grafana.vzkn.eu
+    # env: # TODO Postgres
+    #   GF_DATABASE_HOST: grafana-pgbouncer.observability.svc
+    #   GF_DATABASE_NAME: grafana
+    #   GF_DATABASE_SSL_MODE: require
+    #   GF_DATABASE_TYPE: postgres
+    #   GF_DATABASE_USER: grafana
+    # envFromSecrets:
+    #   - name: grafana-secret
+    # envValueFrom:
+    #   GF_DATABASE_PASSWORD:
+    #     secretKeyRef:
+    #       name: grafana-pguser-grafana
+    #       key: password
     envFromSecrets:
       - name: grafana-secret
     grafana.ini:
@@ -433,21 +460,14 @@ spec:
       metricRelabelings:
         - action: labeldrop
           regex: (pod)
-    ingress:
-      enabled: true
-      ingressClassName: external
-      annotations:
-        gethomepage.dev/enabled: "true"
-        gethomepage.dev/icon: grafana.png
-        gethomepage.dev/name: Grafana
-        gethomepage.dev/group: Observability
-        gethomepage.dev/description: Monitoring Dashboards
-        # gethomepage.dev/widget.type: grafana
-        # gethomepage.dev/widget.url: http://grafana.observability
-        # gethomepage.dev/widget.username: '{{`{{HOMEPAGE_VAR_GRAFANA_USERNAME}}`}}'
-        # gethomepage.dev/widget.password: '{{`{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}`}}'
-      hosts:
-        - "{{ .Release.Name }}.vzkn.eu"
+    route:
+      main:
+        enabled: true
+        hostnames: ["grafana.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
     persistence:
       enabled: false
     topologySpreadConstraints:

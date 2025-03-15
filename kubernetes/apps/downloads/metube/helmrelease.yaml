@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -46,17 +45,18 @@ spec:
         controller: *app
         ports:
           http:
-            port: 8081
-    ingress:
+            port: &port 8081
+    route:
       app:
-        className: internal
-        hosts:
-        - host: "{{ .Release.Name }}.vzkn.eu"
-          paths:
-          - path: /
-            service:
-              identifier: app
-              port: http
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: *app

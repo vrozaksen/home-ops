@@ -11,6 +11,8 @@ spec:
   dependsOn:
     - name: bitwarden
       namespace: external-secrets
+    - name: flux-operator
+      namespace: flux-system
   interval: 1h
   path: ./kubernetes/apps/flux-system/flux-instance
   prune: true

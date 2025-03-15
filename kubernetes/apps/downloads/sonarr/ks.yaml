@@ -10,14 +10,20 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
+    - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
-    - name: crunchy-postgres-cluster
+    - name: crunchy-postgres-cluster # operator # TODO Postgres
       namespace: database
     - name: bitwarden
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
+  # healthCheckExprs: # TODO Postgres
+  #   - apiVersion: postgres-operator.crunchydata.com/v1beta1
+  #     kind: PostgresCluster
+  #     failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
+  #     current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/downloads/sonarr
   postBuild:

@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -87,33 +86,22 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.30
-        externalTrafficPolicy: Local
+          lbipam.cilium.io/ips: 10.10.0.30, ::ffff:10.10.0.30
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: jellyfin.png
-          gethomepage.dev/name: Jellyfin
-          gethomepage.dev/group: Video
-          gethomepage.dev/description: Media Player
-          gethomepage.dev/widget.type: jellyfin
-          gethomepage.dev/widget.url: http://jellyfin.media:8096
-          gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}" }}'
-        hosts:
-          - host: &host jf.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - "jf.vzkn.eu"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: *app

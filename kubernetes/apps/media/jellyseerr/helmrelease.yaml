@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -29,9 +28,19 @@ spec:
               repository: ghcr.io/fallenbagel/jellyseerr
               tag: 2.5.0@sha256:92dc0eb9ba260a11886ac52c3a82c5490769238f120e6312a2793809842021a6
             env:
-              TZ: Europe/Warsaw
+              # DB_TYPE: "postgres" # TODO Postgres
+              # DB_HOST: jellyseerr-pgbouncer.media.svc
+              # DB_PORT: "5432"
+              # DB_USER: *app
+              # DB_PASS:
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: jellyseerr-pguser-jellyseerr
+              #       key: password
+              # DB_NAME: *app
               LOG_LEVEL: "info"
               PORT: &port 80
+              TZ: Europe/Warsaw
             envFrom:
               - secretRef:
                   name: jellyseerr-secret
@@ -71,25 +80,19 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Video
-          gethomepage.dev/name: Jellyseerr
-          gethomepage.dev/icon: jellyseerr.png
-          gethomepage.dev/description: Media Request Management
-          gethomepage.dev/widget.type: jellyseerr
-          gethomepage.dev/widget.url: http://jellyseerr.media:5055
-          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYSEERR_TOKEN}}` }}"
-        hosts:
-          - host: requests.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - requests.vzkn.eu
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: *app

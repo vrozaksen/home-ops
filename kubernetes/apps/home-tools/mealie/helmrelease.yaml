@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -37,6 +36,15 @@ spec:
               PUID: 1000
               PGID: 100
               DB_ENGINE: postgres
+              # POSTGRES_PORT: "5432"
+              # POSTGRES_DB: *app
+              # POSTGRES_SERVER: mealie-pgbouncer.self-hosted.svc
+              # POSTGRES_USER: *app
+              # POSTGRES_PASSWORD:
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: mealie-pguser-mealie
+              #       key: password
             envFrom:
               - secretRef:
                   name: mealie-secret
@@ -62,27 +70,18 @@ spec:
         controller: *app
         ports:
           http:
-            port: 9000
-    ingress:
+            port: &port 9000
+    route:
       app:
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Home
-          gethomepage.dev/name: Mealie
-          gethomepage.dev/icon: mealie
-          gethomepage.dev/description: Recipe Browser
-          gethomepage.dev/widget.type: mealie
-          gethomepage.dev/widget.url: http://mealie.home-tools:9000
-          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_MEALIE_TOKEN}}` }}"
-          gethomepage.dev/widget.version: "2"
-        hosts:
-          - host: "{{ .Release.Name }}.vzkn.eu"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       data:
         existingClaim: *app

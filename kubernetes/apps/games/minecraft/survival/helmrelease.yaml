@@ -13,6 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: itzg-charts
+        namespace: games
   install:
     remediation:
       retries: 3
@@ -121,7 +122,7 @@ spec:
           embedded: false
           type: ClusterIP
           port: 9225
-        ingress:
+        ingress: # TODO route
           ingressClassName: external
           enabled: true
           annotations:
@@ -137,7 +138,7 @@ spec:
           embedded: false
           type: ClusterIP
           port: 8100
-        ingress:
+        ingress: # TODO route
           ingressClassName: external
           enabled: true
           hosts:

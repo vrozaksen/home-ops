@@ -9,7 +9,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -103,25 +102,17 @@ spec:
           - port: http
             scheme: http
             path: *metrics
-    ingress:
+    route:
       app:
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: navidrome.png
-          gethomepage.dev/name: Navidrome
-          gethomepage.dev/group: Home
-          gethomepage.dev/description: Music Player
-          # gethomepage.dev/widget.type: navidrome
-          # gethomepage.dev/widget.url: http://navidrome.media:8096
-          # gethomepage.dev/widget.key: '{{ "{{HOMEPAGE_VAR_navidrome_API_KEY}}" }}'
-        hosts:
-          - host: music.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["music.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: *app

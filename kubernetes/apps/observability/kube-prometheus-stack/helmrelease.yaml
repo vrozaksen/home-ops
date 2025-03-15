@@ -1,4 +1,18 @@
 ---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: kube-prometheus-stack
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 69.8.2
+  url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -25,17 +39,20 @@ spec:
         forceConflicts: true
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts: ["alertmanager.vzkn.eu"]
-        pathType: Prefix
+      route:
+        main:
+          enabled: true
+          hostnames: ["${ALERTMANAGER_SUBDOMAIN}.vzkn.eu"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
       alertmanagerSpec:
         alertmanagerConfiguration:
           name: alertmanager
           global:
             resolveTimeout: 5m
-        externalUrl: https://alertmanager.vzkn.eu
+        externalUrl: https://${ALERTMANAGER_SUBDOMAIN}.vzkn.eu
         storage:
           volumeClaimTemplate:
             spec:
@@ -50,20 +67,14 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: prometheus.png
-          gethomepage.dev/name: Prometheus
-          gethomepage.dev/group: Observability
-          gethomepage.dev/app: prometheus
-          gethomepage.dev/description: Monitoring Scrape Service
-          gethomepage.dev/widget.type: prometheus
-          gethomepage.dev/widget.url: http://kube-prometheus-stack-prometheus.observability:9090
-        pathType: Prefix
-        hosts: ["prometheus.vzkn.eu"]
+      route:
+        main:
+          enabled: true
+          hostnames: ["${GATUS_SUBDOMAIN}.vzkn.eu"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false

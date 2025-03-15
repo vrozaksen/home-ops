@@ -1,4 +1,4 @@
-{% for namespace in ["cert-manager", "external-secrets", "flux-system"] %}
+{% for namespace in ["external-secrets", "flux-system", "network"] %}
 ---
 apiVersion: v1
 kind: Namespace
@@ -9,8 +9,24 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: vzkn.eu-tls
-  namespace: cert-manager
+  name: bitwarden
+  namespace: external-secrets
+stringData:
+  token: ${BITWARDEN_KUBERNETES_TOKEN}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sops-age
+  namespace: flux-system
+stringData:
+  age.agekey: ${FLUX_SOPS_PRIVATE_KEY}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vzkn-eu-tls
+  namespace: kube-system
   annotations:
     cert-manager.io/alt-names: '*.vzkn.eu,vzkn.eu'
     cert-manager.io/certificate-name: vzkn.eu
@@ -30,18 +46,10 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bitwarden
-  namespace: external-secrets
+  name: cloudflare-tunnel-id-secret
+  namespace: network
 stringData:
-  token: ${BITWARDEN_KUBERNETES_TOKEN}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sops-age
-  namespace: flux-system
-stringData:
-  age.agekey: ${FLUX_SOPS_PRIVATE_KEY}
+  CLOUDFLARE_TUNNEL_ID: ${CLOUDFLARE_TUNNEL_ID} # TODO
 ---
 apiVersion: v1
 kind: Secret

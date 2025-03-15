@@ -8,7 +8,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -20,6 +19,8 @@ spec:
   values:
     controllers:
       reactive-resume:
+        labels:
+          postgres: "true"
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -60,6 +61,11 @@ spec:
               STORAGE_REGION: main
               STORAGE_BUCKET: rresume
               STORAGE_USE_SSL: "false"
+              # POSTGRES_URI: # TODO Postgres
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: rresume-pguser-rresume
+              #       key: pgbouncer-uri
             envFrom:
             - secretRef:
                 name: reactive-resume-secret
@@ -80,17 +86,18 @@ spec:
         controller: *app
         ports:
           http:
-            port: 3001
-    ingress:
+            port: &port 3001
+    route:
       app:
-        className: external
-        hosts:
-        - host: "rr.vzkn.eu"
-          paths:
-          - path: /
-            service:
-              identifier: app
-              port: http
+        hostnames: ["rr.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       tmp:
         enabled: true

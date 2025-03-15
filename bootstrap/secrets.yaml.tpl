@@ -2,8 +2,24 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: vzkn.eu-tls
-  namespace: cert-manager
+  name: bitwarden
+  namespace: external-secrets
+stringData:
+  token: ${BITWARDEN_KUBERNETES_TOKEN}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sops-age
+  namespace: flux-system
+stringData:
+  age.agekey: ${FLUX_SOPS_PRIVATE_KEY}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vzkn-eu-tls
+  namespace: kube-system
   annotations:
     cert-manager.io/alt-names: '*.vzkn.eu,vzkn.eu'
     cert-manager.io/certificate-name: vzkn.eu
@@ -23,27 +39,19 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bitwarden-secret
-  namespace: external-secrets
+  name: cloudflare-tunnel-id-secret
+  namespace: network
 stringData:
-  token: ${BITWARDEN_KUBERNETES_TOKEN}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sops-age
-  namespace: flux-system
-stringData:
-  age.agekey: ${FLUX_SOPS_PRIVATE_KEY}
+  CLOUDFLARE_TUNNEL_ID: ${CLOUDFLARE_TUNNEL_ID}
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: bitwarden-tls-certs
-  namespace: external-secrets
+  namespace: cert-manager
   annotations:
     cert-manager.io/alt-names: 'bitwarden-sdk-server.external-secrets.svc.cluster.local,external-secrets-bitwarden-sdk-server.external-secrets.svc.cluster.local,localhost'
-    cert-manager.io/certificate-name: bitwarden-tls
+    cert-manager.io/certificate-name: bitwarden-tls-certs
     cert-manager.io/common-name: ""
     cert-manager.io/ip-sans: '127.0.0.1,::1'
     cert-manager.io/issuer-group: cert-manager.io
@@ -62,10 +70,10 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: bitwarden-css-certs
-  namespace: external-secrets
+  namespace: cert-manager
   annotations:
     cert-manager.io/alt-names: 'bitwarden.external-secrets.svc.cluster.local'
-    cert-manager.io/certificate-name: bitwarden-css
+    cert-manager.io/certificate-name: bitwarden-css-certs
     cert-manager.io/common-name: ""
     cert-manager.io/ip-sans: ""
     cert-manager.io/issuer-group: cert-manager.io

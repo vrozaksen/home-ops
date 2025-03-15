@@ -8,7 +8,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
   install:
     remediation:
       retries: 3
@@ -114,7 +113,7 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
-    ingress:
+    ingress: # TODO route
       main:
         enabled: false #nginx doesn't support non-https
         className: external

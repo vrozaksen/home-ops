@@ -6,6 +6,7 @@
       "description": ["Process annotated dependencies"],
       "fileMatch": [
         "(^|/).+\\.env$",
+        "(^|/).+\\.sh$",
         "(^|/).+\\.ya?ml(?:\\.j2)?$"
       ],
       "matchStrings": [
@@ -18,7 +19,8 @@
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+(:\\s|=)(&\\S+\\s)?(?<currentValue>\\S+)",
         // # renovate: datasource=docker depName=ghcr.io/prometheus-operator/prometheus-operator
         // https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.80.0/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n.+/(?<currentValue>(v|\\d)[^/]+)"
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n.+/(?<currentValue>(v|\\d)[^/]+)",
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\n.+?\"(?<currentValue>\\S+)\""
       ],
       "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}"
     }

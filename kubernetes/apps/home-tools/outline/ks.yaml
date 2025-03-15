@@ -10,18 +10,22 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/external
-    - ../../../components/volsync
+    - ../../../components/postgres
   interval: 1h
   dependsOn:
-    - name: crunchy-postgres-cluster
+    - name: crunchy-postgres-cluster # operator # TODO Postgres
       namespace: database
     - name: dragonfly-cluster
       namespace: database
+  # healthCheckExprs:
+    # - apiVersion: postgres-operator.crunchydata.com/v1beta1
+    #   kind: PostgresCluster
+    #   failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
+    #   current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   path: ./kubernetes/apps/home-tools/outline
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 2Gi
       GATUS_SUBDOMAIN: docs
       GATUS_GROUP: home-tools
   prune: true

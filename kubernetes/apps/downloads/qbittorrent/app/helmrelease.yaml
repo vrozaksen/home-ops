@@ -44,10 +44,10 @@ spec:
               # CROSS_SEED_HOST: cross-seed.default.svc.cluster.local
               # CROSS_SEED_PORT: 80
               # CROSS_SEED_SLEEP_INTERVAL: 0
-              PUSHOVER_ENABLED: true
-            envFrom:
-              - secretRef:
-                  name: qbittorrent-secret
+              # PUSHOVER_ENABLED: true
+            # envFrom:
+            #   - secretRef:
+            #       name: qbittorrent-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -140,12 +140,12 @@ spec:
     persistence:
       config:
         existingClaim: *app
-      scripts:
-        type: configMap
-        name: qbittorrent-scripts
-        defaultMode: 0775
-        globalMounts:
-          - readOnly: true
+      # scripts:
+      #   type: configMap
+      #   name: qbittorrent-scripts
+      #   defaultMode: 0775
+      #   globalMounts:
+      #     - readOnly: true
       downloads:
         type: nfs
         server: aincrad.home.arpa

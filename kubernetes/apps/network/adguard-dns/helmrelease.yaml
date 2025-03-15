@@ -53,7 +53,7 @@ spec:
           - name: ADGUARD_USER
             valueFrom:
               secretKeyRef:
-                name: &secret external-dns-adguard
+                name: &secret adguard-dns
                 key: adguard-user
           - name: ADGUARD_PASSWORD
             valueFrom:

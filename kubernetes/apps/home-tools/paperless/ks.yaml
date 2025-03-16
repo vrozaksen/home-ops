@@ -11,7 +11,7 @@ spec:
   components:
     - ../../../components/dragonfly
     - ../../../components/gatus/external
-    #- ../../../components/postgres
+    - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
     - name: crunchy-postgres-cluster # operator # TODO Postgres

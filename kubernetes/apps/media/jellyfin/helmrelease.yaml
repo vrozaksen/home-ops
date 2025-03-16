@@ -102,12 +102,12 @@ spec:
           - backendRefs:
               - name: *app
                 port: *port
-          filters:
-            - type: ResponseHeaderModifier
-              responseHeaderModifier:
-                add:
-                  - name: Cross-Origin-Resource-Policy
-                    value: "cross-origin"
+          - filters:
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  add:
+                    - name: Cross-Origin-Resource-Policy
+                      value: "cross-origin"
     persistence:
       config:
         existingClaim: *app

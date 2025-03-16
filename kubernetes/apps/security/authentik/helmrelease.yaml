@@ -37,7 +37,8 @@ spec:
         secret.reloader.stakater.com/reload: authentik-secret
       deploymentStrategy:
         type: RollingUpdate
-      env: # TODO Postgres
+      env:
+        - AUTHENTIK_REDIS__DB: "1"
         - name: AUTHENTIK_POSTGRESQL__NAME
           value: *app
         - name: AUTHENTIK_POSTGRESQL__HOST

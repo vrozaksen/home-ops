@@ -13,8 +13,7 @@ spec:
     - ../../../components/gatus/external
     - ../../../components/postgres
   dependsOn:
-    - name: crunchy-postgres-operator # TODO Postgres
-    # - name: crunchy-postgres-cluster
+    - name: crunchy-postgres-operator
       namespace: database
     - name: dragonfly-operator
       namespace: database
@@ -23,7 +22,6 @@ spec:
       kind: Dragonfly
       failed: status.phase != 'ready'
       current: status.phase == 'ready'
-    # TODO Postgres
     - apiVersion: postgres-operator.crunchydata.com/v1beta1
       kind: PostgresCluster
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')

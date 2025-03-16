@@ -54,14 +54,11 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               WEB_PORT: &port 80
-              # POSTGRES_URI: # TODO Postgres
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: gatus-pguser-gatus
-              #       key: pgbouncer-uri
-            envFrom:
-            - secretRef:
-                name: gatus-secret
+              POSTGRES_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: gatus-pguser-gatus
+                    key: pgbouncer-uri
             probes:
               liveness: &probes
                 enabled: true

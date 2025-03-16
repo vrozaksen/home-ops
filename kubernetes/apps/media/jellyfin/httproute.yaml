@@ -21,3 +21,5 @@ spec:
             add:
               - name: Cross-Origin-Resource-Policy
                 value: "cross-origin"
+              - name: Access-Control-Allow-Origin
+                value: "*"

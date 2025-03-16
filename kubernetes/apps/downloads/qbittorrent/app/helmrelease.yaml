@@ -140,12 +140,12 @@ spec:
     persistence:
       config:
         existingClaim: *app
-      # scripts:
-      #   type: configMap
-      #   name: qbittorrent-scripts
-      #   defaultMode: 0775
-      #   globalMounts:
-      #     - readOnly: true
+      scripts:
+        type: configMap
+        name: qbittorrent-scripts
+        defaultMode: 0775
+        globalMounts:
+          - readOnly: true
       downloads:
         type: nfs
         server: aincrad.home.arpa

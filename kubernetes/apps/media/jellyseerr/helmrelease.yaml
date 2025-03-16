@@ -28,16 +28,16 @@ spec:
               repository: ghcr.io/fallenbagel/jellyseerr
               tag: 2.5.0@sha256:92dc0eb9ba260a11886ac52c3a82c5490769238f120e6312a2793809842021a6
             env:
-              # DB_TYPE: "postgres" # TODO Postgres
-              # DB_HOST: jellyseerr-pgbouncer.media.svc
-              # DB_PORT: "5432"
-              # DB_USER: *app
-              # DB_PASS:
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: jellyseerr-pguser-jellyseerr
-              #       key: password
-              # DB_NAME: *app
+              DB_TYPE: "postgres"
+              DB_HOST: jellyseerr-pgbouncer.media.svc
+              DB_PORT: "5432"
+              DB_USER: *app
+              DB_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: jellyseerr-pguser-jellyseerr
+                    key: password
+              DB_NAME: *app
               LOG_LEVEL: "info"
               PORT: &port 80
               TZ: Europe/Warsaw

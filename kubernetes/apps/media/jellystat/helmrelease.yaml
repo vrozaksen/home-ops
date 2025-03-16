@@ -32,15 +32,15 @@ spec:
             env:
               TZ: "Europe/Warsaw"
               MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK: "30"
-              # POSTGRES_IP: jellystat-pgbouncer.media.svc # TODO Postgres
-              # POSTGRES_PORT: "5432"
-              # POSTGRES_USER: *app
-              # POSTGRES_PASSWORD:
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: jellystat-pguser-jellystat
-              #       key: password
-              # POSTGRES_DB: *app
+              POSTGRES_IP: jellystat-pgbouncer.media.svc
+              POSTGRES_PORT: "5432"
+              POSTGRES_USER: *app
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: jellystat-pguser-jellystat
+                    key: password
+              POSTGRES_DB: *app
             envFrom:
               - secretRef:
                   name: jellystat-secret

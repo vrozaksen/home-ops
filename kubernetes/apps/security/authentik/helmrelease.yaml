@@ -38,7 +38,8 @@ spec:
       deploymentStrategy:
         type: RollingUpdate
       env:
-        - AUTHENTIK_REDIS__DB: "1"
+        - name: AUTHENTIK_REDIS__DB
+          value: "1"
         - name: AUTHENTIK_POSTGRESQL__NAME
           value: *app
         - name: AUTHENTIK_POSTGRESQL__HOST

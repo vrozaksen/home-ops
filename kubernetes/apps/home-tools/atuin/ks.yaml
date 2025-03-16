@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
-    - ../../../components/postgres # TODO Postgres
+    #- ../../../components/postgres # TODO Postgres
   interval: 1h
   dependsOn:
     # - name: crunchy-postgres-operator # TODO Postgres

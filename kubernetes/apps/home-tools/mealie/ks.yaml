@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/external
-    - ../../../components/postgres
+    #- ../../../components/postgres
     - ../../../components/volsync
   interval: 1h
   dependsOn:

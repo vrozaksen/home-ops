@@ -100,7 +100,7 @@ spec:
                 port: *port
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: zigbee2mqtt # *app
       logs:
         type: emptyDir
         globalMounts:

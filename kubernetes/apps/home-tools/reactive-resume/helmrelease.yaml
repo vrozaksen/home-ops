@@ -61,7 +61,7 @@ spec:
               STORAGE_REGION: main
               STORAGE_BUCKET: rresume
               STORAGE_USE_SSL: "false"
-              POSTGRES_URI:
+              DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
                     name: rresume-pguser-rresume

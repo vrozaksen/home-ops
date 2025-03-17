@@ -37,16 +37,16 @@ spec:
               AUTOBRR__METRICS_PORT: &metricsPort 9094
               AUTOBRR__CHECK_FOR_UPDATES: false
               AUTOBRR__LOG_LEVEL: INFO
-              # AUTOBRR__DATABASE_TYPE: postgres # TODO Postgres
-              # AUTOBRR__POSTGRES_DATABASE: *app
-              # AUTOBRR__POSTGRES_HOST: autobrr-pgbouncer.downloads.svc
-              # AUTOBRR__POSTGRES_USER: *app
-              # AUTOBRR__POSTGRES_PASS:
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: autobrr-pguser-autobrr
-              #       key: password
-              # AUTOBRR__POSTGRES_PORT: "5432"
+              AUTOBRR__DATABASE_TYPE: postgres
+              AUTOBRR__POSTGRES_DATABASE: *app
+              AUTOBRR__POSTGRES_HOST: autobrr-pgbouncer.downloads.svc
+              AUTOBRR__POSTGRES_USER: *app
+              AUTOBRR__POSTGRES_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: autobrr-pguser-autobrr
+                    key: password
+              AUTOBRR__POSTGRES_PORT: "5432"
               TZ: Europe/Warsaw
             envFrom:
               - secretRef:

@@ -10,16 +10,11 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
-    - ../../../components/volsync # TODO Is it needed?
-  dependsOn:
-    - name: volsync
-      namespace: storage
   interval: 1h
   path: ./kubernetes/apps/media/tdarr
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 25Gi
       GATUS_GROUP: media-guarded
   prune: true
   retryInterval: 2m

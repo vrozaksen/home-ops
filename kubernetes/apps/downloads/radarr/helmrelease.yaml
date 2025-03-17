@@ -28,8 +28,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/vrozaksen/radarr-develop
-              tag: 5.19.3.9730@sha256:4c046a6db62ab122779c4664d144a235b373df67fe9f9d70b2f5fa64caad261b
+              repository: ghcr.io/vrozaksen/radarr
+              tag: 5.20.1.9773@sha256:1da85ed828fa0e8879889112fb82b6eb9537acb4ff3fc151426ef083f4649302
             env:
               RADARR__APP__INSTANCENAME: Radarr
               RADARR__APP__THEME: dark

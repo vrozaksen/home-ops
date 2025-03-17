@@ -1,3 +1,28 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: minecraft-takocraft
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 4.26.0
+  url: oci://ghcr.io/joryirving/minecraft-server-charts/minecraft
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: itzg-charts
+  namespace: games # Required for Renovate lookups
+spec:
+  interval: 2h
+  url: https://itzg.github.io/minecraft-server-charts/
+---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -5,15 +30,18 @@ metadata:
   name: &app minecraft-survival
 spec:
   interval: 1h
-  chart:
-    spec:
-      # renovate: registryUrl=https://itzg.github.io/minecraft-server-charts/
-      chart: minecraft
-      version: 4.24.0
-      sourceRef:
-        kind: HelmRepository
-        name: itzg-charts
-        namespace: games
+  chartRef:
+    kind: OCIRepository
+    name: minecraft-takocraft
+  # chart:
+  #   spec:
+  #     # renovate: registryUrl=https://itzg.github.io/minecraft-server-charts/
+  #     chart: minecraft
+  #     version: 4.25.1
+  #     sourceRef:
+  #       kind: HelmRepository
+  #       name: itzg-charts
+  #       namespace: games
   install:
     remediation:
       retries: 3
@@ -23,14 +51,13 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    # deploymentAnnotations:
-    #   secret.reloader.stakater.com/reload: minecraft-survival-secret
+    fullnameOverride: *app
     image:
       repository: ghcr.io/itzg/minecraft-server
-      tag: stable@sha256:17096d38598b4f856467eba656077c8f8b0dfb282582c9aa6b3e77802ba1a209
+      tag: 2025.3.0@sha256:17096d38598b4f856467eba656077c8f8b0dfb282582c9aa6b3e77802ba1a209
     resources:
       requests:
-        cpu: 100m
+        cpu: 500m
       limits:
         memory: 16Gi
     securityContext:
@@ -87,7 +114,7 @@ spec:
       worldSaveName: survival
       viewDistance: 16
       # serviceAnnotations:
-      #   lbipam.cilium.io/ips: 10.10.0.91
+      #   lbipam.cilium.io/ips: 10.10.0.91, ::ffff:10.10.0.91
       # serviceType: LoadBalancer
       pluginUrls:
       - https://github.com/Norbit4/TreeCuter/releases/download/v1.8.8/TreeCuter-v1.8.8.jar
@@ -114,37 +141,41 @@ spec:
       rcon:
         enabled: true
       extraPorts:
-      - name: metrics
-        containerPort: 9225
-        protocol: TCP
-        service:
-          enabled: true
-          embedded: false
-          type: ClusterIP
-          port: 9225
-        ingress: # TODO route
-          ingressClassName: external
-          enabled: true
-          annotations:
-            external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
-            external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
-          hosts:
-            - name: *host
+      # - name: metrics
+      #   containerPort: 9225
+      #   protocol: TCP
+      #   service:
+      #     enabled: true
+      #     embedded: false
+      #     type: ClusterIP
+      #     port: 9225
+      #   ingress: # TODO route
+      #     ingressClassName: external
+      #     enabled: true
+      #     annotations:
+      #       external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
+      #       external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+      #     hosts:
+      #       - name: *host
       - name: map
-        containerPort: 8100
+        containerPort: &mapPort 8100
         protocol: TCP
         service:
           enabled: true
           embedded: false
           type: ClusterIP
-          port: 8100
-        ingress: # TODO route
-          ingressClassName: external
-          enabled: true
-          hosts:
-            - name: survival-map.vzkn.eu
-              paths:
-                - path: /
+          port: *mapPort
+        route:
+          map:
+            hostnames: ["survival-map.vzkn.eu"]
+            parentRefs:
+              - name: external
+                namespace: kube-system
+                sectionName: https
+            rules:
+              - backendRefs:
+                  - name: *app
+                    port: *mapPort
   valuesFrom:
   - kind: Secret
     name: minecraft-survival-secret

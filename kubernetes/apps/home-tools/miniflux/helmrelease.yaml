@@ -34,7 +34,6 @@ spec:
             env:
               BASE_URL: https://miniflux.vzkn.eu
               CREATE_ADMIN: "1"
-              # DEBUG: "1"
               LOG_DATE_TIME: "1"
               METRICS_ALLOWED_NETWORKS: 10.69.0.0/16
               METRICS_COLLECTOR: "1"
@@ -43,11 +42,11 @@ spec:
               PORT: &port 80
               RUN_MIGRATIONS: "1"
               FETCH_YOUTUBE_WATCH_TIME: "1"
-              # DATABASE_URL: # TODO Postgres
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: miniflux-pguser-miniflux
-              #       key: pgbouncer-uri
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-pguser-miniflux
+                    key: pgbouncer-uri
             envFrom:
               - secretRef:
                   name: miniflux-secret
@@ -67,7 +66,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m

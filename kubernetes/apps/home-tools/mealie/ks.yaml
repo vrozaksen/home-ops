@@ -14,15 +14,15 @@ spec:
     - ../../../components/volsync
   interval: 1h
   dependsOn:
-    - name: crunchy-postgres-cluster # operator # TODO Postgres
+    - name: crunchy-postgres-operator
       namespace: database
     - name: bitwarden
       namespace: external-secrets
-  # healthCheckExprs:
-    # - apiVersion: postgres-operator.crunchydata.com/v1beta1
-    #   kind: PostgresCluster
-    #   failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
-    #   current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
+  healthCheckExprs:
+    - apiVersion: postgres-operator.crunchydata.com/v1beta1
+      kind: PostgresCluster
+      failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   path: ./kubernetes/apps/home-tools/mealie
   postBuild:
     substitute:

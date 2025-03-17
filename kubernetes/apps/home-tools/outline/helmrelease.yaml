@@ -45,11 +45,12 @@ spec:
               PORT: 8080
               URL: "https://docs.vzkn.eu"
               WEB_CONCURRENCY: 10
-              # DATABASE_URL: # TODO Postgres
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: outline-pguser-outline
-              #       key: pgbouncer-uri
+              PGSSLMODE: require
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-pguser-outline
+                    key: pgbouncer-uri
             command:
               [
                 /bin/sh,
@@ -70,7 +71,9 @@ spec:
             port: &port 8080
     route:
       app:
-        hostnames: ["docs.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - docs.vzkn.eu
         parentRefs:
           - name: external
             namespace: kube-system

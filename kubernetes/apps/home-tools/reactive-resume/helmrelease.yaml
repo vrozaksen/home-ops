@@ -43,7 +43,7 @@ spec:
               runAsUser: 999
               runAsGroup: 999
               allowPrivilegeEscalation: false
-              capabilities: {drop: [ALL]}
+              capabilities: { drop: [ALL] }
           app:
             image:
               repository: ghcr.io/amruthpillai/reactive-resume
@@ -61,21 +61,20 @@ spec:
               STORAGE_REGION: main
               STORAGE_BUCKET: rresume
               STORAGE_USE_SSL: "false"
-              # POSTGRES_URI: # TODO Postgres
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: rresume-pguser-rresume
-              #       key: pgbouncer-uri
+              POSTGRES_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: rresume-pguser-rresume
+                    key: pgbouncer-uri
             envFrom:
-            - secretRef:
-                name: reactive-resume-secret
+              - secretRef:
+                  name: reactive-resume-secret
             resources:
               requests:
                 cpu: 10m
               limits:
                 cpu: 3000m
                 memory: 600Mi
-
     service:
       chrome:
         controller: *app
@@ -89,7 +88,9 @@ spec:
             port: &port 3001
     route:
       app:
-        hostnames: ["rr.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - rr.vzkn.eu
         parentRefs:
           - name: external
             namespace: kube-system

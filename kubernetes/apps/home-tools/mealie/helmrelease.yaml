@@ -36,22 +36,22 @@ spec:
               PUID: 1000
               PGID: 100
               DB_ENGINE: postgres
-              # POSTGRES_PORT: "5432"
-              # POSTGRES_DB: *app
-              # POSTGRES_SERVER: mealie-pgbouncer.self-hosted.svc
-              # POSTGRES_USER: *app
-              # POSTGRES_PASSWORD:
-              #   valueFrom:
-              #     secretKeyRef:
-              #       name: mealie-pguser-mealie
-              #       key: password
+              POSTGRES_PORT: "5432"
+              POSTGRES_DB: *app
+              POSTGRES_SERVER: mealie-pgbouncer.self-hosted.svc
+              POSTGRES_USER: *app
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: mealie-pguser-mealie
+                    key: password
             envFrom:
               - secretRef:
                   name: mealie-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 100m

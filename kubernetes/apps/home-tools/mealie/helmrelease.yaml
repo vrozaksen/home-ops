@@ -38,7 +38,7 @@ spec:
               DB_ENGINE: postgres
               POSTGRES_PORT: "5432"
               POSTGRES_DB: *app
-              POSTGRES_SERVER: mealie-pgbouncer.self-hosted.svc
+              POSTGRES_SERVER: mealie-pgbouncer.home-tools.svc
               POSTGRES_USER: *app
               POSTGRES_PASSWORD:
                 valueFrom:

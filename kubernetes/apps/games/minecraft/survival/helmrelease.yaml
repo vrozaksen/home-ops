@@ -51,7 +51,6 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    fullnameOverride: *app
     image:
       repository: ghcr.io/itzg/minecraft-server
       tag: 2025.3.0@sha256:17096d38598b4f856467eba656077c8f8b0dfb282582c9aa6b3e77802ba1a209

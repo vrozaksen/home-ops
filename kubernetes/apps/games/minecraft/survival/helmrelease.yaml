@@ -3,7 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: OCIRepository
 metadata:
-  name: minecraft-takocraft
+  name: minecraft-survival
 spec:
   interval: 1h
   layerSelector:
@@ -32,7 +32,7 @@ spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
-    name: minecraft-takocraft
+    name: minecraft-survival
   # chart:
   #   spec:
   #     # renovate: registryUrl=https://itzg.github.io/minecraft-server-charts/

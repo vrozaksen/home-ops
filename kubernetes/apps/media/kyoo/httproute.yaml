@@ -7,11 +7,26 @@ metadata:
 spec:
   hostnames: ["kyoo.vzkn.eu"]
   parentRefs:
+    - name: internal
+      namespace: kube-system
+      sectionName: https
     - name: external
       namespace: kube-system
       sectionName: https
   rules:
-    - backendRefs:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      backendRefs:
+        - name: kyoo-back
+          namespace: media
+          port: 5000
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - name: kyoo-front
           namespace: media
           port: 8901

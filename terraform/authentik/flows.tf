@@ -9,7 +9,7 @@ resource "authentik_flow" "authentication" {
   slug               = "authentication-flow"
   designation        = "authentication"
   policy_engine_mode = "all"
-  # background         = "https://placeholder.jpeg"
+  # background         = "https://.jpeg"
 }
 
 resource "authentik_flow_stage_binding" "authentication-flow-binding-00" {

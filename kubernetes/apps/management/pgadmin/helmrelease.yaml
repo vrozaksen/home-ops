@@ -70,23 +70,17 @@ spec:
         ports:
           http:
             port: *port
-    ingress: # TODO route
+    route:
       app:
-        className: internal
-        annotations:
-          external-dns.alpha.kubernetes.io/target: internal.vzkn.eu
-          # gethomepage.dev/enabled: "true"
-          # gethomepage.dev/group: Management
-          # gethomepage.dev/name: pgAdmin
-          # gethomepage.dev/icon: si-postgresql
-          # gethomepage.dev/description: Postgres Database Manager
-        hosts:
-          - host: "{{ .Release.Name }}.vzkn.eu"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: *app

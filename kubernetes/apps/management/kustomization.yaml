@@ -5,8 +5,8 @@ kind: Kustomization
 namespace: management
 components:
   - ../../components/common
-resources: []
+resources:
 #   - ./meshcentral/ks.yaml
-#   - ./pgadmin/ks.yaml
+  - ./pgadmin/ks.yaml
 # #  - ./rustdesk/ks.yaml
 #   - ./sshwifty/ks.yaml

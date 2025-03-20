@@ -116,11 +116,3 @@ spec:
           - path: /data
             subPath: media
             #readOnly: true
-      music:
-        type: nfs
-        server: aincrad.home.arpa
-        path: /mnt/user/zfs_data/media
-        globalMounts:
-          - path: /music
-            subPath: music
-            #readOnly: true

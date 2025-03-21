@@ -20,7 +20,7 @@ jobs:
       matrix: ${{ steps.changed-terraform.outputs.all_changed_and_modified_files }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Get Changed Terraform
         id: changed-terraform
@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Get Secrets
-        uses: bitwarden/sm-action@v2
+        uses: bitwarden/sm-action@f1de238fc00c738c56140796018be9084c2b5d21 # v2
         with:
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
           secrets: |
@@ -53,7 +53,7 @@ jobs:
             fef6b3b2-2e2b-498a-9882-b265016e9e1c > BW_PROJ_ID
 
       - name: Generate Token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@af35edadc00be37caa72ed9f3e6d5f7801bfdf09 # v1
         id: app-token
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -113,7 +113,7 @@ jobs:
 
       - name: Post PR comment
         continue-on-error: true
-        uses: borchero/terraform-plan-comment@v2
+        uses: borchero/terraform-plan-comment@3399d8dbae8b05185e815e02361ede2949cd99c4 # v2
         with:
           token: ${{ steps.app-token.outputs.token }}
           planfile: .planfile

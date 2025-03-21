@@ -13,14 +13,14 @@
       runs-on: [home-ops-runner]
       steps:
         - name: Get Secrets
-          uses: bitwarden/sm-action@v2
+          uses: bitwarden/sm-action@f1de238fc00c738c56140796018be9084c2b5d21 # v2
           with:
             access_token: ${{ secrets.BW_ACCESS_TOKEN }}
             secrets: |
               7888f846-9c9d-4849-8ee4-b256018a3883 > KUBECONFIG
 
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
         - name: Setup Homebrew
           uses: Homebrew/actions/setup-homebrew@master
@@ -30,7 +30,7 @@
 
         - name: Write kubeconfig
           id: kubeconfig
-          uses: timheuer/base64-to-file@v1
+          uses: timheuer/base64-to-file@adaa40c0c581f276132199d4cf60afa07ce60eac # v1
           with:
             encodedString: ${{ env.KUBECONFIG }}
             fileName: kubeconfig

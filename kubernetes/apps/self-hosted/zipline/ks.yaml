@@ -40,6 +40,6 @@ spec:
     - target:
         kind: PostgresCluster
       patch: |-
-        - op: remove
         path: /spec/dataSource
+        - op: remove
 

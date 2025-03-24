@@ -37,9 +37,8 @@ spec:
   timeout: 5m
   wait: false
   patches:
-    - target:
-        kind: PostgresCluster
-      patch: |-
-        path: /spec/dataSource
+    - patch: |
         - op: remove
-
+          path: /spec/dataSource
+      target:
+        kind: PostgresCluster

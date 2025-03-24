@@ -11,7 +11,7 @@ resources:
 # Others
 #  - ./excalidraw/ks.yaml
   - ./it-tools/ks.yaml
-#  - ./mumble/ks.yaml
+  - ./mumble/ks.yaml
 #  - ./neko/ks.yaml
   # - ./stirling-pdf/ks.yaml # TODO Also broken
 #  - ./thelounge/ks.yaml

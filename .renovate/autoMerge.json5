@@ -5,10 +5,10 @@
       "description": ["Auto-merge container digests updates"],
       "matchDatasources": ["docker"],
       "automerge": true,
-      "automergeType": "branch",
+      "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
       "matchPackageNames": ["/bjw-s/", "/bjw-s-labs/", "/home-operations/", "/joryirving/", "/vrozaksen/"],
-      "ignoreTests": true
+      "ignoreTests": false
     },
     {
       "description": "Auto-merge OCI Releases",
@@ -32,10 +32,10 @@
       "description": "Auto-merge GitHub Releases",
       "matchDatasources": ["github-releases"],
       "automerge": true,
-      "automergeType": "pr",
+      "automergeType": "branch",
       "matchUpdateTypes": ["minor", "patch"],
-      "matchPackageNames": ["/gateway-api/", "/prometheus-operator/"],
-      "ignoreTests": false
+      "matchPackageNames": ["/external-dns/", "/gateway-api/", "/prometheus-operator/"],
+      "ignoreTests": true
     }
   ]
 }

@@ -35,6 +35,11 @@ spec:
               CORE_COMPRESSION_ENABLED: "true"
               CORE_COMPRESSION_THRESHOLD: 200mb
               CORE_COMPRESSION_ON_DASHBOARD: "true"
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: zipline-pguser-zipline
+                    key: pgbouncer-uri
               DATASOURCE_TYPE: "s3"
               DATASOURCE_S3_FORCE_PATH_STYLE: true
               DATASOURCE_S3_BUCKET: "zipline"
@@ -90,16 +95,19 @@ spec:
         ports:
           http:
             port: *port
-    ingress: # TODO route
+    route:
       app:
-        className: external
-        hosts:
-          - host: z.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - z.vzkn.eu
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       tmp:
         type: emptyDir

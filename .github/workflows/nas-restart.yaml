@@ -20,7 +20,7 @@
               7888f846-9c9d-4849-8ee4-b256018a3883 > KUBECONFIG
 
         - name: Checkout
-          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
         - name: Setup Homebrew
           uses: Homebrew/actions/setup-homebrew@master

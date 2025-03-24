@@ -15,6 +15,6 @@ resources:
 #  - ./neko/ks.yaml
   # - ./stirling-pdf/ks.yaml # TODO Also broken
 #  - ./thelounge/ks.yaml
-  - ./zipline/ks.yaml
+#  - ./zipline/ks.yaml
 
 # TODO PG

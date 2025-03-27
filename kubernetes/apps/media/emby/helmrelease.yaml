@@ -51,11 +51,11 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
+                    path: /System/Info/Public
                     port: &port 8096
-                  initialDelaySeconds: 0
+                  initialDelaySeconds: 30
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 3
                   failureThreshold: 3
               readiness: *probes
               startup:
@@ -63,11 +63,11 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
+                    path: /System/Info/Public
                     port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 5
                   failureThreshold: 30
             resources:
               requests:

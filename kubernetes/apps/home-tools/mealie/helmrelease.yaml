@@ -88,7 +88,7 @@ spec:
         globalMounts:
           - path: /app/data
       nltk:
-        existingClaim:  mealie-nltk
+        existingClaim: mealie-nltk
         globalMounts:
           - /nltk_data
       tmp:

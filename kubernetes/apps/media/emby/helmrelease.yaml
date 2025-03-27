@@ -35,40 +35,38 @@ spec:
         containers:
           app:
             image:
-              repository: emby/embyserver
-              tag: 4.9.0.42
+              repository: ghcr.io/vrozaksen/emby
+              tag: 4.8.11.0@sha256:2d01c9feb6c2b772f1f8205fa0b42598d3ea608daace3a7a86b57b2f224b09bb
             env:
               TZ: Europe/Warsaw
-              PUID: 1000
-              GUID: 100
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /System/Info/Public
-                    port: &port 8096
-                  initialDelaySeconds: 30
-                  periodSeconds: 10
-                  timeoutSeconds: 3
-                  failureThreshold: 3
-              readiness: *probes
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /System/Info/Public
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 30
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /health
+            #         port: &port 8096
+            #       initialDelaySeconds: 30
+            #       periodSeconds: 10
+            #       timeoutSeconds: 3
+            #       failureThreshold: 3
+            #   readiness: *probes
+            #   startup:
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /health
+            #         port: *port
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 5
+            #       failureThreshold: 30
             resources:
               requests:
                 cpu: 100m

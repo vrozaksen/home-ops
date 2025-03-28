@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/home-assistant
-              tag: 2025.3.4@sha256:8897ca1662ae138367128863ee057fa45edd97427f082cf9416f0737dbdb45c0
+              tag: 2025.3.4@sha256:9b481afc57745ee7c7204f7b72c7359ee8867728709c8f37b95812894d4c8296
             env:
               TZ: Europe/Warsaw
             securityContext:

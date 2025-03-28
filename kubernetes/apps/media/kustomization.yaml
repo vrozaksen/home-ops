@@ -9,7 +9,7 @@ resources:
   - ./emby/ks.yaml
   # - ./jellyfin/ks.yaml
   - ./jellyseerr/ks.yaml
-  - ./jellystat/ks.yaml
+  # - ./jellystat/ks.yaml
   # - ./kyoo/ks.yaml
   - ./navidrome/ks.yaml
   - ./tdarr/ks.yaml

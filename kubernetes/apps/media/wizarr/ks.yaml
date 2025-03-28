@@ -12,7 +12,7 @@ spec:
     - ../../../components/gatus/external
     - ../../../components/volsync
   dependsOn:
-    - name: jellyfin
+    - name: emby
       namespace: media
     - name: jellyseerr
       namespace: media

@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/prowlarr
-              tag: 1.33.0.4994@sha256:27ac908b98bb9a9a32cf9e61a60f5524b8af4c07a20f61d138d4f0cf789fea96
+              tag: 1.33.0.4994@sha256:2a186288c7cd2f7ace3e7ced34690753ea048eac0087ff31bfa53b05292cb2aa
             env:
               TZ: Europe/Warsaw
               PROWLARR__APP__INSTANCENAME: Prowlarr

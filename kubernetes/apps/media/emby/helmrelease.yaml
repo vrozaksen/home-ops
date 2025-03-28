@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/emby
-              tag: 4.8.11.0@sha256:3ae4603d194ca46b5a46b1dc09f2ecf16576de1d49ff073ff7ff362d92a1da17
+              tag: 4.8.11.0@sha256:3d6bdfffcb773e3be5cf4b979e29ed947ffcbc9cae6f0fd7ece578a2bb4a70e7
             env:
               TZ: Europe/Warsaw
             securityContext:

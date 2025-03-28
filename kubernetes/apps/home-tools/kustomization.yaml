@@ -8,7 +8,7 @@ components:
 resources:
   - ./atuin/ks.yaml
   # - ./homepage/ks.yaml # TODO
-  - ./mealie/ks.yaml
+  # - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
   # - ./outline/ks.yaml
   - ./paperless/ks.yaml

@@ -87,10 +87,10 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /config
-      emby-cache:
-        existingClaim: emby-cache
+      emby-metadata:
+        existingClaim: emby-metadata
         globalMounts:
-          - path: /cache
+          - path: /metadata
       tmp:
         type: emptyDir
         globalMounts:

@@ -13,4 +13,3 @@ resources:
   # - ./outline/ks.yaml
   - ./paperless/ks.yaml
   - ./reactive-resume/ks.yaml
-

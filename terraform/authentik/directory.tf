@@ -6,6 +6,8 @@ locals {
     media          = { name = "Media" }
     monitoring     = { name = "Monitoring" }
     users          = { name = "Users" }
+    ocis_admin     = { name = "OCIS-Admin" }
+    ocis           = { name = "OCIS" }
   }
 }
 
@@ -15,11 +17,6 @@ data "authentik_group" "admins" {
 
 resource "authentik_group" "grafana_admin" {
   name         = "Grafana Admins"
-  is_superuser = false
-}
-
-resource "authentik_group" "ocis" {
-  name         = "Ocis"
   is_superuser = false
 }
 
@@ -48,8 +45,8 @@ data "bitwarden_secret" "github" {
 locals {
   discord_client_id     = replace(regex("DISCORD_CLIENT_ID: (\\S+)", data.bitwarden_secret.discord.value)[0], "\"", "")
   discord_client_secret = replace(regex("DISCORD_CLIENT_SECRET: (\\S+)", data.bitwarden_secret.discord.value)[0], "\"", "")
-  github_client_id     = replace(regex("GITHUB_CLIENT_ID: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
-  github_client_secret = replace(regex("GITHUB_CLIENT_SECRET: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
+  github_client_id      = replace(regex("GITHUB_CLIENT_ID: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
+  github_client_secret  = replace(regex("GITHUB_CLIENT_SECRET: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
 }
 
 ##Oauth

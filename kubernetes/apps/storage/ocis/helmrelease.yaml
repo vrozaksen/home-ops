@@ -41,6 +41,7 @@ spec:
               tag: 7.1.1
             env:
               TZ: Europe/Warsaw
+              DEMO_USERS: false
               OCIS_INSECURE: true
               OCIS_LOG_COLOR: true
               OCIS_LOG_LEVEL: info
@@ -52,8 +53,8 @@ spec:
               OCIS_PERSISTENT_STORE: redis-sentinel
               OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379/ocis
               PROXY_ENABLE_BASIC_AUTH: "false"
-              PROXY_DEBUG_ADDR: 0.0.0.0:9205
-              PROXY_HTTP_ADDR: 0.0.0.0:9200
+              # PROXY_DEBUG_ADDR: 0.0.0.0:9205
+              # PROXY_HTTP_ADDR: 0.0.0.0:9200
               PROXY_TLS: false
               PROXY_AUTOPROVISION_ACCOUNTS: true
               PROXY_OIDC_ACCESS_TOKEN_VERIFY_METHOD: none

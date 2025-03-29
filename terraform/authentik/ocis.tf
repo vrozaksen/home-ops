@@ -10,19 +10,18 @@ locals {
   }
 }
 
-# Web Client
+# Web Client (Public)
 resource "authentik_provider_oauth2" "ocis_web" {
   name                  = "ocis-web-provider"
   client_id             = local.ocis_secrets["OCIS_WEB_CLIENT_ID"]
   client_secret         = null
+  client_type           = "public"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
   property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
-  sub_mode              = "public"
-  pkce_enabled          = true
 
   allowed_redirect_uris = [
     {
@@ -51,19 +50,18 @@ resource "authentik_application" "ocis_web" {
   open_in_new_tab    = true
 }
 
-# Desktop Client
+# Desktop Client (Confidential)
 resource "authentik_provider_oauth2" "ocis_desktop" {
   name                  = "ocis-desktop-provider"
   client_id             = local.ocis_secrets["OCIS_DESKTOP_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_DESKTOP_CLIENT_SECRET"]
+  client_type           = "confidential"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
   property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
-  sub_mode              = "hashed_user_id"
-  pkce_enabled          = false
 
   allowed_redirect_uris = [
     {
@@ -88,19 +86,18 @@ resource "authentik_application" "ocis_desktop" {
   open_in_new_tab    = true
 }
 
-# Android Client
+# Android Client (Confidential)
 resource "authentik_provider_oauth2" "ocis_android" {
   name                  = "ocis-android-provider"
   client_id             = local.ocis_secrets["OCIS_ANDROID_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_ANDROID_CLIENT_SECRET"]
+  client_type           = "confidential"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
   property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
-  sub_mode              = "hashed_user_id"
-  pkce_enabled          = false
 
   allowed_redirect_uris = [
     {
@@ -121,19 +118,18 @@ resource "authentik_application" "ocis_android" {
   open_in_new_tab    = true
 }
 
-# iOS Client
+# iOS Client (Confidential)
 resource "authentik_provider_oauth2" "ocis_ios" {
   name                  = "ocis-ios-provider"
   client_id             = local.ocis_secrets["OCIS_IOS_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_IOS_CLIENT_SECRET"]
+  client_type           = "confidential"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
   property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
-  sub_mode              = "hashed_user_id"
-  pkce_enabled          = false
 
   allowed_redirect_uris = [
     {

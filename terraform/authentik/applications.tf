@@ -8,6 +8,7 @@ locals {
     "pgadmin",
     "paperless",
     "rresume",
+    "ocis",
     "outline",
     "miniflux",
     "mealie",
@@ -104,6 +105,14 @@ locals {
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
       redirect_uri  = "https://rr.${var.cluster_domain}/api/auth/openid/callback"
       launch_url    = "https://rr.${var.cluster_domain}/"
+    },
+    ocis = {
+      client_id     = local.parsed_secrets["ocis"].client_id
+      client_secret = local.parsed_secrets["ocis"].client_secret
+      group         = "downloads"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
+      redirect_uri  = "https://cloud.${var.cluster_domain}/api/auth/openid/callback"
+      launch_url    = "https://cloud.${var.cluster_domain}/"
     },
     miniflux = {
       client_id     = local.parsed_secrets["miniflux"].client_id

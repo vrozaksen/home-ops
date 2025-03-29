@@ -1,0 +1,151 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app ocis
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      ocis:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-config:
+            image:
+              repository: docker.io/owncloud/ocis
+              tag: 7.1.1
+            command:
+              - /bin/sh
+              - -c
+            args:
+              - |
+                if [ ! -f /etc/ocis/ocis.yaml ]; then ocis init; else exit 0; fi
+            env:
+              OCIS_INSECURE: true
+        containers:
+          ocis:
+            image:
+              repository: docker.io/owncloud/ocis
+              tag: 7.1.1
+            env:
+              TZ: Europe/Warsaw
+              OCIS_INSECURE: true
+              OCIS_LOG_COLOR: true
+              OCIS_LOG_LEVEL: info
+              OCIS_LOG_PRETTY: true
+              OCIS_URL: https://cloud.vzkn.eu
+              OCIS_OIDC_ISSUER: https://sso.vzkn.eu
+              OCIS_CACHE_STORE: redis-sentinel # Default memory
+              OCIS_CACHE_STORE_NODES: "[ocis-dragonfly:6379]"
+              OCIS_PERSISTENT_STORE: redis-sentinel
+              OCIS_PERSISTENT_STORE_NODES: "[ocis-dragonfly:6379]"
+              OCIS_EXCLUDE_RUN_SERVICES: "idm, ldap, graph, graph-explorer, nats"
+              PROXY_ENABLE_BASIC_AUTH: "false"
+              PROXY_DEBUG_ADDR: 0.0.0.0:9205
+              PROXY_HTTP_ADDR: 0.0.0.0:9200
+              PROXY_TLS: false
+              PROXY_AUTOPROVISION_ACCOUNTS: true
+              PROXY_OIDC_ACCESS_TOKEN_VERIFY_METHOD: none
+              PROXY_OIDC_REWRITE_WELLKNOWN: true
+              PROXY_ROLE_ASSIGNMENT_DRIVER: oidc
+              PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM: groups
+              PROXY_USER_OIDC_CLAIM: preferred_username
+              PROXY_CSP_CONFIG_FILE_LOCATION: /etc/ocis/csp.yaml
+              STORAGE_USERS_DRIVER: s3ng
+              STORAGE_SYSTEM_DRIVER: ocis
+              STORAGE_USERS_S3NG_ENDPOINT: https://s3.vzkn.eu
+              STORAGE_USERS_S3NG_REGION: main
+              STORAGE_USERS_S3NG_BUCKET: ocis
+              WEB_OIDC_CLIENT_ID: ocis
+              WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/ocis/.well-known/openid-configuration
+              WEB_OIDC_SCOPE: "openid profile email groups"
+              # COLLABORA_DOMAIN: collabora.${SECRET_DOMAIN}
+              # COLLABORATION_APP_PROOF_DISABLE: "true"
+            envFrom:
+              - secretRef:
+                  name: ocis-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 100
+            runAsNonRoot: true
+            fsGroup: 100
+            fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: &port 9200
+            primary: true
+          metrics:
+            port: 9205
+    serviceMonitor:
+      app:
+        serviceName: *app
+        endpoints:
+          - port: metrics
+    route:
+      app:
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - "cloud.vzkn.eu"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
+    persistence:
+      data:
+        existingClaim: *app
+        globalMounts:
+          - path: /var/lib/ocis
+            subPath: data
+          - path: /etc/ocis
+            subPath: config
+      config:
+        type: configMap
+        name: ocis-configmap
+        globalMounts:
+          - path: /etc/ocis/proxy.yaml
+            subPath: proxy.yaml
+            readOnly: true
+          - path: /etc/ocis/web.yaml
+            subPath: web.yaml
+            readOnly: true
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+            subPath: tmp

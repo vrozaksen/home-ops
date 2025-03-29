@@ -48,9 +48,9 @@ spec:
               OCIS_URL: https://cloud.vzkn.eu
               OCIS_OIDC_ISSUER: https://sso.vzkn.eu
               OCIS_CACHE_STORE: redis-sentinel # Default memory
-              OCIS_CACHE_STORE_NODES: ocis-dragonfly:6379
+              OCIS_CACHE_STORE_NODES: ocis-dragonfly:6379/
               OCIS_PERSISTENT_STORE: redis-sentinel
-              OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379
+              OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379/
               OCIS_EXCLUDE_RUN_SERVICES: "search"
               PROXY_ENABLE_BASIC_AUTH: "false"
               PROXY_TLS: false

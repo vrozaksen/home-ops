@@ -108,7 +108,7 @@ locals {
     },
     ocis = {
       client_id     = local.parsed_secrets["ocis"].client_id
-      client_secret = local.parsed_secrets["ocis"].client_secret
+      client_secret = "" # local.parsed_secrets["ocis"].client_secret
       group         = "downloads"
       icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
       redirect_uri  = "https://cloud.${var.cluster_domain}/api/auth/openid/callback"

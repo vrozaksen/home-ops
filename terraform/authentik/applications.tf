@@ -110,8 +110,8 @@ locals {
       client_id     = local.parsed_secrets["ocis"].client_id
       client_secret = "" # local.parsed_secrets["ocis"].client_secret
       group         = "downloads"
-      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
-      redirect_uri  = "https://cloud.${var.cluster_domain}/api/auth/openid/callback"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/ocis.png"
+      redirect_uri  = "https://cloud.${var.cluster_domain}/oidc-callback"
       launch_url    = "https://cloud.${var.cluster_domain}/"
     },
     miniflux = {

@@ -6,7 +6,7 @@ namespace: self-hosted
 components:
   - ../../components/common
 resources:
-#  - ./free-game-notifier/ks.yaml
+  - ./free-game-notifier/ks.yaml
 # Others
 #  - ./excalidraw/ks.yaml
   - ./it-tools/ks.yaml

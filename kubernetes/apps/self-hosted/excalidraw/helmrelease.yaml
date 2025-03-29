@@ -49,17 +49,20 @@ spec:
                   app.kubernetes.io/name: *app
     service:
       app:
-        controller: excalidraw
+        controller: *app
         ports:
           http:
-            port: 80
-    ingress: # TODO route
+            port: &port 80
+    route:
       app:
-        className: external
-        hosts:
-          - host: draw.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - draw.vzkn.eu
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port

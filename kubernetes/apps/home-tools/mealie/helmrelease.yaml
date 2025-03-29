@@ -89,6 +89,6 @@ spec:
       nltk:
         existingClaim: mealie-nltk
         globalMounts:
-          - /nltk_data
+          - path: /nltk_data
       tmp:
         type: emptyDir

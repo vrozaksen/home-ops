@@ -10,8 +10,6 @@ resources:
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
-#  - ./neko/ks.yaml
+  # - ./neko/ks.yaml
   # - ./stirling-pdf/ks.yaml # TODO Also broken
   - ./zipline/ks.yaml
-
-# TODO PG

@@ -18,6 +18,11 @@ resource "authentik_group" "grafana_admin" {
   is_superuser = false
 }
 
+resource "authentik_group" "ocis" {
+  name         = "Ocis"
+  is_superuser = false
+}
+
 resource "authentik_group" "default" {
   for_each     = local.authentik_groups
   name         = each.value.name

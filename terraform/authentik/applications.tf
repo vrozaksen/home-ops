@@ -108,9 +108,9 @@ locals {
     },
     ocis = {
       client_id     = local.parsed_secrets["ocis"].client_id
-      client_secret = "" # local.parsed_secrets["ocis"].client_secret
+      client_secret = null
       group         = "downloads"
-      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/ocis.png"
+      icon_url      = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/owncloud.png"
       redirect_uri  = "https://cloud.${var.cluster_domain}/oidc-callback.html"
       launch_url    = "https://cloud.${var.cluster_domain}/"
     },

@@ -41,7 +41,7 @@ spec:
               tag: 7.1.1
             env:
               TZ: Europe/Warsaw
-              OCIS_INSECURE: true
+              #OCIS_INSECURE: true
               OCIS_LOG_COLOR: true
               OCIS_LOG_LEVEL: info
               OCIS_LOG_PRETTY: true
@@ -54,7 +54,7 @@ spec:
               #OCIS_EXCLUDE_RUN_SERVICES: "idp, search"
               #PROXY_ENABLE_BASIC_AUTH: "true"
               #PROXY_OIDC_ISSUER: https://sso.vzkn.eu/application/o/ocis/
-              #PROXY_TLS: false
+              PROXY_TLS: false
               #PROXY_AUTOPROVISION_ACCOUNTS: true
               #PROXY_OIDC_ACCESS_TOKEN_VERIFY_METHOD: none
               #PROXY_OIDC_REWRITE_WELLKNOWN: true

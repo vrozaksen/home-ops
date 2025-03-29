@@ -51,7 +51,7 @@ spec:
               OCIS_CACHE_STORE_NODES: ocis-dragonfly:6379/ocis
               OCIS_PERSISTENT_STORE: redis-sentinel
               OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379/ocis
-              OCIS_EXCLUDE_RUN_SERVICES: "idm, ldap, graph, graph-explorer"
+              OCIS_EXCLUDE_RUN_SERVICES: "idm"
               PROXY_ENABLE_BASIC_AUTH: "false"
               PROXY_DEBUG_ADDR: 0.0.0.0:9205
               PROXY_HTTP_ADDR: 0.0.0.0:9200

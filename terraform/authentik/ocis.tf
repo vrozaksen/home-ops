@@ -43,7 +43,7 @@ resource "authentik_application" "ocis_web" {
   name               = "ownCloud Web"
   slug               = "ocis-web"
   protocol_provider  = authentik_provider_oauth2.ocis_web.id
-  group              = "ocis"
+  group              = "Ocis"
   meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/owncloud.png"
   meta_launch_url    = "https://cloud.${var.cluster_domain}/"
   policy_engine_mode = "all"
@@ -79,7 +79,7 @@ resource "authentik_application" "ocis_desktop" {
   name               = "ownCloud Desktop"
   slug               = "ocis-desktop"
   protocol_provider  = authentik_provider_oauth2.ocis_desktop.id
-  group              = "ocis"
+  group              = "Ocis"
   meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/owncloud.png"
   meta_launch_url    = "https://cloud.${var.cluster_domain}/"
   policy_engine_mode = "all"
@@ -111,7 +111,7 @@ resource "authentik_application" "ocis_android" {
   name               = "ownCloud Android"
   slug               = "ocis-android"
   protocol_provider  = authentik_provider_oauth2.ocis_android.id
-  group              = "ocis"
+  group              = "Ocis"
   meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/owncloud.png"
   meta_launch_url    = "https://cloud.${var.cluster_domain}/"
   policy_engine_mode = "all"
@@ -147,7 +147,7 @@ resource "authentik_application" "ocis_ios" {
   name               = "ownCloud iOS"
   slug               = "ocis-ios"
   protocol_provider  = authentik_provider_oauth2.ocis_ios.id
-  group              = "ocis"
+  group              = "Ocis"
   meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/owncloud.png"
   meta_launch_url    = "https://cloud.${var.cluster_domain}/"
   policy_engine_mode = "all"

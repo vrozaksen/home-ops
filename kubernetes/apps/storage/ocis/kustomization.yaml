@@ -10,5 +10,6 @@ configMapGenerator:
     files:
       - proxy.yaml=./resources/proxy.yaml
       - web.yaml=./resources/web.yaml
+      - csp.yaml=./config/csp.yaml
 generatorOptions:
   disableNameSuffixHash: true

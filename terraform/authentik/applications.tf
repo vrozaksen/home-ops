@@ -77,18 +77,18 @@ module "proxy-sonarr" {
   auth_groups        = [authentik_group.media.id]
 }
 
-module "proxy-lidarr" {
-  source             = "./proxy_application"
-  name               = "Lidarr"
-  description        = "Music"
-  icon_url           = "https://github.com/Lidarr/Lidarr/raw/develop/Logo/128.png"
-  group              = "Downloads"
-  slug               = "music"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.media.id]
-}
+# module "proxy-lidarr" {
+#   source             = "./proxy_application"
+#   name               = "Lidarr"
+#   description        = "Music"
+#   icon_url           = "https://github.com/Lidarr/Lidarr/raw/develop/Logo/128.png"
+#   group              = "Downloads"
+#   slug               = "music"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.media.id]
+# }
 
 module "proxy-bazarr" {
   source             = "./proxy_application"

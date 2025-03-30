@@ -154,7 +154,7 @@ module "oauth2-autobrr" {
 module "oauth2-dashbrr" {
   source             = "./oauth2_application"
   name               = "Dashbrr"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/dashbrr.png"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/autobrr.png"
   launch_url         = "https://dashbrr.${var.cluster_domain}/api/auth/oidc/callback"
   description        = "Downloads tooling" # TODO
   newtab             = true

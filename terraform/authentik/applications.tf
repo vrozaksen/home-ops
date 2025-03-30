@@ -318,7 +318,7 @@ module "oauth2-ocis" {
   source             = "./oauth2_application"
   name               = "Owncloud"
   icon_url           = "https://raw.githubusercontent.com/owncloud/owncloud.github.io/main/static/favicon/favicon.png"
-  launch_url         = "https://files.${var.cluster_domain}"
+  launch_url         = "https://cloud.${var.cluster_domain}"
   description        = "Personal Cloud"
   newtab             = true
   group              = "Home"

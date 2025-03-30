@@ -67,8 +67,8 @@ spec:
               STORAGE_USERS_S3NG_ENDPOINT: https://s3.vzkn.eu
               STORAGE_USERS_S3NG_REGION: main
               STORAGE_USERS_S3NG_BUCKET: ocis
-              WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/ocis-web/.well-known/openid-configuration
-              WEB_OIDC_SCOPE: "openid profile email groups"
+              #WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/ocis-web/.well-known/openid-configuration
+              #WEB_OIDC_SCOPE: "openid profile email groups"
               # COLLABORA_DOMAIN: collabora.${SECRET_DOMAIN}
               # COLLABORATION_APP_PROOF_DISABLE: "true"
             envFrom:

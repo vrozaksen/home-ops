@@ -59,7 +59,6 @@ locals {
 #   consumer_secret = local.discord_client_secret
 
 #   additional_scopes = "identify email"
-#   icon_url        = "https://discord.com/assets/847541504914fd33810e70a0ea73177e.ico"
 # }
 
 resource "authentik_source_oauth" "github" {
@@ -74,7 +73,6 @@ resource "authentik_source_oauth" "github" {
   consumer_secret = local.github_client_secret
 
   additional_scopes = "read:user user:email"
-  icon_url          = "https://github.githubassets.com/favicons/favicon.png"
 }
 
 resource "authentik_policy_binding" "github_superusers_only" {

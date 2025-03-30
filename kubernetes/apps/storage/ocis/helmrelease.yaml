@@ -52,7 +52,7 @@ spec:
               OCIS_CACHE_STORE_NODES: ocis-dragonfly:6379/
               OCIS_PERSISTENT_STORE: redis-sentinel
               OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379/
-              OCIS_OIDC_ISSUER: https://sso.vzkn.eu/application/o/ocis-web/
+              OCIS_OIDC_ISSUER: https://sso.vzkn.eu/application/o/owncloud/
               OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD: false
               OCIS_SHARING_PUBLIC_WRITEABLE_SHARE_MUST_HAVE_PASSWORD: true
               #OCIS_EXCLUDE_RUN_SERVICES: "idp, search"
@@ -70,7 +70,7 @@ spec:
               STORAGE_USERS_S3NG_ENDPOINT: https://s3.vzkn.eu
               STORAGE_USERS_S3NG_REGION: main
               STORAGE_USERS_S3NG_BUCKET: ocis
-              WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/ocis-web/.well-known/openid-configuration
+              WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/owncloud/.well-known/openid-configuration
               WEB_OIDC_SCOPE: "openid profile email groups"
               # COLLABORA_DOMAIN: collabora.${SECRET_DOMAIN}
               # COLLABORATION_APP_PROOF_DISABLE: "true"

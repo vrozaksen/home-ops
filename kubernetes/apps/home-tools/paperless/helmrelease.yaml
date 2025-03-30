@@ -31,7 +31,7 @@ spec:
             env:
               # Application
               PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
-              PAPERLESS_URL: https://paperless.vzkn.eu
+              PAPERLESS_URL: https://docs.vzkn.eu
               PAPERLESS_PORT: "8000"
               PAPERLESS_TIME_ZONE: Europe/Warsaw
               PAPERLESS_WEBSERVER_WORKERS: "2"
@@ -82,7 +82,9 @@ spec:
             port: &port 8000
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - docs.vzkn.eu
         parentRefs:
           - name: external
             namespace: kube-system

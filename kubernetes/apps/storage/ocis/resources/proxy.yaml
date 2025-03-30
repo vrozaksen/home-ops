@@ -8,4 +8,4 @@ role_assignment:
             - role_name: admin
               claim_value: OCIS-Admin
             - role_name: user
-              claim_value: OCIS
+              claim_value: OCIS-User

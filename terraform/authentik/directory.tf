@@ -7,7 +7,7 @@ locals {
     monitoring     = { name = "Monitoring" }
     users          = { name = "Users" }
     ocis_admin     = { name = "OCIS-Admin" }
-    ocis           = { name = "OCIS" }
+    ocis_user      = { name = "OCIS-User" }
   }
 }
 

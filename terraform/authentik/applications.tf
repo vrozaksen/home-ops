@@ -269,7 +269,7 @@ module "oauth2-paperless" {
   source             = "./oauth2_application"
   name               = "Paperless"
   icon_url           = "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/dev/resources/logo/web/svg/Color%20logo%20-%20no%20background.svg"
-  launch_url         = "https://documents.${var.cluster_domain}"
+  launch_url         = "https://docs.${var.cluster_domain}"
   description        = "Documents"
   newtab             = true
   group              = "Home"
@@ -278,7 +278,7 @@ module "oauth2-paperless" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["paperless"].client_id
   client_secret      = local.parsed_secrets["paperless"].client_secret
-  redirect_uris      = ["https://documents.${var.cluster_domain}/accounts/oidc/authentik/login/callback/"]
+  redirect_uris      = ["https://docs.${var.cluster_domain}/accounts/oidc/authentik/login/callback/"]
 }
 
 module "oauth2-rresume" {

@@ -63,10 +63,10 @@ resource "authentik_provider_oauth2" "ocis_desktop" {
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings = [
+  property_mappings = concat(
   data.authentik_property_mapping_provider_scope.oauth2.ids,
-  data.authentik_property_mapping_provider_scope.offline_access.id
-  ]
+  [data.authentik_property_mapping_provider_scope.offline_access.id]
+  )
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
 
@@ -102,10 +102,10 @@ resource "authentik_provider_oauth2" "ocis_android" {
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-    property_mappings = [
+  property_mappings = concat(
   data.authentik_property_mapping_provider_scope.oauth2.ids,
-  data.authentik_property_mapping_provider_scope.offline_access.id
-  ]
+  [data.authentik_property_mapping_provider_scope.offline_access.id]
+  )
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
 
@@ -137,10 +137,10 @@ resource "authentik_provider_oauth2" "ocis_ios" {
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings = [
+  property_mappings = concat(
   data.authentik_property_mapping_provider_scope.oauth2.ids,
-  data.authentik_property_mapping_provider_scope.offline_access.id
-  ]
+  [data.authentik_property_mapping_provider_scope.offline_access.id]
+  )
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
 

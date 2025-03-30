@@ -44,7 +44,7 @@ module "proxy-prowlarr" {
   description        = "Torrent indexer"
   icon_url           = "https://raw.githubusercontent.com/Prowlarr/Prowlarr/develop/Logo/128.png"
   group              = "Downloads"
-  slug               = "indexer"
+  slug               = "prowlarr"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
@@ -57,7 +57,7 @@ module "proxy-radarr" {
   description        = "Movies"
   icon_url           = "https://github.com/Radarr/Radarr/raw/develop/Logo/128.png"
   group              = "Downloads"
-  slug               = "movies"
+  slug               = "radarr"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
@@ -70,7 +70,7 @@ module "proxy-sonarr" {
   description        = "TV"
   icon_url           = "https://github.com/Sonarr/Sonarr/raw/develop/Logo/128.png"
   group              = "Downloads"
-  slug               = "tv"
+  slug               = "sonarr"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
@@ -83,7 +83,7 @@ module "proxy-sonarr" {
 #   description        = "Music"
 #   icon_url           = "https://github.com/Lidarr/Lidarr/raw/develop/Logo/128.png"
 #   group              = "Downloads"
-#   slug               = "music"
+#   slug               = "lidarr"
 #   domain             = var.cluster_domain
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid

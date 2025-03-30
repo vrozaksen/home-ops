@@ -16,12 +16,19 @@ resource "authentik_provider_oauth2" "ocis_web" {
   client_id             = local.ocis_secrets["OCIS_WEB_CLIENT_ID"]
   client_secret         = null
   client_type           = "public"
+  sub_mode              = "user_username"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
+
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.openid.id,
+    data.authentik_property_mapping_provider_scope.profile.id,
+    data.authentik_property_mapping_provider_scope.email.id,
+    data.authentik_property_mapping_provider_scope.groups.id,
+  ]
 
   allowed_redirect_uris = [
     {
@@ -56,12 +63,20 @@ resource "authentik_provider_oauth2" "ocis_desktop" {
   client_id             = local.ocis_secrets["OCIS_DESKTOP_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_DESKTOP_CLIENT_SECRET"]
   client_type           = "confidential"
+  sub_mode              = "user_username"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
+
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.openid.id,
+    data.authentik_property_mapping_provider_scope.profile.id,
+    data.authentik_property_mapping_provider_scope.email.id,
+    data.authentik_property_mapping_provider_scope.groups.id,
+    data.authentik_property_mapping_provider_scope.offline_access.id,
+  ]
 
   allowed_redirect_uris = [
     {
@@ -92,12 +107,20 @@ resource "authentik_provider_oauth2" "ocis_android" {
   client_id             = local.ocis_secrets["OCIS_ANDROID_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_ANDROID_CLIENT_SECRET"]
   client_type           = "confidential"
+  sub_mode              = "user_username"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
+
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.openid.id,
+    data.authentik_property_mapping_provider_scope.profile.id,
+    data.authentik_property_mapping_provider_scope.email.id,
+    data.authentik_property_mapping_provider_scope.groups.id,
+    data.authentik_property_mapping_provider_scope.offline_access.id,
+  ]
 
   allowed_redirect_uris = [
     {
@@ -124,12 +147,20 @@ resource "authentik_provider_oauth2" "ocis_ios" {
   client_id             = local.ocis_secrets["OCIS_IOS_CLIENT_ID"]
   client_secret         = local.ocis_secrets["OCIS_IOS_CLIENT_SECRET"]
   client_type           = "confidential"
+  sub_mode              = "user_username"
   authorization_flow    = authentik_flow.provider-authorization-implicit-consent.uuid
   authentication_flow   = authentik_flow.authentication.uuid
   invalidation_flow     = data.authentik_flow.default-provider-invalidation-flow.id
-  property_mappings     = data.authentik_property_mapping_provider_scope.oauth2.ids
   access_token_validity = "hours=4"
   signing_key           = data.authentik_certificate_key_pair.generated.id
+
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.openid.id,
+    data.authentik_property_mapping_provider_scope.profile.id,
+    data.authentik_property_mapping_provider_scope.email.id,
+    data.authentik_property_mapping_provider_scope.groups.id,
+    data.authentik_property_mapping_provider_scope.offline_access.id,
+  ]
 
   allowed_redirect_uris = [
     {

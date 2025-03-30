@@ -42,3 +42,22 @@ resource "authentik_policy_expression" "user-settings-authorization" {
   return True
   EOT
 }
+## OAuth scopes
+data "authentik_property_mapping_provider_scope" "scopes" {
+  managed_list = [
+    "goauthentik.io/providers/oauth2/scope-email",
+    "goauthentik.io/providers/oauth2/scope-openid",
+    "goauthentik.io/providers/oauth2/scope-profile"
+  ]
+}
+
+# resource "authentik_property_mapping_provider_scope" "openid-nextcloud" {
+#   name       = "OAuth Mapping: OpenID 'nextcloud'"
+#   scope_name = "nextcloud"
+#   expression = <<EOF
+# return {
+#   "nextcloudAdmin": user.attributes.get("nextcloudAdmin"),
+#   "nextcloudQuota": user.attributes.get("nextcloudQuota",user.group_attributes().get("defaultQuota", "100 MB"))
+# }
+# EOF
+# }

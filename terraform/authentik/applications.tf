@@ -380,7 +380,7 @@ module "oauth2-ocis-ios" {
 module "oauth2-zipline" {
   source             = "./oauth2_application"
   name               = "Zipline"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/zipline.png"
+  icon_url           = "https://raw.githubusercontent.com/diced/zipline/refs/heads/trunk/public/favicon-512x512.png"
   launch_url         = "https://z.${var.cluster_domain}"
   description        = "FileBin"
   newtab             = true

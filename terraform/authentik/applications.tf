@@ -283,7 +283,7 @@ module "oauth2-paperless" {
 
 module "oauth2-rresume" {
   source             = "./oauth2_application"
-  name               = "Paperless"
+  name               = "Reactive-Resume"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
   launch_url         = "https://rr.${var.cluster_domain}"
   description        = "CV"

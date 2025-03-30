@@ -41,6 +41,7 @@ spec:
               tag: 7.1.1
             env:
               TZ: Europe/Warsaw
+              DEMO_USERS: false
               #OCIS_INSECURE: true
               PROXY_TLS: false
               OCIS_LOG_COLOR: true
@@ -52,6 +53,8 @@ spec:
               OCIS_PERSISTENT_STORE: redis-sentinel
               OCIS_PERSISTENT_STORE_NODES: ocis-dragonfly:6379/
               OCIS_OIDC_ISSUER: https://sso.vzkn.eu/application/o/ocis-web/
+              OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD: false
+              OCIS_SHARING_PUBLIC_WRITEABLE_SHARE_MUST_HAVE_PASSWORD: true
               #OCIS_EXCLUDE_RUN_SERVICES: "idp, search"
               #PROXY_ENABLE_BASIC_AUTH: "true"
               #PROXY_OIDC_ISSUER: https://sso.vzkn.eu/application/o/ocis/

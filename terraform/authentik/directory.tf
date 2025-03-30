@@ -77,6 +77,6 @@ resource "authentik_source_oauth" "github" {
 
 resource "authentik_policy_binding" "github_superusers_only" {
   target = authentik_source_oauth.github.uuid
-  group  = data.authentik_group.superusers.id
+  group  = authentik_group.superusers.id
   order  = 0
 }

@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/radarr
-              tag: 5.21.1.9799@sha256:6d74dfbe611c7dfe508f7a27880d2138a1257ac8b68f88d18b4abd5cb5032c44
+              tag: 5.22.0.9808@sha256:3bcadaa8076659cf34b2cad044d7f3efd5d89652e39ca2e044eb5580a5f22ba3
             env:
               RADARR__APP__INSTANCENAME: Radarr
               RADARR__APP__THEME: dark

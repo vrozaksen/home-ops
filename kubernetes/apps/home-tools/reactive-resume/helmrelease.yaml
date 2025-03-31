@@ -51,7 +51,7 @@ spec:
               TZ: "Europe/Warsaw"
               PORT: "3001"
               NODE_ENV: "production"
-              PUBLIC_URL: http://rr.vzkn.eu
+              PUBLIC_URL: https://rr.vzkn.eu
               CHROME_URL: ws://reactive-resume-chrome.home-tools.svc.cluster.local.:3000
               # S3
               STORAGE_URL: https://s3.vzkn.eu/rresume

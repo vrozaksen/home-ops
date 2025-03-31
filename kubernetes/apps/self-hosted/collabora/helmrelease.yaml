@@ -30,26 +30,26 @@ spec:
             env:
               extra_params: --o:ssl.enable=false --o:ssl.ssl_verification=false --o:ssl.termination=true --o:welcome.enable=false --o:net.frame_ancestors=cloud.vzkn.eu
               # proofKeysSecretRef: collabora-proof-keys
-    rawResources:
-      autoscaling:
-        enabled: true
-        apiVersion: autoscaling/v2
-        kind: HorizontalPodAutoscaler
-        spec:
-          spec:
-            scaleTargetRef:
-              apiVersion: apps/v1
-              kind: Deployment
-              name: ocis-collabora
-            minReplicas: 1
-            maxReplicas: 3
-            metrics:
-            - type: Resource
-              resource:
-                name: cpu
-                target:
-                  type: Utilization
-                  averageUtilization: 50
+    # rawResources:
+    #   autoscaling:
+    #     enabled: true
+    #     apiVersion: autoscaling/v2
+    #     kind: HorizontalPodAutoscaler
+    #     spec:
+    #       spec:
+    #         scaleTargetRef:
+    #           apiVersion: apps/v1
+    #           kind: Deployment
+    #           name: ocis-collabora
+    #         minReplicas: 1
+    #         maxReplicas: 3
+    #         metrics:
+    #         - type: Resource
+    #           resource:
+    #             name: cpu
+    #             target:
+    #               type: Utilization
+    #               averageUtilization: 50
     service:
       app:
         controller: *app
@@ -70,9 +70,7 @@ spec:
             filters:
               - type: RequestHeaderModifier
                 requestHeaderModifier:
-                  add:
-                    - name: balance
-                      value: "url_param WOPISrc check_post"
-                    - name: hash-type
-                      value: "consistent"
+                  set:
+                    - name: X-WOPISrc-Hash
+                      value: "$(query_params.WOPISrc)"
 # Different way: https://github.com/zednotdead/gensokyo/blob/main/kubernetes/apps/default/collabora/app/hr.yaml

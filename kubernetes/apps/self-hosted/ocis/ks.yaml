@@ -21,18 +21,19 @@ spec:
       failed: status.phase != 'ready'
       current: status.phase == 'ready'
   interval: 1h
-  path: ./kubernetes/apps/storage/ocis
+  path: ./kubernetes/apps/self-hosted/ocis
   postBuild:
     substitute:
       APP: *app
+      GATUS_SUBDOMAIN: cloud
       # VOLSYNC_CAPACITY: 15Gi
-      # GATUS_GROUP: storage
+      # GATUS_GROUP: self-hosted
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: storage
+  targetNamespace: self-hosted
   timeout: 5m
   wait: false

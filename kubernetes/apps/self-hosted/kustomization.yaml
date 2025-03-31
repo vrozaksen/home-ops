@@ -11,5 +11,6 @@ resources:
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
   # - ./neko/ks.yaml
+  - ./ocis/ks.yaml
   # - ./stirling-pdf/ks.yaml # TODO Also broken
   - ./zipline/ks.yaml

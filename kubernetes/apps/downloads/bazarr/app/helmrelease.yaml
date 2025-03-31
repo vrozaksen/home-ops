@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/bazarr
-              tag: 1.5.1@sha256:b678110195e41a74739d739785c5c0fdafaf0a25d28fd3d8627a6e26a5df572d
+              tag: 1.5.1@sha256:2abd4bdfce817a6329f4f6550d38548caba5868ac27d662f90b028b4b9855569
             env:
               TZ: Europe/Warsaw
               POSTGRES_DATABASE: *app

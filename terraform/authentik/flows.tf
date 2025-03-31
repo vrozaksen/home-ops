@@ -1,4 +1,7 @@
 ## Authenticator setup
+data "authentik_flow" "default-source-authentication" {
+  slug = "default-source-authentication"
+}
 
 resource "authentik_flow" "authenticator-totp-setup" {
   name           = "authenticator-totp-setup"

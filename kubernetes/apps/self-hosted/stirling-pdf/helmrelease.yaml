@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: ghcr.io/stirling-tools/s-pdf
-              tag: 0.45.0
+              tag: 0.45.0@sha256:fdeb7410e64f3d0d34278848b017d59da210978aded8877e13e77b104ef11132
             env:
               TZ: Europe/Warsaw
               DOCKER_ENABLE_SECURITY: "false"
@@ -61,37 +61,26 @@ spec:
         controller: app
         ports:
           http:
-            port: 8080
-    ingress: # TODO route
-      app:
-        className: external
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: Stirling PDF
-          gethomepage.dev/description: PDF Viewer and Editor
-          gethomepage.dev/group: Services
-          gethomepage.dev/icon: https://cdn-icons-png.flaticon.com/512/4208/4208479.png
-          gethomepage.dev/pod-selector: >-
-            app.kubernetes.io/name in (pdfding)
-        hosts:
-          - host: pdf.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+            port: &port 8080
+    route:
+      internal:
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+          - pdf.vzkn.eu
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: app
+                port: *port
     persistence:
       config:
         enabled: true
-        existingClaim: *app
+        type: emptyDir
         globalMounts:
           - path: /configs
-      logs:
-        enabled: true
-        type: emptyDir
-      tmp:
-        enabled: true
-        type: emptyDir
       tessdata:
         enabled: true
         type: emptyDir

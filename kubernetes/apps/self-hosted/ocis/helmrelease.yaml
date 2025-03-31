@@ -72,8 +72,12 @@ spec:
               STORAGE_USERS_S3NG_BUCKET: ocis
               WEB_OIDC_METADATA_URL: https://sso.vzkn.eu/application/o/owncloud/.well-known/openid-configuration
               WEB_OIDC_SCOPE: "openid profile email groups"
-              # COLLABORA_DOMAIN: collabora.${SECRET_DOMAIN}
-              # COLLABORATION_APP_PROOF_DISABLE: "true"
+              COLLABORA_DOMAIN: collabora.vzkn.eu
+              COLLABORATION_APP_PROOF_DISABLE: true
+              MICRO_REGISTRY_ADDRESS: 127.0.0.1:9233
+              GATEWAY_GRPC_ADDR: 0.0.0.0:9142
+              NATS_NATS_HOST: 0.0.0.0
+              NATS_NATS_PORT: 9233
             envFrom:
               - secretRef:
                   name: ocis-secret
@@ -109,6 +113,10 @@ spec:
             primary: true
           metrics:
             port: 9205
+          nats:
+            port: 9233
+          grpc:
+            port: 9142
     serviceMonitor:
       app:
         serviceName: *app

@@ -6,6 +6,7 @@ namespace: self-hosted
 components:
   - ../../components/common
 resources:
+  - ./collabora/ks.yaml
   - ./excalidraw/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml

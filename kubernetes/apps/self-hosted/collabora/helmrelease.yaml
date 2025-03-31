@@ -28,7 +28,8 @@ spec:
               tag: 24.04.13.2.1
               pullPolicy: IfNotPresent
             env:
-              extra_params: --o:ssl.termination=true --o:ssl.enable=false
+              extra_params: --o:ssl.enable=false --o:ssl.ssl_verification=false --o:ssl.termination=true --o:welcome.enable=false --o:net.frame_ancestors=cloud.vzkn.eu
+              # proofKeysSecretRef: collabora-proof-keys
     rawResources:
       autoscaling:
         enabled: true
@@ -66,12 +67,12 @@ spec:
           - backendRefs:
               - name: *app
                 port: *port
-            # filters:
-            #   - type: RequestHeaderModifier
-            #     requestHeaderModifier:
-            #       add:
-            #         - name: nginx.ingress.kubernetes.io/upstream-hash-by
-            #           value: "$arg_WOPISrc"
-            #         - name: nginx.ingress.kubernetes.io/enable-global-auth
-            #           value: "false"
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  add:
+                    - name: balance
+                      value: "url_param WOPISrc check_post"
+                    - name: hash-type
+                      value: "consistent"
 # Different way: https://github.com/zednotdead/gensokyo/blob/main/kubernetes/apps/default/collabora/app/hr.yaml

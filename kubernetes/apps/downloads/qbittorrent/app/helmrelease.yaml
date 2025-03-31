@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/qbittorrent
-              tag: 5.0.4@sha256:887e209623e699ad68e07c424c0f62e4e75e484defcaabd6b6e1d8c08fe4691d
+              tag: 5.0.4@sha256:1794da0ba4b656a39aac2f575356f95eb4762c957de6bff47c21955b40c2bb6f
             env:
               TZ: Europe/Warsaw
               QBT_WEBUI_PORT: &port 80

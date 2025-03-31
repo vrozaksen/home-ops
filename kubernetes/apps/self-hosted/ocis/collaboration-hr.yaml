@@ -21,19 +21,6 @@ spec:
       collab:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-config:
-            image:
-              repository: docker.io/owncloud/ocis
-              tag: 7.1.2
-            command:
-              - /bin/sh
-              - -c
-            args:
-              - |
-                if [ ! -f /etc/ocis/ocis.yaml ]; then ocis init; else exit 0; fi
-            env:
-              OCIS_INSECURE: true
         containers:
           collab:
             image:

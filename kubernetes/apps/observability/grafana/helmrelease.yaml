@@ -347,7 +347,7 @@ spec:
           revision: 3
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
-            - { name: VAR_REPLICATIONDESTNAME, value: '.*-bootstrap'} # - { name: VAR_REPLICATIONDESTNAME, value: .*-dst }
+            - { name: VAR_REPLICATIONDESTNAME, value: ".*-bootstrap" } # - { name: VAR_REPLICATIONDESTNAME, value: .*-dst }
       rook:
         ceph-cluster-advanced:
           url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json
@@ -431,6 +431,10 @@ spec:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
     sidecar:
+      image:
+        registry: ghcr.io
+        repository: home-operations/k8s-sidecar
+        tag: 1.30.3@sha256:39cca7abcad8f1621b9462d95f7d0e60301b92fcb0ff4de0ad4561859011cddf
       dashboards:
         enabled: true
         searchNamespace: ALL

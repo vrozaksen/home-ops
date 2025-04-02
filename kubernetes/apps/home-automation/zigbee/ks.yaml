@@ -22,7 +22,7 @@ spec:
   path: ./kubernetes/apps/home-automation/zigbee
   postBuild:
     substitute:
-      APP: zigbee2mqtt # *app
+      APP: *app
       GATUS_GROUP: home
   prune: true
   retryInterval: 2m

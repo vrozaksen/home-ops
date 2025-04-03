@@ -38,7 +38,7 @@ spec:
               TZ: Europe/Warsaw
               NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
               NEKO_DESKTOP_SCREEN: 1920x1080@60
-              NEKO_SERVER_BIND: "127.0.0.1:8080"
+              NEKO_SERVER_BIND: "127.0.0.1:80"
               NEKO_SERVER_PROXY: "true"
               NEKO_WEBRTC_TCPMUX: &mux "5100"
               NEKO_WEBRTC_UDPMUX: *mux
@@ -66,7 +66,7 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.98
         ports:
           http:
-            port: 8080
+            port: 80
           mux:
             port: &port 5100
           muxudp:

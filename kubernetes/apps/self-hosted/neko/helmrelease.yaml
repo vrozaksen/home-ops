@@ -70,7 +70,18 @@ spec:
             namespace: kube-system
             sectionName: https
         rules:
-          - backendRefs:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: *app
+                port: 8080
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /webrtc
+            backendRefs:
               - name: *app
                 port: *port
     persistence:

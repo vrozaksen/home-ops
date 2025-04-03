@@ -72,7 +72,7 @@ spec:
         rules:
           - backendRefs:
               - name: *app
-                port: 8080
+                port: *port
     persistence:
       config:
         name: neko-firefox-config

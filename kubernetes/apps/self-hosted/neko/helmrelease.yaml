@@ -32,7 +32,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/firefox
+              repository: ghcr.io/m1k1o/neko/waterfox
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
@@ -108,7 +108,7 @@ spec:
         advancedMounts:
           neko:
             neko:
-              - path: /home/neko/.mozilla/firefox/profile.default
+              - path: /home/neko/.waterfox/profile.default
       dri:
         type: hostPath
         hostPath: /dev/dri

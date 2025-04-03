@@ -23,12 +23,12 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 100
-            fsGroup: 100
-            fsGroupChangePolicy: "OnRootMismatch"
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 100
+        #     fsGroup: 100
+        #     fsGroupChangePolicy: "OnRootMismatch"
         containers:
           app:
             image:
@@ -54,6 +54,10 @@ spec:
                 cpu: 1
                 memory: 2Gi
                 gpu.intel.com/i915: 1
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
     service:
       app:
         controller: *app

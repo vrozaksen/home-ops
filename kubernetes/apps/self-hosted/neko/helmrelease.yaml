@@ -36,15 +36,16 @@ spec:
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
-              NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
+              # NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
               NEKO_DESKTOP_SCREEN: 1920x1080@60
               NEKO_CAPTURE_SCREENCAST_ENABLED: "true"
               NEKO_MEMBER_PROVIDER: "multiuser"
-              NEKO_SERVER_BIND: "127.0.0.1:8080"
+              NEKO_SERVER_BIND: "0.0.0.0:8080"
               NEKO_SERVER_PROXY: "true"
               NEKO_WEBRTC_TCPMUX: &mux "5100"
               NEKO_WEBRTC_UDPMUX: *mux
               NEKO_WEBRTC_ICELITE: "true"
+              NEKO_WEBRTC_NAT1TO1: 10.10.0.98
             envFrom:
               - secretRef:
                   name: neko-secret
@@ -69,13 +70,10 @@ spec:
         ports:
           web:
             port: 8080
-            targetPort: 8080
           webrtc:
             port: 5100
-            targetPort: 5100
           webrtc-udp:
             port: 5100
-            targetPort: 5100
             protocol: UDP
     route:
       app:

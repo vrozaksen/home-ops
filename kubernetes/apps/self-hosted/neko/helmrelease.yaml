@@ -32,12 +32,14 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/tor-browser
+              repository: ghcr.io/m1k1o/neko/intel-kde
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
               NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
               NEKO_DESKTOP_SCREEN: 1920x1080@60
+              NEKO_CAPTURE_SCREENCAST_ENABLED: "true"
+              NEKO_MEMBER_PROVIDER: "multiuser"
               NEKO_SERVER_BIND: "127.0.0.1:80"
               NEKO_SERVER_PROXY: "true"
               NEKO_WEBRTC_TCPMUX: &mux "5100"

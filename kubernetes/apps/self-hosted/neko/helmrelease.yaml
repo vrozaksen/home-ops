@@ -32,7 +32,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/waterfox
+              repository: ghcr.io/m1k1o/neko/brave
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
@@ -95,20 +95,20 @@ spec:
               - name: *app
                 port: *port
     persistence:
-      config:
-        name: neko-firefox-config
-        type: configMap
-        advancedMounts:
-          neko:
-            neko:
-              - path: /usr/lib/firefox/distribution/policies.json
-                subPath: policies.json
-      profile:
-        existingClaim: *app
-        advancedMounts:
-          neko:
-            neko:
-              - path: /home/neko/.waterfox/profile.default
+      # config:
+      #   name: neko-firefox-config
+      #   type: configMap
+      #   advancedMounts:
+      #     neko:
+      #       neko:
+      #         - path: /usr/lib/firefox/distribution/policies.json
+      #           subPath: policies.json
+      # profile:
+      #   existingClaim: *app
+      #   advancedMounts:
+      #     neko:
+      #       neko:
+      #         - path: /home/neko/.mozilla/firefox/profile.default
       dri:
         type: hostPath
         hostPath: /dev/dri

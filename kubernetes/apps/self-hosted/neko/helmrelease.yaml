@@ -32,19 +32,19 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/tor-browser
+              repository: ghcr.io/m1k1o/neko/intel-firefox
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
               # NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
               NEKO_DESKTOP_SCREEN: 1920x1080@60
-              NEKO_CAPTURE_SCREENCAST_ENABLED: "true"
+              NEKO_CAPTURE_SCREENCAST_ENABLED: true
               NEKO_MEMBER_PROVIDER: "multiuser"
-              NEKO_SERVER_BIND: "0.0.0.0:8080"
-              NEKO_SERVER_PROXY: "true"
-              NEKO_WEBRTC_TCPMUX: &mux "5100"
+              NEKO_SERVER_BIND: 0.0.0.0:8080
+              NEKO_SERVER_PROXY: true
+              NEKO_WEBRTC_TCPMUX: &mux 5100
               NEKO_WEBRTC_UDPMUX: *mux
-              NEKO_WEBRTC_ICELITE: "true"
+              NEKO_WEBRTC_ICELITE: true
               NEKO_WEBRTC_NAT1TO1: 10.10.0.98
             envFrom:
               - secretRef:
@@ -87,20 +87,20 @@ spec:
               - name: *app
                 port: 8080
     persistence:
-      # config:
-      #   name: neko-firefox-config
-      #   type: configMap
-      #   advancedMounts:
-      #     neko:
-      #       neko:
-      #         - path: /usr/lib/firefox/distribution/policies.json
-      #           subPath: policies.json
-      # profile:
-      #   existingClaim: *app
-      #   advancedMounts:
-      #     neko:
-      #       neko:
-      #         - path: /home/neko/.mozilla/firefox/profile.default
+      config:
+        name: neko-firefox-config
+        type: configMap
+        advancedMounts:
+          neko:
+            neko:
+              - path: /usr/lib/firefox/distribution/policies.json
+                subPath: policies.json
+      profile:
+        existingClaim: *app
+        advancedMounts:
+          neko:
+            neko:
+              - path: /home/neko/.mozilla/firefox/profile.default
       dri:
         type: hostPath
         hostPath: /dev/dri

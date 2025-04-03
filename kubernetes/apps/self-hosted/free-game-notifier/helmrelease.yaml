@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/joryirving/free-game-notifier
-              tag: 1.6.0@sha256:9828a946d6b9dfba19d30cccc2fb12be6c3044519d83787f023ec0f682258667
+              tag: 1.6.0@sha256:e706aec8224d470873522258778ae0c29ee115a950ed5e666fac22fa7fb58b3e
             env:
               TZ: Europe/Warsaw
               SEND_UPCOMING: false

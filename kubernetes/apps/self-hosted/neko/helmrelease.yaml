@@ -27,15 +27,15 @@ spec:
           app:
             image:
               repository: ghcr.io/m1k1o/neko/firefox
-              tag: "3.0.1"
+              tag: 3.0.1
             env:
               TZ: Europe/Warsaw
-              NEKO_IPFETCH: https://ifconfig.co/ip
-              NEKO_SCREEN: 1920x1080@60
-              NEKO_PROXY: "true"
-              NEKO_TCPMUX: &mux "5100"
-              NEKO_UDPMUX: *mux
-              NEKO_ICELITE: "true"
+              NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
+              NEKO_DESKTOP_SCREEN: 1920x1080@60
+              NEKNEKO_SERVER_PROXYO_PROXY: "true"
+              NEKO_WEBRTC_TCPMUX: &mux "5100"
+              NEKO_WEBRTC_UDPMUX: *mux
+              NEKO_WEBRTC_ICELITE: "true"
             envFrom:
               - secretRef:
                   name: neko-secret
@@ -62,16 +62,17 @@ spec:
           muxudp:
             port: *port
             protocol: UDP
-    ingress: # TODO route
+    route:
       app:
-        className: external
-        hosts:
-          - host: neko.vzkn.eu
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: 8080
     persistence:
       config:
         name: neko-firefox-config

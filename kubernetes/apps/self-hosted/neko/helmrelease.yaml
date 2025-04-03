@@ -32,7 +32,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/intel-kde
+              repository: ghcr.io/m1k1o/neko/tor-browser
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw
@@ -40,7 +40,7 @@ spec:
               NEKO_DESKTOP_SCREEN: 1920x1080@60
               NEKO_CAPTURE_SCREENCAST_ENABLED: "true"
               NEKO_MEMBER_PROVIDER: "multiuser"
-              NEKO_SERVER_BIND: "127.0.0.1:80"
+              NEKO_SERVER_BIND: "127.0.0.1:8080"
               NEKO_SERVER_PROXY: "true"
               NEKO_WEBRTC_TCPMUX: &mux "5100"
               NEKO_WEBRTC_UDPMUX: *mux
@@ -67,12 +67,15 @@ spec:
         annotations:
           lbipam.cilium.io/ips: 10.10.0.98
         ports:
-          http:
-            port: 80
-          mux:
-            port: &port 5100
-          muxudp:
-            port: *port
+          web:
+            port: 8080
+            targetPort: 8080
+          webrtc:
+            port: 5100
+            targetPort: 5100
+          webrtc-udp:
+            port: 5100
+            targetPort: 5100
             protocol: UDP
     route:
       app:
@@ -82,20 +85,9 @@ spec:
             namespace: kube-system
             sectionName: https
         rules:
-          - matches:
-              - path:
-                  type: PathPrefix
-                  value: /
-            backendRefs:
+          - backendRefs:
               - name: *app
-                port: 80
-          - matches:
-              - path:
-                  type: PathPrefix
-                  value: /webrtc
-            backendRefs:
-              - name: *app
-                port: *port
+                port: 8080
     persistence:
       # config:
       #   name: neko-firefox-config

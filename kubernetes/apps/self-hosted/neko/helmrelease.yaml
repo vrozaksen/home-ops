@@ -23,6 +23,12 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 100
+            fsGroup: 100
+            fsGroupChangePolicy: "OnRootMismatch"
         containers:
           app:
             image:
@@ -32,7 +38,8 @@ spec:
               TZ: Europe/Warsaw
               NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip
               NEKO_DESKTOP_SCREEN: 1920x1080@60
-              NEKNEKO_SERVER_PROXYO_PROXY: "true"
+              NEKO_SERVER_BIND: "127.0.0.1:8080"
+              NEKO_SERVER_PROXY: "true"
               NEKO_WEBRTC_TCPMUX: &mux "5100"
               NEKO_WEBRTC_UDPMUX: *mux
               NEKO_WEBRTC_ICELITE: "true"
@@ -55,8 +62,7 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.98
         ports:
           http:
-            port: 80
-            targetPort: 8080
+            port: 8080
           mux:
             port: &port 5100
           muxudp:
@@ -76,7 +82,7 @@ spec:
                   value: /
             backendRefs:
               - name: *app
-                port: 8080
+                port: 80
           - matches:
               - path:
                   type: PathPrefix

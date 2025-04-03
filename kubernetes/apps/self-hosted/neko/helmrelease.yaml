@@ -32,7 +32,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/m1k1o/neko/intel-firefox
+              repository: ghcr.io/m1k1o/neko/firefox
               tag: 3.0.1
             env:
               TZ: Europe/Warsaw

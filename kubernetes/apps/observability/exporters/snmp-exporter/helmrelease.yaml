@@ -53,5 +53,5 @@ spec:
       relabelings:
         - { sourceLabels: ["__address__"], targetLabel: __param_target }
         - { sourceLabels: ["__param_target"], targetLabel: instance }
-        - { sourceLabels: ["prometheus.vzkn.eu"], targetLabel: __address__ }
+        # - { sourceLabels: ["prometheus.vzkn.eu"], targetLabel: __address__ }
 

@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/observability/snmp-exporter
+  path: ./kubernetes/apps/observability/exporters/snmp-exporter
   prune: true
   retryInterval: 2m
   sourceRef:

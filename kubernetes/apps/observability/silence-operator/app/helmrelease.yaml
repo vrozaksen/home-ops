@@ -94,5 +94,5 @@ spec:
               value: NodeMemoryHighUtilization
               isRegex: false
             - name: instance
-              value: aincrad.home.arpa:9100
+              value: aincrad.home.vzkn.eu:9100
               isRegex: false

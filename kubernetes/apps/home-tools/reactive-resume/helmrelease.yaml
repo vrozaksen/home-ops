@@ -55,7 +55,7 @@ spec:
               CHROME_URL: ws://reactive-resume-chrome.home-tools.svc.cluster.local.:3000
               # S3
               STORAGE_URL: https://s3.vzkn.eu/rresume
-              STORAGE_ENDPOINT: aincrad.home.arpa
+              STORAGE_ENDPOINT: aincrad.home.vzkn.eu
               STORAGE_PORT: "9000"
               STORAGE_REGION: main
               STORAGE_BUCKET: rresume

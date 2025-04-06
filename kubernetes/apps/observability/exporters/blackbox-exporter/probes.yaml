@@ -12,9 +12,9 @@ spec:
     staticConfig:
       static:
         ## Network Stack
-        - opnsense.home.arpa
+        - opnsense.home.vzkn.eu
         ## Main Stack
-        - aincrad.home.arpa
-        - alfheim.home.arpa
-        - alne.home.arpa
-        - ainias.home.arpa
+        - aincrad.home.vzkn.eu
+        - alfheim.home.vzkn.eu
+        - alne.home.vzkn.eu
+        - ainias.home.vzkn.eu

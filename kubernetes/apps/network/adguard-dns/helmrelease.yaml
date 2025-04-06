@@ -50,7 +50,7 @@ spec:
           - name: DOMAIN_FILTER
             value: "vzkn.eu"
           - name: ADGUARD_URL
-            value: http://adguard.home.arpa:888
+            value: http://adguard.home.vzkn.eu:888
           - name: DRY_RUN
             value: "false"
           - name: ADGUARD_USER

@@ -71,5 +71,5 @@ spec:
       defaults:
         interval: 1m
       targets:
-        - { name: &name aincrad.home.arpa, module: icmp, url: *name }
-        - { name: &name opnsense.home.arpa, module: icmp, url: *name }
+        - { name: &name aincrad.home.vzkn.eu, module: icmp, url: *name }
+        - { name: &name opnsense.home.vzkn.eu, module: icmp, url: *name }

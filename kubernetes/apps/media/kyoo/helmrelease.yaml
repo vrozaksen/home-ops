@@ -89,7 +89,7 @@ spec:
       volumes:
         - name: media
           nfs:
-            server: aincrad.home.arpa
+            server: aincrad.home.vzkn.eu
             path: /mnt/user/data/media
       volumeMounts:
         - mountPath: &path /media

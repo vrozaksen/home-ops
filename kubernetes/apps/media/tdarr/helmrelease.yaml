@@ -57,7 +57,7 @@ spec:
                   fieldRef:
                     fieldPath: spec.nodeName
               - name: serverIP
-                value: aincrad.home.arpa
+                value: aincrad.home.vzkn.eu
               - name: serverPort
                 value: 8266
               - name: PUID
@@ -81,7 +81,7 @@ spec:
       app:
         controller: *app
         type: ExternalName
-        externalName: aincrad.home.arpa
+        externalName: aincrad.home.vzkn.eu
         ports:
           http:
             port: &port 8265
@@ -111,7 +111,7 @@ spec:
         type: custom
         volumeSpec:
           nfs:
-            server: aincrad.home.arpa
+            server: aincrad.home.vzkn.eu
             path: &mediaPath /mnt/user/data/media
         globalMounts:
           - path: *mediaPath
@@ -119,7 +119,7 @@ spec:
       cache:
         enabled: true
         type: nfs
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         path: /mnt/user/temp/tdarr
         globalMounts:
           - path: /temp

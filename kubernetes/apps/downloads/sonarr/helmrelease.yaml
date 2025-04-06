@@ -119,7 +119,7 @@ spec:
             readOnly: true
       data:
         type: nfs
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         path: /mnt/user/data
         globalMounts:
           - path: /data

@@ -46,7 +46,7 @@ spec:
               value: Object.spec.template.spec.volumes{
                 name: "repository",
                 nfs: Object.spec.template.spec.volumes.nfs{
-                  server: "aincrad.home.arpa",
+                  server: "aincrad.home.vzkn.eu",
                   path: "/mnt/user/kubernetes/volsync"
                 }
               }

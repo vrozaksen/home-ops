@@ -100,7 +100,7 @@ spec:
           - path: /data/local
       nas:
         type: nfs
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         path: /mnt/user/kubernetes/paperless
         globalMounts:
           - path: /data/nas

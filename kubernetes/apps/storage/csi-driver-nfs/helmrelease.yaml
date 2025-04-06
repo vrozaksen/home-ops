@@ -42,7 +42,7 @@ spec:
       create: true
       name: nfs-slow
       parameters:
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         share: /mnt/user/kubernetes #HDD ZFS Pool
       mountOptions:
         - nfsvers=4.2

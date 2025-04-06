@@ -69,7 +69,7 @@ spec:
             readOnly: true
       downloads:
         type: nfs
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         path: /mnt/user/data
         globalMounts:
           - path: /downloads

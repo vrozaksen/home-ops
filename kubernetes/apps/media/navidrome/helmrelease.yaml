@@ -119,7 +119,7 @@ spec:
           - path: /config
       music:
         type: nfs
-        server: aincrad.home.arpa
+        server: aincrad.home.vzkn.eu
         path: /mnt/user/zfs_data/media
         globalMounts:
           - path: /music

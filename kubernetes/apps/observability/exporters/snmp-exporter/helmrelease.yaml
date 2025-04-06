@@ -36,15 +36,22 @@ spec:
     serviceMonitor:
       enabled: true
       params:
-        - name: apcups
-          module: ["apcups"]
-          target: 0.0.0.0
-          auth: ["public_v2"]
-        - name: dell
-          module: ["dell"]
-          target: 0.0.0.0
+        # - name: apcups
+        #   module: ["apcups"]
+        #   target: 0.0.0.0
+        #   auth: ["public_v2"]
+        # - name: dell
+        #   module: ["dell"]
+        #   target: 0.0.0.0
+        #   auth: ["public_v2"]
+        - name: mikrotik
+          module: [mikrotik]
+          target: 10.10.0.1
           auth: ["public_v2"]
       path: /snmp
       scrapeTimeout: 10s
       relabelings:
+        - { sourceLabels: ["__address__"], targetLabel: __param_target }
         - { sourceLabels: ["__param_target"], targetLabel: instance }
+        - { sourceLabels: ["prometheus.vzkn.eu"], targetLabel: __address__ }
+

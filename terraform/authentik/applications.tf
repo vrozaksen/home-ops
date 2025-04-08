@@ -140,7 +140,7 @@ module "oauth2-autobrr" {
   name               = "Autobrr"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/autobrr.png"
   launch_url         = "https://autobrr.${var.cluster_domain}/api/auth/oidc/callback"
-  description        = "Downloads tooling" # TODO
+  description        = "Download automation tool"
   newtab             = true
   group              = "Downloads"
   auth_groups        = [authentik_group.media.id]
@@ -156,7 +156,7 @@ module "oauth2-dashbrr" {
   name               = "Dashbrr"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/autobrr.png"
   launch_url         = "https://dashbrr.${var.cluster_domain}/api/auth/oidc/callback"
-  description        = "Downloads tooling" # TODO
+  description        = "Download automation dashboard"
   newtab             = true
   group              = "Downloads"
   auth_groups        = [authentik_group.media.id]

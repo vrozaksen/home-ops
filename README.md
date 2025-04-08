@@ -21,7 +21,7 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 <div align="center">
 
-[![Home-Internet](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F248aa3ff-73a8-4088-86af-a18f68562717.shields&style=for-the-badge&logo=opnsense&logoColor=white&label=Home%20Internet)](https://status.vzkn.eu)&nbsp;&nbsp;
+[![Home-Internet](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F248aa3ff-73a8-4088-86af-a18f68562717.shields&style=for-the-badge&logo=mikrotik&logoColor=white&label=Home%20Internet)](https://status.vzkn.eu)&nbsp;&nbsp;
 [![Status-Page](https://img.shields.io/endpoint?url=https%3A%2F%2Fstatus.vzkn.eu%2Fapi%2Fv1%2Fendpoints%2Finfrastructure_flux-webhook%2Fhealth%2Fbadge.shields&style=for-the-badge&logo=statuspage&logoColor=white&label=Status%20Page)](https://status.vzkn.eu/endpoints/infrastructure_flux-webhook)&nbsp;&nbsp;
 
 </div>
@@ -137,22 +137,12 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 
 | Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
 |---------|--------------|----------|-----------|------------|------|-------|-------------|
-| Alfheim | Lenovo M920q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
+| Alfheim | Lenovo M920q | i5-8500T | 480GB SSD | 500GB NVME | 64GB | Talos | k8s control |
 | Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
-| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 16GB | Talos | k8s control |
+| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
 
 Total CPU: 18 threads
-Total RAM: 80 GB
-
-### Utility Kubernetes Cluster
-
-| Name    | Device     | CPU     | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
-|---------|------------|---------|-----------|------------|------|-------|-------------|
-| Inertia | Aincrad VM | 5 Cores | 32GB Virt | 128GB Virt | 10GB | Talos | k8s control |
-
-
-Total CPU: 5 threads
-Total RAM: 10 GB
+Total RAM: 128 GB
 
 ### Supporting Hardware
 
@@ -164,8 +154,8 @@ Total RAM: 10 GB
 
 | Device                      | Purpose          |
 |-----------------------------|------------------|
-| OPNsense M720q              | Network - Router |
-| MikroTik CSS610-8G-2S+IN    | Network - Switch |
+| MikroTik RB5009UPr+S+IN     | Network - Router |
+| MikroTik CRS326-24S+2Q+RM   | Network - Switch |
 | CyberPower VP1000ELCD-FR    | General - UPS    |
 
 ---

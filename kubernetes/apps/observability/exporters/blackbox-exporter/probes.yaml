@@ -12,7 +12,7 @@ spec:
     staticConfig:
       static:
         ## Network Stack
-        - opnsense.home.vzkn.eu
+        - router.home.vzkn.eu
         ## Main Stack
         - aincrad.home.vzkn.eu
         - alfheim.home.vzkn.eu

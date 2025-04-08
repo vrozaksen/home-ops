@@ -1,6 +1,6 @@
 # Cilium
 
-## OpnSense BGP
+## Other BGP
 
 ```sh
 router bgp 64513

@@ -72,4 +72,4 @@ spec:
         interval: 1m
       targets:
         - { name: &name aincrad.home.vzkn.eu, module: icmp, url: *name }
-        - { name: &name opnsense.home.vzkn.eu, module: icmp, url: *name }
+        - { name: &name router.home.vzkn.eu, module: icmp, url: *name }

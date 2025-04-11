@@ -46,6 +46,11 @@ spec:
           holdTimeSeconds: 90
           keepAliveTimeSeconds: 60
           eBGPMultihopTTL: 2
+        - peerAddress: 10.10.0.2/32
+          peerASN: 64514
+          holdTimeSeconds: 90
+          keepAliveTimeSeconds: 60
+          eBGPMultihopTTL: 2
 ---
 apiVersion: v1
 kind: Service

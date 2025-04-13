@@ -40,6 +40,7 @@ spec:
               LOG_LEVEL: "info"
               PORT: &port 80
               TZ: Europe/Warsaw
+              JELLYFIN_TYPE: emby
             envFrom:
               - secretRef:
                   name: jellyseerr-secret

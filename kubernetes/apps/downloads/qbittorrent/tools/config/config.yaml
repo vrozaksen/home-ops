@@ -3,23 +3,23 @@ trackers:
   # Polish
   - name: cinemamovies
     urls: ["cinemamovies.pl"]
-    required_seed_ratio: 1.05
-    required_seed_days: 3.5
+    required_seed_ratio: 0
+    required_seed_days: 7
 
   - name: exitorrent
     urls: ["exitorrent.org"]
-    required_seed_ratio: 1.05
-    required_seed_days: 2.5
+    required_seed_ratio: 0
+    required_seed_days: 7
 
   - name: torrentleech-pl
     urls: ["torrentleech.pl"]
-    required_seed_ratio: 1.05
-    required_seed_days: 2.5
+    required_seed_ratio: 0
+    required_seed_days: 7
 
   - name: polishtorrent
     urls: ["polishtorrent.top"]
     required_seed_ratio: 0
-    required_seed_days: 2.5
+    required_seed_days: 7
 
   # Global
   - name: aither

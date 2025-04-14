@@ -28,7 +28,7 @@ nodes:
     controlPlane: true
     nodeLabels: &intel
       intel.feature.node.kubernetes.io/gpu: "true"
-      feature.node.kubernetes.io/custom-e1000e: "true"
+      # feature.node.kubernetes.io/custom-e1000e: "true"
       topology.kubernetes.io/region: main
       topology.kubernetes.io/zone: m
     installDiskSelector:
@@ -36,18 +36,20 @@ nodes:
     networkInterfaces:
       # 1G Internal Port / eno1
       - deviceSelector:
-          hardwareAddr: f8:75:a4:09:50:fd
+          hardwareAddr: e8:6a:64:f4:59:e5
+        ignore: true
+      # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
+      - interface: bond0
+        bond:
+          deviceSelectors: [{ driver: i40e }]
+          mode: 802.3ad
+          xmitHashPolicy: layer3+4
+          lacpRate: fast
+          miimon: 1000
         dhcp: true
-        mtu: 1500
-        dhcpOptions:
-            routeMetric: 2048
-      # 2.5G PCIe Port / enp2s0
-      - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:2c
-        dhcp: true
-        mtu: 1500
-        dhcpOptions:
-            routeMetric: 1024
+        mtu: 9000
+        vlans:
+          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.21/24" ] }
         vip:
           ip: *vip
   - hostname: "alne"
@@ -59,20 +61,22 @@ nodes:
     installDiskSelector:
       model: "MTFD*"
     networkInterfaces:
-      # 1G Internal Port
+      # 1G Internal Port / eno1
       - deviceSelector:
           hardwareAddr: e8:6a:64:47:fe:44
+        ignore: true
+      # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
+      - interface: bond0
+        bond:
+          deviceSelectors: [{ driver: i40e }]
+          mode: 802.3ad
+          xmitHashPolicy: layer3+4
+          lacpRate: fast
+          miimon: 1000
         dhcp: true
-        mtu: 1500
-        dhcpOptions:
-            routeMetric: 2048
-      # 2.5G PICe Port / enp2s0
-      - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:b6
-        dhcp: true
-        mtu: 1500
-        dhcpOptions:
-            routeMetric: 1024
+        mtu: 9000
+        vlans:
+          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.22/24" ] }
         vip:
           ip: *vip
   - hostname: "ainias"
@@ -84,35 +88,19 @@ nodes:
     installDiskSelector:
       model: "SAMSUNG*"
     networkInterfaces:
-      # # 1G Internal Port
-      # - deviceSelector:
-      #     hardwareAddr: 8c:16:45:9d:0e:6f
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 2048
-      # # 2.5G PICe Port / enp2s0
-      # - deviceSelector:
-      #     hardwareAddr: 00:e0:4c:68:0b:53
-      #   dhcp: true
-      #   mtu: 1500
-      #   dhcpOptions:
-      #       routeMetric: 1024
-      #   vip:
-      #     ip: *vip
-      - interface: bond0 # enp1s0f0np0 + enp1s0f1np1
+      # 1G Internal Port / eno1
+      - deviceSelector:
+          hardwareAddr: 8c:16:45:9d:0e:6f
+        ignore: true
+      # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
+      - interface: bond0
         bond:
           deviceSelectors: [{ driver: i40e }]
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 1000
-        dhcp: false
-        addresses:
-          - "10.10.0.23/24"
-        routes:
-          - network: "0.0.0.0/0"
-            gateway: "10.10.0.1"
+        dhcp: true
         mtu: 9000
         vlans:
           - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.23/24" ] }
@@ -126,7 +114,7 @@ patches:
   - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
   # - "@./patches/global/machine-sysfs.yaml"   # CPU Power
-  - "@./patches/global/machine-time.yaml" # NTP
+  # - "@./patches/global/machine-time.yaml"    # NTP
 
 # Controller patches
 controlPlane:

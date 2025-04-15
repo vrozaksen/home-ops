@@ -11,4 +11,4 @@ resources:
   - ./cloudflare-tunnel/ks.yaml
   # - ./e1000e-fix/ks.yaml
   - ./echo/ks.yaml
-  # - ./mikrotik-dns/ks.yaml
+  - ./mikrotik-dns/ks.yaml

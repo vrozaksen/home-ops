@@ -35,30 +35,19 @@ spec:
             command: ["/bin/bash", "-c"]
             args:
               - |
-                # Find all physical i40e interfaces (excluding bonds/VLANs)
-                INTERFACES=$(find /sys/class/net -name "enp*" -o -name "eth*" | \
-                  xargs -I% sh -c 'driver=$(readlink %/device/driver); \
-                  [ -n "$driver" ] && basename $driver | grep -q "i40e" && \
-                  echo $(basename %);')
-
-                for IFACE in $INTERFACES; do
-                  echo "=== Tuning $IFACE ==="
-
-                  # 1. Set MAX ring buffers (safe for X710)
-                  nsenter --mount=/host/proc/1/ns/mnt --net=/host/proc/1/ns/net \
-                    ethtool -G $IFACE rx 8160 tx 8160
-
-                  # 2. Optimize interrupt coalescing (balanced values)
-                  nsenter --mount=/host/proc/1/ns/mnt --net=/host/proc/1/ns/net \
-                    ethtool -C $IFACE rx-usecs 32 tx-usecs 32
-
-                  # 3. Verify settings
-                  echo "--- Final Settings ---"
-                  nsenter --mount=/host/proc/1/ns/mnt --net=/host/proc/1/ns/net \
-                    ethtool -g $IFACE | grep -E "RX|TX"
-                  nsenter --mount=/host/proc/1/ns/mnt --net=/host/proc/1/ns/net \
-                    ethtool -c $IFACE | grep -E "usecs|frames"
-                done
+                find /sys/class/net/*/device/driver/module/drivers -maxdepth 1 -path "*i40e*" | awk -F'/' '{print $5}' | xargs -I% nsenter --mount=/host/proc/$(pidof /usr/local/bin/kubelet)/ns/mnt --net=/host/proc/$(pidof /usr/local/bin/kubelet)/ns/net -- sh -c "
+                echo '=== Tuning % (i40e) ===' &&
+                echo '--- Current Rings ---' &&
+                ethtool -g % &&
+                echo '--- Current Coalescing ---' &&
+                ethtool -c % &&
+                echo '--- Applying Changes ---' &&
+                ethtool -G % rx 8160 tx 8160 &&
+                ethtool -C % rx-usecs 32 tx-usecs 32 &&
+                echo '--- New Settings ---' &&
+                ethtool -g % | grep -E 'RX|TX' &&
+                ethtool -c % | grep -E 'usecs|frames' &&
+                echo '===================='" &&
                 sleep infinity
             securityContext:
               privileged: true

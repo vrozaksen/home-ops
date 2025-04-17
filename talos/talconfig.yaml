@@ -28,7 +28,8 @@ nodes:
     controlPlane: true
     nodeLabels: &intel
       intel.feature.node.kubernetes.io/gpu: "true"
-      # feature.node.kubernetes.io/custom-e1000e: "true"
+      feature.node.kubernetes.io/custom-e1000e: "true"
+      feature.node.kubernetes.io/custom-i40e: "true"
       topology.kubernetes.io/region: main
       topology.kubernetes.io/zone: m
     installDiskSelector:

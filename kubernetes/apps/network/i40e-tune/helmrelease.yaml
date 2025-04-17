@@ -36,18 +36,32 @@ spec:
             args:
               - |
                 find /sys/class/net/*/device/driver/module/drivers -maxdepth 1 -path "*i40e*" | awk -F'/' '{print $5}' | xargs -I% nsenter --mount=/host/proc/$(pidof /usr/local/bin/kubelet)/ns/mnt --net=/host/proc/$(pidof /usr/local/bin/kubelet)/ns/net -- sh -c "
-                echo '=== Tuning % (i40e) ===' &&
-                echo '--- Current Rings ---' &&
-                ethtool -g % &&
-                echo '--- Current Coalescing ---' &&
-                ethtool -c % &&
-                echo '--- Applying Changes ---' &&
-                ethtool -G % rx 8160 tx 8160 &&
-                ethtool -C % rx-usecs 32 tx-usecs 32 &&
-                echo '--- New Settings ---' &&
-                ethtool -g % | grep -E 'RX|TX' &&
-                ethtool -c % | grep -E 'usecs|frames' &&
-                echo '===================='" &&
+                echo '=== Tuning % (i40e) ===';
+
+                # Only increase rings if not already at max
+                CURRENT_RX=\$(ethtool -g % | awk '/RX:/ {getline; print \$2}');
+                MAX_RX=\$(ethtool -g % | awk '/Pre-set maximums/ {getline; print \$2}');
+                if [ \$CURRENT_RX -lt \$MAX_RX ]; then
+                  echo 'Increasing rings from '\$CURRENT_RX' to '\$MAX_RX;
+                  ethtool -G % rx \$MAX_RX tx \$MAX_RX || echo 'Ring change failed';
+                else
+                  echo 'Rings already at max ('\$MAX_RX')';
+                fi;
+
+                # Only modify coalescing if adaptive is off
+                ADAPTIVE=\$(ethtool -c % | awk '/Adaptive RX:/ {print \$3}');
+                if [ \$ADAPTIVE == 'on' ]; then
+                  echo 'Coalescing in adaptive mode - skipping modification';
+                else
+                  echo 'Setting coalescing: rx-usecs 32 tx-usecs 32';
+                  ethtool -C % rx-usecs 32 tx-usecs 32 || echo 'Coalescing change failed';
+                fi;
+
+                echo '=== Final Settings ===';
+                ethtool -g % | grep -E 'RX|TX';
+                ethtool -c % | grep -E 'Adaptive|usecs';
+                echo '====================='
+                " &&
                 sleep infinity
             securityContext:
               privileged: true

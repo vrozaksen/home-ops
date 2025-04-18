@@ -58,7 +58,7 @@ spec:
             port: *port
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.devbu.io"]
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:
           - name: internal
             namespace: kube-system

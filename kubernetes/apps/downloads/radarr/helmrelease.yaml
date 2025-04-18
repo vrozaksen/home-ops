@@ -72,7 +72,7 @@ spec:
               requests:
                 cpu: 100m
               limits:
-                memory: 2Gi
+                memory: 4Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -104,14 +104,6 @@ spec:
         existingClaim: radarr-cache
         globalMounts:
           - path: /config/MediaCover
-      scripts:
-        type: configMap
-        name: radarr-configmap
-        defaultMode: 0775
-        globalMounts:
-          - path: /scripts/pushover-notifier.sh
-            subPath: pushover-notifier.sh
-            readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

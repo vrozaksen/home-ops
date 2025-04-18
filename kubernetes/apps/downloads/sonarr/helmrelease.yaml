@@ -71,7 +71,7 @@ spec:
               requests:
                 cpu: 100m
               limits:
-                memory: 2Gi
+                memory: 4Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -103,20 +103,6 @@ spec:
         existingClaim: sonarr-cache
         globalMounts:
           - path: /config/MediaCover
-      scripts:
-        type: configMap
-        name: sonarr-configmap
-        defaultMode: 0775
-        globalMounts:
-          - path: /scripts/codec-tagger.sh
-            subPath: codec-tagger.sh
-            readOnly: true
-          - path: /scripts/pushover-notifier.sh
-            subPath: pushover-notifier.sh
-            readOnly: true
-          - path: /scripts/tba-refresher.sh
-            subPath: tba-refresher.sh
-            readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

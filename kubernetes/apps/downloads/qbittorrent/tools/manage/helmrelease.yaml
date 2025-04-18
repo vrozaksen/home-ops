@@ -84,6 +84,8 @@ spec:
               - moviesfhd
               - --exclude-category
               - "*Sheller*"
+              - --exclude-category
+              - "*imported*"
               - --include-tag
               - expired
               - --exclude-tag

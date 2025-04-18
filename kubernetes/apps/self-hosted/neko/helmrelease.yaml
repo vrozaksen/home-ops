@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/m1k1o/neko/firefox
-              tag: 3.0.3
+              tag: 3.0.4
             env:
               TZ: Europe/Warsaw
               # NEKO_WEBRTC_IP_RETRIEVAL_URL: https://ifconfig.co/ip

@@ -25,35 +25,63 @@ spec:
     matchLabels:
       kubernetes.io/os: linux
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/cilium.io/ciliumbgppeeringpolicy_v2alpha1.json
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/cilium.io/ciliumbgpadvertisement_v2alpha1.json
 apiVersion: cilium.io/v2alpha1
-kind: CiliumBGPPeeringPolicy
+kind: CiliumBGPAdvertisement
 metadata:
-  name: l3-policy
+  name: l3-bgp-advertisement
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: Service
+      service:
+        addresses: ["LoadBalancerIP"]
+      selector:
+        matchExpressions:
+          - { key: somekey, operator: NotIn, values: ["never-used-value"] }
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: l3-bgp-peer-config
+spec:
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: bgp
+  ebgpMultihop: 2
+  timers:
+    connectRetryTimeSeconds: 120
+    holdTimeSeconds: 90
+    keepAliveTimeSeconds: 60
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/cilium.io/ciliumbgpclusterconfig_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPClusterConfig
+metadata:
+  name: l3-bgp-cluster-config
 spec:
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
-  virtualRouters:
-    - localASN: 64515
-      exportPodCIDR: false
-      serviceSelector:
-        matchExpressions:
-          - key: thisFakeSelector
-            operator: NotIn
-            values:
-              - will-match-and-announce-all-services
-      neighbors:
-        - peerAddress: 10.10.0.1/32
+  bgpInstances:
+    - name: cilium
+      localASN: 64515
+      peers:
+        - name: mikrotik-rb5009
           peerASN: 64513
-          holdTimeSeconds: 90
-          keepAliveTimeSeconds: 60
-          eBGPMultihopTTL: 2
-        - peerAddress: 10.10.0.2/32
+          peerAddress: 10.10.0.1
+          peerConfigRef:
+            name: l3-bgp-peer-config
+        - name: mikrotik-crs326
           peerASN: 64514
-          holdTimeSeconds: 90
-          keepAliveTimeSeconds: 60
-          eBGPMultihopTTL: 2
+          peerAddress: 10.10.0.2
+          peerConfigRef:
+            name: l3-bgp-peer-config
 ---
 apiVersion: v1
 kind: Service

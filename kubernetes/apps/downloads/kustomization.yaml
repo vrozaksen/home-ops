@@ -16,3 +16,4 @@ resources:
   - ./radarr/ks.yaml
   # - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
+  - ./webhook/ks.yaml

@@ -2,8 +2,8 @@
 #### This one will use whole "secret" as secret.
 ```yaml
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/external-secrets.io/externalsecret_v1beta1.json
-apiVersion: external-secrets.io/v1beta1
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: &name app-secret
@@ -35,8 +35,8 @@ key2: value2
 ```
 ```yaml
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/external-secrets.io/externalsecret_v1beta1.json
-apiVersion: external-secrets.io/v1beta1
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: &name app-secret

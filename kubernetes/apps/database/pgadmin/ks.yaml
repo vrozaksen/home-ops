@@ -17,7 +17,7 @@ spec:
     - name: volsync
       namespace: storage
   interval: 1h
-  path: ./kubernetes/apps/management/pgadmin
+  path: ./kubernetes/apps/database/pgadmin
   postBuild:
     substitute:
       APP: *app
@@ -25,13 +25,13 @@ spec:
       VOLSYNC_GID: "5050"
       VOLSYNC_CAPACITY: 500Mi
       VOLSYNC_CACHE_CAPACITY: 500Mi
-      GATUS_GROUP: management
+      GATUS_GROUP: database
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: management
+  targetNamespace: database
   timeout: 5m
   wait: false

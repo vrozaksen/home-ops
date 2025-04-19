@@ -12,7 +12,6 @@ resources:
   - ./kromgo/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./loki/ks.yaml
-  # - ./network-ups-tools/ks.yaml
   - ./promtail/ks.yaml
   - ./silence-operator/ks.yaml
   # Exporters
@@ -21,12 +20,5 @@ configMapGenerator:
   - name: gatus-configmap
     files:
       - ./gatus/config.yaml
-  - name: network-ups-tools-config
-    files:
-      - ./network-ups-tools/nut.conf
-      - ./network-ups-tools/ups.conf
-      - ./network-ups-tools/upsd.conf
-      - ./network-ups-tools/upsd.users
-      - ./network-ups-tools/upsmon.conf
 generatorOptions:
   disableNameSuffixHash: true

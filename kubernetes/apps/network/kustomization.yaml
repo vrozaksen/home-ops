@@ -6,10 +6,9 @@ namespace: network
 components:
   - ../../components/common
 resources:
-  # - ./adguard-dns/ks.yaml
+  - ./cloudflare-ddns/ks.yaml
   - ./cloudflare-dns/ks.yaml
   - ./cloudflare-tunnel/ks.yaml
-  # - ./e1000e-fix/ks.yaml
   - ./echo/ks.yaml
   - ./i40e-tune/ks.yaml
   - ./mikrotik-dns/ks.yaml

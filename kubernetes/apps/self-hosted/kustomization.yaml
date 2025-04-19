@@ -7,11 +7,8 @@ components:
   - ../../components/common
 resources:
   - ./collabora/ks.yaml
-  - ./excalidraw/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
-  - ./neko/ks.yaml
   - ./ocis/ks.yaml
-  # - ./stirling-pdf/ks.yaml # TODO Still Broken
   - ./zipline/ks.yaml

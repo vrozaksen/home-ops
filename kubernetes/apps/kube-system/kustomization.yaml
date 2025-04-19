@@ -10,7 +10,6 @@ resources:
   - ./coredns/ks.yaml
   - ./metrics-server/ks.yaml
   - ./descheduler/ks.yaml
-  - ./fstrim/ks.yaml
   - ./intel-device-plugin-operator/ks.yaml
   - ./reloader/ks.yaml
   - ./spegel/ks.yaml

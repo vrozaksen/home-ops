@@ -13,3 +13,4 @@ resources:
   - ./echo/ks.yaml
   - ./i40e-tune/ks.yaml
   - ./mikrotik-dns/ks.yaml
+  - ./multus/ks.yaml

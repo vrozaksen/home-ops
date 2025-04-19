@@ -41,8 +41,8 @@ spec:
                   echo '==========================='
                   ethtool -g "${iface}" || echo 'Error reading ring parameters'
                   echo '==========================='
-                  echo "Configuring ${iface} with rx 8160 tx 8160..."
-                  ethtool -G "${iface}" rx 8160 tx 8160 || echo 'Error setting ring parameters'
+                  echo "Configuring ${iface} with rx 4096 tx 4096..."
+                  ethtool -G "${iface}" rx 4096 tx 4096 || echo 'Error setting ring parameters'
                   echo 'New ring buffer settings:'
                   echo '==========================='
                   ethtool -g "${iface}" || echo 'Error reading ring parameters'

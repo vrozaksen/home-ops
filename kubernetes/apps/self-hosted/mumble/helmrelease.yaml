@@ -62,17 +62,6 @@ spec:
           voice:
             port: *port
             protocol: UDP
-    route:
-      app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
-        parentRefs:
-          - name: external
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - name: *app
-                port: *port
     persistence:
       config:
         existingClaim: *app

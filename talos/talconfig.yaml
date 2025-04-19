@@ -36,21 +36,27 @@ nodes:
       model: "INTEL*"
     networkInterfaces:
       # 1G Internal Port / eno1
-      - deviceSelector:
-          hardwareAddr: e8:6a:64:f4:59:e5
-        ignore: true
+      # - deviceSelector:
+      #     hardwareAddr: e8:6a:64:f4:59:e5
+      #   ignore: true
       # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
       - interface: bond0
         bond:
-          deviceSelectors: [{ driver: i40e }]
+          interfaces:
+            - enp1s0f0np0
+            - enp1s0f1np1
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 1000
-        dhcp: true
+        addresses:
+          - 10.10.0.21/24
+        routes: &routes
+          - network: 0.0.0.0/0
+            gateway: 10.10.0.1
         mtu: 9000
         vlans:
-          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.21/24" ] }
+          - {vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.21/24"] }
         vip:
           ip: *vip
   - hostname: "alne"
@@ -63,21 +69,25 @@ nodes:
       model: "MTFD*"
     networkInterfaces:
       # 1G Internal Port / eno1
-      - deviceSelector:
-          hardwareAddr: e8:6a:64:47:fe:44
-        ignore: true
+      # - deviceSelector:
+      #     hardwareAddr: e8:6a:64:47:fe:44
+      #   ignore: true
       # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
       - interface: bond0
         bond:
-          deviceSelectors: [{ driver: i40e }]
+          interfaces:
+            - enp1s0f0np0
+            - enp1s0f1np1
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 1000
-        dhcp: true
+        addresses:
+          - 10.10.0.22/24
+        routes: *routes
         mtu: 9000
         vlans:
-          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.22/24" ] }
+          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.22/24"] }
         vip:
           ip: *vip
   - hostname: "ainias"
@@ -90,21 +100,25 @@ nodes:
       model: "SAMSUNG*"
     networkInterfaces:
       # 1G Internal Port / eno1
-      - deviceSelector:
-          hardwareAddr: 8c:16:45:9d:0e:6f
-        ignore: true
+      # - deviceSelector:
+      #     hardwareAddr: 8c:16:45:9d:0e:6f
+      #   ignore: true
       # 10G PCIe Port / enp1s0f0np0 + enp1s0f1np1
       - interface: bond0
         bond:
-          deviceSelectors: [{ driver: i40e }]
+          interfaces:
+            - enp1s0f0np0
+            - enp1s0f1np1
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 1000
-        dhcp: true
+        addresses:
+          - 10.10.0.23/24
+        routes: *routes
         mtu: 9000
         vlans:
-          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: [ "10.20.0.23/24" ] }
+          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.23/24"] }
         vip:
           ip: *vip
 patches:

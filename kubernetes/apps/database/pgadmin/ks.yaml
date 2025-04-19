@@ -25,7 +25,7 @@ spec:
       VOLSYNC_GID: "5050"
       VOLSYNC_CAPACITY: 500Mi
       VOLSYNC_CACHE_CAPACITY: 500Mi
-      GATUS_GROUP: database
+      GATUS_GROUP: infrastructure
   prune: true
   retryInterval: 2m
   sourceRef:

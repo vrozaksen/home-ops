@@ -21,7 +21,7 @@ spec:
     - bond0
     - eno1 # backup
     # - ^eth[0-9]+
-    - ^enp2.*
+    - enp2s0
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux

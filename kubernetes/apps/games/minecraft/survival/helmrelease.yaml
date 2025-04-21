@@ -115,7 +115,7 @@ spec:
           enabled: true
           embedded: false
           type: ClusterIP
-          port: *mapPort
+          port: 8100
   valuesFrom:
   - kind: Secret
     name: minecraft-survival-secret

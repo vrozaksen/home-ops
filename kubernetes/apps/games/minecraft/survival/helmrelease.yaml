@@ -1,17 +1,13 @@
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1beta2.json
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: OCIRepository
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
 metadata:
-  name: minecraft-survival
+  name: itzg-charts
+  namespace: games # Required for Renovate lookups
 spec:
-  interval: 5m
-  layerSelector:
-    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
-    operation: copy
-  ref:
-    tag: 4.26.1
-  url: oci://ghcr.io/itzg/minecraft-server-charts/minecraft
+  interval: 2h
+  url: https://itzg.github.io/minecraft-server-charts/
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -20,9 +16,15 @@ metadata:
   name: &app minecraft-survival
 spec:
   interval: 1h
-  chartRef:
-    kind: OCIRepository
-    name: minecraft-survival
+  chart:
+    spec:
+      # renovate: registryUrl=https://itzg.github.io/minecraft-server-charts/
+      chart: minecraft
+      version: 4.26.3
+      sourceRef:
+        kind: HelmRepository
+        name: itzg-charts
+        namespace: games
   install:
     remediation:
       retries: -1
@@ -31,45 +33,31 @@ spec:
     remediation:
       retries: 3
   values:
-    fullnameOverride: *app
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: &secret minecraft-secret
     image:
-      repository: ghcr.io/itzg/minecraft-server
-      tag: 2025.4.0@sha256:ebd8e1308013c320168f436076dc5e854172be0131dd89c8406c5a4b6bc3da0a
+      repository: itzg/minecraft-server
+      tag: 2025.4.0-java21
     resources:
       requests:
-        cpu: 500m
+        cpu: 200m
+        memory: 2Gi
       limits:
+        cpu: 4000m
         memory: 16Gi
     securityContext:
       runAsUser: 1000
       fsGroup: 100
     livenessProbe:
-      enabled: false
-      command:
-        - echo
-      initialDelaySeconds: 30
-      periodSeconds: 5
-      failureThreshold: 20
-      successThreshold: 1
-      timeoutSeconds: 1
+      initialDelaySeconds: 0
     readinessProbe:
-      enabled: false
-      command:
-        - echo
-      initialDelaySeconds: 30
-      periodSeconds: 5
-      failureThreshold: 20
-      successThreshold: 1
-      timeoutSeconds: 1
+      initialDelaySeconds: 0
     startupProbe:
-      command:
-        - echo
-      enabled: false
-      failureThreshold: 30
-      periodSeconds: 10
+      enabled: true
     extraEnv:
       TZ: Europe/Warsaw
-      ENABLE_AUTOPAUSE: TRUE # Doesn't work in Kubes
+      ENABLE_ROLLING_LOGS: true
+      MEMORY: ""
     persistence:
       dataDir:
         enabled: true
@@ -82,7 +70,6 @@ spec:
       type: PAPER
       overrideServerProperties: true
       jvmXXOpts: "-XX:MaxRAMPercentage=75"
-      memory: 16384M
       difficulty: normal
       spawnProtection: 0
       gameMode: survival
@@ -93,13 +80,11 @@ spec:
       motd: "Just Vanilla Survival"
       worldSaveName: survival
       viewDistance: 16
-      # serviceAnnotations:
-      #   lbipam.cilium.io/ips: 10.10.0.91, ::ffff:10.10.0.91
-      # serviceType: LoadBalancer
+      forceReDownload: true
       pluginUrls:
       - https://github.com/Norbit4/TreeCuter/releases/download/v1.8.8/TreeCuter-v1.8.8.jar
       spigetResources:
-      - 36618 #Prom Exporter
+      #- 36618 #Prom Exporter
       - 31585 #One Player Sleep
       modrinth:
         projects:
@@ -120,23 +105,9 @@ spec:
         allowedVersionType: alpha
       rcon:
         enabled: true
+        serviceType: ClusterIP
+      serviceType: LoadBalancer
       extraPorts:
-      # - name: metrics
-      #   containerPort: 9225
-      #   protocol: TCP
-      #   service:
-      #     enabled: true
-      #     embedded: false
-      #     type: ClusterIP
-      #     port: 9225
-      #   ingress: # TODO route
-      #     ingressClassName: external
-      #     enabled: true
-      #     annotations:
-      #       external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
-      #       external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
-      #     hosts:
-      #       - name: *host
       - name: map
         containerPort: &mapPort 8100
         protocol: TCP

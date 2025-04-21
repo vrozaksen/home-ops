@@ -129,7 +129,7 @@ patches:
   - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
   # - "@./patches/global/machine-sysfs.yaml"   # CPU Power
-  # - "@./patches/global/machine-time.yaml"    # NTP
+  - "@./patches/global/machine-time.yaml"    # NTP
 
 # Controller patches
 controlPlane:

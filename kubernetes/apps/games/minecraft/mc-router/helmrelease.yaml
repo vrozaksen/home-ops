@@ -35,5 +35,5 @@ spec:
       minecraft:
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.90, ::ffff:10.10.0.90
+          lbipam.cilium.io/ips: 10.10.0.60, ::ffff:10.10.0.60
           external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu

@@ -10,13 +10,6 @@ cluster:
       bind-address: 0.0.0.0
   coreDNS:
     disabled: true
-  # discovery:
-  #   enabled: true
-  #   registries:
-  #     kubernetes:
-  #       disabled: false
-  #     service:
-  #       disabled: true
   etcd:
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381

@@ -51,7 +51,7 @@ spec:
             env:
               TZ: Europe/Warsaw
               DB_URL: /db/db_v2.sqlite3
-              RELAY: "10.10.0.41:21117"
+              RELAY: "10.10.0.41:21117" # TODO
             command: [ "hbbs", "-r rustdesk:21117" ]
             probes: *probes
             securityContext: *securityContext

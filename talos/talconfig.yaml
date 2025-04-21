@@ -21,6 +21,7 @@ cniConfig:
   name: none
 
 nodes:
+  # Controller Nodes
   - hostname: "alfheim"
     ipAddress: "10.10.0.21"
     #installDisk: /dev/sda
@@ -33,7 +34,7 @@ nodes:
       topology.kubernetes.io/region: main
       topology.kubernetes.io/zone: m
     installDiskSelector:
-      model: "INTEL*"
+      model: "SAMSUNG*"
     networkInterfaces:
       # 1G Internal Port / eno1
       # - deviceSelector:
@@ -119,6 +120,29 @@ nodes:
         mtu: 9000
         vlans:
           - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.23/24"] }
+        vip:
+          ip: *vip
+  # Worker Nodes
+  - hostname: "granzam"
+    ipAddress: "10.10.0.31"
+    #installDisk: /dev/sda
+    talosImageURL: *talosImage
+    controlPlane: true
+    nodeLabels: *intel
+    installDiskSelector:
+      model: "INTEL*"
+    networkInterfaces:
+      # 1G Internal Port / eno1
+      # - deviceSelector:
+      #     hardwareAddr: e8:6a:64:47:fe:44
+      #   ignore: true
+      # 2.5G PICe Port / enp2s0
+      - deviceSelector:
+          hardwareAddr: 11:11 # TODO
+        dhcp: true
+        mtu: 1500
+        vlans:
+          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.22/24"] }
         vip:
           ip: *vip
 patches:

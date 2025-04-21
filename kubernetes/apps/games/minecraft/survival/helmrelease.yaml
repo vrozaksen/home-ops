@@ -57,7 +57,7 @@ spec:
     extraEnv:
       TZ: Europe/Warsaw
       ENABLE_ROLLING_LOGS: true
-      MEMORY: ""
+      MEMORY: "16384M"
     persistence:
       dataDir:
         enabled: true

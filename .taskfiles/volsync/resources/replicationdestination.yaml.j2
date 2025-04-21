@@ -2,7 +2,7 @@
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
 metadata:
-  name: {{ ENV.APP }}-manual
+  name: {{ ENV.APP }}-manual-6
   namespace: {{ ENV.NS }}
 spec:
   trigger:
@@ -13,8 +13,8 @@ spec:
     copyMethod: Direct
     storageClassName: {{ ENV.STORAGE_CLASS_NAME }}
     accessModes: {{ ENV.ACCESS_MODES }}
-    previous: {{ ENV.PREVIOUS }}
-    #restoreAsOf: '2025-02-27T20:01:03-04:00'
+    #previous: {{ ENV.PREVIOUS }}
+    restoreAsOf: '2025-02-26T20:01:03-04:00'
     moverSecurityContext:
       runAsUser: {{ ENV.PUID }}
       runAsGroup: {{ ENV.PGID }}

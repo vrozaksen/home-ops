@@ -32,7 +32,7 @@ nodes:
       feature.node.kubernetes.io/custom-e1000e: "true"
       feature.node.kubernetes.io/custom-i40e: "true"
       topology.kubernetes.io/region: main
-      topology.kubernetes.io/zone: m
+      topology.kubernetes.io/zone: controlPlane
     installDiskSelector:
       model: "SAMSUNG*"
     networkInterfaces:
@@ -127,8 +127,13 @@ nodes:
     ipAddress: "10.10.0.31"
     #installDisk: /dev/sda
     talosImageURL: *talosImage
-    controlPlane: true
-    nodeLabels: *intel
+    controlPlane: false
+    nodeLabels:
+      intel.feature.node.kubernetes.io/gpu: "true"
+      feature.node.kubernetes.io/custom-e1000e: "true"
+      feature.node.kubernetes.io/custom-i40e: "false"
+      topology.kubernetes.io/region: main
+      topology.kubernetes.io/zone: worker
     installDiskSelector:
       model: "INTEL*"
     networkInterfaces:
@@ -138,13 +143,11 @@ nodes:
       #   ignore: true
       # 2.5G PICe Port / enp2s0
       - deviceSelector:
-          hardwareAddr: 11:11 # TODO
-        dhcp: true
+          hardwareAddr: 00:e0:4c:68:07:2c
+        addresses:
+          - 10.10.0.31/24
+        routes: *routes
         mtu: 1500
-        vlans:
-          - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.22/24"] }
-        vip:
-          ip: *vip
 patches:
   - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
   - "@./patches/global/machine-install.yaml" # Less security, faster puter

@@ -85,10 +85,10 @@ spec:
       type: RollingUpdate
     resources:
       requests:
-        cpu: 23m
-        memory: 127M
+        cpu: 100m
+        memory: 256Mi
       limits:
-        memory: 219M
+        memory: 256Mi
     admin:
       existingSecret: grafana-secret
       passwordKey: adminPass

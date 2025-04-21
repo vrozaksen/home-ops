@@ -40,3 +40,7 @@ spec:
     install:
       clusterLabels:
         app.kubernetes.io/name: *app
+    resources:
+     requests:
+        cpu: 25m
+        memory: 256Mi

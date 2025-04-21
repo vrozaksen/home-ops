@@ -71,22 +71,22 @@ spec:
       resources:
         mgr:
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 50m
+            memory: 1Gi
           limits:
             memory: 2Gi
         mon:
           requests:
             cpu: 50m
-            memory: 512Mi
-          limits:
             memory: 1Gi
+          limits:
+            memory: 2Gi
         osd:
           requests:
             cpu: 500m
-            memory: 2Gi
+            memory: 4Gi
           limits:
-            memory: 6Gi
+            memory: 8Gi
         mgr-sidecar:
           requests:
             cpu: 50m

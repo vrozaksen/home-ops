@@ -42,3 +42,9 @@ spec:
         ports:
           metrics:
             port: 9798
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 128Mi

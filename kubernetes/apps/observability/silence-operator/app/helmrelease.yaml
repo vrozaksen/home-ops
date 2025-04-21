@@ -96,3 +96,9 @@ spec:
             - name: instance
               value: aincrad.home.vzkn.eu:9100
               isRegex: false
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 128Mi

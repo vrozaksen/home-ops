@@ -36,10 +36,10 @@ spec:
               TZ: Europe/Warsaw
             resources:
               requests:
-                cpu: 5m
-                memory: 32Mi
+                cpu: 10m
+                memory: 128Mi
               limits:
-                memory: 256Mi
+                memory: 128Mi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

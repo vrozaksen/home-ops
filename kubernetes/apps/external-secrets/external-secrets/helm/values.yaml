@@ -23,3 +23,7 @@ bitwarden-sdk-server:
   enabled: true
   podAnnotations:
     secret.reloader.stakater.com/reload: "bitwarden-css-certs,bitwarden,bitwarden-tls-certs"
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi

@@ -35,10 +35,10 @@ spec:
               CONFIG_FILE: &config /config/config.yaml
             resources:
               requests:
-                cpu: 100m
-                memory: 100Mi
+                cpu: 10m
+                memory: 128Mi
               limits:
-                memory: 500Mi
+                memory: 128Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

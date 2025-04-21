@@ -54,4 +54,9 @@ spec:
         - { sourceLabels: ["__address__"], targetLabel: __param_target }
         - { sourceLabels: ["__param_target"], targetLabel: instance }
         # - { sourceLabels: ["prometheus.vzkn.eu"], targetLabel: __address__ }
-
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 128Mi

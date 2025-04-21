@@ -71,9 +71,10 @@ spec:
                   name: paperless-secret
             resources:
               requests:
-                cpu: 15m
+                cpu: 60m
+                memory: 1Gi
               limits:
-                memory: 2048Mi
+                memory: 2Gi
     service:
       app:
         controller: *app

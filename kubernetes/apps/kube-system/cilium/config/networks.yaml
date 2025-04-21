@@ -19,6 +19,7 @@ spec:
   loadBalancerIPs: true
   interfaces:
     - bond0
+    - eno1 # backup
     # - ^eth[0-9]+
     # - ^enp.*
   nodeSelector:

@@ -104,7 +104,7 @@ spec:
         existingClaim: sonarr-anime-cache
         globalMounts:
           - path: /config/MediaCover
-      zfs_data:
+      zfsdata:
         type: nfs
         server: aincrad.home.vzkn.eu
         path: /mnt/user/zfs_data

@@ -148,10 +148,21 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/data
+        path: /mnt/user/data/torrents
         globalMounts:
           - path: /downloads
-            subPath: torrents
+      anime:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/zfs_data/torrents/anime
+        globalMounts:
+          - path: /downloads/anime
+      animeimported:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/zfs_data/torrents/imported-anime
+        globalMounts:
+          - path: /downloads/imported-anime
       tmp:
         type: emptyDir
       addons:

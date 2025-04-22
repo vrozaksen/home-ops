@@ -83,6 +83,8 @@ spec:
               - --exclude-category
               - moviesfhd
               - --exclude-category
+              - anime
+              - --exclude-category
               - "*Sheller*"
               - --exclude-category
               - "*imported*"
@@ -92,10 +94,6 @@ spec:
               - activity:1d
               - --exclude-tag
               - activity:7d
-              #- --exclude-tag
-              #- site:cinemamovies
-              #- --exclude-tag
-              #- site:exitorrent
               # - --dry-run
               - --server
               - qbittorrent.$(POD_NAMESPACE).svc.cluster.local

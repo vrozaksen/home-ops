@@ -111,8 +111,12 @@ spec:
       media:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/data
+        path: /mnt/user/data/media
         globalMounts:
           - path: /data
-            subPath: media
-            #readOnly: true
+      zfsmedia:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/zfs_data/media
+        globalMounts:
+          - path: /zfs_data

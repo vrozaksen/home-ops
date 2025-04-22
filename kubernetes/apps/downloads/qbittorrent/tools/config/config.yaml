@@ -32,6 +32,11 @@ trackers:
     required_seed_ratio: 1.05
     required_seed_days: 7.5
 
+  - name: animetorrents
+    urls: ["animetorrents.me"]
+    required_seed_ratio: 1.05
+    required_seed_days: 10.5
+
   - name: anthelion
     urls: ["anthelion.me"]
     required_seed_ratio: 1.05
@@ -56,6 +61,11 @@ trackers:
     urls: ["landof.tv"]
     required_seed_ratio: 1.05
     required_seed_days: 5.5
+
+  - name: cinemaz
+    urls: ["cinemaz.to"]
+    required_seed_ratio: 1
+    required_seed_days: 10.5
 
   - name: extreme
     urls: ["russiamovie.xyz"]

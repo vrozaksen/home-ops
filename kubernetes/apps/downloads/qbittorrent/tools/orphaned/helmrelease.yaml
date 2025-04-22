@@ -77,9 +77,11 @@ spec:
         path: /mnt/user/zfs_data/torrents/anime
         globalMounts:
           - path: /downloads/anime
+            mountPropagation: None
       animeimported:
         type: nfs
         server: aincrad.home.vzkn.eu
         path: /mnt/user/zfs_data/torrents/imported-anime
         globalMounts:
           - path: /downloads/imported-anime
+            mountPropagation: None

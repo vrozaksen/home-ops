@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app sonarr-anime
+  name: &app radarr-anime
 spec:
   commonMetadata:
     labels:
@@ -25,7 +25,7 @@ spec:
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   interval: 1h
-  path: ./kubernetes/apps/downloads/sonarr-anime
+  path: ./kubernetes/apps/downloads/radarr-anime
   postBuild:
     substitute:
       APP: *app
@@ -39,3 +39,9 @@ spec:
   targetNamespace: downloads
   timeout: 5m
   wait: false
+  patches:
+  - patch: |
+      - op: remove
+        path: /spec/dataSource
+    target:
+      kind: PostgresCluster

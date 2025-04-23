@@ -86,11 +86,22 @@ spec:
           scope: "openid email profile"
           authMethod: ClientSecretBasic
     media:
+      # volumes:
+      #   - name: media
+      #     nfs:
+      #       server: aincrad.home.vzkn.eu
+      #       path: /mnt/user/data/media
+      # volumeMounts:
+      #   - mountPath: &path /media
+      #     name: media
+      #     readOnly: true
+      # baseMountPath: *path
+
       volumes:
         - name: media
           nfs:
             server: aincrad.home.vzkn.eu
-            path: /mnt/user/data/media
+            path: /mnt/user/zfs_data/media
       volumeMounts:
         - mountPath: &path /media
           name: media

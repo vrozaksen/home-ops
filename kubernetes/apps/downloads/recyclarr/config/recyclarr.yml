@@ -125,9 +125,7 @@ radarr:
         quality_sort: top
         qualities:
           - name: Remux-2160p
-          - name: WEB 2160p
-            qualities:
-              - WEBDL-2160p
+          - name: WEBDL-2160p
           - name: Remux-1080p
             qualities:
               - Bluray-1080p

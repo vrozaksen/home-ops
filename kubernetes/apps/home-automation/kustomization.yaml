@@ -6,6 +6,7 @@ namespace: home-automation
 components:
   - ../../components/common
 resources:
+  - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mosquitto/ks.yaml
   - ./zigbee/ks.yaml

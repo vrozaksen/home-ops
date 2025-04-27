@@ -53,9 +53,10 @@ spec:
       app:
         controller: *app
         type: LoadBalancer
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: 10.10.0.50, ::ffff:10.10.0.50
-          external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
+          #external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
         ports:
           control:
             port: &port 64738
@@ -63,6 +64,24 @@ spec:
           voice:
             port: *port
             protocol: UDP
+    route:
+      app:
+        enabled: true
+        kind: UDPRoute
+        annotations:
+          external-dns.alpha.kubernetes.io/target: dummy
+          external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
+          # doesn't work with cloudflared, need to remove the proxy
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+          external-dns.alpha.kubernetes.io/ttl: "120"
+        parentRefs:
+          - name: external-l4
+            namespace: kube-system
+            sectionName: udp
+        rules:
+          - backendRefs:
+              - port: *gamePort
+                name: *app
     persistence:
       config:
         existingClaim: *app

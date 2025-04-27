@@ -53,8 +53,8 @@ spec:
               seccompProfile:
                 type: RuntimeDefault
               runAsNonRoot: true
-              runAsUser: 314
-              runAsGroup: 314
+              runAsUser: 1000
+              runAsGroup: 100
             resources:
               requests:
                 cpu: 5m

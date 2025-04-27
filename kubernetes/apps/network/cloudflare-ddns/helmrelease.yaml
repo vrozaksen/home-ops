@@ -24,69 +24,40 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/larivierec/cloudflare-ddns
-              tag: v1.0.9@sha256:9f3c9939c08499ffd46c7f1cf8f21200792063f129b774d31361c2df3cd8fcdf
-            args:
-              - --zone-name
-              - vzkn.eu
-              - --record-name
-              - ipv4.vzkn.eu
-              - --provider
-              - random
+              repository: favonia/cloudflare-ddns
+              tag: 1.15.1@sha256:a4e2089b3531eec8c9328c7a9a586f80e8d67dcd94856e0b596b7896e1de3f62
             env:
-              ACCOUNT_TOKEN:
-                valueFrom:
-                  secretKeyRef:
-                    name: *app
-                    key: api-token
+              TZ: Europe/Warsaw
+              PROXIED: false
+              IP4_DOMAINS: ipv4.vzkn.eu
+              # IP6_DOMAINS: ipv6.vzkn.eu
+              IP4_PROVIDER: cloudflare.doh
+              IP6_PROVIDER: none
+              CACHE_EXPIRATION: "6h0m0s"
+              DELETE_ON_STOP: false
+              UPDATE_CRON: "@every 10m"
+              UPDATE_ON_START: true
+              EMOJI: true
+              QUIET: false
+            envFrom:
+              - secretRef:
+                  name: cloudflare-ddns-secret
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health/alive
-                    port: &healthPort 8080
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health/ready
-                    port: *healthPort
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ['ALL'] }
+              seccompProfile:
+                type: RuntimeDefault
+              runAsNonRoot: true
+              runAsUser: 314
+              runAsGroup: 314
             resources:
               requests:
-                cpu: 10m
-                memory: 128Mi
+                cpu: 5m
+                memory: 64Mi
               limits:
-                memory: 128Mi
-    service:
-      app:
-        controller: *app
-        ports:
-          http:
-            port: &port 9000
-          health:
-            port: *healthPort
-    serviceMonitor:
-      app:
-        serviceName: *app
-        endpoints:
-          - port: health
-            scheme: http
-            path: /metrics
-            interval: 30s
-            scrapeTimeout: 30s
-    route:
-      app:
-        hostnames:
-          - "{{ .Release.Name }}.vzkn.eu"
-          - ddns.vzkn.eu
-        parentRefs:
-          - name: internal
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - name: *app
-                port: *port
+                memory: 64Mi

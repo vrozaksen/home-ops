@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: docker.io/cyfershepard/jellystat
-              tag: unstable@sha256:3c09adaa578d1b13d3900f5e491b4da2a3d47b6a04b80cd2edda874f0a7010cc
+              tag: unstable@sha256:09fed3fccc1e64d068426e4f6667468074f3871fb538bcaebac080f22423f5a2
             env:
               TZ: "Europe/Warsaw"
               MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK: "30"

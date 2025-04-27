@@ -42,7 +42,7 @@ spec:
       tdarr:
         labels:
           nfsMount: "true"
-        replicas: 3
+        replicas: 4
         containers:
           node:
             image:

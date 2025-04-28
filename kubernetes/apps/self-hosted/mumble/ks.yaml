@@ -10,6 +10,11 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/volsync
+  dependsOn:
+    - name: bitwarden
+      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/self-hosted/mumble
   postBuild:

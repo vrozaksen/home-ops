@@ -108,7 +108,7 @@ spec:
         enabled: true
         existingClaim: *app
         advancedMounts:
-          factorio:
+          factorio-fun-mode:
             app:
               - path: /factorio
             filebrowser:

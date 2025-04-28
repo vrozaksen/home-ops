@@ -18,7 +18,7 @@ spec:
       retries: 3
   values:
     controllers:
-      factorio:
+      factorio-fun-mode:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"

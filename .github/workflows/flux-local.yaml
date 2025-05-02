@@ -13,6 +13,8 @@ jobs:
   filter:
     name: Flux Local - Filter
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       changed-files: ${{ steps.changed-files.outputs.changed_files }}
     steps:

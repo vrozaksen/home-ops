@@ -67,6 +67,9 @@ spec:
             enabled: true
       network:
         provider: host
+        addressRanges:
+          public: ["10.10.0.0/24"]
+          cluster: ["169.254.255.0/24"]
         connections:
           requireMsgr2: true
       resources:
@@ -107,12 +110,22 @@ spec:
         deviceFilter: nvme0n1
         config:
           osdsPerDevice: "1"
+      placement:
+        mgr: &placement
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: node-role.kubernetes.io/control-plane
+                      operator: Exists
+        mon: *placement
     cephBlockPools:
       - name: ceph-blockpool
         spec:
           failureDomain: host
           replicated:
             size: 3
+          enableRBDStats: true
         storageClass:
           enabled: true
           name: ceph-block
@@ -122,6 +135,8 @@ spec:
           volumeBindingMode: Immediate
           mountOptions: ["discard"]
           parameters:
+            compression_mode: aggressive
+            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner

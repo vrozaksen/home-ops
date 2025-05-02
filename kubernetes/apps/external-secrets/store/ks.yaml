@@ -1,0 +1,41 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app external-secrets-store
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  healthChecks:
+    - apiVersion: &certApiVersion cert-manager.io/v1
+      kind: &certKind Certificate
+      name: bitwarden-tls-certs
+      namespace: *namespace
+    - apiVersion: &secretApiVersion external-secrets.io/v1
+      kind: &secretKind ClusterSecretStore
+      name: bitwarden
+  healthCheckExprs:
+    - apiVersion: *certApiVersion
+      kind: *certKind
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+    - apiVersion: *secretApiVersion
+      kind: *secretKind
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+  dependsOn:
+    - name: external-secrets
+      namespace: external-secrets
+  interval: 1h
+  path: ./kubernetes/apps/external-secrets/store
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: external-secrets
+  timeout: 15m
+  wait: true

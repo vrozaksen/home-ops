@@ -135,18 +135,22 @@ function apply_config_file() {
     fi
 }
 
-# Render a template using minijinja and inject secrets using op
+# Render a template using minijinja and inject secrets using bws
 function render_template() {
-    local -r file="${1}"
-    local output
+	local -r file="${1}"
+	local output
 
-    if [[ ! -f "${file}" ]]; then
-        log error "File does not exist" "file=${file}"
-    fi
+	if [[ ! -f "${file}" ]]; then
+		log error "File does not exist" "file=${file}"
+	fi
 
-    if ! output=$(minijinja-cli "${file}" | op inject 2>/dev/null) || [[ -z "${output}" ]]; then
-        log error "Failed to render config" "file=${file}"
-    fi
+	if [[ -z "${BWS_ACCESS_TOKEN}" ]]; then
+		log error "BWS_ACCESS_TOKEN is not defined"
+	fi
 
-    echo "${output}"
+	if ! output=$(bws run --no-inherit-env -- minijinja-cli --env "${file}") || [[ -z "${output}" ]]; then
+		log error "Failed to render config" "file=${file}"
+	fi
+
+	echo "${output}"
 }

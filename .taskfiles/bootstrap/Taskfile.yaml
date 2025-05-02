@@ -3,68 +3,16 @@
 version: '3'
 
 tasks:
-
   default:
-    desc: Bootstrap Talos nodes and Cluster apps [CSI_DISK=required]
-    dir: '{{.TALOS_DIR}}'
+    desc: Bootstrap Talos nodes and Cluster apps [ROOK_DISK=required]
     summary: |
-      IMPORTANT: CSI_DISK must be set to the disk model used across all the nodes (e.g. WD_BLACK SN770)
-    cmds:
-      - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
-      - talhelper gencommand apply --config-file talconfig.yaml --env-file talenv.yaml --extra-flags=--insecure | bash
-      - until talosctl --talosconfig {{.ROOT_DIR}}/talosconfig --nodes {{.TALOS_CONTROLLER}} bootstrap; do sleep 5; done
-      - talosctl --talosconfig {{.ROOT_DIR}}/talosconfig kubeconfig --nodes {{.TALOS_CONTROLLER}} --force {{.ROOT_DIR}}
-      - bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
-    vars:
-      TALOS_CONTROLLER:
-        sh: talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1
+      IMPORTANT: ROOK_DISK must be set to the disk model used across all the nodes (e.g. Micron_7450_MTFDKBA800TFS)
+    cmd: bash {{.SCRIPTS_DIR}}/bootstrap-cluster.sh
     env:
-      CSI_DISK: '{{.CSI_DISK}}'
+      ROOK_DISK: '{{.ROOK_DISK}}'
     requires:
-      vars: [CSI_DISK]
+      vars: [ROOK_DISK]
     preconditions:
-      - which bws
-      - talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info
+      - talosctl config info
       - test -f {{.ROOT_DIR}}/talosconfig
-      - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
-
-  apps:
-    desc: Bootstrap Cluster apps [CSI_DISK=required]
-    dir: '{{.TALOS_DIR}}'
-    summary: |
-      IMPORTANT: CSI_DISK must be set to the disk model used across all the nodes (e.g. WD_BLACK SN770)
-    cmds:
-      - bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
-    env:
-      CSI_DISK: '{{.CSI_DISK}}'
-    requires:
-      vars: [CSI_DISK]
-    preconditions:
-      - which bws
-      - talosctl --talosconfig {{.ROOT_DIR}}/talosconfig config info
-      - test -f {{.ROOT_DIR}}/talosconfig
-      - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
-
-  gen-secrets:
-    desc: Generate the Talos secrets
-    cmds:
-      - talhelper -f {{.TALOS_DIR}}/talconfig.yaml gensecret > {{.TALOS_DIR}}/talsecret.sops.yaml
-      - task: :sops:.encrypt-file
-        vars:
-          FILE: "{{.TALOS_DIR}}/talsecret.sops.yaml"
-    preconditions:
-      - test -f {{.TALOS_DIR}}/talconfig.yaml
-      - which talhelper
-    status:
-      - test -f "{{.TALOS_DIR}}/talsecret.sops.yaml"
-
-  gen-config:
-    desc: Generate the Talos configs
-    dir: '{{.TALOS_DIR}}'
-    cmds:
-      - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
-      - cp clusterconfig/talosconfig {{.TALOSCONFIG}}
-    preconditions:
-      - test -f talconfig.yaml
-      - test -f talsecret.sops.yaml
-      - which talhelper
+      - test -f {{.SCRIPTS_DIR}}/bootstrap-cluster.sh

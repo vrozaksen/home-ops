@@ -3,26 +3,25 @@
 version: "3"
 
 tasks:
-
   genconfig:
-    desc: Generate the Talos configs
+    desc: Generate Talos configuration
     dir: '{{.TALOS_DIR}}'
     cmds:
-      - talhelper genconfig --config-file talconfig.yaml --secret-file talsecret.sops.yaml --out-dir clusterconfig
-      - cp clusterconfig/talosconfig {{.TALOSCONFIG}}
+      - bws run --no-inherit-env -- talhelper genconfig
     preconditions:
+      - bws project list
       - test -f talconfig.yaml
-      - test -f talsecret.sops.yaml
+      - test -f talsecret.yaml
       - which talhelper
 
   apply-node:
     desc: Apply Talos config to a node [HOSTNAME=required] [MODE=auto]
     dir: '{{.TALOS_DIR}}'
     cmds:
-      # - task: down
+      - task: down
       - talosctl apply-config --nodes {{.HOSTNAME}} --mode={{.MODE}} --file clusterconfig/main-{{.HOSTNAME}}.yaml --talosconfig {{.ROOT_DIR}}/talosconfig
       - talosctl --nodes {{.HOSTNAME}} health --talosconfig {{.ROOT_DIR}}/talosconfig
-      # - task: up
+      - task: up
     vars:
       MODE: '{{.MODE | default "auto"}}'
     requires:
@@ -86,7 +85,7 @@ tasks:
     prompt: This will reboot all of the cluster nodes. Are you sure you want to continue?
     vars:
       HOSTNAMES:
-        sh: kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
     cmds:
       - for: { var: HOSTNAMES }
         task: reboot-node
@@ -105,7 +104,7 @@ tasks:
     cmd: talosctl shutdown --nodes {{.HOSTNAMES}} --force
     vars:
       HOSTNAMES:
-        sh: kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
     preconditions:
       - talosctl --nodes {{.NODES}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
@@ -128,7 +127,7 @@ tasks:
     internal: true
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      #- until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
+      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
       - task: :volsync:state-suspend
     preconditions:
       - which kubectl
@@ -137,7 +136,7 @@ tasks:
     internal: true
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      #- until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
+      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
       - task: :volsync:state-resume
     preconditions:
       - which kubectl

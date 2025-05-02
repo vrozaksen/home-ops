@@ -23,6 +23,8 @@ spec:
   chartRef:
     kind: OCIRepository
     name: cert-manager
+  driftDetection:
+    mode: enabled
   install:
     remediation:
       retries: -1

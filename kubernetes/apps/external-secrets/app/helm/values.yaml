@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/external-secrets/external-secrets/refs/heads/main/deploy/charts/external-secrets/values.schema.json
 installCRDs: true
 replicaCount: 1
 leaderElect: true
@@ -19,10 +20,16 @@ certController:
 serviceMonitor:
   enabled: true
   interval: 1m
+grafana:
+  enabled: true
+reportsController:
+  serviceMonitor:
+    enabled: true
+    interval: 1m
 bitwarden-sdk-server:
   enabled: true
   podAnnotations:
-    secret.reloader.stakater.com/reload: "bitwarden-css-certs,bitwarden,bitwarden-tls-certs"
+    secret.reloader.stakater.com/reload: "bitwarden,bitwarden-tls-certs"
 resources:
   requests:
     cpu: 10m

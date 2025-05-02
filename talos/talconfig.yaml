@@ -25,14 +25,14 @@ nodes:
   - hostname: "alfheim"
     ipAddress: "10.10.0.21"
     #installDisk: /dev/sda
-    talosImageURL: &talosImage factory.talos.dev/installer/449f80f274862b52d3c5139da25fe4243396d82d18f6a7d782c9d0e3f03a40c6
+    talosImageURL: &talosImage factory.talos.dev/installer/59fbb820a54701d6aacf45e8f65adeba13a0ee2009cbca30e5b1ae6f4155e581
     controlPlane: true
     nodeLabels: &intel
       intel.feature.node.kubernetes.io/gpu: "true"
       feature.node.kubernetes.io/custom-e1000e: "true"
       feature.node.kubernetes.io/custom-i40e: "true"
     installDiskSelector:
-      model: "SAMSUNG*"
+      model: "Samsung*"
     networkInterfaces:
       # 1G Internal Port / eno1
       # - deviceSelector:
@@ -146,7 +146,8 @@ nodes:
         mtu: 1500
 patches:
   - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
-  # - "@./patches/global/machine-install.yaml" # This is baked into the install image now, as of v1.10.0 - https://github.com/siderolabs/talos/releases/tag/v1.10.0  - "@./patches/global/machine-kubelet.yaml" # VLAN Subnet Info
+  # - "@./patches/global/machine-install.yaml" # This is baked into the install image now, as of v1.10.0 - https://github.com/siderolabs/talos/releases/tag/v1.10.0
+  - "@./patches/global/machine-kubelet.yaml" # VLAN Subnet Info
   - "@./patches/global/machine-network.yaml" # Search Domain / DNS
   - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks

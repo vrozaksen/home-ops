@@ -47,12 +47,10 @@ nodes:
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
-          miimon: 1000
-        addresses:
-          - 10.10.0.21/24
-        routes: &routes
-          - network: 0.0.0.0/0
-            gateway: 10.10.0.1
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+        dhcp: true
         mtu: 9000
         vlans:
           - {vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.21/24"] }
@@ -80,10 +78,10 @@ nodes:
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
-          miimon: 1000
-        addresses:
-          - 10.10.0.22/24
-        routes: *routes
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+        dhcp: true
         mtu: 9000
         vlans:
           - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.22/24"] }
@@ -111,39 +109,37 @@ nodes:
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
-          miimon: 1000
-        addresses:
-          - 10.10.0.23/24
-        routes: *routes
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+        dhcp: true
         mtu: 9000
         vlans:
           - { vlanId: 20, dhcp: false, mtu: 1500, addresses: ["10.20.0.23/24"] }
         vip:
           ip: *vip
   # Worker Nodes
-  - hostname: "granzam"
-    ipAddress: "10.10.0.31"
-    #installDisk: /dev/sda
-    talosImageURL: *talosImage
-    controlPlane: false
-    nodeLabels:
-      intel.feature.node.kubernetes.io/gpu: "true"
-      feature.node.kubernetes.io/custom-e1000e: "true"
-      feature.node.kubernetes.io/custom-i40e: "false"
-    installDiskSelector:
-      model: "INTEL*"
-    networkInterfaces:
-      # 1G Internal Port / eno1
-      # - deviceSelector:
-      #     hardwareAddr: e8:6a:64:47:fe:44
-      #   ignore: true
-      # 2.5G PICe Port / enp2s0
-      - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:2c
-        addresses:
-          - 10.10.0.31/24
-        routes: *routes
-        mtu: 1500
+  # - hostname: "granzam"
+  #   ipAddress: "10.10.0.31"
+  #   #installDisk: /dev/sda
+  #   talosImageURL: *talosImage
+  #   controlPlane: false
+  #   nodeLabels:
+  #     intel.feature.node.kubernetes.io/gpu: "true"
+  #     feature.node.kubernetes.io/custom-e1000e: "true"
+  #     feature.node.kubernetes.io/custom-i40e: "false"
+  #   installDiskSelector:
+  #     model: "INTEL*"
+  #   networkInterfaces:
+  #     # 1G Internal Port / eno1
+  #     # - deviceSelector:
+  #     #     hardwareAddr: e8:6a:64:47:fe:44
+  #     #   ignore: true
+  #     # 2.5G PICe Port / enp2s0
+  #     - deviceSelector:
+  #         hardwareAddr: 00:e0:4c:68:07:2c
+  #       dhcp: true
+  #       mtu: 1500
 patches:
   - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
   # - "@./patches/global/machine-install.yaml" # This is baked into the install image now, as of v1.10.0 - https://github.com/siderolabs/talos/releases/tag/v1.10.0

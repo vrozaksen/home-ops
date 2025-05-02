@@ -14,5 +14,5 @@ tasks:
       vars: [ROOK_DISK]
     preconditions:
       - talosctl config info
-      - test -f {{.ROOT_DIR}}/talosconfig
+      - test -f {{.TALOS_DIR}}/clusterconfig/talosconfig
       - test -f {{.SCRIPTS_DIR}}/bootstrap-cluster.sh

@@ -102,28 +102,28 @@ function wait_for_nodes() {
 
 # CRDs to be applied before the helmfile charts are installed
 function apply_crds() {
-	log debug "Applying CRDs"
+    log debug "Applying CRDs"
 
-	local -r crds=(
-		# renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-		https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
-		# renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-		https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.82.0/stripped-down-crds.yaml
-		# renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-		https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.16.1/docs/sources/crd/crd-manifest.yaml
-	)
+    local -r crds=(
+        # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
+        https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.16.1/docs/sources/crd/crd-manifest.yaml
+        # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
+        https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
+        # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.82.0/stripped-down-crds.yaml
+    )
 
-	for crd in "${crds[@]}"; do
-		if kubectl diff --filename "${crd}" &>/dev/null; then
-			log info "CRDs are up-to-date" "crd=${crd}"
-			continue
-		fi
-		if kubectl apply --server-side --filename "${crd}" &>/dev/null; then
-			log info "CRDs applied" "crd=${crd}"
-		else
-			log error "Failed to apply CRDs" "crd=${crd}"
-		fi
-	done
+    for crd in "${crds[@]}"; do
+        if kubectl diff --filename "${crd}" &>/dev/null; then
+            log info "CRDs are up-to-date" "crd=${crd}"
+            continue
+        fi
+        if kubectl apply --server-side --filename "${crd}" &>/dev/null; then
+            log info "CRDs applied" "crd=${crd}"
+        else
+            log error "Failed to apply CRDs" "crd=${crd}"
+        fi
+    done
 }
 
 # Resources to be applied before the helmfile charts are installed

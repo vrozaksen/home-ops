@@ -10,11 +10,17 @@ cluster:
       bind-address: 0.0.0.0
   coreDNS:
     disabled: true
+  discovery:
+    enabled: true
+    registries:
+      kubernetes:
+        disabled: true
+      service:
+        disabled: false
   etcd:
+    advertisedSubnets: ["10.10.0.0/24"]
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
-    advertisedSubnets:
-      - 10.10.0.0/24
   proxy:
     disabled: true
   scheduler:
@@ -37,14 +43,3 @@ cluster:
                   - maxSkew: 1
                     topologyKey: kubernetes.io/hostname
                     whenUnsatisfiable: ScheduleAnyway
-  extraManifests:
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusagents.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
-    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${promVersion}/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml

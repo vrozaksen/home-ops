@@ -46,4 +46,4 @@ metadata:
   name: cluster-secrets
   namespace: external-secrets
 stringData:
-  {{ ENV['cluster_secrets'] | indent(2) | safe }}
+  {{ ENV['CLUSTER_SECRETS'] | indent(2) | safe }}

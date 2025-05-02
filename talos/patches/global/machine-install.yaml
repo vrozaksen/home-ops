@@ -1,6 +1,7 @@
 machine:
   install:
     extraKernelArgs:
+      - -init_on_alloc
       - -selinux
       # - i915.enable_guc=3                   # Meteor Lake CPU / iGPU
       - apparmor=0              # Less security, faster puter
@@ -13,3 +14,6 @@ machine:
       - security=none           # Less security, faster puter
       # - sysctl.kernel.kexec_load_disabled=1 # Meteor Lake CPU / iGPU
       - talos.auditd.disabled=1 # Less security, faster puter
+
+###
+# -init_on_alloc -selinux apparmor=0 init_on_alloc=0 init_on_free=0 mitigations=off security=none talos.auditd.disabled=1

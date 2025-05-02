@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-talosVersion: v1.9.5
+talosVersion: v1.10.0
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.32.4
+kubernetesVersion: v1.33.0
 
 clusterName: &cluster main
 endpoint: https://10.10.0.20:6443
@@ -25,14 +25,12 @@ nodes:
   - hostname: "alfheim"
     ipAddress: "10.10.0.21"
     #installDisk: /dev/sda
-    talosImageURL: &talosImage factory.talos.dev/installer/00058d1df723e50386d6912d3803ffff46978b8f69fdb51c10da7e7d56890510
+    talosImageURL: &talosImage factory.talos.dev/installer/449f80f274862b52d3c5139da25fe4243396d82d18f6a7d782c9d0e3f03a40c6
     controlPlane: true
     nodeLabels: &intel
       intel.feature.node.kubernetes.io/gpu: "true"
       feature.node.kubernetes.io/custom-e1000e: "true"
       feature.node.kubernetes.io/custom-i40e: "true"
-      topology.kubernetes.io/region: main
-      topology.kubernetes.io/zone: controlPlane
     installDiskSelector:
       model: "SAMSUNG*"
     networkInterfaces:
@@ -132,8 +130,6 @@ nodes:
       intel.feature.node.kubernetes.io/gpu: "true"
       feature.node.kubernetes.io/custom-e1000e: "true"
       feature.node.kubernetes.io/custom-i40e: "false"
-      topology.kubernetes.io/region: main
-      topology.kubernetes.io/zone: worker
     installDiskSelector:
       model: "INTEL*"
     networkInterfaces:
@@ -150,8 +146,7 @@ nodes:
         mtu: 1500
 patches:
   - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
-  - "@./patches/global/machine-install.yaml" # Less security, faster puter
-  - "@./patches/global/machine-kubelet.yaml" # VLAN Subnet Info
+  # - "@./patches/global/machine-install.yaml" # This is baked into the install image now, as of v1.10.0 - https://github.com/siderolabs/talos/releases/tag/v1.10.0  - "@./patches/global/machine-kubelet.yaml" # VLAN Subnet Info
   - "@./patches/global/machine-network.yaml" # Search Domain / DNS
   - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
@@ -161,7 +156,8 @@ patches:
 # Controller patches
 controlPlane:
   nodeLabels:
-    topology.kubernetes.io/zone: controlPlane
+      topology.kubernetes.io/region: main
+      topology.kubernetes.io/zone: controlPlane
   patches:
     - "@./patches/controller/admission-controller-patch.yaml"
     - "@./patches/controller/cluster.yaml"

@@ -19,7 +19,7 @@ spec:
       namespace: downloads
     - name: sonarr-anime
       namespace: downloads
-    - name: bitwarden
+    - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph

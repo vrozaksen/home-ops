@@ -15,7 +15,7 @@ spec:
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
-    - name: bitwarden
+    - name: external-secrets-store
       namespace: external-secrets
   healthCheckExprs:
     - apiVersion: postgres-operator.crunchydata.com/v1beta1

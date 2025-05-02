@@ -11,7 +11,7 @@ spec:
   components:
     - ../../../components/gatus/guarded
   dependsOn:
-    - name: bitwarden
+    - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph

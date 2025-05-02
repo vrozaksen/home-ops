@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: bitwarden
+    - name: external-secrets-store
       namespace: external-secrets
     - name: flux-operator
       namespace: flux-system

@@ -16,7 +16,7 @@ spec:
       namespace: home-automation
     - name: multus-networks
       namespace: network
-    - name: bitwarden
+    - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph

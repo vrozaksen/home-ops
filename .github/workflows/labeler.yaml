@@ -1,6 +1,9 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Labeler
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   workflow_dispatch:

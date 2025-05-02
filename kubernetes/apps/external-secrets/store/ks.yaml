@@ -12,7 +12,7 @@ spec:
     - apiVersion: &certApiVersion cert-manager.io/v1
       kind: &certKind Certificate
       name: bitwarden-tls-certs
-      namespace: *namespace
+      namespace: external-secrets
     - apiVersion: &secretApiVersion external-secrets.io/v1
       kind: &secretKind ClusterSecretStore
       name: bitwarden

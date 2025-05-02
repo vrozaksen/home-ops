@@ -6,5 +6,5 @@ namespace: external-secrets
 components:
   - ../../components/common
 resources:
-  - ./external-secrets/ks.yaml
-  - ./bitwarden/ks.yaml
+  - ./app/ks.yaml
+  - ./store/ks.yaml

@@ -8,9 +8,9 @@ components:
 resources:
   - ./atuin/ks.yaml
   # - ./homepage/ks.yaml # TODO
-  - ./mealie/ks.yaml
+  # - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
   # - ./outline/ks.yaml
-  - ./paperless/ks.yaml
+  # - ./paperless/ks.yaml
   - ./radicale/ks.yaml
   # - ./reactive-resume/ks.yaml

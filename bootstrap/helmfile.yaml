@@ -52,7 +52,7 @@ releases:
         command: kubectl
         args:
           - apply
-          - --namespace=cert-manager
+          - --namespace=external-secrets
           - --server-side
           - --field-manager=kustomize-controller
           - --filename

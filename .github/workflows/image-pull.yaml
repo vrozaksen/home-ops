@@ -1,5 +1,8 @@
 ---
 name: Image Pull
+permissions:
+  contents: read
+  id-token: write
 
 on:
   pull_request:

@@ -110,6 +110,8 @@ jobs:
     needs: ["test", "diff"]
     name: Flux Local - Success
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Any jobs failed?
         if: ${{ contains(needs.*.result, 'failure') }}

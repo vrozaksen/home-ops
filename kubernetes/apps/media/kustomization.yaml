@@ -12,4 +12,4 @@ resources:
   # - ./kyoo/ks.yaml
   - ./navidrome/ks.yaml
   - ./tdarr/ks.yaml
-  - ./wizarr/ks.yaml
+  # - ./wizarr/ks.yaml

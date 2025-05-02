@@ -35,7 +35,7 @@ spec:
               - --added-on
               - --expired
               - --last-activity
-              #- --not-linked # broken
+              - --not-linked
               - --not-working
               - --sites
               - --unregistered

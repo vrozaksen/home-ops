@@ -15,6 +15,6 @@ spec:
         - router.home.vzkn.eu
         ## Main Stack
         - aincrad.home.vzkn.eu
-        - alfheim.home.vzkn.eu
-        - alne.home.vzkn.eu
-        - ainias.home.vzkn.eu
+        # - alfheim.home.vzkn.eu
+        # - alne.home.vzkn.eu
+        # - ainias.home.vzkn.eu

@@ -10,6 +10,5 @@ resources:
   - ./cloudflare-dns/ks.yaml
   - ./cloudflare-tunnel/ks.yaml
   - ./echo/ks.yaml
-  # - ./i40e-tune/ks.yaml
   - ./mikrotik-dns/ks.yaml
   - ./multus/ks.yaml

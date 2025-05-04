@@ -22,7 +22,7 @@ cni:
   exclusive: false
 dashboards:
   enabled: true
-devices: bond+ enp2s0 eno1 # backup
+devices: bond+ enp1s0 eno1 # backup
 enableIPv4BIGTCP: true
 endpointRoutes:
   enabled: true

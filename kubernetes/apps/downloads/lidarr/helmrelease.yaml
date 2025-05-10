@@ -26,8 +26,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/home-operations/lidarr
-              tag: 2.11.2.4629@sha256:c5b3b5e0c9825555ff542272a9d18eec9b0d70cb80b610b8f4efc848dff54021
+              repository: lscr.io/linuxserver/lidarr # ghcr.io/home-operations/lidarr
+              tag: 2.11.2@sha256:eca135d4c2bfd0472c56002bd865d87822d9d439a2ba7e72a2615c0382db85bc # 2.11.2.4629@sha256:c5b3b5e0c9825555ff542272a9d18eec9b0d70cb80b610b8f4efc848dff54021
             env:
               LIDARR__APP__INSTANCENAME: Lidarr
               LIDARR__APP__THEME: dark
@@ -73,18 +73,6 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 2Gi
-    initContainers:
-      - name: download-script
-        image: curlimages/curl:latest
-        command:
-          - sh
-          - -c
-          - |
-            curl -o /custom-cont-init.d/script_init.bash https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/refs/heads/main/lidarr/setup.bash
-            chmod +x /custom-cont-init.d/script_init.bash
-        volumeMounts:
-          - name: custom-cont-init
-            mountPath: /custom-cont-init.d
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

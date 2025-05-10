@@ -47,6 +47,8 @@ spec:
               LIDARR__SERVER__PORT: &port 80
               LIDARR__UPDATE__BRANCH: develop
               TZ: Europe/Warsaw
+              PUID: 1000
+              PGID: 100
             envFrom:
               - secretRef:
                   name: lidarr-secret
@@ -73,13 +75,15 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 2Gi
+    # defaultPodOptions:
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 100
+      # s6-overlay-suexec: warning: unable to gain root privileges (is the suid bit set?)
+        runAsUser: 0
+        runAsGroup: 0
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: false
     service:
       app:
         controller: *app

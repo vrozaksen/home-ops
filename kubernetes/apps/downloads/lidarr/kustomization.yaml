@@ -15,7 +15,7 @@ configMapGenerator:
         loki_rule: "true"
   - name: lidarr-scripts
     files:
-      - /config/extended.conf=./config/extended.conf
+      - extended.conf=./config/extended.conf
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

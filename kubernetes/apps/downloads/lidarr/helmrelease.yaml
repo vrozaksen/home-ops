@@ -124,6 +124,8 @@ spec:
         name: lidarr-scripts
         defaultMode: 0775
         globalMounts:
+          - path: /config/extended.conf
+            subPath: extended.conf
           - readOnly: true
       zfsdata:
         type: nfs

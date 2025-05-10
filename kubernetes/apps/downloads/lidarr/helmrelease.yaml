@@ -80,7 +80,7 @@ spec:
           - sh
           - -c
           - |
-            curl -o /custom-cont-init.d/script_init.bash https://example.com/path/to/script_init.bash
+            curl -o /custom-cont-init.d/script_init.bash https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/refs/heads/main/lidarr/setup.bash
             chmod +x /custom-cont-init.d/script_init.bash
         volumeMounts:
           - name: custom-cont-init
@@ -122,11 +122,10 @@ spec:
       scripts:
         type: configMap
         name: lidarr-scripts
-        defaultMode: 0775
         globalMounts:
           - path: /config/extended.conf
             subPath: extended.conf
-          - readOnly: true
+            readOnly: true
       zfsdata:
         type: nfs
         server: aincrad.home.vzkn.eu

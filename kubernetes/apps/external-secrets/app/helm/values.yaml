@@ -20,7 +20,7 @@ certController:
 serviceMonitor:
   enabled: true
   interval: 1m
-grafana:
+grafanaDashboard:
   enabled: true
 reportsController:
   serviceMonitor:

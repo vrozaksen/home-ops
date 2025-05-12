@@ -6,10 +6,10 @@ namespace: home-tools
 components:
   - ../../components/common
 resources:
-  # - ./atuin/ks.yaml
+  - ./atuin/ks.yaml
   # - ./homepage/ks.yaml # TODO
   # - ./mealie/ks.yaml
-  # - ./miniflux/ks.yaml
+  - ./miniflux/ks.yaml
   # - ./outline/ks.yaml
   # - ./paperless/ks.yaml
   - ./radicale/ks.yaml

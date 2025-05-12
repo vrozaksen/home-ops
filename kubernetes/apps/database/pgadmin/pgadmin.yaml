@@ -28,9 +28,9 @@ spec:
       memory: 512Mi
   serverGroups:
     - name: supply
-      postgresClusterSelector: {}
-      namespaces:
-        - "downloads"
+      postgresClusterSelector:
+        matchLabels:
+          postgres-operator.crunchydata.com/cluster: "prowlarr"
   serviceName: pgadmin
   # users:
   #   - username: admin@vzkn.eu

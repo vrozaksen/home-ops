@@ -9,7 +9,7 @@ spec:
       - name: "authentik"
         secret:
           name: pgadmin-secret
-          key: OAUTH2_CONFIG
+          key: 00-authentik.json
   dataVolumeClaimSpec:
     accessModes:
       - ReadWriteOnce

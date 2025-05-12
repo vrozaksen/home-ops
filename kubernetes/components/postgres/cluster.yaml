@@ -28,9 +28,9 @@ spec:
       metadata:
         labels:
           app.kubernetes.io/name: ${APP}-crunchy-postgres
-      replicas: &replicas 2
+      replicas: &replicas 3 # One per node
       dataVolumeClaimSpec:
-        storageClassName: ceph-block
+        storageClassName: local-hostpath
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
@@ -42,6 +42,13 @@ spec:
           labelSelector:
             matchLabels:
               postgres-operator.crunchydata.com/cluster: *name
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
   users:
     # Superuser
     - name: "postgres"

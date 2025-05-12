@@ -48,7 +48,7 @@ spec:
             nodeSelectorTerms:
             - matchExpressions:
               - key: node-role.kubernetes.io/control-plane
-                operator: DoesNotExist
+                operator: Exists
   users:
     # Superuser
     - name: "postgres"

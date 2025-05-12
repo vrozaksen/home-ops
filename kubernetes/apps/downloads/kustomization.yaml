@@ -6,7 +6,7 @@ namespace: downloads
 components:
   - ../../components/common
 resources:
-  - ./bazarr/ks.yaml
+  # - ./bazarr/ks.yaml
   - ./flaresolverr/ks.yaml
   # - ./lidarr/ks.yaml
   # - ./metube/ks.yaml

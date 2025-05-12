@@ -29,10 +29,12 @@ spec:
   serverGroups:
     - name: supply
       postgresClusterSelector: {}
+      namespaces:
+        - "downloads"
   serviceName: pgadmin
-  users:
-    - username: admin@vzkn.eu
-      role: Administrator
-      passwordRef:
-        name: pgadmin-secret
-        key: PGADMIN_PASSWORD
+  # users:
+  #   - username: admin@vzkn.eu
+  #     role: Administrator
+  #     passwordRef:
+  #       name: pgadmin-secret
+  #       key: PGADMIN_PASSWORD

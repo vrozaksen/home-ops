@@ -28,7 +28,6 @@ tasks:
       vars: [HOSTNAME]
     preconditions:
       - talosctl --nodes {{.HOSTNAME}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
-      - test -f cluster.env
       - test -f talconfig.yaml
       - test -f {{.ROOT_DIR}}/talosconfig
 
@@ -44,7 +43,6 @@ tasks:
           HOSTNAME: '{{.ITEM}}'
     preconditions:
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
-      - test -f {{.TALOS_DIR}}/cluster.env
       - test -f {{.TALOS_DIR}}/talconfig.yaml
       - test -f {{.ROOT_DIR}}/talosconfig
 
@@ -76,7 +74,6 @@ tasks:
     preconditions:
       - talosctl --nodes {{.HOSTNAME}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
-      - test -f {{.TALOS_DIR}}/cluster.env
       - test -f {{.TALOS_DIR}}/talconfig.yaml
       - which talosctl
 
@@ -94,7 +91,6 @@ tasks:
       - task: :kubernetes:cleanse-pods
     preconditions:
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
-      - test -f {{.TALOS_DIR}}/cluster.env
       - test -f {{.TALOS_DIR}}/talconfig.yaml
       - test -f {{.ROOT_DIR}}/talosconfig
 

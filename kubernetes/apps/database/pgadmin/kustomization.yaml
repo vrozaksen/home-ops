@@ -4,13 +4,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./externalsecret.yaml
-  - ./helmrelease.yaml
-configMapGenerator:
-  - name: pgadmin-local-config
-    files:
-      - config_local.py=./configs/config_local.py
-  - name: servers-json
-    files:
-      - servers.json=./configs/servers.json
-generatorOptions:
-  disableNameSuffixHash: true
+  - ./pgadmin.yaml
+  - ./route.yaml
+  - ./service.yaml

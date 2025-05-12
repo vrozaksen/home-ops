@@ -1,0 +1,35 @@
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PGAdmin
+metadata:
+  name: pgadmin
+spec:
+  config:
+    oauthConfigurations:
+      - name: "authentik"
+        secret:
+          name: pgadmin-secret
+          key: OAUTH2_CONFIG
+  dataVolumeClaimSpec:
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: ceph-block
+    resources:
+      requests:
+        storage: 4Gi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  serverGroups:
+    - name: supply
+      postgresClusterSelector: {}
+  serviceName: pgadmin
+  users:
+    - username: admin@vzkn.eu
+      role: Administrator
+      passwordRef:
+        name: pgadmin-secret
+        key: PGADMIN_PASSWORD

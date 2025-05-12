@@ -27,6 +27,8 @@ kind: Kustomization
 metadata:
   name: &app system-upgrade-controller-plans
   namespace: &namespace system-upgrade
+  labels:
+    substitution.flux/enabled: false
 spec:
   commonMetadata:
     labels:

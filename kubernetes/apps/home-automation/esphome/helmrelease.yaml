@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: esphome/esphome
-              tag: 2025.4.1@sha256:23858951d5f414a03d14c958848d83c4955978d3d4e1b9979e04fc329daddd71
+              tag: 2025.4.2@sha256:870d2eb1f2c524ba888444440312df79c905f57b9768e7bd3eb0e75bfbbd8d61
             env:
               TZ: Europe/Warsaw
               ESPHOME_DASHBOARD_USE_PING: true
@@ -60,7 +60,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.99.4@sha256:316b7f60051b44b81fdf8972293735c2b0fda9a2b1e88fb6b77195df0c9b9b78
+              tag: 4.100.0@sha256:34f81f2bd521cb43720c4a78923d3e45b421aa62e19636585058b69f26dd8d69
             env:
               TZ: Europe/Warsaw
             args: [

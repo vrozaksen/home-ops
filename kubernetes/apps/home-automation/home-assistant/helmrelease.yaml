@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/home-assistant
-              tag: 2025.4.4@sha256:dc7bb47eb6b3f62405c185cbc633771527b9710530023f7177d99a09eb858fc4
+              tag: 2025.5.1@sha256:020eecfb33fbc8473a54d24607e0352d4381af51d9963cfa70b7b915115da2d1
             env:
               TZ: Europe/Warsaw
             securityContext:
@@ -49,7 +49,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.99.4@sha256:316b7f60051b44b81fdf8972293735c2b0fda9a2b1e88fb6b77195df0c9b9b78
+              tag: 4.100.0@sha256:34f81f2bd521cb43720c4a78923d3e45b421aa62e19636585058b69f26dd8d69
             env:
               TZ: Europe/Warsaw
             args: [

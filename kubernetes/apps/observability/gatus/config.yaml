@@ -30,10 +30,15 @@ endpoints:
       dns-resolver: tcp://1.1.1.1:53
     conditions:
       - "[STATUS] == 404"
+  - name: cert-expiration
+    group: domain
+    url: "https://status.vzkn.eu"
+    interval: 1h
+    conditions:
+      - "[CERTIFICATE_EXPIRATION] > 240h"
   - name: domain-expiration
     group: domain
     url: "https://vzkn.eu"
     interval: 1h
     conditions:
       - "[DOMAIN_EXPIRATION] > 720h"
-      - "[CERTIFICATE_EXPIRATION] > 240h"

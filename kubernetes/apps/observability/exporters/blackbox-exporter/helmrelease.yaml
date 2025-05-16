@@ -73,6 +73,8 @@ spec:
       targets:
         - { name: &name aincrad.home.vzkn.eu, module: icmp, url: *name }
         - { name: &name router.home.vzkn.eu, module: icmp, url: *name }
+        - { name: &name switch.home.vzkn.eu, module: icmp, url: *name }
+        - { name: &name pi.home.vzkn.eu, module: icmp, url: *name }
     resources:
       requests:
         cpu: 10m

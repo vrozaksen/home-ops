@@ -1,4 +1,3 @@
-
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.coreos.com/servicemonitor_v1.json
 apiVersion: monitoring.coreos.com/v1
@@ -9,26 +8,26 @@ metadata:
     app.kubernetes.io/instance: servers
     app.kubernetes.io/name: nut-exporter
     prometheus: kube-prometheus
-  name: nut-exporter-network
+  name: nut-exporter-rack
 spec:
   endpoints:
     - interval: 30s
       metricRelabelings:
         - action: replace
-          replacement: network
+          replacement: rack
           sourceLabels:
             - instance
           targetLabel: instance
         - action: replace
-          replacement: network
+          replacement: rack
           sourceLabels:
-            - server
-          targetLabel: server
+            - rack
+          targetLabel: rack
         - action: labeldrop
           regex: (pod)
       params:
-        server:
-          - network-nut.vzkn.eu
+        rack:
+          - pi.home.vzkn.eu
       path: /ups_metrics
       port: metrics
       scheme: http

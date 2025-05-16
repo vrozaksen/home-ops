@@ -1,0 +1,10 @@
+[admin]
+    password = tomato
+    actions = SET
+    actions = FSD
+    instcmds = ALL
+    upsmon primary
+
+[observer]
+    password = 1234
+    upsmon secondary

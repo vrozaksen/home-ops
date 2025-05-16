@@ -8,6 +8,7 @@ spec:
   staticConfigs:
     - targets:
         - aincrad.home.vzkn.eu:9100
+        - pi.home.vzkn.eu:9100
   metricsPath: /metrics
   relabelings:
     - action: replace
@@ -23,23 +24,24 @@ spec:
   staticConfigs:
     - targets:
         - aincrad.home.vzkn.eu:9633
+        - pi.home.vzkn.eu:9633
   metricsPath: /metrics
   relabelings:
     - action: replace
       targetLabel: job
       replacement: *name
----
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
-apiVersion: monitoring.coreos.com/v1alpha1
-kind: ScrapeConfig
-metadata:
-  name: &name minio-job
-spec:
-  staticConfigs:
-    - targets:
-        - s3.vzkn.eu
-  metricsPath: /minio/v2/metrics/cluster
-  relabelings:
-    - action: replace
-      targetLabel: job
-      replacement: *name
+# ---
+# # yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+# apiVersion: monitoring.coreos.com/v1alpha1
+# kind: ScrapeConfig
+# metadata:
+#   name: &name minio-job
+# spec:
+#   staticConfigs:
+#     - targets:
+#         - s3.vzkn.eu
+#   metricsPath: /minio/v2/metrics/cluster
+#   relabelings:
+#     - action: replace
+#       targetLabel: job
+#       replacement: *name

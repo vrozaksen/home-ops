@@ -41,7 +41,7 @@ spec:
           whenUnsatisfiable: "DoNotSchedule"
           labelSelector:
             matchLabels:
-              postgres-operator.crunchydata.com/cluster: *name
+              postgres-operator.crunchydata.com/isntance: *name
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

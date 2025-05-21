@@ -30,76 +30,62 @@ spec:
             image: &image
               repository: ghcr.io/buroa/qbtools
               tag: v0.21.0@sha256:3a60f001c3f5fd068ff38960fbf9db726fa59edf135b18cd50294230366c284e
-            args:
-              - tagging
-              - --added-on
-              - --expired
-              - --last-activity
-              - --not-linked
-              - --not-working
-              - --sites
-              - --unregistered
-              - --server
-              - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
-              - --port
-              - "80"
-              - --config
-              - /config/config.yaml
+            args: [
+              "tagging",
+              "--added-on",
+              "--expired",
+              "--last-activity",
+              "--not-linked",
+              "--not-working",
+              "--sites",
+              "--unregistered",
+              "--config", "/config/config.yaml"
+            ]
             env: &env
               TZ: Europe/Warsaw
-              POD_NAMESPACE:
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.namespace
+              QBITTORRENT_HOST: qbittorrent.downloads.svc.cluster.local
+              QBITTORRENT_PORT: 80
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources: &resources
               requests:
                 cpu: 5m
-                memory: 64M
+                memory: 64Mi
               limits:
-                memory: 128M
+                memory: 128Mi
           02-unregistered:
             image: *image
-            args:
-              - prune
-              - --include-tag
-              - unregistered
-              - --exclude-tag
-              - expired
-              - --server
-              - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
-              - --port
-              - "80"
+            args: [
+              "prune",
+              "--include-tag", "unregistered",
+              "--exclude-tag", "expired",
+              "--exclude-tag", "added:1d",
+              "--exclude-category", "manual",
+              "--with-data"
+            ]
             env: *env
+            securityContext: *securityContext
             resources: *resources
         containers:
-          main:
+          expired:
             image: *image
-            args:
-              - prune
-              - --exclude-category
-              - manual
-              - --exclude-category
-              - tv
-              - --exclude-category
-              - moviesfhd
-              - --exclude-category
-              - anime
-              - --exclude-category
-              - "*Sheller*"
-              - --exclude-category
-              - "*imported*"
-              - --include-tag
-              - expired
-              - --exclude-tag
-              - activity:1d
-              - --exclude-tag
-              - activity:7d
-              # - --dry-run
-              - --server
-              - qbittorrent.$(POD_NAMESPACE).svc.cluster.local
-              - --port
-              - "80"
+            args: [
+              "prune",
+              "--exclude-category", "anime",
+              "--exclude-category", "manual",
+              "--exclude-category", "moviesfhd",
+              "--exclude-category", "tv",
+              "--exclude-category", "*Sheller*",
+              "--include-tag", "expired",
+              "--exclude-tag", "activity:1d",
+              "--exclude-tag", "activity:7d",
+              "--with-data"
+              # "--dry-run"
+            ]
             env: *env
+            securityContext: *securityContext
             resources: *resources
     defaultPodOptions:
       securityContext:

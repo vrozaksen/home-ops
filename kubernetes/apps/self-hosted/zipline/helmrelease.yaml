@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/diced/zipline
-              tag: v4@sha256:e546f3e9ba2097664903f0e821d9f0654b21d7725a7ecad230910d2c1f5c54f0
+              tag: v4@sha256:aad39dd62a8a3faf1cdb0992c755584f7457e48b0083778f8b4cebc663c17141
             env:
               TZ: Europe/Warsaw
               CORE_HOSTNAME: 0.0.0.0

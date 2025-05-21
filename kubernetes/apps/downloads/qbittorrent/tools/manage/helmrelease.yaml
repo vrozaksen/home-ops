@@ -79,6 +79,7 @@ spec:
               "--exclude-category", "tv",
               "--exclude-category", "*Sheller*",
               "--include-tag", "expired",
+              "--include-tag", "not-linked",
               "--exclude-tag", "activity:1d",
               "--exclude-tag", "activity:7d",
               "--with-data"

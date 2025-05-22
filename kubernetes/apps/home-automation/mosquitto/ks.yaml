@@ -10,6 +10,13 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
+  dependsOn:
+    - name: multus-networks
+      namespace: network
+    - name: external-secrets-store
+      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/home-automation/mosquitto/
   postBuild:

@@ -89,6 +89,21 @@ spec:
               isRegex: false
       - <<: *silence
         metadata:
+          name: aincrad-array-diskspace-warning
+          namespace: *namespace
+        spec:
+          matchers:
+            - name: alertname
+              value: NodeFilesystemAlmostOutOfSpace
+              isRegex: false
+            - name: device
+              value: /dev/md.*
+              isRegex: true
+            - name: instance
+              value: aincrad.home.vzkn.eu:9100
+              isRegex: false
+      - <<: *silence
+        metadata:
           name: aincrad-disk-saturation
           namespace: *namespace
         spec:

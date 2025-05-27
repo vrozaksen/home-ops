@@ -8,5 +8,5 @@ components:
 resources:
   # - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
-  - ./mosquitto/ks.yaml
-  - ./zigbee/ks.yaml
+  #- ./mosquitto/ks.yaml
+  #- ./zigbee/ks.yaml

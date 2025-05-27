@@ -199,12 +199,12 @@ spec:
         path: /mnt/user/data/torrents/tv
         globalMounts:
           - path: /downloads/tv
-      shell2160p:
+      2160p:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/Sheller-2160p
+        path: /mnt/user/data/torrents/2160p
         globalMounts:
-          - path: /downloads/Sheller-2160p
+          - path: /downloads/2160p
       shellcm:
         type: nfs
         server: aincrad.home.vzkn.eu

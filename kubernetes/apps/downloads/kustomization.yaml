@@ -11,7 +11,7 @@ resources:
   # - ./lidarr/ks.yaml
   # - ./metube/ks.yaml
   - ./prowlarr/ks.yaml
-  - ./qbittorrent/ks.yaml
+  #- ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
   - ./radarr-anime/ks.yaml
   - ./recyclarr/ks.yaml

@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -81,8 +81,6 @@ spec:
     serviceAccount:
       system-upgrade-controller: {}
     persistence:
-      tmp:
-        type: emptyDir
       etc-ssl:
         type: hostPath
         hostPath: /etc/ssl
@@ -101,3 +99,10 @@ spec:
         hostPathType: DirectoryOrCreate
         globalMounts:
           - readOnly: true
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          system-upgrade-controller:
+            app:
+              - path: /tmp
+                subPath: tmp

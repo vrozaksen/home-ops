@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -126,12 +126,6 @@ spec:
               - path: /config
             code-server:
               - path: /config
-      cache:
-        type: emptyDir
-        advancedMounts:
-          esphome:
-            app:
-              - path: /cache
       secrets:
         type: secret
         name: esphome-secrets
@@ -147,3 +141,10 @@ spec:
             code-server:
               - path: /home/coder/.ssh/id_ed25519
                 subPath: id_ed25519
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          esphome:
+            app:
+              - path: /cache
+                subPath: cache

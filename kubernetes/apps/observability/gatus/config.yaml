@@ -36,9 +36,3 @@ endpoints:
     interval: 1h
     conditions:
       - "[CERTIFICATE_EXPIRATION] > 240h"
-  - name: domain-expiration
-    group: domain
-    url: "https://vzkn.eu"
-    interval: 1h
-    conditions:
-      - "[DOMAIN_EXPIRATION] > 720h"

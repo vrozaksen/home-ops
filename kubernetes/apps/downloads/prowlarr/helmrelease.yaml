@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -99,7 +99,12 @@ spec:
               - name: *app
                 port: *port
     persistence:
-      config:
+      tmpfs:
         type: emptyDir
-      tmp:
-        type: emptyDir
+        advancedMounts:
+          prowlarr:
+            app:
+              - path: /config
+                subPath: config
+              - path: /tmp
+                subPath: tmp

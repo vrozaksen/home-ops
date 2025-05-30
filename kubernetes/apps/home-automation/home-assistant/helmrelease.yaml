@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -111,19 +111,16 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /config
-      config-logs:
+      tmpfs:
         type: emptyDir
-        globalMounts:
-          - path: /config/logs
-      config-tts:
-        type: emptyDir
-        globalMounts:
-          - path: /config/tts
-      tmp:
-        type: emptyDir
-        globalMounts:
-          - path: /tmp
-      venv:
-        type: emptyDir
-        globalMounts:
-          - path: /config/.venv
+        advancedMounts:
+          sonarr:
+            app:
+              - path: /config/.venv
+                subPath: .venv
+              - path: /config/logs
+                subPath: logs
+              - path: /config/tts
+                subPath: tts
+              - path: /tmp
+                subPath: tmp

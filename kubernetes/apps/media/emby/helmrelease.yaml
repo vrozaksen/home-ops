@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -91,23 +91,10 @@ spec:
         existingClaim: emby-cache
         globalMounts:
           - path: /config/cache
-      config-logs:
-        type: emptyDir
-        globalMounts:
-          - path: /config/logs
       emby-metadata:
         existingClaim: emby-metadata
         globalMounts:
           - path: /metadata
-      tmp:
-        type: emptyDir
-        globalMounts:
-          - path: /tmp
-      transcode:
-        type: emptyDir
-        sizeLimit: 10Gi
-        globalMounts:
-          - path: /transcode
       media:
         type: nfs
         server: aincrad.home.vzkn.eu
@@ -120,3 +107,14 @@ spec:
         path: /mnt/user/zfs_data/media
         globalMounts:
           - path: /zfs_data
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          emby:
+            app:
+              - path: /config/logs
+                subPath: logs
+              - path: /transcode
+                subPath: transcode
+              - path: /tmp
+                subPath: tmp

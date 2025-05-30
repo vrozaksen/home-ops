@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -98,7 +98,7 @@ spec:
             port: *port
     serviceMonitor:
       app:
-        serviceName: gatus
+        serviceName: *app
         endpoints:
           - port: http
     route:
@@ -112,19 +112,19 @@ spec:
             sectionName: https
         rules:
           - backendRefs:
-              - name: *app
+              - identifier: app
                 port: *port
     rbac:
       roles:
         gatus:
-          type: Role
+          type: ClusterRole
           rules:
             - apiGroups: [""]
               resources: ["configmaps", "secrets"]
               verbs: ["get", "watch", "list"]
       bindings:
         gatus:
-          type: RoleBinding
+          type: ClusterRoleBinding
           roleRef:
             identifier: *app
           subjects:
@@ -132,8 +132,6 @@ spec:
     serviceAccount:
       gatus: {}
     persistence:
-      config:
-        type: emptyDir
       config-file:
         type: configMap
         name: gatus-configmap
@@ -141,3 +139,10 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          gatus:
+            app:
+              - path: /config
+                subPath: config

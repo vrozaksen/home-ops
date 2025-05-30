@@ -56,11 +56,6 @@ spec:
       name: headlamp-admin
     clusterRoleBinding:
       create: false
-    persistentVolumeClaim:
-      enabled: true
-      accessModes: ["ReadWriteMany"]
-      size: 1Gi
-      storageClassName: ceph-block
     volumeMounts:
       - mountPath: /build/plugins
         name: headlamp-plugins

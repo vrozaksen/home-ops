@@ -29,19 +29,13 @@ spec:
                 "namespace": "network",
                 "ips": ["10.20.0.44/24"]
               }]
-        initContainers:
-          init-config:
-            image:
-              repository: public.ecr.aws/docker/library/eclipse-mosquitto
-              tag: 2.0.21
-              pullPolicy: IfNotPresent
-            command: ["/bin/sh", "-c"]
-            args: ["cp /tmp/secret/* /mosquitto/external_config/ && mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd"]
         containers:
           app:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
               tag: 2.0.21
+            env:
+              TZ: Europe/Warsaw
             resources:
               requests:
                 cpu: 10m
@@ -69,25 +63,25 @@ spec:
         ports:
           http:
             port: 1883
+    configMaps:
+      config:
+        data:
+          mosquitto.conf: |
+            allow_anonymous true
+            autosave_interval 60
+            connection_messages false
+            listener 1883
+            per_listener_settings false
+            persistence true
+            persistence_location /data
     persistence:
       data:
         existingClaim: *app
       config-file:
         type: configMap
-        name: mosquitto-configmap # overriden by kustomizeconfig
+        name: mosquitto
         advancedMounts:
           mosquitto:
             app:
               - path: /mosquitto/config/mosquitto.conf
                 subPath: mosquitto.conf
-      secret-file:
-        type: secret
-        name: mosquitto
-        advancedMounts:
-          mosquitto:
-            init-config:
-              - path: /tmp/secret
-      external-config:
-        type: emptyDir
-        globalMounts:
-          - path: /mosquitto/external_config

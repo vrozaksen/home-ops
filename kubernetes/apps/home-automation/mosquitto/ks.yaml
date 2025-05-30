@@ -8,8 +8,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../components/gatus/guarded
   dependsOn:
     - name: multus-networks
       namespace: network
@@ -22,7 +20,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home
   prune: true
   retryInterval: 2m
   sourceRef:

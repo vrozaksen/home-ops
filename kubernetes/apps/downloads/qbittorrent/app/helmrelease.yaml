@@ -150,10 +150,12 @@ spec:
         advancedMounts:
           qbittorrent:
             app:
-              - path: /addons
-                subPath: addons
               - path: /tmp
                 subPath: tmp
+      addons:
+        type: emptyDir
+        globalMounts:
+          - path: /addons
       anime:
         type: nfs
         server: aincrad.home.vzkn.eu

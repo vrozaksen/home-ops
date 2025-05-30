@@ -71,7 +71,7 @@ spec:
       tmpfs:
         type: emptyDir
         advancedMounts:
-          radarr:
+          recyclarr:
             app:
               - path: /config/logs
                 subPath: logs

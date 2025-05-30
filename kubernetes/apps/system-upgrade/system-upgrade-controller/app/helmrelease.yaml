@@ -69,9 +69,17 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
+    rbac:
+      bindings:
+        system-upgrade-controller:
+          type: ClusterRoleBinding
+          roleRef:
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+            - identifier: *app
     serviceAccount:
-      system-upgrade-controller:
-        enabled: true
+      system-upgrade-controller: {}
     persistence:
       tmp:
         type: emptyDir

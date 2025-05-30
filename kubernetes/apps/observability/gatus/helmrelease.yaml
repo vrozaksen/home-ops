@@ -81,6 +81,8 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 256Mi
+        serviceAccount:
+          identifier: *app
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -113,8 +115,8 @@ spec:
               - name: *app
                 port: *port
     serviceAccount:
-      create: true
-      name: *app
+      gatus:
+        enabled: true
     persistence:
       config:
         type: emptyDir

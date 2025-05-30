@@ -48,6 +48,8 @@ spec:
               capabilities: { drop: ["ALL"] }
               seccompProfile:
                 type: RuntimeDefault
+        serviceAccount:
+          identifier: *app
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -68,8 +70,8 @@ spec:
           operator: Exists
           effect: NoSchedule
     serviceAccount:
-      create: true
-      name: *app
+      system-upgrade-controller:
+        enabled: true
     persistence:
       tmp:
         type: emptyDir

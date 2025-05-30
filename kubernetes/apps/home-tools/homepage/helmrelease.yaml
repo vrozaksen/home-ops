@@ -39,6 +39,8 @@ spec:
                 memory: 200M
               limits:
                 memory: 2G
+        serviceAccount:
+          identifier: *app
     service:
       app:
         controller: *app
@@ -74,5 +76,5 @@ spec:
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
     serviceAccount:
-      create: true
-      name: *app
+      homepage:
+        enabled: true

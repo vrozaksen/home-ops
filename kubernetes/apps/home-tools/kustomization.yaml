@@ -5,12 +5,12 @@ kind: Kustomization
 namespace: home-tools
 components:
   - ../../components/common
-resources: []
-  # - ./atuin/ks.yaml
-  # # - ./homepage/ks.yaml # TODO
-  # # - ./mealie/ks.yaml
-  # - ./miniflux/ks.yaml
-  # # - ./outline/ks.yaml
-  # # - ./paperless/ks.yaml
-  # - ./radicale/ks.yaml
-  # # - ./reactive-resume/ks.yaml
+resources:
+  - ./atuin/ks.yaml
+  # - ./homepage/ks.yaml # TODO
+  # - ./mealie/ks.yaml
+  - ./miniflux/ks.yaml
+  # - ./outline/ks.yaml
+  - ./paperless/ks.yaml
+  - ./radicale/ks.yaml
+  # - ./reactive-resume/ks.yaml

@@ -5,10 +5,10 @@ kind: Kustomization
 namespace: self-hosted
 components:
   - ../../components/common
-resources: []
-  # # - ./collabora/ks.yaml
-  # - ./free-game-notifier/ks.yaml
-  # - ./it-tools/ks.yaml
-  # - ./mumble/ks.yaml
-  # - ./ocis/ks.yaml
-  # - ./zipline/ks.yaml
+resources:
+  # - ./collabora/ks.yaml
+  - ./free-game-notifier/ks.yaml
+  - ./it-tools/ks.yaml
+  - ./mumble/ks.yaml
+  - ./ocis/ks.yaml
+  - ./zipline/ks.yaml

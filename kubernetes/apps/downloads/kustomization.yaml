@@ -5,16 +5,16 @@ kind: Kustomization
 namespace: downloads
 components:
   - ../../components/common
-resources:
-  # - ./bazarr/ks.yaml
-  - ./flaresolverr/ks.yaml
-  # - ./lidarr/ks.yaml
-  # - ./metube/ks.yaml
-  - ./prowlarr/ks.yaml
-  - ./qbittorrent/ks.yaml
-  - ./radarr/ks.yaml
-  - ./radarr-anime/ks.yaml
-  - ./recyclarr/ks.yaml
-  - ./sonarr/ks.yaml
-  - ./sonarr-anime/ks.yaml
-  - ./webhook/ks.yaml
+resources: []
+  # # - ./bazarr/ks.yaml
+  # - ./flaresolverr/ks.yaml
+  # # - ./lidarr/ks.yaml
+  # # - ./metube/ks.yaml
+  # - ./prowlarr/ks.yaml
+  # - ./qbittorrent/ks.yaml
+  # - ./radarr/ks.yaml
+  # - ./radarr-anime/ks.yaml
+  # - ./recyclarr/ks.yaml
+  # - ./sonarr/ks.yaml
+  # - ./sonarr-anime/ks.yaml
+  # - ./webhook/ks.yaml

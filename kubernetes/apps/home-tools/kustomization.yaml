@@ -12,5 +12,5 @@ resources:
   - ./miniflux/ks.yaml
   # - ./outline/ks.yaml
   - ./paperless/ks.yaml
-  - ./radicale/ks.yaml
+  #- ./radicale/ks.yaml
   # - ./reactive-resume/ks.yaml

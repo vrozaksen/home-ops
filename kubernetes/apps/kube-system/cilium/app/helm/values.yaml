@@ -22,6 +22,8 @@ cni:
   exclusive: false
 dashboards:
   enabled: true
+  annotations:
+    grafana_folder: Network
 devices: bond+ enp1s0 eno1 # backup
 enableIPv4BIGTCP: true
 endpointRoutes:

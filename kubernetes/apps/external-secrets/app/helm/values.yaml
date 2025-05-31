@@ -22,6 +22,8 @@ serviceMonitor:
   interval: 1m
 grafanaDashboard:
   enabled: true
+  annotations:
+    grafana_folder: Data
 reportsController:
   serviceMonitor:
     enabled: true

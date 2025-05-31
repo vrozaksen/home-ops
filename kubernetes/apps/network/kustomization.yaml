@@ -6,9 +6,9 @@ namespace: network
 components:
   - ../../components/common
 resources:
-  #- ./cloudflare-ddns/ks.yaml
+  - ./cloudflare-ddns/ks.yaml
   - ./cloudflare-dns/ks.yaml
   - ./cloudflare-tunnel/ks.yaml
-  #- ./echo/ks.yaml
+  - ./echo/ks.yaml
   - ./mikrotik-dns/ks.yaml
-  #- ./multus/ks.yaml
+  - ./multus/ks.yaml

@@ -34,8 +34,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/home-operations/emby
-              tag: 4.8.11.0@sha256:48cd01b20e49548aee694fcdeff273fc623f0ac83c31ac99d55d31c22b2177a6
+              repository: ghcr.io/vzkn-labs/emby-beta
+              tag: 4.9.1.0@sha256:4e32b525527b271795e82f3a13986ab737fcce115fc564cf78a262094d3ec15f
             env:
               TZ: Europe/Warsaw
             securityContext:

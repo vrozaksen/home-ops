@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vzkn-labs/emby-beta
-              tag: 4.9.1.0@sha256:4e32b525527b271795e82f3a13986ab737fcce115fc564cf78a262094d3ec15f
+              tag: 4.9.1@sha256:4e32b525527b271795e82f3a13986ab737fcce115fc564cf78a262094d3ec15f
             env:
               TZ: Europe/Warsaw
             securityContext:

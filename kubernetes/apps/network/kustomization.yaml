@@ -8,7 +8,7 @@ components:
 resources:
   - ./cloudflare-ddns/ks.yaml
   - ./cloudflare-dns/ks.yaml
-  # - ./cloudflare-tunnel/ks.yaml
+  - ./cloudflare-tunnel/ks.yaml
   - ./echo/ks.yaml
   - ./mikrotik-dns/ks.yaml
   - ./multus/ks.yaml

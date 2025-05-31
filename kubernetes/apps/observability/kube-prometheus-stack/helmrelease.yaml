@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1beta2.json
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
@@ -36,11 +36,12 @@ spec:
       upgradeJob:
         enabled: true
         forceConflicts: true
+    cleanPrometheusOperatorObjectNames: true
     alertmanager:
       route:
         main:
           enabled: true
-          hostnames: ["${ALERTMANAGER_SUBDOMAIN}.jory.dev"]
+          hostnames: ["${ALERTMANAGER_SUBDOMAIN}.vzkn.eu"]
           parentRefs:
             - name: internal
               namespace: kube-system
@@ -50,30 +51,66 @@ spec:
           name: alertmanager
           global:
             resolveTimeout: 5m
-        externalUrl: https://${ALERTMANAGER_SUBDOMAIN}.jory.dev
+        externalUrl: https://${ALERTMANAGER_SUBDOMAIN}.vzkn.eu
         storage:
           volumeClaimTemplate:
             spec:
-              storageClassName: ${STORAGECLASS}
+              storageClassName: ceph-block
               resources:
                 requests:
                   storage: 1Gi
-    grafana:
-      enabled: false
-      forceDeployDashboards: true
-      sidecar:
-        dashboards:
-          annotations:
-            grafana_folder: Kubernetes
-          multicluster:
-            etcd:
-              enabled: true
     kubeEtcd:
       service:
         selector:
           component: kube-apiserver # etcd runs on control plane nodes
     kubeProxy:
       enabled: false
+    prometheus:
+      route:
+        main:
+          enabled: true
+          hostnames: ["${GATUS_SUBDOMAIN}.vzkn.eu"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
+      prometheusSpec:
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        scrapeConfigSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        enableAdminAPI: true
+        walCompression: true
+        enableFeatures:
+          - memory-snapshot-on-shutdown
+        retention: 30d
+        retentionSize: 70GB
+        externalLabels:
+          cluster: main
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            memory: 3000Mi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              resources:
+                requests:
+                  storage: 75Gi
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+      prometheus:
+        monitor:
+          enabled: true
+          relabelings:
+            - action: replace
+              regex: (.*)
+              replacement: $1
+              sourceLabels: ["__meta_kubernetes_pod_node_name"]
+              targetLabel: kubernetes_node
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
       metricLabelsAllowlist:
@@ -89,17 +126,16 @@ spec:
               replacement: $1
               sourceLabels: ["__meta_kubernetes_pod_node_name"]
               targetLabel: kubernetes_node
-    prometheus-node-exporter:
-      fullnameOverride: node-exporter
-      prometheus:
-        monitor:
-          enabled: true
-          relabelings:
-            - action: replace
-              regex: (.*)
-              replacement: $1
-              sourceLabels: ["__meta_kubernetes_pod_node_name"]
-              targetLabel: kubernetes_node
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      sidecar:
+        dashboards:
+          annotations:
+            grafana_folder: Kubernetes
+          multicluster:
+            etcd:
+              enabled: true
     additionalPrometheusRulesMap:
       dockerhub-rules:
         groups:
@@ -108,7 +144,7 @@ spec:
               - alert: DockerhubRateLimitRisk
                 annotations:
                   summary: Kubernetes cluster Dockerhub rate limit risk
-                expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 50
+                expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 40
                 labels:
                   severity: critical
       oom-rules:
@@ -131,44 +167,3 @@ spec:
                 expr: node_zfs_zpool_state{state!="online"} > 0
                 labels:
                   severity: critical
-    prometheus:
-      route:
-        main:
-          enabled: true
-          hostnames: ["${GATUS_SUBDOMAIN:=${APP}}.jory.dev"]
-          parentRefs:
-            - name: internal
-              namespace: kube-system
-              sectionName: https
-      prometheusSpec:
-        externalLabels:
-          cluster: ${CLUSTER}
-        resources:
-          requests:
-            cpu: 100m
-          limits:
-            memory: 3000Mi
-        image:
-          registry: docker.io
-          repository: prompp/prompp
-          tag: 2.53.2-0.2.5
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 64535
-          runAsGroup: 64535
-          fsGroup: 64535
-        podMonitorSelectorNilUsesHelmValues: false
-        probeSelectorNilUsesHelmValues: false
-        ruleSelectorNilUsesHelmValues: false
-        scrapeConfigSelectorNilUsesHelmValues: false
-        serviceMonitorSelectorNilUsesHelmValues: false
-        retention: 30d
-        retentionSize: ${PVC_CAPACITY}GB
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: ${STORAGECLASS}
-              resources:
-                requests:
-                  storage: ${PVC_CAPACITY}Gi
-    cleanPrometheusOperatorObjectNames: true

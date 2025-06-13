@@ -7,7 +7,7 @@ metadata:
 spec:
   parentRefs:
     - name: external
-      namespace: network
+      namespace: kube-system
       sectionName: https
   hostnames: ["cloud.vzkn.eu"]
   rules:

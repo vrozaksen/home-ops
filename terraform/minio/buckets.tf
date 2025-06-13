@@ -1,5 +1,6 @@
 locals {
   buckets = [
+    "nextcloud",
     "ocis",
     "outline",
     "postgresql",

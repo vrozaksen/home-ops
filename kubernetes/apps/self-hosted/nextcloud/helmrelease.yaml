@@ -255,7 +255,7 @@ spec:
         runAsUser: 1000
         runAsGroup: 100
         runAsNonRoot: true
-        readOnlyRootFilesystem: true
+        readOnlyRootFilesystem: false
 
     internalDatabase:
       enabled: false

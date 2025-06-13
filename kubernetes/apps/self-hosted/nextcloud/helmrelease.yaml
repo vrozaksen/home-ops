@@ -35,9 +35,9 @@ spec:
   values:
     image:
       repository: public.ecr.aws/docker/library/nextcloud
-      flavor: fpm-alpine
+      # flavor: fpm-alpine
       # renovate: datasource=docker depName=nextcloud
-      tag: 31.0.5-fpm-alpine
+      tag: 31.0.5
       pullPolicy: IfNotPresent
 
     nameOverride: ""
@@ -238,7 +238,7 @@ spec:
         readOnlyRootFilesystem: false
 
     nginx:
-      enabled: true
+      enabled: false
       image:
         repository: public.ecr.aws/nginx/nginx
         tag: 1.28.0@sha256:d05f253bbd7e7775260835f038c9a389140350699c88c7f0fbbb44a44db71668

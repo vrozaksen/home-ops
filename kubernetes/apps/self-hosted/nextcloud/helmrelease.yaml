@@ -239,6 +239,23 @@ spec:
 
     nginx:
       enabled: true
+      image:
+        repository: public.ecr.aws/nginx/nginx
+        tag: 1.28.0@sha256:d05f253bbd7e7775260835f038c9a389140350699c88c7f0fbbb44a44db71668
+        pullPolicy: IfNotPresent
+      config:
+        default: true
+      resources:
+        requests:
+          cpu: 50m
+          memory: 20Mi
+        limits:
+          memory: 100Mi
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 100
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
 
     internalDatabase:
       enabled: false

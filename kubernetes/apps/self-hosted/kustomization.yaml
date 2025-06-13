@@ -10,6 +10,6 @@ resources:
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
-  - ./nextcloud/ks.yaml
+  # - ./nextcloud/ks.yaml
   # - ./ocis/ks.yaml
   - ./zipline/ks.yaml

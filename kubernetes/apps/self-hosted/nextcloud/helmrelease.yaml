@@ -20,7 +20,7 @@ spec:
   chart:
     spec:
       chart: nextcloud
-      version: 6.6.6
+      version: 6.6.10
       sourceRef:
         kind: HelmRepository
         name: nextcloud-charts
@@ -38,7 +38,7 @@ spec:
     ##
     image:
       repository: nextcloud
-      tag: 31.0.6-fpm@sha256:eb37f58646a901dc7727cf448cae36daaefaba79de33b5058dab79aa4c04aefb
+      tag: 31.0.6-fpm-alpine@sha256:eb37f58646a901dc7727cf448cae36daaefaba79de33b5058dab79aa4c04aefb
       pullPolicy: IfNotPresent
 
     nameOverride: ""

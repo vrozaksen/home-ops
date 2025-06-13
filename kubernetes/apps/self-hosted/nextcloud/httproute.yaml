@@ -1,0 +1,154 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nextcloud
+spec:
+  parentRefs:
+    - name: external
+      namespace: network
+      sectionName: https
+  hostnames: ["cloud.vzkn.eu"]
+  rules:
+    - backendRefs: &backendRef
+        - name: nextcloud
+          port: 8080
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+        - path:
+            type: Exact
+            value: /robots.txt
+    # Redirect carddav
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/carddav
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /remote.php/dav
+            statusCode: 301
+    # Redirect caldav
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/caldav
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /remote.php/dav
+            statusCode: 301
+    # rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/webfinger
+      filters:
+        - type: URLRewrite # TODO do better after https://github.com/kubernetes-sigs/gateway-api/issues/2177
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /index.php/.well-known/webfinger
+      backendRefs: *backendRef
+    # rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/nodeinfo
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /index.php/.well-known/nodeinfo
+      backendRefs: *backendRef
+    # rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/host-meta
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /public.php?service=host-meta
+      backendRefs: *backendRef
+    # rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/host-meta.json
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /public.php?service=host-meta-json
+      backendRefs: *backendRef
+    # Block restricted paths
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /build
+        - path:
+            type: PathPrefix
+            value: /tests
+        - path:
+            type: PathPrefix
+            value: /config
+        - path:
+            type: PathPrefix
+            value: /lib
+        - path:
+            type: PathPrefix
+            value: /3rdparty
+        - path:
+            type: PathPrefix
+            value: /templates
+        - path:
+            type: PathPrefix
+            value: /data
+        - path:
+            type: PathPrefix
+            value: /autotest
+        - path:
+            type: PathPrefix
+            value: /occ
+        - path:
+            type: PathPrefix
+            value: /issue
+        - path:
+            type: PathPrefix
+            value: /indie
+        - path:
+            type: PathPrefix
+            value: /db_
+        - path:
+            type: PathPrefix
+            value: /console
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: vade-retro-satanas
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: vade-retro-satanas
+spec:
+  directResponse:
+    contentType: text/plain
+    statusCode: 404
+    body:
+      type: Inline
+      inline: "Vade Retro, Satanas!"

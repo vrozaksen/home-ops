@@ -67,10 +67,10 @@ spec:
         smtpUsernameKey: SMTP_USERNAME
         smtpPasswordKey: SMTP_PASSWORD
         smtpHostKey: SMTP_HOST
-      trustedDomains:
-        - sso.vzkn.eu
-        - cloud.vzkn.eu
-        - vzkn.eu
+      # trustedDomains:
+      #   - sso.vzkn.eu
+      #   - cloud.vzkn.eu
+      #   - vzkn.eu
       mail:
         enabled: true
         fromAddress: admin@vzkn.eu

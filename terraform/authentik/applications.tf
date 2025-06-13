@@ -388,8 +388,8 @@ module "oauth2-open-webui" {
   auth_groups        = [authentik_group.home.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["open_webui"].client_id
-  client_secret      = local.parsed_secrets["open_webui"].client_secret
+  client_id          = local.parsed_secrets["open-webui"].client_id
+  client_secret      = local.parsed_secrets["open-webui"].client_secret
   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
 }
 

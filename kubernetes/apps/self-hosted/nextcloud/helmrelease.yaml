@@ -363,7 +363,7 @@ spec:
       maxPods: 10
 
     imaginary:
-      enabled: true
+      enabled: false
       replicaCount: 1
       image:
         registry: docker.io

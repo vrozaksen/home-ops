@@ -225,37 +225,20 @@ spec:
               name: nextcloud-secret
               key: NEXTCLOUD_OAUTH_CLIENT_ID
 
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        readOnlyRootFilesystem: false
+      # securityContext:
+      #   runAsUser: 1000
+      #   runAsGroup: 100
+      #   runAsNonRoot: true
+      #   readOnlyRootFilesystem: false
 
-      podSecurityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        readOnlyRootFilesystem: false
+      # podSecurityContext:
+      #   runAsUser: 1000
+      #   runAsGroup: 100
+      #   runAsNonRoot: true
+      #   readOnlyRootFilesystem: false
 
     nginx:
       enabled: false
-      image:
-        repository: public.ecr.aws/nginx/nginx
-        tag: 1.28.0@sha256:d05f253bbd7e7775260835f038c9a389140350699c88c7f0fbbb44a44db71668
-        pullPolicy: IfNotPresent
-      config:
-        default: true
-      resources:
-        requests:
-          cpu: 50m
-          memory: 20Mi
-        limits:
-          memory: 100Mi
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        readOnlyRootFilesystem: false
 
     internalDatabase:
       enabled: false
@@ -334,8 +317,8 @@ spec:
 
     cronjob:
       enabled: true
-      securityContext:
-        runAsGroup: 100
+      # securityContext:
+      #   runAsGroup: 100
 
     persistence:
       enabled: true
@@ -380,12 +363,12 @@ spec:
           cpu: 10m
           memory: 1Gi
 
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        allowPrivilegeEscalation: false
-        capabilities: { drop: ["ALL"] }
+      # securityContext:
+      #   runAsUser: 1000
+      #   runAsGroup: 100
+      #   runAsNonRoot: true
+      #   allowPrivilegeEscalation: false
+      #   capabilities: { drop: ["ALL"] }
 
     metrics:
       enabled: false

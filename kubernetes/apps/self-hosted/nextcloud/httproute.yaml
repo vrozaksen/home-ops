@@ -5,14 +5,15 @@ kind: HTTPRoute
 metadata:
   name: nextcloud
 spec:
+  hostnames: ["cloud.vzkn.eu"]
   parentRefs:
     - name: external
       namespace: kube-system
       sectionName: https
-  hostnames: ["cloud.vzkn.eu"]
   rules:
     - backendRefs: &backendRef
         - name: nextcloud
+          namespace: self-hosted
           port: 8080
       matches:
         - path:

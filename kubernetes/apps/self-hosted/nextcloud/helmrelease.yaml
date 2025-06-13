@@ -67,10 +67,10 @@ spec:
         smtpUsernameKey: SMTP_USERNAME
         smtpPasswordKey: SMTP_PASSWORD
         smtpHostKey: SMTP_HOST
-      # trustedDomains:
-      #   - sso.vzkn.eu
-      #   - cloud.vzkn.eu
-      #   - vzkn.eu
+      trustedDomains:
+        - sso.vzkn.eu
+        - cloud.vzkn.eu
+        - vzkn.eu
       mail:
         enabled: true
         fromAddress: admin@vzkn.eu
@@ -125,8 +125,7 @@ spec:
         smtp.config.php: true
         swift.config.php: false
         upgrade-disable-web.config.php: true
-        # -- imaginary support config
-        imaginary.config.php: false
+        imaginary.config.php: true
 
       # Extra config files created in /var/www/html/config/
       # ref: https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#multiple-config-php-file
@@ -239,7 +238,7 @@ spec:
         readOnlyRootFilesystem: false
 
     nginx:
-      enabled: false
+      enabled: true
 
     internalDatabase:
       enabled: false

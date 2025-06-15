@@ -444,7 +444,7 @@ module "oauth2-nextcloud" {
   include_claims_in_id_token   = false
   additional_property_mappings = formatlist(authentik_property_mapping_provider_scope.openid-nextcloud.id)
   sub_mode                     = "user_username"
-  redirect_uris                = ["https://cloud.${module.secret_authentik.fields["CLUSTER_DOMAIN"]}/apps/oidc_login/oidc"]
+  redirect_uris                = ["https://cloud.${var.cluster_domain}/apps/oidc_login/oidc"]
 }
 
 # module "oauth2-romm" {

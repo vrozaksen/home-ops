@@ -19,15 +19,6 @@ tasks:
       - which brew
       - test -f {{.WORKSTATION_RESOURCES_DIR}}/Brewfile
 
-  brew-update:
-    desc: Clean up brew
-    cmds:
-      - brew update
-      - brew upgrade
-      - brew autoremove
-    preconditions:
-      - which brew
-
   krew:
     desc: Set up Krew tools
     deps: [brew]

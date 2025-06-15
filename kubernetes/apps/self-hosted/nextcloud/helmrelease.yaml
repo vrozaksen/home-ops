@@ -165,6 +165,7 @@ spec:
           $CONFIG = array (
             'default_timezone' => 'Europe/Warsaw',
             'default_phone_region' => 'PL',
+            'maintenance_window_start' => 1,
           );
         sso.config.php: |-
           <?php
@@ -240,6 +241,25 @@ spec:
 
     nginx:
       enabled: true
+      config:
+        default: true
+        headers:
+          # -- HSTS settings
+          # WARNING: Only add the preload option once you read about
+          # the consequences in https://hstspreload.org/. This option
+          # will add the domain to a hardcoded list that is shipped
+          # in all major browsers and getting removed from this list
+          # could take several months.
+          # Example:
+          "Strict-Transport-Security": "max-age=15768000; includeSubDomains; preload;"
+          #"Strict-Transport-Security": ""
+          "Referrer-Policy": "no-referrer"
+          "X-Content-Type-Options": "nosniff"
+          "X-Download-Options": "noopen"
+          "X-Frame-Options": "SAMEORIGIN"
+          "X-Permitted-Cross-Domain-Policies": "none"
+          "X-Robots-Tag": "noindex, nofollow"
+          "X-XSS-Protection": "1; mode=block"
 
     internalDatabase:
       enabled: false

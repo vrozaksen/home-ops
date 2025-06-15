@@ -19,8 +19,6 @@ spec:
   values:
     controllers:
       navidrome:
-        labels:
-          nfsMount: "true"
         pod:
           securityContext:
             runAsNonRoot: true

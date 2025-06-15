@@ -11,6 +11,7 @@ spec:
   components:
     - ../../../components/dragonfly
     - ../../../components/gatus/external
+    - ../../../components/keda/nfs-scaler
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
@@ -18,6 +19,8 @@ spec:
       namespace: database
     - name: dragonfly-operator
       namespace: database
+    - name: keda
+      namespace: observability
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly

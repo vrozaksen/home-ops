@@ -10,13 +10,14 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
+    - ../../../../components/keda/nfs-scaler
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
-    - name: external-secrets-store
-      namespace: external-secrets
+    - name: keda
+      namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph
   healthCheckExprs:

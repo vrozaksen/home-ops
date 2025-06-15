@@ -10,6 +10,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/guarded
+    - ../../../components/keda/nfs-scaler
+  dependsOn:
+    - name: keda
+      namespace: observability
   interval: 1h
   path: ./kubernetes/apps/media/tdarr
   postBuild:

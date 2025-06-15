@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app mosquitto
+  name: &app mosquitto # TODO VerneMQ
 spec:
   interval: 1h
   chartRef:

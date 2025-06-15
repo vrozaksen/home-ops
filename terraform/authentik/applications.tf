@@ -436,7 +436,7 @@ module "oauth2-nextcloud" {
   description                  = "Files"
   newtab                       = true
   group                        = "Selfhosted"
-  auth_groups                  = [authentik_group.media.id]
+  auth_groups                  = [authentik_group.users.id]
   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
   client_id                    = local.parsed_secrets["nextcloud"].client_id

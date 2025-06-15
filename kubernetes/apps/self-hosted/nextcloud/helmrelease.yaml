@@ -149,6 +149,7 @@ spec:
             'trusted_proxies' => array(
               0 => '127.0.0.1',
               1 => '10.96.0.0/16',
+              2 => '10.10.0.0/24',
             ),
             'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
           );

@@ -121,20 +121,6 @@ module "proxy-bazarr" {
 #   EOT
 # }
 
-# module "proxy-homepage" {
-#   source             = "./proxy_application"
-#   name               = "Home"
-#   description        = "Homepage"
-#   icon_url           = "https://raw.githubusercontent.com/gethomepage/homepage/main/public/android-chrome-192x192.png"
-#   group              = "Selfhosted"
-#   slug               = "home"
-#   domain             = var.cluster_domain
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   auth_groups        = [authentik_group.users.id]
-# }
-
-
 ## Media
 module "oauth2-autobrr" {
   source             = "./oauth2_application"

@@ -65,7 +65,6 @@ resource "authentik_outpost" "proxyoutpost" {
     # module.proxy-lidarr.id,
     module.proxy-bazarr.id
     # module.proxy-navidrome.id,
-    # module.proxy-homepage.id
   ]
   config = jsonencode({
     authentik_host          = "https://sso.${var.cluster_domain}",

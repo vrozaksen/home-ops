@@ -64,11 +64,24 @@ groups = [group.name for group in user.ak_groups.all()]
 if user.is_superuser and "admin" not in groups:
     groups.append("admin")
 
+# Determine quota based on group membership and admin status
+quota_value = "5 GB"  # Default quota
+
+# Priority 1: Admin users get unlimited quota ("none")
+if user.is_superuser:
+    quota_value = "none"
+# Priority 2: Members of "Home" group get 50GB
+elif "Home" in groups:
+    quota_value = "50 GB"
+# Priority 3: Use custom attribute if set
+else:
+    quota_value = user.attributes.get("nextcloud_quota", user.group_attributes().get("nextcloud_quota", "5 GB"))
+
 return {
     "name": request.user.name,
     "groups": groups,
     # Set a quota by using the "nextcloud_quota" property in the user's attributes
-    "quota": user.attributes.get("nextcloudQuota",user.group_attributes().get("defaultQuota", "5 GB")),
+    "quota": quota_value,
     # To connect an existing Nextcloud user, set "nextcloud_user_id" to the Nextcloud username.
     "user_id": user.attributes.get("nextcloud_user_id", str(user.uuid)),
 }

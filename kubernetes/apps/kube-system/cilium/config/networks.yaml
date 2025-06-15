@@ -83,7 +83,7 @@ spec:
           peerAddress: 10.10.0.2
           peerConfigRef:
             name: l3-bgp-peer-config
----
+--- # TODO Remove it!
 apiVersion: v1
 kind: Service
 metadata:

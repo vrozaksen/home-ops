@@ -439,8 +439,8 @@ module "oauth2-nextcloud" {
   auth_groups                  = [authentik_group.media.id]
   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
-  client_id                    = module.secret_nextcloud.fields["OIDC_CLIENT_ID"]
-  client_secret                = module.secret_nextcloud.fields["OIDC_CLIENT_SECRET"]
+  client_id                    = local.parsed_secrets["nextcloud"].client_id
+  client_secret                = local.parsed_secrets["nextcloud"].client_secret
   include_claims_in_id_token   = false
   additional_property_mappings = formatlist(authentik_property_mapping_provider_scope.openid-nextcloud.id)
   sub_mode                     = "user_username"

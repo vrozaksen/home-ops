@@ -51,13 +51,13 @@ data "authentik_property_mapping_provider_scope" "scopes" {
   ]
 }
 
-# resource "authentik_property_mapping_provider_scope" "openid-nextcloud" {
-#   name       = "OAuth Mapping: OpenID 'nextcloud'"
-#   scope_name = "nextcloud"
-#   expression = <<EOF
-# return {
-#   "nextcloudAdmin": user.attributes.get("nextcloudAdmin"),
-#   "nextcloudQuota": user.attributes.get("nextcloudQuota",user.group_attributes().get("defaultQuota", "100 MB"))
-# }
-# EOF
-# }
+resource "authentik_property_mapping_provider_scope" "openid-nextcloud" {
+  name       = "OAuth Mapping: OpenID 'nextcloud'"
+  scope_name = "nextcloud"
+  expression = <<EOF
+return {
+  "nextcloudAdmin": user.attributes.get("nextcloudAdmin"),
+  "nextcloudQuota": user.attributes.get("nextcloudQuota",user.group_attributes().get("defaultQuota", "5000 MB"))
+}
+EOF
+}

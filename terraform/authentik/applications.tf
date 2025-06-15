@@ -7,6 +7,7 @@ locals {
     "kyoo",
     "mealie",
     "miniflux",
+    "nextcloud",
     "ocis",
     "outline",
     "paperless",

@@ -31,6 +31,11 @@ resource "authentik_group" "infrastructure" {
   is_superuser = false
 }
 
+resource "authentik_group" "nextcloudAdmin" {
+  name         = "nextcloudAdmin"
+  is_superuser = false
+}
+
 # data "bitwarden_secret" "discord" {
 #   key = "discord"
 # }

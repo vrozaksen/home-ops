@@ -32,6 +32,11 @@ spec:
       retries: 3
   values:
     fullnameOverride: blackbox-exporter
+    securityContext:
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        add: ["NET_RAW"]
     config:
       modules:
         http_2xx:
@@ -43,10 +48,19 @@ spec:
             preferred_ip_protocol: ip4
         icmp:
           prober: icmp
-          timeout: 30s
+          timeout: 5s
           icmp:
             preferred_ip_protocol: ip4
-
+        tcp_connect:
+          prober: tcp
+          timeout: 5s
+          tcp:
+            preferred_ip_protocol: ipv4
+    serviceMonitor:
+      enabled: true
+      defaults:
+        interval: 1m
+        scrapeTimeout: 10s
     prometheusRule:
       enabled: true
       rules:
@@ -58,26 +72,3 @@ spec:
           annotations:
             summary: |-
               The host {{ $labels.target }} is currently unreachable
-    pspEnabled: false
-    securityContext:
-      capabilities:
-        add: ["NET_RAW"]
-    podSecurityContext:
-      sysctls:
-        - name: net.ipv4.ping_group_range
-          value: "0 2147483647"
-    serviceMonitor:
-      enabled: true
-      defaults:
-        interval: 1m
-      targets:
-        - { name: &name aincrad.home.vzkn.eu, module: icmp, url: *name }
-        - { name: &name router.home.vzkn.eu, module: icmp, url: *name }
-        - { name: &name switch.home.vzkn.eu, module: icmp, url: *name }
-        - { name: &name pi.home.vzkn.eu, module: icmp, url: *name }
-    resources:
-      requests:
-        cpu: 10m
-        memory: 128Mi
-      limits:
-        memory: 128Mi

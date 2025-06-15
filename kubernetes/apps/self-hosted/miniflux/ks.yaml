@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app mealie
+  name: &app miniflux
 spec:
   commonMetadata:
     labels:
@@ -11,7 +11,6 @@ spec:
   components:
     - ../../../components/gatus/external
     - ../../../components/postgres
-    - ../../../components/volsync
   interval: 1h
   dependsOn:
     - name: crunchy-postgres-operator
@@ -23,19 +22,16 @@ spec:
       kind: PostgresCluster
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
-  path: ./kubernetes/apps/home-tools/mealie
+  path: ./kubernetes/apps/self-hosted/miniflux
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      GATUS_GROUP: home-tools
-      GATUS_PATH: /healthcheck
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-tools
+  targetNamespace: self-hosted
   timeout: 5m
   wait: false

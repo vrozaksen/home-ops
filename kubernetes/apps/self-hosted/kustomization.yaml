@@ -6,10 +6,15 @@ namespace: self-hosted
 components:
   - ../../components/common
 resources:
+  - ./atuin/ks.yaml
   # - ./collabora/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
+  # - ./mealie/ks.yaml
+  - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   - ./nextcloud/ks.yaml
   # - ./ocis/ks.yaml
+  - ./paperless/ks.yaml
+  # - ./reactive-resume/ks.yaml
   - ./zipline/ks.yaml

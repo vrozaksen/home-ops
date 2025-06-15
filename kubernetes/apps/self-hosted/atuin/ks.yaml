@@ -3,14 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app reactive-resume
+  name: &app atuin
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/gatus/external
+    - ../../../components/gatus/guarded
     - ../../../components/postgres
+  interval: 1h
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
@@ -19,19 +20,17 @@ spec:
       kind: PostgresCluster
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
-  interval: 1h
-  path: ./kubernetes/apps/home-tools/reactive-resume
+  path: ./kubernetes/apps/self-hosted/atuin
   postBuild:
     substitute:
-      APP: rresume
-      GATUS_SUBDOMAIN: rr
-      GATUS_GROUP: home-tools
+      APP: *app
+      GATUS_SUBDOMAIN: sh
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-tools
+  targetNamespace: self-hosted
   timeout: 5m
   wait: false

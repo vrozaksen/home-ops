@@ -10,13 +10,6 @@ cluster:
       bind-address: 0.0.0.0
   coreDNS:
     disabled: true
-  discovery:
-    enabled: true
-    registries:
-      kubernetes:
-        disabled: true
-      service:
-        disabled: false
   etcd:
     advertisedSubnets: ["10.10.0.0/24"]
     extraArgs:

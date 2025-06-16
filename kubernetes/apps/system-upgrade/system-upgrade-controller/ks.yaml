@@ -9,6 +9,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: *namespace
   interval: 1h
   path: ./kubernetes/apps/system-upgrade/system-upgrade-controller/app
   prune: true
@@ -19,7 +24,6 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  wait: true
 ---
 # yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -27,8 +31,6 @@ kind: Kustomization
 metadata:
   name: &app system-upgrade-controller-plans
   namespace: &namespace system-upgrade
-  labels:
-    substitution.flux/enabled: false
 spec:
   commonMetadata:
     labels:
@@ -38,6 +40,10 @@ spec:
       namespace: system-upgrade
   interval: 1h
   path: ./kubernetes/apps/system-upgrade/system-upgrade-controller/plans
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: versions
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -47,10 +53,3 @@ spec:
   targetNamespace: *namespace
   timeout: 5m
   wait: false
-  postBuild:
-    substitute:
-      TALOS_SCHEMATIC_ID: 59fbb820a54701d6aacf45e8f65adeba13a0ee2009cbca30e5b1ae6f4155e581
-      # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-      KUBERNETES_VERSION: v1.33.1
-      # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-      TALOS_VERSION: v1.10.4

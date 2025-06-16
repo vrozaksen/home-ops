@@ -122,14 +122,14 @@ spec:
           $CONFIG = array (
             "davstorage.request_timeout" => 200,
           );
-        # logging.config.php: |-
-        #   <?php
-        #   $CONFIG = array (
-        #     'log_type' => 'file',
-        #     'logfile' => 'nextcloud.log',
-        #     'loglevel' => 0,
-        #     'logdateformat' => 'F d, Y H:i:s'
-        #     );
+        logging.config.php: |-
+          <?php
+          $CONFIG = array (
+            'log_type' => 'file',
+            'logfile' => 'nextcloud.log',
+            'loglevel' => 0,
+            'logdateformat' => 'F d, Y H:i:s'
+            );
         proxy.config.php: |-
           <?php
           $CONFIG = array (

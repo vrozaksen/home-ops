@@ -35,7 +35,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home
+      GATUS_SUBDOMAIN: chat
   prune: true
   retryInterval: 2m
   sourceRef:

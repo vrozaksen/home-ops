@@ -25,6 +25,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: sh
+      GATUS_GROUP: infrastructure
   prune: true
   retryInterval: 2m
   sourceRef:

@@ -19,8 +19,6 @@ spec:
   values:
     controllers:
       emby:
-        labels:
-          nfsMount: "true" # TODO Keda
         pod:
           securityContext:
             runAsNonRoot: true

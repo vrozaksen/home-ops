@@ -24,7 +24,7 @@ spec:
   staticConfigs:
     - targets:
         - aincrad.home.vzkn.eu:9633
-        - pi.home.vzkn.eu:9633
+        # - pi.home.vzkn.eu:9633
   metricsPath: /metrics
   relabelings:
     - action: replace

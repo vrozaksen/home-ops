@@ -9,8 +9,6 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: multus-networks
-      namespace: network
     - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster

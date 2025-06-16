@@ -203,7 +203,7 @@ function apply_helm_releases() {
 }
 
 function main() {
-	check_env KUBECONFIG KUBERNETES_VERSION ROOK_DISK TALOS_VERSION
+	check_env KUBECONFIG ROOK_DISK
 	check_cli helmfile jq kubectl kustomize minijinja-cli bws talosctl yq
 
 	if ! bws project list &>/dev/null; then

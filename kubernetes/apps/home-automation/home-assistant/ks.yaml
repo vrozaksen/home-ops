@@ -14,8 +14,6 @@ spec:
   dependsOn:
     - name: mosquitto
       namespace: home-automation
-    - name: multus-networks
-      namespace: network
     - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster

@@ -112,7 +112,7 @@ spec:
         smtp.config.php: true
         swift.config.php: false
         upgrade-disable-web.config.php: true
-        imaginary.config.php: true
+        imaginary.config.php: false
 
       # Extra config files created in /var/www/html/config/
       # ref: https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#multiple-config-php-file
@@ -135,8 +135,9 @@ spec:
           $CONFIG = array (
             'trusted_proxies' => array(
               0 => '127.0.0.1',
-              1 => '10.96.0.0/16',
-              2 => '10.10.0.0/24',
+              1 => '10.69.0.0/16',
+              2 => '10.96.0.0/16',
+              3 => '10.10.0.0/24',
             ),
             'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
           );
@@ -385,7 +386,7 @@ spec:
       maxPods: 10
 
     imaginary:
-      enabled: true
+      enabled: false
       replicaCount: 1
       image:
         registry: docker.io

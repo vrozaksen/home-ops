@@ -24,6 +24,10 @@ spec:
         type: statefulset
         strategy: RollingUpdate
         replicas: 2
+        pod:
+          securityContext:
+            runAsUser: 10000
+            runAsNonRoot: true
         statefulset:
           serviceName:
             identifier: headless
@@ -87,13 +91,6 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 100
-        fsGroup: 100
-        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         primary: true

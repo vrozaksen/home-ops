@@ -136,6 +136,16 @@ spec:
             'overwriteprotocol' => 'https',
             'allow_local_remote_servers' => true
           );
+        postgres.config.php: |-
+          <?php
+          $CONFIG = array (
+            'dbtype' => 'pgsql',
+            'dbhost' => getenv('POSTGRESQL_HOST'),
+            'dbport' => '5432',
+            'dbuser' => getenv('POSTGRESQL_USER'),
+            'dbpassword' => getenv('S3_ACCESS_KEY'),
+            'dbname' => getenv('POSTGRESQL_NAME'),
+          );
         misc.config.php: |-
           <?php
           $CONFIG = array (
@@ -229,6 +239,17 @@ spec:
             secretKeyRef:
               name: *secret
               key: S3_SECRET_KEY
+        - name: POSTGRESQL_HOST
+          value: nextcloud-pgbouncer.self-hosted.svc
+        - name: POSTGRESQL_USER
+          value: *app
+        - name: POSTGRESQL_NAME
+          value: *app
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-pguser-nextcloud
+              key: password
 
       securityContext:
         runAsUser: 1000
@@ -399,17 +420,6 @@ spec:
               }
           }
 
-    externalDatabase:
-      enabled: true
-      type: postgresql
-      existingSecret:
-        enabled: true
-        secretName: nextcloud-pguser-nextcloud
-        usernameKey: user
-        passwordKey: password
-        hostKey: pgbouncer-host
-        databaseKey: dbname
-
     ##
     ## Collabora chart configuration
     ## for more options see https://github.com/CollaboraOnline/online/tree/master/kubernetes/helm/collabora-online
@@ -539,6 +549,8 @@ spec:
         capabilities: { drop: ["ALL"] }
 
     internalDatabase:
+      enabled: false
+    externalDatabase:
       enabled: false
     redis:
       enabled: false

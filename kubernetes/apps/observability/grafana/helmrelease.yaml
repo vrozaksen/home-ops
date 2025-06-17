@@ -222,6 +222,13 @@ spec:
         crunchy-query-statistics:
           url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/query_statistics.json
           datasource: Prometheus
+        vernemq:
+          # renovate: dashboardName="VerneMQ Cluster"
+          gnetId: 23485
+          revision: 2
+          datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
       flux:
         flux-cluster:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json

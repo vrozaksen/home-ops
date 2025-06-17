@@ -119,6 +119,11 @@ spec:
         existingClaim: nextcloud-data
         globalMounts:
           - path: /var/www/html/data
+      phpconf:
+        type: emptyDir
+        globalMounts:
+          - path: /usr/local/etc/php/conf.d/redis-session.ini
+            subPath: redis-session.ini
       configs:
         type: configMap
         name: nextcloud-configmap

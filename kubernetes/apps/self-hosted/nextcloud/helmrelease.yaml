@@ -1,30 +1,14 @@
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-  name: nextcloud-charts
-  namespace: self-hosted
-spec:
-  interval: 2h
-  url: https://nextcloud.github.io/helm/
-  timeout: 3m
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app nextcloud
 spec:
   interval: 1h
-  chart:
-    spec:
-      chart: nextcloud
-      version: 6.6.10
-      sourceRef:
-        kind: HelmRepository
-        name: nextcloud-charts
-        namespace: self-hosted
+  chartRef:
+    kind: OCIRepository
+    name: app-template
   install:
     remediation:
       retries: -1
@@ -33,395 +17,118 @@ spec:
     remediation:
       retries: 3
   values:
-    image:
-      repository: public.ecr.aws/docker/library/nextcloud
-      flavor: fpm-alpine
-      # renovate: datasource=docker depName=nextcloud
-      tag: 31.0.6-fpm-alpine
-      pullPolicy: IfNotPresent
-    deploymentAnnotations:
-      reloader.stakater.com/auto: "true"
-    replicaCount: 1
-    phpClientHttpsFix:
-      enabled: true
-      protocol: https
-    nextcloud:
-      host: cloud.vzkn.eu
-      existingSecret:
-        enabled: true
-        secretName: &secret nextcloud-secret
-        usernameKey: NEXTCLOUD_ADMIN_USER
-        passwordKey: NEXTCLOUD_ADMIN_PASS
-        smtpUsernameKey: SMTP_USERNAME
-        smtpPasswordKey: SMTP_PASSWORD
-        smtpHostKey: SMTP_HOST
-      update: 0
-      trustedDomains:
-        - sso.vzkn.eu
-        - cloud.vzkn.eu
-        - vzkn.eu
-      mail:
-        enabled: true
-        fromAddress: admin
-        domain: vzkn.eu
-        smtp:
-          secure: none
-          port: 587
-          authtype: LOGIN
-
-      ## PHP Configuration files
-      # Will be injected in /usr/local/etc/php/conf.d for apache image and in /usr/local/etc/php-fpm.d when nginx.enabled: true
-      phpConfigs:
-        custom.config.php: |
-          <?php
-            $CONFIG = array(
-              "check_data_directory_permissions"=> false, # fix data directory permissions error
-              "trusted_domains" => array (
-                $_ENV["NEXTCLOUD_TRUSTED_DOMAINS"], # fix probes 400 error
-              ),
-            );
-        uploadLimit.ini: |
-          upload_max_filesize = 16G
-          post_max_size = 16G
-          max_input_time = 3600
-          max_execution_time = 3600
-      ## Default config files that utilize environment variables:
-      # see: https://github.com/nextcloud/docker/tree/master#auto-configuration-via-environment-variables
-      # IMPORTANT: Will be used only if you put extra configs, otherwise default will come from nextcloud itself
-      # Default confgurations can be found here: https://github.com/nextcloud/docker/tree/master/.config
-      defaultConfigs:
-        .htaccess: true
-        apache-pretty-urls.config.php: true
-        apcu.config.php: true
-        apps.config.php: true
-        autoconfig.php: true
-        redis.config.php: true
-        reverse-proxy.config.php: false
-        s3.config.php: false
-        smtp.config.php: true
-        swift.config.php: false
-        upgrade-disable-web.config.php: true
-        imaginary.config.php: false
-
-      # Extra config files created in /var/www/html/config/
-      # ref: https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#multiple-config-php-file
-      configs:
-        fed-fixes.config.php: |-
-          <?php
-          $CONFIG = array (
-            "davstorage.request_timeout" => 200,
-          );
-        logging.config.php: |-
-          <?php
-          $CONFIG = array (
-            'log_type' => 'file',
-            'logfile' => 'nextcloud.log',
-            'loglevel' => 0,
-            'logdateformat' => 'F d, Y H:i:s'
-            );
-        proxy.config.php: |-
-          <?php
-          $CONFIG = array (
-            'trusted_proxies' => array(
-              0 => '127.0.0.1',
-              1 => '10.96.0.0/16',
-            ),
-            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
-          );
-        ingress.config.php: |-
-          <?php
-          $CONFIG = array (
-            'overwrite.cli.url' => 'https://cloud.vzkn.eu',
-            'overwriteprotocol' => 'https',
-            'allow_local_remote_servers' => true
-          );
-        misc.config.php: |-
-          <?php
-          $CONFIG = array (
-            'default_timezone' => 'Europe/Warsaw',
-            'default_phone_region' => 'PL',
-            'maintenance_window_start' => 1,
-          );
-        s3.config.php: |-
-          <?php
-          $CONFIG = array (
-            'objectstore' => array(
-              'class' => '\\OC\\Files\\ObjectStore\\S3',
-              'arguments' => array(
-                'hostname'       => 's3.vzkn.eu',
-                'port'           => 443,
-                'use_path_style' => true,
-                'bucket'         => 'nextcloud',
-                'region'         => 'main',
-                'autocreate'     => false,
-                'key'            => getenv('S3_ACCESS_KEY'),
-                'secret'         => getenv('S3_SECRET_KEY'),
-                'use_ssl'        => true,
-              ),
-            ),
-          );
-        sso.config.php: |-
-          <?php
-          $CONFIG = array (
-            'allow_user_to_change_display_name' => false,
-            'lost_password_link' => 'disabled',
-            'oidc_login_provider_url' => 'https://sso.vzkn.eu/application/o/nextcloud/',
-            'oidc_login_client_id' => getenv('NEXTCLOUD_OAUTH_CLIENT_ID'),
-            'oidc_login_client_secret' => getenv('NEXTCLOUD_OAUTH_CLIENT_SECRET'),
-            'oidc_login_auto_redirect' => true,
-            'oidc_login_logout_url' => 'https://sso.vzkn.eu/application/o/nextcloud/end-session/',
-            'oidc_login_end_session_redirect' => true,
-            'oidc_login_default_quota' => '5000000000',
-            'oidc_login_button_text' => 'Authentik SSO',
-            'oidc_login_hide_password_form' => true,
-            'oidc_login_attributes' => array (
-                     'id' => 'sub',
-                     'name' => 'name',
-                     'mail' => 'email',
-            ),
-            'oidc_create_groups' => true,
-            'oidc_login_code_challenge_method' => 'S256',
-            'oidc_login_webdav_enabled' => true,
-            'oidc_login_disable_registration' => false,
-          );
-        previews.config.php: |-
-          <?php
-          $CONFIG = array (
-            'enable_previews' => true,
-            'enabledPreviewProviders' => array (
-              'OC\Preview\Movie',
-              'OC\Preview\PNG',
-              'OC\Preview\JPEG',
-              'OC\Preview\GIF',
-              'OC\Preview\BMP',
-              'OC\Preview\XBitmap',
-              'OC\Preview\MP3',
-              'OC\Preview\MP4',
-              'OC\Preview\TXT',
-              'OC\Preview\MarkDown',
-              'OC\Preview\PDF'
-            ),
-          );
-
-      extraEnv:
-        - name: REDIS_HOST
-          value: nextcloud-dragonfly.self-hosted.svc.cluster.local.
-        - name: REDIS_HOST_PORT
-          value: "6379"
-        - name: NEXTCLOUD_OAUTH_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: *secret
-              key: NEXTCLOUD_OAUTH_CLIENT_SECRET
-        - name: NEXTCLOUD_OAUTH_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: *secret
-              key: NEXTCLOUD_OAUTH_CLIENT_ID
-        - name: S3_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: *secret
-              key: S3_ACCESS_KEY
-        - name: S3_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: *secret
-              key: S3_SECRET_KEY
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: nextcloud-pguser-nextcloud
-              key: password
-
+    fullnameOverride: *name
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
+        runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 100
-        runAsNonRoot: true
-        readOnlyRootFilesystem: false
-
-      podSecurityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        readOnlyRootFilesystem: false
-
-      extraVolumes:
-        - name: nginx-cache
-          mountPath: "/var/cache/nginx" # fix permission denied error
-
-    nginx:
-      enabled: true
-      image:
-        repository: nginxinc/nginx-unprivileged
-        tag: 1.27.4@sha256:7a76302625f26fd9ea82da99c0e14c5f4def3a839b21e4138acdcbefc790219f
-      config:
-        default: true
-        headers:
-          # -- HSTS settings
-          # WARNING: Only add the preload option once you read about
-          # the consequences in https://hstspreload.org/. This option
-          # will add the domain to a hardcoded list that is shipped
-          # in all major browsers and getting removed from this list
-          # could take several months.
-          # Example:
-          "Strict-Transport-Security": "max-age=15768000; includeSubDomains; preload;"
-          #"Strict-Transport-Security": ""
-          "Referrer-Policy": "no-referrer"
-          "X-Content-Type-Options": "nosniff"
-          "X-Download-Options": "noopen"
-          "X-Frame-Options": "SAMEORIGIN"
-          "X-Permitted-Cross-Domain-Policies": "none"
-          "X-Robots-Tag": "noindex, nofollow"
-          "X-XSS-Protection": "1; mode=block"
-
-
-    externalDatabase:
-      enabled: true
-      type: postgresql
-      existingSecret:
-        enabled: true
-        secretName: nextcloud-pguser-nextcloud
-        usernameKey: user
-        passwordKey: password
-        hostKey: pgbouncer-host
-        databaseKey: dbname
-
-    ##
-    ## Collabora chart configuration
-    ## for more options see https://github.com/CollaboraOnline/online/tree/master/kubernetes/helm/collabora-online
-    ##
-    collabora:
-      enabled: false
-
-      autoscaling:
-        # enable autocaling, please check collabora README.md first
-        enabled: false
-
-      collabora:
-        ## HTTPS nextcloud domain, if needed
-        aliasgroups: []
-        #   - host: "https://nextcloud.domain:443"
-
-        # set extra parameters for collabora
-        # you may need to add --o:ssl.termination=true
-        extra_params: --o:ssl.enable=false
-
-        ## Specify server_name when the hostname is not reachable directly for
-        # example behind reverse-proxy. example: collabora.domain
-        server_name: null
-
-        existingSecret:
-          # set to true to to get collabora admin credentials from an existin secret
-          # if set, ignores collabora.collabora.username and password
-          enabled: false
-          # name of existing Kubernetes Secret with collboara admin credentials
-          secretName: ""
-          usernameKey: "username"
-          passwordKey: "password"
-
-        # setup admin login credentials, these are ignored if
-        # collabora.collabora.existingSecret.enabled=true
-        password: examplepass
-        username: admin
-
-      # setup ingress
-      ingress:
-        # enable ingress for collabora online
-        enabled: false
-        className: ""
-        # please check collabora values.yaml for nginx/haproxy annotations examples
-        annotations: {}
-        hosts:
-          - host: chart-example.local
-            paths:
-            - path: /
-              pathType: ImplementationSpecific
-        tls: []
-        #  - secretName: collabora-ingress-tls
-        #    hosts:
-        #      - collabora.domain
-
-      # see collabora helm README.md for recommended values
-      resources: {}
-
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    controllers:
+      nextcloud:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          nextcloud:
+            image: &image
+              repository: public.ecr.aws/docker/library/nextcloud
+              tag: 31.0.6-apache
+              pullPolicy: IfNotPresent
+            probes:
+              startup:
+                spec:
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+            env: &env
+              TZ: "Europe/Warsaw"
+              PHP_UPLOAD_LIMIT: "10G"
+              TRUSTED_PROXIES: "10.96.0.0/16"
+              NEXTCLOUD_DATA_DIR: "/var/www/html/data"
+              REDIS_HOST: "nextcloud-dragonfly.self-hosted.svc"
+              OVERWRITEPROTOCOL: "https"
+              OVERWRITEHOST: "cloud.vzkn.eu"
+              POSTGRES_HOST: "nextcloud-pgbouncer.self-hosted.svc"
+              POSTGRES_DB: "nextcloud"
+              POSTGRES_USER: "nextcloud"
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: nextcloud-pguser-nextcloud
+                    key: password
+            envFrom:
+              - secretRef:
+                  name: nextcloud-secret
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+        initContainers:
+          1-disable-maintenance-mode:
+            image: *image
+            command: ["/usr/bin/su"]
+            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ maintenance:mode --off"]
+            env: *env
+            envFrom:
+              - secretRef:
+                  name: nextcloud-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+          2-occ-upgrade:
+            image: *image
+            command: ["/usr/bin/su"]
+            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ upgrade"]
+            env: *env
+            envFrom:
+              - secretRef:
+                  name: nextcloud-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+          3-occ-app-upgrade:
+            image: *image
+            command: ["/usr/bin/su"]
+            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ app:update --all"]
+            env: *env
+            envFrom:
+              - secretRef:
+                  name: nextcloud-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
     service:
-      type: ClusterIP
-      port: 8080
-      loadBalancerIP: ""
-      nodePort:
-      # -- use additional annotation on service for nextcloud
-      annotations: {}
-
+      nextcloud:
+        controller: *app
+        ports:
+          http:
+            port: 80
     persistence:
-      enabled: true
-      existingClaim: *app
-      nextcloudData:
-        enabled: true
-        subPath: data
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /var/www/html
+      data:
         existingClaim: nextcloud-data
-
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 4
-        memory: 8Gi
-
-
-    # lifecycle:
-    #   postStartCommand:
-    #   - su
-    #   - www-data
-    #   - -s
-    #   - /bin/sh
-    #   - -c
-    #   - >-
-    #     cd /var/www/html;
-    #     ./occ upgrade;
-    #     ./occ db:add-missing-indices;
-    #     /bin/true
-
-    startupProbe:
-      enabled: true
-      initialDelaySeconds: 60
-      periodSeconds: 30
-      timeoutSeconds: 10
-      failureThreshold: 10
-      successThreshold: 1
-
-    cronjob:
-      enabled: true
-      # securityContext:
-      #   runAsGroup: 100
-
-    imaginary:
-      enabled: false
-      replicaCount: 1
-      image:
-        registry: docker.io
-        repository: h2non/imaginary
-        tag: 1.2.4@sha256:7facb4221047a5e79b9e902f380247f4e5bf4376400d0badbeb738d3e1c2f654
-        pullPolicy: IfNotPresent
-      resources:
-        requests:
-          cpu: 10m
-          memory: 1Gi
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        runAsNonRoot: true
-        allowPrivilegeEscalation: false
-        capabilities: { drop: ["ALL"] }
-
-    internalDatabase:
-      enabled: false
-    redis:
-      enabled: false
-    ingress:
-      enabled: false
-    metrics:
-      enabled: false
-    rbac:
-      enabled: false
+        globalMounts:
+          - path: /var/www/html/data
+      configMap:
+        type: configMap
+        name: nextcloud-configmap
+        globalMounts:
+          - path: /var/www/html/config/misc.config.php
+            subPath: misc.config.php
+            readOnly: true
+          - path: /var/www/html/config/sso.config.php
+            subPath: sso.config.php
+            readOnly: true
+          - path: /var/www/html/config/s3.config.php
+            subPath: s3.config.php
+            readOnly: true

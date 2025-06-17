@@ -23,7 +23,7 @@ spec:
       enableServiceLinks: false
       securityContext:
         runAsNonRoot: false
-        runAsUser: 0
+        runAsUser: 33
         runAsGroup: 0
         fsGroup: 0
         fsGroupChangePolicy: OnRootMismatch

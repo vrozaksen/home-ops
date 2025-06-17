@@ -122,8 +122,7 @@ spec:
       phpconf:
         type: emptyDir
         globalMounts:
-          - path: /usr/local/etc/php/conf.d/redis-session.ini
-            subPath: redis-session.ini
+          - path: /usr/local/etc/php/conf.d
       configs:
         type: configMap
         name: nextcloud-configmap

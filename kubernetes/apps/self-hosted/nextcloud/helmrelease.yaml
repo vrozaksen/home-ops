@@ -119,7 +119,7 @@ spec:
         existingClaim: nextcloud-data
         globalMounts:
           - path: /var/www/html/data
-      configMap:
+      configs:
         type: configMap
         name: nextcloud-configmap
         globalMounts:

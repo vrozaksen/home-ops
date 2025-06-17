@@ -493,18 +493,18 @@ spec:
         memory: 8Gi
 
 
-    lifecycle:
-      postStartCommand:
-      - su
-      - www-data
-      - -s
-      - /bin/sh
-      - -c
-      - >-
-        cd /var/www/html;
-        ./occ upgrade;
-        ./occ db:add-missing-indices;
-        /bin/true
+    # lifecycle:
+    #   postStartCommand:
+    #   - su
+    #   - www-data
+    #   - -s
+    #   - /bin/sh
+    #   - -c
+    #   - >-
+    #     cd /var/www/html;
+    #     ./occ upgrade;
+    #     ./occ db:add-missing-indices;
+    #     /bin/true
 
     startupProbe:
       enabled: true

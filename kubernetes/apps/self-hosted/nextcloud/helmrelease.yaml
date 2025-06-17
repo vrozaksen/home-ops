@@ -96,7 +96,7 @@ spec:
         apache-pretty-urls.config.php: true
         apcu.config.php: true
         apps.config.php: true
-        autoconfig.php: false
+        autoconfig.php: true
         redis.config.php: true
         reverse-proxy.config.php: false
         s3.config.php: false
@@ -136,16 +136,6 @@ spec:
             'overwrite.cli.url' => 'https://cloud.vzkn.eu',
             'overwriteprotocol' => 'https',
             'allow_local_remote_servers' => true
-          );
-        postgres.config.php: |-
-          <?php
-          $CONFIG = array (
-            'dbtype' => 'pgsql',
-            'dbhost' => getenv('POSTGRESQL_HOST'),
-            'dbport' => '5432',
-            'dbuser' => getenv('POSTGRESQL_USER'),
-            'dbpassword' => getenv('S3_ACCESS_KEY'),
-            'dbname' => getenv('POSTGRESQL_NAME'),
           );
         misc.config.php: |-
           <?php
@@ -240,13 +230,13 @@ spec:
             secretKeyRef:
               name: *secret
               key: S3_SECRET_KEY
-        - name: POSTGRESQL_HOST
+        - name: POSTGRES_HOST
           value: nextcloud-pgbouncer.self-hosted.svc
-        - name: POSTGRESQL_USER
+        - name: POSTGRES_USER
           value: *app
-        - name: POSTGRESQL_NAME
+        - name: POSTGRES_DB
           value: *app
-        - name: POSTGRESQL_PASSWORD
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: nextcloud-pguser-nextcloud

@@ -57,6 +57,7 @@ spec:
         smtpHostKey: SMTP_HOST
       update: 0
       containerPort: 8080
+      datadir: /var/www/html/data
       trustedDomains:
         - sso.vzkn.eu
         - cloud.vzkn.eu
@@ -95,7 +96,7 @@ spec:
         apache-pretty-urls.config.php: true
         apcu.config.php: true
         apps.config.php: true
-        autoconfig.php: true
+        autoconfig.php: false
         redis.config.php: true
         reverse-proxy.config.php: false
         s3.config.php: false

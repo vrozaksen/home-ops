@@ -12,12 +12,12 @@ spec:
     - ../../../components/gatus/external
     - ../../../components/volsync
   dependsOn:
-    - name: mosquitto
-      namespace: home-automation
     - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: vernemq
+      namespace: database
   interval: 1h
   path: ./kubernetes/apps/home-automation/home-assistant
   postBuild:

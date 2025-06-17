@@ -22,10 +22,10 @@ spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
       securityContext:
-        runAsNonRoot: false
+        runAsNonRoot: true
         runAsUser: 33
-        runAsGroup: 0
-        fsGroup: 0
+        runAsGroup: 33
+        fsGroup: 33
         fsGroupChangePolicy: OnRootMismatch
     controllers:
       nextcloud:
@@ -90,11 +90,11 @@ spec:
                 red="\e[1;31m"
                 for op in "$${ops[@]}" ; do
                   echo -e "$${grey}Running php occ $op $reset"
-                  su www-data -s /usr/local/bin/php -- occ $op && echo -en "$green" || echo -en "$red"
+                  php -- occ $op && echo -en "$green" || echo -en "$red"
                   echo -e "Finished php occ $op $reset"
                 done &&
                 echo -e "$${grey}Running php occ maintenance:repair --include-expensive $reset"
-                su www-data -s /usr/local/bin/php -- occ maintenance:repair --include-expensive && echo -en "$green" || echo -en "$red"
+                php -- occ maintenance:repair --include-expensive && echo -en "$green" || echo -en "$red"
                 echo -e "Finished php occ maintenance:repair --include-expensive $reset"
                 while :; do /cron.sh; done
             env: *env

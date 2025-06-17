@@ -70,33 +70,33 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-        initContainers:
-          1-disable-maintenance-mode:
+          nextcloud-worker:
             image: *image
-            command: ["/usr/bin/su"]
-            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ maintenance:mode --off"]
-            env: *env
-            envFrom:
-              - secretRef:
-                  name: nextcloud-secret
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-          2-occ-upgrade:
-            image: *image
-            command: ["/usr/bin/su"]
-            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ upgrade"]
-            env: *env
-            envFrom:
-              - secretRef:
-                  name: nextcloud-secret
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-          3-occ-app-upgrade:
-            image: *image
-            command: ["/usr/bin/su"]
-            args: ["www-data", "-s", "/bin/bash", "-c", "/var/www/html/occ app:update --all"]
+            command: ["/bin/bash", "-c"]
+            args:
+              - |
+                ops=(
+                  "maintenance:mode --off"
+                  "upgrade"
+                  "app:update --all"
+                  "db:add-missing-primary-keys"
+                  "db:add-missing-indices"
+                  "db:add-missing-columns"
+                  "files:cleanup"
+                )
+                grey="\e[1;30m"
+                reset="\e[0m"
+                green="\e[1;32m"
+                red="\e[1;31m"
+                for op in "$${ops[@]}" ; do
+                  echo -e "$${grey}Running php occ $op $reset"
+                  su www-data -s /usr/local/bin/php -- occ $op && echo -en "$green" || echo -en "$red"
+                  echo -e "Finished php occ $op $reset"
+                done &&
+                echo -e "$${grey}Running php occ maintenance:repair --include-expensive $reset"
+                su www-data -s /usr/local/bin/php -- occ maintenance:repair --include-expensive && echo -en "$green" || echo -en "$red"
+                echo -e "Finished php occ maintenance:repair --include-expensive $reset"
+                while :; do /cron.sh; done
             env: *env
             envFrom:
               - secretRef:

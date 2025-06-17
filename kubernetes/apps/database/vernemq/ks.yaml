@@ -3,33 +3,25 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app zigbee
+  name: &app vernemq
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../components/gatus/guarded
-    - ../../../components/volsync
   dependsOn:
     - name: external-secrets-store
       namespace: external-secrets
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
-    - name: vernemq
-      namespace: database
   interval: 1h
-  path: ./kubernetes/apps/home-automation/zigbee
+  path: ./kubernetes/apps/database/vernemq/
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-automation
+  targetNamespace: database
   timeout: 5m
   wait: false

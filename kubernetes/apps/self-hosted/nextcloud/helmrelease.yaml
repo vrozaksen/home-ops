@@ -346,10 +346,6 @@ spec:
     persistence:
       enabled: true
       existingClaim: *app
-      nextcloudData:
-        enabled: true
-        subPath: data
-        existingClaim: nextcloud-data
 
     resources:
       requests:

@@ -90,15 +90,40 @@ This Git repository contains the following directories under [Kubernetes](./kube
 
 ### Flux Workflow
 
-This is a high-level look how Flux deploys my applications with dependencies. In most cases a `HelmRelease` will depend on other `HelmRelease`'s, in other cases a `Kustomization` will depend on other `Kustomization`'s, and in rare situations an app can depend on a `HelmRelease` and a `Kustomization`. The example below shows that `atuin` won't be deployed or upgrade until the `rook-ceph-cluster` Helm release is installed or in a healthy state.
+This diagram illustrates how Flux manages application deployments with complex dependencies. In this scenario:
+1. `Kustomization` resources depend on other `Kustomization` resources
+2. `HelmRelease` resources depend on custom resources (`PostgresCluster`/`Dragonfly`)
+3. Operators manage stateful components that applications require
+
+The workflow ensures **Authentik won't deploy** until:
+- The PostgreSQL operator is installed and ready
+- The Dragonfly operator is installed and ready
+- A dedicated PostgreSQL cluster for Authentik is provisioned and healthy
+- A Dragonfly caching instance is provisioned and healthy
 
 ```mermaid
 graph TD
-    A>Kustomization: rook-ceph] -->|Creates| B[HelmRelease: rook-ceph]
-    A>Kustomization: rook-ceph] -->|Creates| C[HelmRelease: rook-ceph-cluster]
-    C>HelmRelease: rook-ceph-cluster] -->|Depends on| B>HelmRelease: rook-ceph]
-    D>Kustomization: atuin] -->|Creates| E(HelmRelease: atuin)
-    E>HelmRelease: atuin] -->|Depends on| C>HelmRelease: rook-ceph-cluster]
+    %% Operator Installation
+    A[Kustomization: crunchy-postgres-operator] -->|Creates| B[HelmRelease: crunchy-postgres-operator]
+    C[Kustomization: dragonfly-operator] -->|Creates| D[HelmRelease: dragonfly-operator]
+
+    %% Authentik Dependencies
+    E[Kustomization: authentik] -->|dependsOn| A
+    E -->|dependsOn| C
+    E -->|Creates| F[(PostgresCluster: authentik)]
+    E -->|Creates| G[(Dragonfly: authentik)]
+    E -->|Creates| H[[HelmRelease: authentik]]
+
+    %% Health Dependencies
+    H -->|Requires healthy| F
+    H -->|Requires healthy| G
+
+    %% Operator Management
+    B -.->|Manages| F
+    D -.->|Manages| G
+
+    %% External Dependencies
+    I[(rook-ceph storage)] -->|Provides PVC| F
 ```
 
 ### Networking

@@ -29,12 +29,12 @@ spec:
               tag: 2.0.57
             env:
               TZ: Europe/Warsaw
-              GENERATE_NEW_SAVE: true
+              GENERATE_NEW_SAVE: false
               LOAD_LATEST_SAVE: true
               PORT: &port 34197
               BIND: 0.0.0.0
               RCON_PORT: &rconPort 27015
-              SAVE_NAME: krastorio
+              SAVE_NAME: krastorio2
               UPDATE_MODS_ON_START: true
               DLC_SPACE_AGE: false
               MODS: /factorio/mods

@@ -68,11 +68,11 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.61, ::ffff:10.10.0.61
           external-dns.alpha.kubernetes.io/hostname: krastorio.vzkn.eu
         ports:
-          gametcp:
-            port: *rconPort
-          gameudp:
-            port: *port
-            protocol: UDP
+          # gametcp:
+          #   port: *rconPort
+          # gameudp:
+          #   port: *port
+          #   protocol: UDP
           filebrowser:
             port: 80
     metrics:

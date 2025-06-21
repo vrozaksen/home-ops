@@ -52,7 +52,7 @@ spec:
               TZ: Europe/Warsaw
             image:
               repository: filebrowser/filebrowser
-              tag: v2.33.0
+              tag: v2.33.2
             resources:
               requests:
                 cpu: 25m

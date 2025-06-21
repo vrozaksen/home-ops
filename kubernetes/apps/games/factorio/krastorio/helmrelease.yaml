@@ -34,7 +34,7 @@ spec:
               PORT: &port 34197
               BIND: 0.0.0.0
               RCON_PORT: &rconPort 27015
-              SAVE_NAME: krastorio2
+              SAVE_NAME: krastorio
               UPDATE_MODS_ON_START: true
               DLC_SPACE_AGE: false
               MODS: /factorio/mods

@@ -23,30 +23,30 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          app:
-            image:
-              repository: factoriotools/factorio
-              tag: 2.0.57
-            env:
-              TZ: Europe/Warsaw
-              GENERATE_NEW_SAVE: false
-              LOAD_LATEST_SAVE: true
-              PORT: &port 34197
-              BIND: 0.0.0.0
-              RCON_PORT: &rconPort 27015
-              SAVE_NAME: krastorio
-              UPDATE_MODS_ON_START: true
-              DLC_SPACE_AGE: false
-              MODS: /factorio/mods
-            envFrom:
-              - secretRef:
-                  name: factorio-secret
-            resources:
-              requests:
-                cpu: 100m
-                memory: 2Gi
-              limits:
-                memory: 8Gi
+          # app:
+          #   image:
+          #     repository: factoriotools/factorio
+          #     tag: 2.0.57
+          #   env:
+          #     TZ: Europe/Warsaw
+          #     GENERATE_NEW_SAVE: false
+          #     LOAD_LATEST_SAVE: true
+          #     PORT: &port 34197
+          #     BIND: 0.0.0.0
+          #     RCON_PORT: &rconPort 27015
+          #     SAVE_NAME: krastorio
+          #     UPDATE_MODS_ON_START: true
+          #     DLC_SPACE_AGE: false
+          #     MODS: /factorio/mods
+          #   envFrom:
+          #     - secretRef:
+          #         name: factorio-secret
+          #   resources:
+          #     requests:
+          #       cpu: 100m
+          #       memory: 2Gi
+          #     limits:
+          #       memory: 8Gi
           filebrowser:
             env:
               TZ: Europe/Warsaw

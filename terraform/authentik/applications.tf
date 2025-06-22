@@ -380,6 +380,22 @@ module "oauth2-ocis-ios" {
 #   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
 # }
 
+module "oauth2-mirotalk" {
+  source             = "./oauth2_application"
+  name               = "MiroTalk"
+  icon_url           = "https://raw.githubusercontent.com/miroslavpejic85/mirotalk/refs/heads/master/public/images/mirotalk-logo.png"
+  launch_url         = "https://mirotalk.${var.cluster_domain}"
+  description        = "MiroTalk"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.users.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["mirotalk"].client_id
+  client_secret      = local.parsed_secrets["mirotalk"].client_secret
+  redirect_uris      = ["https://mirotalk.${var.cluster_domain}/"]
+}
+
 module "oauth2-zipline" {
   source             = "./oauth2_application"
   name               = "Zipline"

@@ -1,0 +1,95 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mirotalk
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      mirotalk:
+        labels:
+          postgres: "true"
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: mirotalk
+              tag: p2p:latest
+            env:
+              TZ: Europe/Warsaw
+              NODE_ENV: production
+              TRUST_PROXY: false
+              LOGS_DEBUG: true
+              LOGS_COLORS: true
+              CORS_ORIGIN: '["https://vzkn.eu", "https://mirotalk.vzkn.eu", "http://localhost:3000"]'
+              CORS_METHODS: '["GET", "POST"]'
+              IP_LOOKUP_ENABLED: false
+              SURVEY_ENABLED: false
+              REDIRECT_ENABLED: false
+            envFrom:
+              - secretRef:
+                  name: mirotalk-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: &port 3000
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
+    persistence:
+      # data:
+      #   existingClaim: *app
+      #   globalMounts:
+      #     - path: /app/data
+      # nltk:
+      #   existingClaim: mirotalk-nltk
+      #   globalMounts:
+      #     - path: /nltk_data
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          mirotalk:
+            app:
+              - path: /tmp
+                subPath: tmp

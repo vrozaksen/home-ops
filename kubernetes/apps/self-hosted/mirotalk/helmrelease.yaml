@@ -48,7 +48,7 @@ spec:
               OIDC_ENABLED: true
               OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS: true
               OIDC_BASE_URL_DYNAMIC: true # ???
-              OIDC_ISSUER_BASE_URL: "https://sso.vzkn.eu"
+              OIDC_ISSUER_BASE_URL: "https://sso.vzkn.eu/application/o/mirotalk/"
               OIDC_BASE_URL: "https://mirotalk.vzkn.eu"
               OIDC_AUTH_REQUIRED: false # set to true if authentication is required for all routes
               OIDC_AUTH_LOGOUT: true # controls automatic logout from both your app and Auth0 when set to true

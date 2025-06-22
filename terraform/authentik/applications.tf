@@ -394,7 +394,7 @@ module "oauth2-mirotalk" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["mirotalk"].client_id
   client_secret      = local.parsed_secrets["mirotalk"].client_secret
-  redirect_uris      = ["https://mirotalk.${var.cluster_domain}/"]
+  redirect_uris      = ["https://mirotalk.${var.cluster_domain}/auth/callback"]
 }
 
 module "oauth2-zipline" {

@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: coturn
 components:
   - ../../components/common
-resources:
-  - ./coturn/ks.yaml
+resources: []
+  # - ./coturn/ks.yaml

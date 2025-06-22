@@ -14,7 +14,7 @@ data:
     max-port=65535
     fingerprint
     lt-cred-mech
-    realm={{TURN_REALM}}
+    realm=${TURN_REALM}
     no-tlsv1
     no-tlsv1_1
     cipher-list="ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
@@ -24,10 +24,10 @@ data:
     secure-stun
 
     # PostgreSQL
-    pgsql-userdb="host={{TURN_PG_HOST}} port={{TURN_PG_PORT}} dbname={{TURN_PG_DB}} user={{TURN_PG_USER}} password={{TURN_PG_PASSWORD}} connect_timeout=30"
+    pgsql-userdb="host=${TURN_PG_HOST} port=${TURN_PG_PORT} dbname=${TURN_PG_DB} user=${TURN_PG_USER} password=${TURN_PG_PASSWORD} connect_timeout=30"
 
     # Redis
-    redis-statsdb="{{TURN_REDIS_URL}}"
+    redis-statsdb="${TURN_REDIS_URL}"
 
     # Blocks
     denied-peer-ip=0.0.0.0-0.255.255.255

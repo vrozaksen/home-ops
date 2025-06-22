@@ -49,7 +49,7 @@ spec:
               TURN_PG_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: coturn-pguser-secret
+                    name: coturn-pguser-coturn
                     key: password
               TURN_REDIS_URL: redis://coturn-dragonfly.coturn.svc:6379
               TURN_REALM: turn.vzkn.eu

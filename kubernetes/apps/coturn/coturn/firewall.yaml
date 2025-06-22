@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: coturn-allow
+  namespace: coturn
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: coturn
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 3478
+      protocol: UDP
+    - port: 3478
+      protocol: TCP
+    - port: 5349
+      protocol: TCP
+    from:
+    - namespaceSelector: {}

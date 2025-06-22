@@ -1,0 +1,109 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app coturn
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      coturn:
+        type: daemonset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/coturn/coturn
+              tag: 4.7.0
+            args: ["-c", "/etc/coturn/turnserver.conf"]
+            ports:
+              - name: turn-udp
+                containerPort: &port 3478
+                hostPort: *port
+                protocol: UDP
+              - name: turn-tcp
+                containerPort: *port
+                hostPort: *port
+                protocol: TCP
+              - name: tls-tcp
+                containerPort: &portTLS 5349
+                hostPort: *portTLS
+                protocol: TCP
+            env:
+              TURN_PG_HOST: coturn-pgbouncer.coturn.svc
+              TURN_PG_PORT: "5432"
+              TURN_PG_DB: coturn
+              TURN_PG_USER: coturn
+              TURN_PG_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: coturn-pguser-secret
+                    key: password
+              TURN_REDIS_URL: redis://coturn-dragonfly.coturn.svc:6379
+              TURN_REALM: turn.vzkn.eu
+            envFrom:
+              - secretRef:
+                  name: coturn-secret
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 100
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["NET_BIND_SERVICE"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+
+    defaultPodOptions:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+
+    service:
+      app:
+        controller: *app
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.70, ::ffff:10.10.0.70
+          external-dns.alpha.kubernetes.io/hostname: coturn.vzkn.eu
+        ports:
+          turn-udp:
+            port: *port
+            protocol: UDP
+          turn-tcp:
+            port: *port
+            protocol: TCP
+          tls-tcp:
+            port: *portTLS
+            protocol: TCP
+
+    persistence:
+      config:
+        type: configMap
+        name: coturn-config
+        globalMounts:
+          - subPath: turnserver.conf
+            path: /etc/coturn/turnserver.conf
+            readOnly: true
+      certs:
+        type: secret
+        name: vzkn-eu-tls
+        globalMounts:
+          - path: /etc/coturn/certs

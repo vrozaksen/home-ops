@@ -8,23 +8,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../components/dragonfly
-    - ../../../components/postgres
-  dependsOn:
-    - name: crunchy-postgres-operator
-      namespace: database
-    - name: dragonfly-operator
-      namespace: database
-  healthCheckExprs:
-    - apiVersion: dragonflydb.io/v1alpha1
-      kind: Dragonfly
-      failed: status.phase != 'ready'
-      current: status.phase == 'ready'
-    - apiVersion: postgres-operator.crunchydata.com/v1beta1
-      kind: PostgresCluster
-      failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/coturn/coturn
   postBuild:
@@ -39,9 +22,3 @@ spec:
   targetNamespace: coturn
   timeout: 5m
   wait: false
-  patches:
-  - patch: |
-      - op: remove
-        path: /spec/dataSource
-    target:
-      kind: PostgresCluster

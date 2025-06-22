@@ -32,18 +32,20 @@ spec:
             env:
               TZ: Europe/Warsaw
               NODE_ENV: production
-              TRUST_PROXY: false
+              TRUST_PROXY: true
               LOGS_DEBUG: true
               LOGS_COLORS: true
               CORS_ORIGIN: '["https://vzkn.eu", "https://mirotalk.vzkn.eu", "http://localhost:3000"]'
               CORS_METHODS: '["GET", "POST"]'
-              IP_LOOKUP_ENABLED: false
+              IP_LOOKUP_ENABLED: true
               SURVEY_ENABLED: false
               REDIRECT_ENABLED: false
               SENTRY_ENABLED: false
               SLACK_ENABLED: false
               MATTERMOST_ENABLED: false
               CHATGPT_ENABLED: false
+              EMAIL_ALERT: false
+              STATS_ENABLED: false
               # OIDC
               OIDC_ENABLED: true
               OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS: true

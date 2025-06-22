@@ -27,8 +27,8 @@ spec:
         containers:
           app:
             image:
-              repository: mirotalk
-              tag: p2p:latest
+              repository: mirotalk/p2p
+              tag: latest
             env:
               TZ: Europe/Warsaw
               NODE_ENV: production

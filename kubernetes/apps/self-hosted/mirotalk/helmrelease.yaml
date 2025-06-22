@@ -33,10 +33,10 @@ spec:
               TZ: Europe/Warsaw
               NODE_ENV: production
               TRUST_PROXY: true
-              LOGS_DEBUG: true
+              LOGS_DEBUG: false
               LOGS_COLORS: true
-              CORS_ORIGIN: '["https://vzkn.eu", "https://mirotalk.vzkn.eu", "http://localhost:3000"]'
-              CORS_METHODS: '["GET", "POST"]'
+              #CORS_ORIGIN: '["https://vzkn.eu", "https://mirotalk.vzkn.eu", "http://localhost:3000"]'
+              #CORS_METHODS: '["GET", "POST"]'
               IP_LOOKUP_ENABLED: true
               SURVEY_ENABLED: false
               REDIRECT_ENABLED: false

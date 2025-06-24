@@ -86,7 +86,7 @@ spec:
 
     gitea:
       admin:
-        passwordMode: keepUpdated
+        existingSecret: gitea-admin-secret
       config:
         APP_NAME: Gitea Server
         server:
@@ -175,22 +175,6 @@ spec:
           ENABLED: true
           STORAGE_TYPE: minio
       additionalConfigFromEnvs:
-        # Admin
-        - name: GITEA__ADMIN__USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: gitea-secret
-              key: ADMIN_USERNAME
-        - name: GITEA__ADMIN__PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: gitea-secret
-              key: ADMIN_PASSWORD
-        - name: GITEA__ADMIN__EMAIL
-          valueFrom:
-            secretKeyRef:
-              name: gitea-secret
-              key: ADMIN_EMAIL
         # Database
         - name: GITEA__DATABASE__PASSWD
           valueFrom:

@@ -3,7 +3,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: gitea
+  name: gitea-http
 spec:
   hostnames: ["gitea.vzkn.eu"]
   parentRefs:
@@ -12,7 +12,7 @@ spec:
       sectionName: https
   rules:
     - backendRefs:
-        - name: gitea
+        - name: gitea-http
           namespace: development
           port: 3000
 # ---

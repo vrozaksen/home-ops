@@ -38,9 +38,8 @@ spec:
         maxSurge: "100%"
         maxUnavailable: 0
     image:
-      repository: gitea/gitea
+      repository: gitea
       tag: 1.24.2
-      digest: sha256:8e2e3f40c5ff3fee920c6d0faac0db9cca2183d80ff23965d1022434d37e7910
       pullPolicy: IfNotPresent
       rootless: true
 

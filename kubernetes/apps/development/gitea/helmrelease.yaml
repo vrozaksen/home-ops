@@ -87,6 +87,8 @@ spec:
     gitea:
       admin:
         existingSecret: gitea-admin-secret
+        email: "vrozaksen@protonmail.com"
+        passwordMode: "keepUpdated"
       config:
         APP_NAME: Gitea Server
         server:

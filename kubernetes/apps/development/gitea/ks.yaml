@@ -16,6 +16,8 @@ spec:
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
+    - name: external-secrets-store
+      namespace: external-secrets
     - name: dragonfly-operator
       namespace: database
   healthCheckExprs:

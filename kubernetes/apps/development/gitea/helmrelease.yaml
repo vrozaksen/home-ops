@@ -191,68 +191,68 @@ spec:
         - name: GITEA__ADMIN__USERNAME
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: ADMIN_USERNAME
+              name: gitea-secret
+              key: ADMIN_USERNAME
         - name: GITEA__ADMIN__PASSWORD
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: ADMIN_PASSWORD
+              name: gitea-secret
+              key: ADMIN_PASSWORD
         - name: GITEA__ADMIN__EMAIL
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: ADMIN_EMAIL
+              name: gitea-secret
+              key: ADMIN_EMAIL
         # Database
         - name: GITEA__DATABASE__PASSWD
           valueFrom:
             secretKeyRef:
-            name: gitea-pguser-gitea
-            key: password
+              name: gitea-pguser-gitea
+              key: password
         # Security
         - name: GITEA__SECURITY__SECRET_KEY
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: SECRET_KEY
+              name: gitea-secret
+              key: SECRET_KEY
         # Service
         - name: GITEA__SERVICE__CF_TURNSTILE_SITEKEY
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: CF_TURNSTILE_SITEKEY
+              name: gitea-secret
+              key: CF_TURNSTILE_SITEKEY
         - name: GITEA__SERVICE__CF_TURNSTILE_SECRET
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: CF_TURNSTILE_SECRET
+              name: gitea-secret
+              key: CF_TURNSTILE_SECRET
         # Mailer
         - name: GITEA__MAILER__SMTP_ADDR
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: SMTP_ADDR
+              name: gitea-secret
+              key: SMTP_ADDR
         - name: GITEA__MAILER__USER
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: USER
+              name: gitea-secret
+              key: USER
         - name: GITEA__MAILER__PASSWD
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: PASSWD
+              name: gitea-secret
+              key: PASSWD
         # Storage
         - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: MINIO_ACCESS_KEY_ID
+              name: gitea-secret
+              key: MINIO_ACCESS_KEY_ID
         - name: GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-            name: gitea-secret
-            key: MINIO_SECRET_ACCESS_KEY
+              name: gitea-secret
+              key: MINIO_SECRET_ACCESS_KEY
         # oauth:
         #   - name: Authentik
         #     provider: openidConnect

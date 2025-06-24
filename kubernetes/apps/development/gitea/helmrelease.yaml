@@ -82,12 +82,12 @@ spec:
         cpu: 1
         memory: 4Gi
 
-    deployment:
-      env: # Additional environment variables to pass to containers
-        []
-        # - name: VARIABLE
-        #   value: my-value
-      terminationGracePeriodSeconds: 60
+    # deployment:
+    #   env: # Additional environment variables to pass to containers
+    #     []
+    #     # - name: VARIABLE
+    #     #   value: my-value
+    #   terminationGracePeriodSeconds: 60
 
     persistence:
       enabled: true

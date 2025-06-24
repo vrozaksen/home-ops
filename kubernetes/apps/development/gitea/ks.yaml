@@ -12,7 +12,7 @@ spec:
     - ../../../components/dragonfly
     - ../../../components/gatus/external
     - ../../../components/postgres
-    - ../../../components/volsync
+    # - ../../../components/volsync
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database

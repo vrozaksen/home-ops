@@ -66,8 +66,8 @@ spec:
         port: 22
         externalTrafficPolicy: Local
         externalIPs:
-          - "10.10.0.41"
-          - "::ffff:10.10.0.41"
+          - "10.10.0.51"
+          - "::ffff:10.10.0.51"
 
     resources:
       requests:
@@ -78,11 +78,10 @@ spec:
         memory: 4Gi
 
     persistence:
-      enabled: false
-      # claimName: *app
-      # size: 10Gi
-      # accessModes: ["ReadWriteOnce"]
-      # storageClass: ceph-block
+      enabled: true
+      mount: true
+      create: false
+      claimName: *app
 
     gitea:
       admin:
@@ -145,8 +144,6 @@ spec:
           PROVIDER_CONFIG: redis://gitea-dragonfly:6379
           COOKIE_SECURE: true
           DOMAIN: gitea.vzkn.eu
-        attachment:
-          STORAGE_TYPE: minio
         cron:
           ENABLED: true
         cron.git_gc_repos:
@@ -163,19 +160,14 @@ spec:
           DEFAULT_UI_LOCATION: Europe/Warsaw
         federation:
           ENABLED: true
-        lfs:
-          STORAGE_TYPE: minio
         storage:
           STORAGE_TYPE: minio
-          MINIO_ENDPOINT: s3.vzkn.eu:443
+          MINIO_ENDPOINT: s3.vzkn.eu
           MINIO_BUCKET: gitea
           MINIO_LOCATION: main
           MINIO_USE_SSL: true
-        repo-archive:
-          STORAGE_TYPE: minio
         actions:
           ENABLED: true
-          STORAGE_TYPE: minio
       additionalConfigFromEnvs:
         # Database
         - name: GITEA__DATABASE__PASSWD

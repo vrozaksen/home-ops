@@ -78,11 +78,11 @@ spec:
         memory: 4Gi
 
     persistence:
-      enabled: true
-      claimName: *app
-      size: 10Gi
-      accessModes: ["ReadWriteOnce"]
-      storageClass: ceph-block
+      enabled: false
+      # claimName: *app
+      # size: 10Gi
+      # accessModes: ["ReadWriteOnce"]
+      # storageClass: ceph-block
 
     gitea:
       admin:

@@ -98,7 +98,6 @@ spec:
 
     gitea:
       admin:
-        existingSecret:
         passwordMode: keepUpdated
       config:
         APP_NAME: Gitea Server

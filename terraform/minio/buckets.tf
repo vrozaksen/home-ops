@@ -1,5 +1,6 @@
 locals {
   buckets = [
+    "gitea",
     "nextcloud",
     "ocis",
     "outline",

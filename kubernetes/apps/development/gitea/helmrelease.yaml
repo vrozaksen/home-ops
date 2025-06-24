@@ -23,7 +23,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: gitea-charts
-        namespace: flux-system
   install:
     remediation:
       retries: -1

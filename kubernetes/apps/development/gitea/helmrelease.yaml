@@ -90,9 +90,11 @@ spec:
     #   terminationGracePeriodSeconds: 60
 
     persistence:
-      enabled: false
+      enabled: true
       claimName: *app
+      size: 10Gi
       accessModes: ["ReadWriteOnce"]
+      storageClass: ceph-block
 
     gitea:
       admin:
@@ -186,14 +188,72 @@ spec:
           ENABLED: true
           STORAGE_TYPE: minio
       additionalConfigFromEnvs:
+        # Admin
+        - name: GITEA__ADMIN__USERNAME
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: ADMIN_USERNAME
+        - name: GITEA__ADMIN__PASSWORD
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: ADMIN_PASSWORD
+        - name: GITEA__ADMIN__EMAIL
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: ADMIN_EMAIL
+        # Database
         - name: GITEA__DATABASE__PASSWD
           valueFrom:
             secretKeyRef:
             name: gitea-pguser-gitea
             key: password
-      additionalConfigSources:
-        - secret:
-          secretName: gitea-secret
+        # Security
+        - name: GITEA__SECURITY__SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: SECRET_KEY
+        # Service
+        - name: GITEA__SERVICE__CF_TURNSTILE_SITEKEY
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: CF_TURNSTILE_SITEKEY
+        - name: GITEA__SERVICE__CF_TURNSTILE_SECRET
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: CF_TURNSTILE_SECRET
+        # Mailer
+        - name: GITEA__MAILER__SMTP_ADDR
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: SMTP_ADDR
+        - name: GITEA__MAILER__USER
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: USER
+        - name: GITEA__MAILER__PASSWD
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: PASSWD
+        # Storage
+        - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: MINIO_ACCESS_KEY_ID
+        - name: GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+            name: gitea-secret
+            key: MINIO_SECRET_ACCESS_KEY
         # oauth:
         #   - name: Authentik
         #     provider: openidConnect
@@ -256,48 +316,6 @@ spec:
       image:
         name: busybox
         tag: latest
-
-  # valuesFrom:
-  #   - targetPath: gitea.admin.password
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: adminPassword
-  #   # Postgres Init DB
-  #   - targetPath: gitea.config.database.USER
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: POSTGRES_USER
-  #   - targetPath: gitea.config.database.PASSWD
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: POSTGRES_PASS
-  #   - targetPath: gitea.config.database.NAME
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: POSTGRES_DB
-  #   - targetPath: gitea.config.database.HOST
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: POSTGRES_HOST
-  #   # Storage
-  #   - targetPath: gitea.config.storage.MINIO_ACCESS_KEY_ID
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: GITEA_MINIO_ACCESS_KEY
-  #   - targetPath: gitea.config.storage.MINIO_SECRET_ACCESS_KEY
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: GITEA_MINIO_SECRET_KEY
-  #   # Mailer
-  #   - targetPath: gitea.config.mailer.FROM
-  #     kind: Secret
-  #     name: gitea-secrets
-  #     valuesKey: GITEA_SMTP_FROM
-    # # OAuth (doesnt work)
-    # - targetPath: gitea.oauth.secret
-    #   kind: Secret
-    #   name: gitea-secrets
-    #   valuesKey: GITEA_OAUTH_CLIENT_SECRET
 
   # postRenderers:
   #   - kustomize:

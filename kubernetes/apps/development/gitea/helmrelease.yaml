@@ -31,7 +31,7 @@ spec:
     remediation:
       retries: 3
   values:
-    replicaCount: 1
+    replicaCount: 2
     strategy:
       type: "RollingUpdate"
       rollingUpdate:
@@ -90,7 +90,7 @@ spec:
     #   terminationGracePeriodSeconds: 60
 
     persistence:
-      enabled: true
+      enabled: false
       claimName: *app
       accessModes: ["ReadWriteOnce"]
 

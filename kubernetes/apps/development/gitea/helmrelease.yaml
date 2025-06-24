@@ -188,15 +188,15 @@ spec:
         actions:
           ENABLED: true
           STORAGE_TYPE: minio
-        additionalConfigFromEnvs:
-          - name: GITEA__DATABASE__PASSWD
-            valueFrom:
-              secretKeyRef:
-              name: gitea-pguser-gitea
-              key: password
-        additionalConfigSources:
-          - secret:
-              secretName: gitea-secret
+      additionalConfigFromEnvs:
+        - name: GITEA__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+            name: gitea-pguser-gitea
+            key: password
+      additionalConfigSources:
+        - secret:
+          secretName: gitea-secret
         # oauth:
         #   - name: Authentik
         #     provider: openidConnect

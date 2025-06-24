@@ -81,7 +81,7 @@ spec:
       enabled: true
       mount: true
       create: false
-      claimName: *app
+      claimName: gitea-data
 
     gitea:
       admin:

@@ -15,8 +15,8 @@ resources:
   # - ./mirotalk/ks.yaml
   - ./mumble/ks.yaml
   # - ./nextcloud/ks.yaml
-  - ./open-webui/ks.yaml
+  # - ./open-webui/ks.yaml
   - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml
-  - ./searxng/ks.yaml
+  # - ./searxng/ks.yaml
   - ./zipline/ks.yaml

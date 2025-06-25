@@ -135,7 +135,7 @@ module "oauth2-gitea" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["gitea"].client_id
   client_secret      = local.parsed_secrets["gitea"].client_secret
-  redirect_uris      = ["https://gitea.${var.cluster_domain}/login/oauth/access_token"]
+  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/Authentik/callback"]
 }
 
 module "oauth2-grafana" {

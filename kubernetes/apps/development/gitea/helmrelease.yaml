@@ -168,6 +168,13 @@ spec:
           MINIO_USE_SSL: true
         actions:
           ENABLED: true
+        oauth:
+          - name: Authentik
+            provider: openidConnect
+            existingSecret: gitea-authentik-secret
+            autoDiscoverUrl: "https://sso.vzkn.eu/application/o/gitea/.well-known/openid-configuration"
+            iconUrl: "https://sso.vzkn.eu/static/dist/assets/icons/icon.png"
+            scopes: "email profile"
       additionalConfigFromEnvs:
         # Database
         - name: GITEA__DATABASE__PASSWD
@@ -219,18 +226,6 @@ spec:
             secretKeyRef:
               name: gitea-secret
               key: MINIO_SECRET_ACCESS_KEY
-        # oauth:
-        #   - name: Authentik
-        #     provider: openidConnect
-        #     key: x
-        #     secret: x
-        #     existingSecret: gitea-oauth-secret
-        #     autoDiscoverUrl: "https://sso.vzkn.eu/.well-known/openid-configuration"
-        #     useCustomUrls:
-        #     customAuthUrl:
-        #     customTokenUrl:
-        #     customProfileUrl:
-        #     customEmailUrl:
 
       podAnnotations:
         reloader.stakater.com/search: "true"

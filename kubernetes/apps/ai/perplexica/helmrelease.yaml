@@ -74,11 +74,11 @@ spec:
               - name: *app
                 port: *port
     persistence:
-      data:
-        enabled: true
-        existingClaim: *app
-        globalMounts:
-          - path: /home/perplexica
+      # data:
+      #   enabled: true
+      #   existingClaim: *app
+      #   globalMounts:
+      #     - path: /home/perplexica
       config:
         type: secret
         name: perplexica-secret

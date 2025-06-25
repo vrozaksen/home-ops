@@ -36,13 +36,13 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 2Gi
-            securityContext: &security
-              runAsUser: 1000
-              runAsGroup: 100
-              runAsNonRoot: true
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+            # securityContext: &security
+            #   runAsUser: 1000
+            #   runAsGroup: 100
+            #   runAsNonRoot: true
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
           frontend:
             image:
               repository: itzcrazykns1337/perplexica-frontend
@@ -54,7 +54,7 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 2Gi
-            securityContext: *security
+            # securityContext: *security
     service:
       app:
         controller: perplexica

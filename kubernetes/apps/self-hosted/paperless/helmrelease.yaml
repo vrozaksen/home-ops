@@ -101,6 +101,6 @@ spec:
       nas:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/zfs/kubernetes/paperless
+        path: /mnt/user/kubernetes/paperless
         globalMounts:
           - path: /data/nas

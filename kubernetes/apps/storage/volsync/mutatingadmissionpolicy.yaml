@@ -99,7 +99,7 @@ spec:
                 name: "repository",
                 nfs: Object.spec.template.spec.volumes.nfs{
                   server: "aincrad.home.vzkn.eu",
-                  path: "/mnt/zfs/kubernetes/volsync"
+                  path: "/mnt/user/kubernetes/volsync"
                 }
               }
             }

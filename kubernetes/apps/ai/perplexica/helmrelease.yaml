@@ -23,11 +23,11 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          main:
+          backend:
             image:
-              repository: itzcrazykns1337/perplexica
-              tag: v1.10.2
-            env:
+              repository: itzcrazykns1337/perplexica-backend
+              tag: main@sha256:3f93472a9c4a34147098c4b025c4ca311b6b1c507149239b9b4f12db91315236
+            env: &env
               SEARXNG_API_URL: http://searxng:8080
               DATA_DIR: /home/perplexica
             resources:
@@ -36,13 +36,25 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 2Gi
-            securityContext:
+            securityContext: &security
               runAsUser: 1000
               runAsGroup: 100
               runAsNonRoot: true
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+          frontend:
+            image:
+              repository: itzcrazykns1337/perplexica-frontend
+              tag: main@sha256:1f0e79e60306e9d016b335b51d3aa21f68bb11f911d206b6564abdae6c1c050f
+            env: *env
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+            securityContext: *security
     service:
       app:
         controller: perplexica
@@ -68,8 +80,8 @@ spec:
         globalMounts:
           - path: /home/perplexica
       config:
-        type: configMap
-        name: perplexica-configmap
+        type: secret
+        name: perplexica-secret
         globalMounts:
           - path: /home/perplexica/config.toml
             subPath: config.toml

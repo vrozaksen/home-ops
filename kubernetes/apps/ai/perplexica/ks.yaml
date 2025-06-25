@@ -10,12 +10,14 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/gatus/external
+    - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/ai/perplexica
   postBuild:
     substitute:
       APP: *app
       GATUS_GROUP: home
+      VOLSYNC_CAPACITY: 5Gi
   prune: true
   retryInterval: 2m
   sourceRef:

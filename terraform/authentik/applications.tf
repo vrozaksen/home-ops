@@ -1,15 +1,12 @@
 locals {
   oauth_apps = [
-    "autobrr",
-    "dashbrr",
+    "gitea",
     "grafana",
     "headlamp",
-    "kyoo",
     "mealie",
     "miniflux",
     "mirotalk",
     "nextcloud",
-    "ocis",
     "outline",
     "paperless",
     "pgadmin",
@@ -123,39 +120,24 @@ module "proxy-bazarr" {
 # }
 
 ## Media
-module "oauth2-autobrr" {
-  source             = "./oauth2_application"
-  name               = "Autobrr"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/autobrr.png"
-  launch_url         = "https://autobrr.${var.cluster_domain}/api/auth/oidc/callback"
-  description        = "Download automation tool"
-  newtab             = true
-  group              = "Downloads"
-  auth_groups        = [authentik_group.media.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["autobrr"].client_id
-  client_secret      = local.parsed_secrets["autobrr"].client_secret
-  redirect_uris      = ["https://autobrr.${var.cluster_domain}/api/auth/oidc/callback"]
-}
-
-module "oauth2-dashbrr" {
-  source             = "./oauth2_application"
-  name               = "Dashbrr"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/autobrr.png"
-  launch_url         = "https://dashbrr.${var.cluster_domain}/api/auth/oidc/callback"
-  description        = "Download automation dashboard"
-  newtab             = true
-  group              = "Downloads"
-  auth_groups        = [authentik_group.media.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["dashbrr"].client_id
-  client_secret      = local.parsed_secrets["dashbrr"].client_secret
-  redirect_uris      = ["https://dashbrr.${var.cluster_domain}/api/auth/oidc/callback"]
-}
 
 ## Infrastructure
+module "oauth2-gitea" {
+  source             = "./oauth2_application"
+  name               = "Gitea"
+  icon_url           = "https://raw.githubusercontent.com/go-gitea/gitea/refs/heads/main/public/assets/img/logo.png"
+  launch_url         = "https://gitea.${var.cluster_domain}"
+  description        = "Version control"
+  newtab             = true
+  group              = "Infrastructure"
+  auth_groups        = [authentik_group.infrastructure.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["gitea"].client_id
+  client_secret      = local.parsed_secrets["gitea"].client_secret
+  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/authentik/callback"]
+}
+
 module "oauth2-grafana" {
   source             = "./oauth2_application"
   name               = "Grafana"
@@ -286,85 +268,6 @@ module "oauth2-rresume" {
 }
 
 ## Users
-module "oauth2-kyoo" {
-  source             = "./oauth2_application"
-  name               = "Kyoo"
-  icon_url           = "https://raw.githubusercontent.com/zoriya/Kyoo/master/icons/icon-256x256.png"
-  launch_url         = "https://kyoo.${var.cluster_domain}/api/auth/login/authentik?redirectUrl=https://kyoo.${var.cluster_domain}/login/callback"
-  description        = "Media Player"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.media.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["kyoo"].client_id
-  client_secret      = local.parsed_secrets["kyoo"].client_secret
-  redirect_uris      = ["https://kyoo.${var.cluster_domain}/api/auth/logged/authentik"]
-}
-
-module "oauth2-ocis" {
-  source             = "./oauth2_application"
-  name               = "Owncloud"
-  icon_url           = "https://raw.githubusercontent.com/owncloud/owncloud.github.io/main/static/favicon/favicon.png"
-  launch_url         = "https://cloud.${var.cluster_domain}"
-  description        = "Personal Cloud"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  client_type        = "public"
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["ocis"].client_id
-  # additional_property_mappings = formatlist(authentik_scope_mapping.openid-nextcloud.id)
-  redirect_uris = [
-    "https://cloud.${var.cluster_domain}",
-    "https://cloud.${var.cluster_domain}/oidc-callback.html",
-    "https://cloud.${var.cluster_domain}/oidc-silent-redirect.html"
-  ]
-}
-
-module "oauth2-ocis-android" {
-  source             = "./oauth2_application"
-  name               = "Owncloud-android"
-  launch_url         = "blank://blank"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = "e4rAsNUSIUs0lF4nbv9FmCeUkTlV9GdgTLDH1b5uie7syb90SzEVrbN7HIpmWJeD"
-  client_secret      = "dInFYGV33xKzhbRmpqQltYNdfLdJIfJ9L5ISoKhNoT9qZftpdWSP71VrpGR9pmoD"
-  redirect_uris      = ["oc://android.owncloud.com"]
-}
-
-module "oauth2-ocis-desktop" {
-  source             = "./oauth2_application"
-  name               = "Owncloud-desktop"
-  launch_url         = "blank://blank"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = "xdXOt13JKxym1B1QcEncf2XDkLAexMBFwiT9j6EfhhHFJhs2KM9jbjTmf8JBXE69"
-  client_secret      = "UBntmLjC2yYCeHwsyj73Uwo9TAaecAetRwMw0xYcvNL9yRdLSUi0hUAHfvCHFeFh"
-  redirect_uris = [
-    { matching_mode = "regex", url = "http://127.0.0.1(:.*)?" },
-    { matching_mode = "regex", url = "http://localhost(:.*)?" }
-  ]
-}
-
-module "oauth2-ocis-ios" {
-  source             = "./oauth2_application"
-  name               = "Owncloud-ios"
-  launch_url         = "blank://blank"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = "mxd5OQDk6es5LzOzRvidJNfXLUZS2oN3oUFeXPP8LpPrhx3UroJFduGEYIBOxkY1"
-  client_secret      = "KFeFWWEZO9TkisIQzR3fo7hfiMXlOpaqP8CFuTbSHzV1TUuGECglPxpiVKJfOXIx"
-  redirect_uris = [
-    "oc://ios.owncloud.com",
-    "oc.ios://ios.owncloud.com"
-  ]
-}
-
 # module "oauth2-open-webui" {
 #   source             = "./oauth2_application"
 #   name               = "Open-WebUI"

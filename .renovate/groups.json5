@@ -74,15 +74,6 @@
       }
     },
     {
-      "description": ["Kyoo Group"],
-      "groupName": "Kyoo",
-      "matchDatasources": ["docker", "github-releases"],
-      "matchPackageNames": ["/kyoo/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      }
-    },
-    {
       "description": ["Rook-Ceph Group"],
       "groupName": "Rook-Ceph",
       "matchDatasources": ["docker"],

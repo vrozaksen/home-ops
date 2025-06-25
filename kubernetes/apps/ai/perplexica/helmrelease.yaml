@@ -36,13 +36,6 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 2Gi
-            securityContext:
-              runAsUser: 1000
-              runAsGroup: 100
-              runAsNonRoot: true
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
           # backend:
           #   image:
           #     repository: itzcrazykns1337/perplexica-backend

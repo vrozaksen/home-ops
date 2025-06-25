@@ -17,7 +17,7 @@ ipv6_prefix = 48
 filter_link_local = true
 
 # activate link_token method in the ip_limit method
-link_token = false
+link_token = true
 
 [botdetection.ip_lists]
 

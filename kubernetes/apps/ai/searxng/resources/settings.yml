@@ -20,6 +20,10 @@ search:
     - html
     - json
 
+engines:
+  - name: wolframalpha
+    disabled: false
+
 general:
   instance_name: Vzkn Search
 

@@ -31,7 +31,7 @@ spec:
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   interval: 1h
-  path: ./kubernetes/apps/self-hosted/open-webui
+  path: ./kubernetes/apps/ai/open-webui
   postBuild:
     substitute:
       APP: *app
@@ -42,6 +42,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: ai
   timeout: 5m
   wait: false

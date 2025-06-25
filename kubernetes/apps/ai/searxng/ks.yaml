@@ -22,7 +22,7 @@ spec:
       failed: status.phase != 'ready'
       current: status.phase == 'ready'
   interval: 1h
-  path: ./kubernetes/apps/self-hosted/searxng
+  path: ./kubernetes/apps/ai/searxng
   postBuild:
     substitute:
       APP: *app
@@ -33,6 +33,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: ai
   timeout: 5m
   wait: false

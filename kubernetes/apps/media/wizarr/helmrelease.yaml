@@ -28,19 +28,21 @@ spec:
               tag: 2025.6.4
             env:
               TZ: Europe/Warsaw
+              PUID: &uid 1000
+              PGID: &gid 100
             resources:
               requests:
                 cpu: 10m
                 memory: 128Mi
               limits:
                 memory: 128Mi
-    # defaultPodOptions:
-    #   securityContext:
-    #     runAsNonRoot: true
-    #     runAsUser: 1000
-    #     runAsGroup: 100
-    #     fsGroup: 100
-    #     fsGroupChangePolicy: OnRootMismatch
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: *uid
+        runAsGroup: *gid
+        fsGroup: *gid
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         controller: *app
@@ -65,3 +67,9 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /data/database
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          wizarr:
+            app:
+              - path: /.cache

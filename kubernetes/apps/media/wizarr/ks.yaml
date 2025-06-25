@@ -16,8 +16,6 @@ spec:
       namespace: media
     - name: jellyseerr
       namespace: media
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/media/wizarr
   postBuild:

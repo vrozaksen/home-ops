@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app searxng
+  name: &app perplexica
 spec:
   interval: 1h
   chartRef:
@@ -18,35 +18,18 @@ spec:
       retries: 3
   values:
     controllers:
-      searxng:
+      perplexica:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           main:
             image:
-              repository: ghcr.io/searxng/searxng
-              tag: 2025.5.17-86373e7@sha256:2f45ccc0b330faa47d8706de883c6e583b38806e32b51172d93c381ce1d92f0b
+              repository: itzcrazykns1337/perplexica
+              tag: v1.10.2
             env:
-              SEARXNG_BASE_URL: https://search.vzkn.eu
-              SEARXNG_PORT: &port 8080
-              SEARXNG_REDIS_URL: redis://searxng-dragonfly:6379
-            envFrom:
-              - secretRef:
-                  name: *app
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /stats
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
+              SEARXNG_API_URL: http://searxng:8080
+              DATA_DIR: /home/perplexica
             resources:
               requests:
                 cpu: 10m
@@ -54,27 +37,22 @@ spec:
               limits:
                 memory: 2Gi
             securityContext:
+              runAsUser: 1000
+              runAsGroup: 100
+              runAsNonRoot: true
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
-                add:
-                  - CHOWN
-                  - SETGID
-                  - SETUID
-                  - DAC_OVERRIDE
+              capabilities: { drop: ["ALL"] }
     service:
       app:
-        controller: searxng
+        controller: perplexica
         ports:
           http:
-            port: *port
+            port: &port 3000
     route:
       app:
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"
-          - search.vzkn.eu
         parentRefs:
           - name: external
             namespace: kube-system
@@ -84,15 +62,17 @@ spec:
               - name: *app
                 port: *port
     persistence:
+      data:
+        enabled: true
+        existingClaim: *app
+        globalMounts:
+          - path: /home/perplexica
       config:
         type: configMap
-        name: searxng-configmap
+        name: perplexica-configmap
         globalMounts:
-          - path: /etc/searxng/settings.yml
-            subPath: settings.yml
-            readOnly: true
-          - path: /etc/searxng/limiter.toml
-            subPath: limiter.toml
+          - path: /home/perplexica/config.toml
+            subPath: config.toml
             readOnly: true
       tmpfs:
         enabled: true

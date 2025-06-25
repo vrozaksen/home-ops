@@ -23,11 +23,11 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          backend:
+          app:
             image:
-              repository: itzcrazykns1337/perplexica-backend
-              tag: main@sha256:3f93472a9c4a34147098c4b025c4ca311b6b1c507149239b9b4f12db91315236
-            env: &env
+              repository: itzcrazykns1337/perplexica
+              tag: main@sha256:f54e79609ad049156cf2850e3610516c61ea7be42a3f7f6c38244dfe8e7ea399
+            env:
               SEARXNG_API_URL: http://searxng:8080
               DATA_DIR: /home/perplexica
             resources:
@@ -36,25 +36,55 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 2Gi
-            # securityContext: &security
-            #   runAsUser: 1000
-            #   runAsGroup: 100
-            #   runAsNonRoot: true
-            #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: true
-            #   capabilities: { drop: ["ALL"] }
-          frontend:
-            image:
-              repository: itzcrazykns1337/perplexica-frontend
-              tag: main@sha256:1f0e79e60306e9d016b335b51d3aa21f68bb11f911d206b6564abdae6c1c050f
-            env: *env
-            resources:
-              requests:
-                cpu: 10m
-                memory: 256Mi
-              limits:
-                memory: 2Gi
-            # securityContext: *security
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 100
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+          # backend:
+          #   image:
+          #     repository: itzcrazykns1337/perplexica-backend
+          #     tag: main@sha256:3f93472a9c4a34147098c4b025c4ca311b6b1c507149239b9b4f12db91315236
+          #   env: &env
+          #     SEARXNG_API_URL: http://searxng:8080
+          #     DATA_DIR: /home/perplexica
+          #   ports:
+          #     - containerPort: 3001
+          #       name: backend
+          #       protocol: TCP
+          #   resources:
+          #     requests:
+          #       cpu: 10m
+          #       memory: 256Mi
+          #     limits:
+          #       memory: 2Gi
+          #   # securityContext: &security
+          #   #   runAsUser: 1000
+          #   #   runAsGroup: 100
+          #   #   runAsNonRoot: true
+          #   #   allowPrivilegeEscalation: false
+          #   #   readOnlyRootFilesystem: true
+          #   #   capabilities: { drop: ["ALL"] }
+          # frontend:
+          #   image:
+          #     repository: itzcrazykns1337/perplexica-frontend
+          #     tag: main@sha256:1f0e79e60306e9d016b335b51d3aa21f68bb11f911d206b6564abdae6c1c050f
+          #   env:
+          #     NEXT_PUBLIC_API_URL: http://backend:3001/api
+          #     NEXT_PUBLIC_WS_URL: ws://backend:3001
+          #   ports:
+          #     - containerPort: 3001
+          #       name: frontend
+          #       protocol: TCP
+          #   resources:
+          #     requests:
+          #       cpu: 10m
+          #       memory: 256Mi
+          #     limits:
+          #       memory: 2Gi
+          #   # securityContext: *security
     service:
       app:
         controller: perplexica
@@ -74,11 +104,16 @@ spec:
               - name: *app
                 port: *port
     persistence:
-      # data:
-      #   enabled: true
-      #   existingClaim: *app
-      #   globalMounts:
-      #     - path: /home/perplexica
+      dbstore:
+        enabled: true
+        existingClaim: perplexica-dbstore
+        globalMounts:
+          - path: /home/perplexica/data
+      uploads:
+        enabled: true
+        existingClaim: perplexica-uploads
+        globalMounts:
+          - path: /home/perplexica/uploads
       config:
         type: secret
         name: perplexica-secret

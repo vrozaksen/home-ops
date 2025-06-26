@@ -71,7 +71,6 @@ spec:
         globalMounts:
           - path: /home/perplexica/config.toml
             subPath: config.toml
-            readOnly: true
       tmpfs:
         enabled: true
         type: emptyDir

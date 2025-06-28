@@ -50,6 +50,11 @@ spec:
         chunk_encoding: snappy
       limits_config:
         retention_period: 14d
+      service:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.92, ::ffff:10.10.0.92
       storage:
         type: filesystem
       schemaConfig:
@@ -78,12 +83,7 @@ spec:
         storageClass: ceph-block
         size: 100Gi
     gateway:
-      replicas: 2
-      service:
-        type: LoadBalancer
-        externalTrafficPolicy: Local
-        annotations:
-          lbipam.cilium.io/ips: 10.10.0.92, ::ffff:10.10.0.92
+      replicas: 0
     backend:
       replicas: 0
     read:

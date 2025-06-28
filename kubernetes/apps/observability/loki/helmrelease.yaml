@@ -79,8 +79,6 @@ spec:
         size: 100Gi
     gateway:
       replicas: 2
-      image:
-        registry: ghcr.io
       service:
         type: LoadBalancer
         externalTrafficPolicy: Local

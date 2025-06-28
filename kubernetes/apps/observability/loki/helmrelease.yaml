@@ -78,7 +78,14 @@ spec:
         storageClass: ceph-block
         size: 100Gi
     gateway:
-      replicas: 0
+      replicas: 2
+      image:
+        registry: ghcr.io
+      service:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.92, ::ffff:10.10.0.92
     backend:
       replicas: 0
     read:

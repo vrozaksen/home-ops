@@ -8,11 +8,19 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/guarded
   dependsOn:
+    - name: openebs
+      namespace: storage
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/observability/loki
+  postBuild:
+    substitute:
+      APP: *app
+      GATUS_GROUP: infrastructure
   prune: true
   retryInterval: 2m
   sourceRef:

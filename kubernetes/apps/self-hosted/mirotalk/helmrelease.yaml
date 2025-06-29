@@ -36,7 +36,7 @@ spec:
               SFU_ANNOUNCED_IP: mirotalk.vzkn.eu
               SFU_LISTEN_IP: 0.0.0.0
               SFU_MIN_PORT: &rtcPort 40000
-              SFU_MAX_PORT: 40000
+              SFU_MAX_PORT: 40100
               SFU_SERVER: true
               # Server
               SERVER_HOST_URL: "https://mirotalk.vzkn.eu"
@@ -98,7 +98,10 @@ spec:
             primary: true
             port: *port
           webrtc:
-            port: *rtcPort
+            port: 40000-40100
+          webrtc-udp:
+            port: 40000-40100
+            protocol: UDP
     route:
       app:
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]

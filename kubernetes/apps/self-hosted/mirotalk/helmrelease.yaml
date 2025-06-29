@@ -33,7 +33,7 @@ spec:
               TZ: Europe/Warsaw
               # Core
               NODE_ENV: production
-              SFU_ANNOUNCED_IP: mirotalk.vzkn.eu
+              SFU_ANNOUNCED_IP: ipv4.vzkn.eu
               SFU_LISTEN_IP: 0.0.0.0
               SFU_MIN_PORT: &rtcPort 40000
               SFU_MAX_PORT: 40010

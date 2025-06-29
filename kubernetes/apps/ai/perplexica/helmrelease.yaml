@@ -38,7 +38,6 @@ spec:
                 memory: 2Gi
     service:
       app:
-        controller: perplexica
         ports:
           http:
             port: &port 3000

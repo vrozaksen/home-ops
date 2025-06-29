@@ -61,7 +61,6 @@ spec:
                 memory: 512Mi
     service:
       app:
-        controller: *app
         type: LoadBalancer
         externalTrafficPolicy: Cluster
         annotations:

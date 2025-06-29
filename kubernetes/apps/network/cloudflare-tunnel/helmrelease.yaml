@@ -68,13 +68,11 @@ spec:
         runAsGroup: 100
     service:
       app:
-        controller: *app
         ports:
           http:
             port: *port
     serviceMonitor:
       app:
-        serviceName: *app
         endpoints:
           - port: http
     persistence:

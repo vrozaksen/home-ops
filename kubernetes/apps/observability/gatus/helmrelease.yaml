@@ -81,8 +81,6 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 256Mi
-        serviceAccount:
-          identifier: *app
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -92,13 +90,11 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
-        controller: *app
         ports:
           http:
             port: *port
     serviceMonitor:
       app:
-        serviceName: *app
         endpoints:
           - port: http
     route:

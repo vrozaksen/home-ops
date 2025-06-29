@@ -79,7 +79,6 @@ spec:
               app.kubernetes.io/name: *app
     service:
       app:
-        controller: atuin
         ports:
           http:
             primary: true
@@ -88,7 +87,6 @@ spec:
             port: *metricsPort
     serviceMonitor:
       app:
-        serviceName: atuin
         endpoints:
           - port: metrics
             scheme: http

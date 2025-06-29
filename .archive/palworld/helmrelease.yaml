@@ -91,7 +91,6 @@ spec:
         #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
-        controller: *app
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: ${SVC_PALWORLD_ADDR}
@@ -105,7 +104,6 @@ spec:
             port: *rcon-port
     serviceMonitor:
       app:
-        serviceName: *app
         endpoints:
           - port: http
             scheme: http

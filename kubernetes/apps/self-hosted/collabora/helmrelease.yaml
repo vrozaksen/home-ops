@@ -52,7 +52,6 @@ spec:
     #               averageUtilization: 50
     service:
       app:
-        controller: *app
         ports:
           http:
             port: &port 9980

@@ -76,12 +76,10 @@ spec:
                 memory: 600Mi
     service:
       chrome:
-        controller: *app
         ports:
           http:
             port: 3000
       app:
-        controller: *app
         ports:
           http:
             port: &port 3001

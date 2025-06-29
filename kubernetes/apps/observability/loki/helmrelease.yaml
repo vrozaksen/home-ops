@@ -115,7 +115,7 @@ spec:
       image:
         registry: ghcr.io
         repository: nginx/nginx-unprivileged
-        tag: 1.28-alpine
+        tag: 1.29-alpine
         pullPolicy: IfNotPresent
       ingress:
         enabled: false

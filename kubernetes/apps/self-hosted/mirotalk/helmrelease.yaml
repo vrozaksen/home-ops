@@ -35,13 +35,13 @@ spec:
               NODE_ENV: production
               SFU_ANNOUNCED_IP: mirotalk.vzkn.eu
               SFU_LISTEN_IP: 0.0.0.0
-              SFU_MIN_PORT: 40000
-              SFU_MAX_PORT: 40100
+              SFU_MIN_PORT: &rtcPort 40000
+              SFU_MAX_PORT: 40000
               SFU_SERVER: true
               # Server
               SERVER_HOST_URL: "https://mirotalk.vzkn.eu"
               SERVER_LISTEN_IP: 0.0.0.0
-              SERVER_LISTEN_PORT: 3010
+              SERVER_LISTEN_PORT: &port 3010
               TRUST_PROXY: true
               CORS_ORIGIN: '["https://vzkn.eu", "https://mirotalk.vzkn.eu", "http://localhost:3010"]'
               # Media Handling
@@ -88,9 +88,17 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.52, ::ffff:10.10.0.52
+          external-dns.alpha.kubernetes.io/hostname: mirotalk.vzkn.eu
         ports:
           http:
-            port: &port 3010
+            primary: true
+            port: *port
+          webrtc:
+            port: *rtcPort
     route:
       app:
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]

@@ -36,7 +36,7 @@ spec:
               SFU_ANNOUNCED_IP: mirotalk.vzkn.eu
               SFU_LISTEN_IP: 0.0.0.0
               SFU_MIN_PORT: &rtcPort 40000
-              SFU_MAX_PORT: 40100
+              SFU_MAX_PORT: 40010
               SFU_SERVER: true
               # Server
               SERVER_HOST_URL: "https://mirotalk.vzkn.eu"
@@ -86,22 +86,6 @@ spec:
         runAsGroup: 100
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
-    service:
-      app:
-        type: LoadBalancer
-        externalTrafficPolicy: Local
-        annotations:
-          lbipam.cilium.io/ips: 10.10.0.52, ::ffff:10.10.0.52
-          external-dns.alpha.kubernetes.io/hostname: mirotalk.vzkn.eu
-        ports:
-          http:
-            primary: true
-            port: *port
-          webrtc:
-            port: 40000-40100
-          webrtc-udp:
-            port: 40000-40100
-            protocol: UDP
     route:
       app:
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
@@ -125,3 +109,81 @@ spec:
             app:
               - path: /tmp
                 subPath: tmp
+    # Pure Junk xD
+    service:
+      app:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.52, ::ffff:10.10.0.52
+          external-dns.alpha.kubernetes.io/hostname: mirotalk.vzkn.eu
+        ports:
+          http:
+            primary: true
+            port: *port
+          webrtc-40000-udp:
+            port: 40000
+            protocol: UDP
+          webrtc-40000-tcp:
+            port: 40000
+            protocol: TCP
+          webrtc-40001-udp:
+            port: 40001
+            protocol: UDP
+          webrtc-40001-tcp:
+            port: 40001
+            protocol: TCP
+          webrtc-40002-udp:
+            port: 40002
+            protocol: UDP
+          webrtc-40002-tcp:
+            port: 40002
+            protocol: TCP
+          webrtc-40003-udp:
+            port: 40003
+            protocol: UDP
+          webrtc-40003-tcp:
+            port: 40003
+            protocol: TCP
+          webrtc-40004-udp:
+            port: 40004
+            protocol: UDP
+          webrtc-40004-tcp:
+            port: 40004
+            protocol: TCP
+          webrtc-40005-udp:
+            port: 40005
+            protocol: UDP
+          webrtc-40005-tcp:
+            port: 40005
+            protocol: TCP
+          webrtc-40006-udp:
+            port: 40006
+            protocol: UDP
+          webrtc-40006-tcp:
+            port: 40006
+            protocol: TCP
+          webrtc-40007-udp:
+            port: 40007
+            protocol: UDP
+          webrtc-40007-tcp:
+            port: 40007
+            protocol: TCP
+          webrtc-40008-udp:
+            port: 40008
+            protocol: UDP
+          webrtc-40008-tcp:
+            port: 40008
+            protocol: TCP
+          webrtc-40009-udp:
+            port: 40009
+            protocol: UDP
+          webrtc-40009-tcp:
+            port: 40009
+            protocol: TCP
+          webrtc-40010-udp:
+            port: 40010
+            protocol: UDP
+          webrtc-40010-tcp:
+            port: 40010
+            protocol: TCP

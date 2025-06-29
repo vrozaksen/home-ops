@@ -6,6 +6,11 @@ resource "authentik_group" "superusers" {
   name = "superusers"
 }
 
+resource "authentik_group" "grafana_admin" {
+  name         = "Grafana Admins"
+  is_superuser = false
+}
+
 resource "authentik_group" "users" {
   name         = "users"
   is_superuser = false

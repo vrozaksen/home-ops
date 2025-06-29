@@ -116,7 +116,6 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: 10.10.0.52, ::ffff:10.10.0.52
-          external-dns.alpha.kubernetes.io/hostname: mirotalk.vzkn.eu
         ports:
           http:
             primary: true

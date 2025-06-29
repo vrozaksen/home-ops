@@ -42,7 +42,7 @@ spec:
           tag: v1.4.10@sha256:c75b03cc01ad3ec08f4fa8c47c205c99f7af7d729067f84f233b9c63ec8ce024
         env:
           - name: EXCLUDE_DOMAIN_FILTER
-            value: ["mirotalk.vzkn.eu"]
+            value: "mirotalk.vzkn.eu"
           - name: LOG_FORMAT
             value: json
           - name: LOG_LEVEL

@@ -39,7 +39,7 @@ spec:
       webhook:
         image:
           repository: ghcr.io/mirceanton/external-dns-provider-mikrotik
-          tag: v1.4.10@sha256:c75b03cc01ad3ec08f4fa8c47c205c99f7af7d729067f84f233b9c63ec8ce024
+          tag: v2.0.0@sha256:4b1dcef09d5de894082ac8e40939dbb4a3b01a8c0f058ce007aaaa2bd15b71a9
         env:
           - name: EXCLUDE_DOMAIN_FILTER
             value: "mirotalk.vzkn.eu"

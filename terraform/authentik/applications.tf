@@ -11,6 +11,7 @@ locals {
     "paperless",
     "pgadmin",
     "rresume",
+    "vikunja",
     "zipline"
   ]
 }
@@ -298,6 +299,22 @@ module "oauth2-mirotalk" {
   client_id          = local.parsed_secrets["mirotalk"].client_id
   client_secret      = local.parsed_secrets["mirotalk"].client_secret
   redirect_uris      = ["https://mirotalk.${var.cluster_domain}/auth/callback"]
+}
+
+module "oauth2-vikunja" {
+  source             = "./oauth2_application"
+  name               = "Vikunja"
+  icon_url           = "https://raw.githubusercontent.com/go-vikunja/vikunja/refs/heads/main/frontend/public/images/icons/android-chrome-512x512.png"
+  launch_url         = "https://vikunja.${var.cluster_domain}"
+  description        = "Vikunja"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.users.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["vikunja"].client_id
+  client_secret      = local.parsed_secrets["vikunja"].client_secret
+  redirect_uris      = ["https://vikunja.${var.cluster_domain}/auth/openid"]
 }
 
 module "oauth2-zipline" {

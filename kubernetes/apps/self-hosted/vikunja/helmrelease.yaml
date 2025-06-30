@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app vikunja
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      vikunja:
+        labels:
+          postgres: "true"
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/vikunja/vikunja
+              tag: 0.24.6@sha256:ed1f3ed467fecec0b57e9de7bc6607f8bbcbb23ffced6a81f5dfefc794cdbe3b
+            env:
+              # Service
+              VIKUNJA_SERVICE_PUBLICURL: https://vikunja.vzkn.eu
+              VIKUNJA_SERVICE_ENABLEREGISTRATION: false
+              VIKUNJA_SERVICE_TIMEZONE: Europe/Warsaw
+              VIKUNJA_SERVICE_ENABLEPUBLICTEAMS: true
+              # Database
+              VIKUNJA_DATABASE_TYPE: postgres
+              VIKUNJA_DATABASE_USER: *app
+              VIKUNJA_DATABASE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: vikunja-pguser-vikunja
+                    key: password
+              VIKUNJA_DATABASE_HOST: vikunja-pgbouncer.self-hosted.svc
+              VIKUNJA_DATABASE_DATABASE: *app
+              # Redis
+              VIKUNJA_REDIS_ENABLED: true
+              VIKUNJA_REDIS_HOST: vikunja-dragonfly:6379
+              # Keyvalue
+              VIKUNJA_KEYVALUE_TYPE: redis
+              # Auth
+              VIKUNJA_AUTH_LOCAL: false
+              VIKUNJA_AUTH_OPENID_ENABLED: true
+              # Default Settings
+              VIKUNJA_DEFAULTSETTINGS_DISCOVERABLE_BY_NAME: true
+              VIKUNJA_DEFAULTSETTINGS_WEEK_START: 1
+            envFrom:
+              - secretRef:
+                  name: vikunja-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/info
+                    port: &port 3456
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 20Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+    persistence:
+      data:
+        existingClaim: *app
+        globalMounts:
+          - path: /app/vikunja/files
+      config:
+        type: secret
+        name: vikunja-secret
+        globalMounts:
+          - path: /app/vikunja/config.yaml
+            subPath: config.yaml
+            readOnly: true

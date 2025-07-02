@@ -34,9 +34,6 @@ metadata:
   name: nas-array-diskspace-warning
 spec:
   matchers:
-    - name: alertname
-      value: CephNodeDiskspaceWarning
-      isRegex: false
     - name: device
       value: /dev/md.*
       isRegex: true

@@ -24,18 +24,13 @@ spec:
           app:
             image:
               repository: ghcr.io/stirling-tools/s-pdf
-              tag: 0.45.6@sha256:fc53d48a018cc36446a4b1373db633be51301b828755e312c386b7700cdf2318
+              tag: 0.46.2@sha256:396ca949b81198a65b9abfec38518fa44e871b1970dad9f9718ffd030eef9b92
             env:
               TZ: Europe/Warsaw
               DOCKER_ENABLE_SECURITY: "false"
               SECURITY_ENABLE_LOGIN: "false"
+              SYSTEM_ENABLEANALYTICS: "false"
               INSTALL_BOOK_AND_ADVANCED_HTML_OPS: "true"
-            resources:
-              requests:
-                cpu: 10m
-                memory: 128Mi
-              limits:
-                memory: 512Mi
             probes:
               liveness: &probe
                 enabled: true
@@ -48,7 +43,9 @@ spec:
                   failureThreshold: 90
                   periodSeconds: 5
             securityContext:
+              allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         pod:
           securityContext:
             runAsNonRoot: true
@@ -61,7 +58,7 @@ spec:
         controller: app
         ports:
           http:
-            port: &port 8080
+            port: 8080
     route:
       internal:
         hostnames:
@@ -71,16 +68,17 @@ spec:
           - name: external
             namespace: kube-system
             sectionName: https
-        rules:
-          - backendRefs:
-              - name: app
-                port: *port
     persistence:
       config:
-        enabled: true
-        type: emptyDir
+        existingClaim: *app
         globalMounts:
           - path: /configs
+      logs:
+        enabled: true
+        type: emptyDir
+      tmp:
+        enabled: true
+        type: emptyDir
       tessdata:
         enabled: true
         type: emptyDir

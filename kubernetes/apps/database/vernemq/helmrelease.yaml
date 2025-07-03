@@ -98,7 +98,7 @@ spec:
         sessionAffinity: ClientIP
         annotations:
           external-dns.alpha.kubernetes.io/hostname: mqtt.vzkn.eu
-          lbipam.cilium.io/ips: 10.10.0.44, ::ffff:10.10.0.44
+          lbipam.cilium.io/ips: 10.10.0.44
         ports:
           mqtt:
             port: 1883

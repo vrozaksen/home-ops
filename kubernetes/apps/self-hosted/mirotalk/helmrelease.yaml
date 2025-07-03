@@ -113,7 +113,7 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.52, ::ffff:10.10.0.52
+          lbipam.cilium.io/ips: 10.10.0.52
         ports:
           http:
             primary: true

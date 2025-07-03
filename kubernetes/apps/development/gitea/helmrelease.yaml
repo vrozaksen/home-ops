@@ -66,9 +66,7 @@ spec:
         type: LoadBalancer
         port: 22
         externalTrafficPolicy: Local
-        externalIPs:
-          - "10.10.0.51"
-          - "::ffff:10.10.0.51"
+        externalIPs: ["10.10.0.51"]
 
     resources:
       requests:

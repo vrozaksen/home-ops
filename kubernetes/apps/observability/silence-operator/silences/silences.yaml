@@ -1,6 +1,6 @@
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: ceph-node-nfsmount-diskspace-warning
@@ -8,11 +8,13 @@ spec:
   matchers:
     - name: alertname
       value: CephNodeDiskspaceWarning
+      isRegex: false
     - name: mountpoint
       value: (/etc/nfsmount.conf|/var)
+      isRegex: false
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: ceph-node-local-diskspace-warning
@@ -20,12 +22,13 @@ spec:
   matchers:
     - name: alertname
       value: CephNodeDiskspaceWarning
+      isRegex: false
     - name: device
       value: /dev/sd.*
-      matchType: "=~"
+      isRegex: true
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: nas-array-diskspace-warning
@@ -33,12 +36,13 @@ spec:
   matchers:
     - name: device
       value: /dev/md.*
-      matchType: "=~"
+      isRegex: true
     - name: instance
       value: aincrad.home.vzkn.eu:9100
+      isRegex: false
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: nas-memory-high-utilization
@@ -46,11 +50,13 @@ spec:
   matchers:
     - name: alertname
       value: NodeMemoryHighUtilization
+      isRegex: false
     - name: instance
       value: aincrad.home.vzkn.eu:9100
+      isRegex: false
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: keda-hpa-maxed-out
@@ -58,12 +64,13 @@ spec:
   matchers:
     - name: alertname
       value: KubeHpaMaxedOut
+      isRegex: false
     - name: horizontalpodautoscaler
       value: keda-hpa-.*
-      matchType: "=~"
+      isRegex: true
 ---
-# yaml-language-server: $schema=https://kube-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-apiVersion: observability.giantswarm.io/v1alpha2
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/monitoring.giantswarm.io/silence_v1alpha1.json
+apiVersion: monitoring.giantswarm.io/v1alpha1
 kind: Silence
 metadata:
   name: bws-cert-expiration
@@ -71,5 +78,7 @@ spec:
   matchers:
     - name: alertname
       value: CertManagerCertExpirySoon
+      isRegex: false
     - name: name
       value: bitwarden-tls-certs
+      isRegex: false

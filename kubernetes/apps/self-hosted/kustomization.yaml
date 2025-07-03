@@ -16,6 +16,6 @@ resources:
   - ./mumble/ks.yaml
   - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml
-  # - ./stirling-pdf/ks.yaml
+  - ./stirling-pdf/ks.yaml
   - ./vikunja/ks.yaml
   - ./zipline/ks.yaml

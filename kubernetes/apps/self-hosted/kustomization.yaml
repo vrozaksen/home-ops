@@ -7,14 +7,12 @@ components:
   - ../../components/common
 resources:
   - ./atuin/ks.yaml
-  # - ./collabora/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   # - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
   - ./mirotalk/ks.yaml
   - ./mumble/ks.yaml
-  # - ./nextcloud/ks.yaml
   - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml
   - ./stirling-pdf/ks.yaml

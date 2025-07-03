@@ -19,8 +19,6 @@ spec:
   values:
     controllers:
       mirotalk:
-        labels:
-          postgres: "true"
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"

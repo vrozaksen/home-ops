@@ -21,8 +21,6 @@ spec:
       gatus:
         replicas: 2
         strategy: RollingUpdate
-        labels:
-          postgres: "true"
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:

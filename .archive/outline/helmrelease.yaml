@@ -23,8 +23,6 @@ spec:
   values:
     controllers:
       outline:
-        labels:
-          postgres: "true"
         annotations:
           reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: outline-secret

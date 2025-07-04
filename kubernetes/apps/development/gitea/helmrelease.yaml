@@ -38,7 +38,7 @@ spec:
         maxSurge: "100%"
         maxUnavailable: 0
     image:
-      # renovate: datasource=docker depName=docker.gitea.com/gitea
+      # renovate: datasource=docker depName=docker.io/gitea/gitea
       repository: gitea
       tag: 1.24.2
       pullPolicy: IfNotPresent

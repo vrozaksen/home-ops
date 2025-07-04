@@ -12,7 +12,7 @@ resources:
   - ./it-tools/ks.yaml
   - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
-  - ./mirotalk/ks.yaml
+  # - ./mirotalk/ks.yaml
   - ./mumble/ks.yaml
   - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml

@@ -1,0 +1,213 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app karakeep
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      karakeep:
+        forceRename: karakeep
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/karakeep-app/karakeep
+              tag: 0.25.0
+            env:
+              TZ: Europe/Warsaw
+              ### Configuration
+              DATA_DIR: /data
+              NEXTAUTH_URL: https://karakeep.vzkn.eu
+              NEXTAUTH_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: karakeep-secret
+                    key: encryption_key
+              MEILI_ADDR: http://karakeep-meilisearch.self-hosted.svc.cluster.local:7700
+              MEILI_MASTER_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: karakeep-secret
+                    key: MEILI_MASTER_KEY
+              MAX_ASSET_SIZE_MB: 50
+              DISABLE_NEW_RELEASE_CHECK: true
+              # FIXME: Remove this when the following PR is merged and released https://github.com/karakeep-app/karakeep/pull/969/files
+              COREPACK_INTEGRITY_KEYS: 0
+              ### Authentication / Signup
+              DISABLE_SIGNUPS: true
+              DISABLE_PASSWORD_AUTH: true  # OAuth login only
+              OAUTH_WELLKNOWN_URL: https://sso.vzkn.eu/application/o/karakeep/.well-known/openid-configuration
+              OAUTH_SCOPE: "openid email profile"
+              OAUTH_PROVIDER_NAME: Authentik
+              ### Inference Configs
+              # OLLAMA_BASE_URL: http://localhost < If OLLAMA!
+              # OLLAMA_KEEP_ALIVE: 5m < If OLLAMA!
+              INFERENCE_TEXT_MODEL: gpt-4.1-mini # OPENAI/OLLAMA
+              INFERENCE_IMAGE_MODEL: gpt-4o-mini # OPENAI/OLLAMA ex. llava
+              EMBEDDING_TEXT_MODEL: text-embedding-3-small
+              INFERENCE_CONTEXT_LENGTH: 2048
+              INFERENCE_LANG: english
+              INFERENCE_ENABLE_AUTO_TAGGING: true
+              INFERENCE_ENABLE_AUTO_SUMMARIZATION: false
+              INFERENCE_JOB_TIMEOUT_SEC: 30 # Increase for OLLAMA if needed
+              ### Crawler Configs
+              CRAWLER_NUM_WORKERS: 1
+              BROWSER_WEB_URL: http://karakeep-chrome.self-hosted.svc.cluster.local:9222
+              CRAWLER_DOWNLOAD_BANNER_IMAGE: true
+              CRAWLER_STORE_SCREENSHOT: true
+              CRAWLER_FULL_PAGE_SCREENSHOT: true
+              CRAWLER_FULL_PAGE_ARCHIVE: true
+              CRAWLER_VIDEO_DOWNLOAD: true
+              CRAWLER_VIDEO_DOWNLOAD_MAX_SIZE: 50 # -1 to disable
+              CRAWLER_ENABLE_ADBLOCKER: true
+              ### OCR Configs
+              OCR_LANGS: eng,pol
+            envFrom:
+              - secretRef:
+                  name: karakeep-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+      chrome:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: gcr.io/zenika-hub/alpine-chrome
+              tag: 124
+            command:
+              - chromium-browser
+            args:
+              - --headless
+              - --no-sandbox
+              - --disable-gpu
+              - --disable-dev-shm-usage
+              - --remote-debugging-address=0.0.0.0
+              - --remote-debugging-port=9222
+              - --hide-scrollbars
+            securityContext:
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+
+      meilisearch:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/name
+                        operator: In
+                        values:
+                          - karakeep
+                      - key: app.kubernetes.io/controller
+                        operator: In
+                        values:
+                          - karakeep
+                  topologyKey: kubernetes.io/hostname
+        containers:
+          app:
+            image:
+              repository: docker.io/getmeili/meilisearch
+              tag: v1.15.2
+            args:
+              - /bin/meilisearch
+              - --experimental-dumpless-upgrade
+            env:
+              MEILI_NO_ANALYTICS: true
+              MEILI_MASTER_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: karakeep-secret
+                    key: MEILI_MASTER_KEY
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 4Gi
+
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        forceRename: karakeep
+        primary: true
+        controller: karakeep
+        ports:
+          http:
+            port: &httpPort 3000
+      chrome:
+        controller: chrome
+        ports:
+          http:
+            port: 9222
+      meilisearch:
+        controller: meilisearch
+        ports:
+          http:
+            port: 7700
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *httpPort
+    persistence:
+      data:
+        existingClaim: *app
+        advancedMounts:
+          karakeep:
+            app:
+              - path: /data
+                subPath: karakeep
+          meilisearch:
+            app:
+              - path: /meili_data
+                subPath: meilisearch

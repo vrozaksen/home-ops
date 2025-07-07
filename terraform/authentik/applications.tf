@@ -188,6 +188,22 @@ module "oauth2-pgadmin" {
 }
 
 ## Home
+module "oauth2-karakeep" {
+  source             = "./oauth2_application"
+  name               = "Karakeep"
+  icon_url           = "https://raw.githubusercontent.com/karakeep-app/karakeep/refs/heads/main/docs/static/img/logo.png"
+  launch_url         = "https://karakeep.${var.cluster_domain}/auth/openid/authentik"
+  description        = "Karakeep"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.users.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["karakeep"].client_id
+  client_secret      = local.parsed_secrets["karakeep"].client_secret
+  redirect_uris      = ["https://karakeep.${var.cluster_domain}/auth/openid/authentik"]
+}
+
 module "oauth2-mealie" {
   source             = "./oauth2_application"
   name               = "Mealie"

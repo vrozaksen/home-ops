@@ -193,7 +193,7 @@ module "oauth2-karakeep" {
   source             = "./oauth2_application"
   name               = "Karakeep"
   icon_url           = "https://raw.githubusercontent.com/karakeep-app/karakeep/refs/heads/main/docs/static/img/logo.png"
-  launch_url         = "https://karakeep.${var.cluster_domain}/auth/openid/authentik"
+  launch_url         = "https://karakeep.${var.cluster_domain}"
   description        = "Karakeep"
   newtab             = true
   group              = "Home"
@@ -202,7 +202,7 @@ module "oauth2-karakeep" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["karakeep"].client_id
   client_secret      = local.parsed_secrets["karakeep"].client_secret
-  redirect_uris      = ["https://karakeep.${var.cluster_domain}/auth/openid/authentik"]
+  redirect_uris      = ["https://karakeep.${var.cluster_domain}/api/auth/callback/custom"]
 }
 
 module "oauth2-mealie" {

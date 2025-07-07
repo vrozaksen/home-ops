@@ -122,7 +122,6 @@ spec:
                 cpu: 10m
               limits:
                 memory: 1Gi
-
       meilisearch:
         annotations:
           reloader.stakater.com/auto: "true"

@@ -3,6 +3,7 @@ locals {
     "gitea",
     "grafana",
     "headlamp",
+    "karakeep",
     "mealie",
     "miniflux",
     "mirotalk",

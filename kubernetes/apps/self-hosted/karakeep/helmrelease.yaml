@@ -37,7 +37,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: karakeep-secret
-                    key: encryption_key
+                    key: ENCRYPTION_KEY
               MEILI_ADDR: http://karakeep-meilisearch.self-hosted.svc.cluster.local:7700
               MEILI_MASTER_KEY:
                 valueFrom:

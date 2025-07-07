@@ -161,8 +161,6 @@ spec:
                 cpu: 10m
               limits:
                 memory: 4Gi
-
-
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

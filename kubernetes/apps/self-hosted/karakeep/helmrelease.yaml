@@ -54,6 +54,7 @@ spec:
               OAUTH_WELLKNOWN_URL: https://sso.vzkn.eu/application/o/karakeep/.well-known/openid-configuration
               OAUTH_SCOPE: "openid email profile"
               OAUTH_PROVIDER_NAME: Authentik
+              OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING: true
               ### Inference Configs
               # OLLAMA_BASE_URL: http://localhost < If OLLAMA!
               # OLLAMA_KEEP_ALIVE: 5m < If OLLAMA!

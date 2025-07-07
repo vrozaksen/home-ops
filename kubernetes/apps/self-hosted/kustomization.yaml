@@ -10,7 +10,7 @@ resources:
   - ./convertx/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
-  - ./karakeep/ks.yaml
+  # - ./karakeep/ks.yaml
   - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
   - ./mirotalk/ks.yaml

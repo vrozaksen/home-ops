@@ -27,7 +27,10 @@ spec:
               repository: ghcr.io/open-webui/open-webui
               tag: v0.6.15@sha256:fda936056184035a71a9ad5ff3721530ff061f16bc3907efb33a3201ba87ccfe
             env:
-              OLLAMA_BASE_URL: http://10.100.0.103:11434 # http://ollama:11434
+              ENABLE_CHANNELS: true
+              # Ollama
+              ENABLE_OLLAMA_API: false
+              # OLLAMA_BASE_URL: http://ollama:11434
               ENABLE_RAG_WEB_SEARCH: true
               ENABLE_SEARCH_QUERY: true
               RAG_WEB_SEARCH_ENGINE: searxng

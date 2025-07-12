@@ -41,8 +41,6 @@ spec:
           repository: ghcr.io/mirceanton/external-dns-provider-mikrotik
           tag: v1.4.11@sha256:ea921d7f28d063f13390a174ffb306adc744c79ad93cc08af50e47ded0cb39cd
         env:
-          - name: EXCLUDE_DOMAIN_FILTER
-            value: "mirotalk.vzkn.eu"
           - name: LOG_FORMAT
             value: json
           - name: LOG_LEVEL

@@ -57,7 +57,7 @@ spec:
           endpoint_url: "https://s3.vzkn.eu"
           region_name: "main"
     existingSecret: netbox-secret
-    replicaCount: 2
+    replicaCount: 1
     resourcesPreset: "large"
     metrics:
       enabled: true

@@ -22,7 +22,7 @@ spec:
   interval: 15m
   chartRef:
     kind: OCIRepository
-    name: netbox
+    name: netbox-operator
   install:
     remediation:
       retries: -1

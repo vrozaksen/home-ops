@@ -31,8 +31,14 @@ resource "authentik_group" "home" {
   parent       = resource.authentik_group.users.id
 }
 
+
 resource "authentik_group" "infrastructure" {
   name         = "infrastructure"
+  is_superuser = false
+}
+
+resource "authentik_group" "public" {
+  name         = "public"
   is_superuser = false
 }
 

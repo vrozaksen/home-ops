@@ -218,7 +218,10 @@ module "oauth2-mealie" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["mealie"].client_id
   client_secret      = local.parsed_secrets["mealie"].client_secret
-  redirect_uris      = ["https://mealie.${var.cluster_domain}/login"]
+  redirect_uris = [
+    "https://mealie.${var.cluster_domain}/login",
+    "https://mealie.${var.cluster_domain}/login?direct=1"
+  ]
 }
 
 module "oauth2-miniflux" {

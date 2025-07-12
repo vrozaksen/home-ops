@@ -91,7 +91,7 @@ spec:
                 cpu: 10m
                 memory: 256Mi
               limits:
-                memory: 1Gi
+                memory: 2Gi
       chrome:
         annotations:
           reloader.stakater.com/auto: "true"

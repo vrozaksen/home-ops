@@ -1,6 +1,7 @@
 locals {
   buckets = [
     "gitea",
+    "netbox",
     "nextcloud",
     "outline",
     "postgresql",

@@ -1,0 +1,115 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: netbox
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 6.0.51
+  url: oci://ghcr.io/netbox-community/netbox-chart/netbox
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/netbox-community/netbox-chart/refs/heads/main/charts/netbox/values.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app netbox
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: netbox
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    commonAnnotations:
+      reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/netbox-community/netbox
+      tag: v4.2.8@sha256:e485550e8598ab40b42752f73cb960d1924e6e3c08ab60857edc9ef68f705859
+    superuser:
+      name: vrozaksen
+      email: admin@vzkn.eu
+    admins:
+      - ["vrozaksen", "admin@vzkn.eu"]
+    loginRequired: true
+    timeZone: Europe/Warsaw
+    dateFormat: "j. F, Y"
+    shortDateFormat: "j.m.Y"
+    timeFormat: "G:i"
+    shortTimeFormat: "H:i:s"
+    dateTimeFormat: "j. F, Y g:i a"
+    shortDateTimeFormat: "j.m.Y H:i"
+    storages:
+      default:
+        BACKEND: "storages.backends.s3.S3Storage"
+        OPTIONS:
+          bucket_name: "netbox"
+          endpoint_url: "https://s3.vzkn.eu"
+          region_name: "main"
+    existingSecret: netbox-secret
+    replicaCount: 2
+    resourcesPreset: "large"
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        interval: 1m
+    postgresql:
+      enabled: false
+    valkey:
+      enabled: false
+    tasksDatabase:
+      host: netbox-dragonfly.network.svc.cluster.local
+      database: 0
+    cachingDatabase:
+      host: netbox-dragonfly.network.svc.cluster.local
+      database: 1
+    externalDatabase:
+      host: netbox-pgbouncer.network.svc.cluster.local
+      port: 5432
+      database: netbox
+      username: netbox
+      existingSecretName: "netbox-pguser-netbox"
+      existingSecretKey: "password"
+    # email:
+    #   server: smtp-relay.default.svc.cluster.local
+    #   port: 25
+    #   from: netbox@vzkn.eu
+    persistence:
+      enabled: false
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 60
+      timeoutSeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+    extraConfig:
+      - secret:
+          secretName: netbox-secret
+    housekeeping:
+      enabled: false
+    worker:
+      enabled: false
+    # plugins:
+    #   - netbox_kea
+    #   - netbox_topology_views
+    #   - netbox_cable_labels
+  valuesFrom:
+    - targetPath: storages.default.OPTIONS.access_key
+      kind: Secret
+      name: netbox-secret
+      valuesKey: AWS_ACCESS_KEY_ID
+    - targetPath: storages.default.OPTIONS.secret_key
+      kind: Secret
+      name: netbox-secret
+      valuesKey: AWS_SECRET_ACCESS_KEY

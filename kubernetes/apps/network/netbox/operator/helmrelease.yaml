@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: netbox-operator
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.0.49
+  url: oci://ghcr.io/netbox-community/netbox-chart/netbox-operator
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/netbox-community/netbox-chart/refs/heads/main/charts/netbox/values.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app netbox-operator
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: netbox
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    commonAnnotations:
+      reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/netbox-community/netbox-operator
+      tag: v0.2.4@sha256:dd891dc69ce87710096dff850e15491a7dd4010c6b869e81c3246e590e9a2cba
+    host: "netbox.network.svc.cluster.local"
+    auth:
+      existingSecret: netbox-secret
+    netbox:
+      enabled: false
+    replicaCount: 1
+    resourcesPreset: "small"

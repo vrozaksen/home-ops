@@ -9,9 +9,9 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/dragonfly
-    - ../../../components/gatus/guarded
-    - ../../../components/postgres
+    - ../../../../components/dragonfly
+    - ../../../../components/gatus/guarded
+    - ../../../../components/postgres
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
@@ -29,7 +29,34 @@ spec:
       failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
   interval: 1h
-  path: ./kubernetes/apps/network/netbox
+  path: ./kubernetes/apps/network/netbox/app
+  postBuild:
+    substitute:
+      APP: *app
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: network
+  timeout: 5m
+  wait: false
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app netbox-operator
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: netbox
+      namespace: network
+  interval: 1h
+  path: ./kubernetes/apps/network/netbox/operator
   postBuild:
     substitute:
       APP: *app

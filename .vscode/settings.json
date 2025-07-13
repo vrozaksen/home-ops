@@ -32,17 +32,21 @@
         "talos": "linux",
         // namespaces
         "actions-runner-system": "github",
+        "ai": "robot",
         "cert-manager": "guard",
-        "default": "home",
+        "default": "constant",
+        "home-automation": "home",
         "external-secrets": "secure",
         "flux-system": "pipe",
+        "games": "console",
         "kube-system": "kubernetes",
         "network": "connection",
         "observability": "event",
-        "storage": "base",
         "rook-ceph": "dump",
-        "system-upgrade": "update",
-        "volsync-system": "aws"
+        "self-hosted": "docker",
+        "storage": "base",
+          "volsync": "aws",
+        "system-upgrade": "update"
     },
     "sops.defaults.ageKeyFile": "age.key",
     "vs-kubernetes": {

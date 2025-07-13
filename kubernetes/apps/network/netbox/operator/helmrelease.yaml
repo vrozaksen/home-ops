@@ -36,7 +36,7 @@ spec:
     image:
       repository: ghcr.io/netbox-community/netbox-operator
       tag: v0.2.4@sha256:dd891dc69ce87710096dff850e15491a7dd4010c6b869e81c3246e590e9a2cba
-    host: "http://netbox.network.svc.cluster.local:80/api"
+    host: netbox.network.svc.cluster.local
     https: false
     restorationHashFieldName: "netboxOperatorRestorationHash"
     debug: true

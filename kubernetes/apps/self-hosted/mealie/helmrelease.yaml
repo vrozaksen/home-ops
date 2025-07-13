@@ -29,6 +29,7 @@ spec:
               tag: v3.0.1
             env:
               TZ: Europe/Warsaw
+              ALLOW_PASSWORD_LOGIN: false
               BASE_URL: https://mealie.vzkn.eu
               PUID: 1000
               PGID: 100

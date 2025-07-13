@@ -58,7 +58,7 @@ spec:
           region_name: "main"
     existingSecret: netbox-secret
     replicaCount: 1
-    resourcesPreset: "small"
+    resourcesPreset: "large"
     metrics:
       enabled: true
       serviceMonitor:

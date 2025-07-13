@@ -94,6 +94,8 @@ spec:
             port: &metricsPort 8001
           ready:
             port: *readyPort
+    serviceAccount:
+      netbox-ip-controller: {}
     rbac:
       bindings:
         netbox-ip-controller:

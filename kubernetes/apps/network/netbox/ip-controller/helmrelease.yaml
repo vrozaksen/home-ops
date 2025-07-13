@@ -32,7 +32,7 @@ spec:
               NETBOX_TOKEN:
                 valueFrom:
                   secretKeyRef:
-                    name: *app
+                    name: netbox-ip-controller-secret
                     key: NETBOX_TOKEN
               CLUSTER_DOMAIN: "cluster.local"
               POD_IP_TAGS: "kubernetes,k8s-pod,home-ops"

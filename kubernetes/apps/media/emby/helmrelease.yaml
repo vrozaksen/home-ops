@@ -66,10 +66,10 @@ spec:
                   failureThreshold: 30
             resources:
               requests:
-                cpu: 500m
-                memory: 4Gi
-              limits:
+                cpu: 1
                 memory: 8Gi
+              limits:
+                memory: 12Gi
                 gpu.intel.com/i915: 1
     service:
       app:

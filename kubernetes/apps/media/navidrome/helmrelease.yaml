@@ -82,10 +82,10 @@ spec:
                 enabled: false
             resources:
               requests:
-                cpu: 10m
+                cpu: 25m
                 memory: 128Mi
               limits:
-                memory: 512Mi
+                memory: 256Mi
     service:
       app:
         ports:

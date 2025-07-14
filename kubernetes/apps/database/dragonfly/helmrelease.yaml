@@ -31,9 +31,22 @@ spec:
     remediation:
       retries: 3
   values:
+    kube-rbac-proxy:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          memory: 128Mi
     manager:
       image:
         repository: ghcr.io/dragonflydb/operator
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          memory: 128Mi
     grafanaDashboard:
       enabled: true
       folder: data

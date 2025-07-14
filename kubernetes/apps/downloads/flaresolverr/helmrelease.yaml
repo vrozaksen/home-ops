@@ -32,10 +32,10 @@ spec:
               TZ: Europe/Warsaw
             resources:
               requests:
-                cpu: 15m
+                cpu: 10m
                 memory: 256Mi
               limits:
-                memory: 1024Mi
+                memory: 512Mi
     service:
       app:
         type: ClusterIP

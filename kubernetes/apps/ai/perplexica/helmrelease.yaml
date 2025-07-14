@@ -32,10 +32,10 @@ spec:
               DATA_DIR: /home/perplexica
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
+                cpu: 25m
+                memory: 192Mi
               limits:
-                memory: 2Gi
+                memory: 512Mi
     service:
       app:
         ports:

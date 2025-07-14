@@ -73,10 +73,10 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 25m
-                memory: 1Gi
-              limits:
+                cpu: 350m
                 memory: 8Gi
+              limits:
+                memory: 12Gi
           vuetorrent:
             dependsOn: app
             image:

@@ -41,6 +41,6 @@ spec:
       clusterLabels:
         app.kubernetes.io/name: *app
     resources:
-     requests:
+      requests:
         cpu: 25m
         memory: 256Mi

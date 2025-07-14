@@ -8,4 +8,5 @@ components:
 resources:
   - ./open-webui/ks.yaml
   - ./perplexica/ks.yaml
+  - ./qdrant/ks.yaml
   - ./searxng/ks.yaml

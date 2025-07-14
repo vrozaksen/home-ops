@@ -28,7 +28,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 5Gi
-      GATUS_PATH: /healthcheck
+      GATUS_PATH: /api/app/about
   prune: true
   retryInterval: 2m
   sourceRef:

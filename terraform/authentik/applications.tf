@@ -8,6 +8,7 @@ locals {
     "miniflux",
     "mirotalk",
     "nextcloud",
+    "open-webui",
     "outline",
     "paperless",
     "pgadmin",
@@ -289,21 +290,21 @@ module "oauth2-rresume" {
 }
 
 ## Users
-# module "oauth2-open-webui" {
-#   source             = "./oauth2_application"
-#   name               = "Open-WebUI"
-#   icon_url           = "https://raw.githubusercontent.com/open-webui/open-webui/refs/heads/main/static/favicon.png"
-#   launch_url         = "https://chat.${var.cluster_domain}/auth"
-#   description        = "Chat"
-#   newtab             = true
-#   group              = "Home"
-#   auth_groups        = [authentik_group.home.id]
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   client_id          = local.parsed_secrets["open-webui"].client_id
-#   client_secret      = local.parsed_secrets["open-webui"].client_secret
-#   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
-# }
+module "oauth2-open-webui" {
+  source             = "./oauth2_application"
+  name               = "Open-WebUI"
+  icon_url           = "https://raw.githubusercontent.com/open-webui/open-webui/refs/heads/main/static/favicon.png"
+  launch_url         = "https://chat.${var.cluster_domain}/auth"
+  description        = "Chat"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.home.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["open-webui"].client_id
+  client_secret      = local.parsed_secrets["open-webui"].client_secret
+  redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
+}
 
 module "oauth2-mirotalk" {
   source             = "./oauth2_application"

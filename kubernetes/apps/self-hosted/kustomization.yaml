@@ -7,15 +7,15 @@ components:
   - ../../components/common
 resources:
   - ./atuin/ks.yaml
-  - ./convertx/ks.yaml
+  # - ./convertx/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   - ./karakeep/ks.yaml
-  - ./mealie/ks.yaml
+  # - ./mealie/ks.yaml
   - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
-  - ./paperless/ks.yaml
+  # - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml
-  - ./stirling-pdf/ks.yaml
+  # - ./stirling-pdf/ks.yaml
   - ./vikunja/ks.yaml
   - ./zipline/ks.yaml

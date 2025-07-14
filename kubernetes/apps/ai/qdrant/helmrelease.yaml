@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app qdrant
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      qdrant:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: qdrant/qdrant
+              tag: v1.14.0@sha256:f21bbaf111837592b70f4d727c62cf6d6525b5374b1193e9faeac26a953702a8
+            env:
+              QDRANT__SERVICE__HTTP_PORT: &http-port 6333
+              QDRANT__SERVICE__GRPC_PORT: &grpc-port 6334
+              QDRANT__SERVICE__ENABLE_CORS: "false"
+              QDRANT__STORAGE__STORAGE_PATH: "/qdrant/storage"
+              QDRANT__STORAGE__SNAPSHOT_PATH: "/qdrant/snapshots"
+              QDRANT__TELEMETRY__DISABLE: "true"
+            envFrom:
+              - secretRef:
+                  name: qdrant-secret
+            ports:
+              - name: http
+                containerPort: *http-port
+              - name: grpc
+                containerPort: *grpc-port
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 100m
+              limits:
+                memory: 1Gi
+        pod:
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "6333"
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *http-port
+          grpc:
+            port: *grpc-port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+    persistence:
+      data:
+        enabled: true
+        existingClaim: *app
+        advancedMounts:
+          qdrant:
+            app:
+              - path: /qdrant/storage
+                subPath: storage
+              - path: /qdrant/snapshots
+                subPath: snapshots

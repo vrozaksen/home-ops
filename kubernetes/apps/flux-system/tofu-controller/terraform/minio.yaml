@@ -1,4 +1,4 @@
-apiVersion: infra.contrib.fluxcd.io/v1alpha2
+apiVersion: infra.contrib.fluxcd.io/v1
 kind: Terraform
 metadata:
   name: minio

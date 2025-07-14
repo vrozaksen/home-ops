@@ -35,7 +35,7 @@ spec:
       reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/netbox-community/netbox-operator
-      tag: v0.2.4@sha256:dd891dc69ce87710096dff850e15491a7dd4010c6b869e81c3246e590e9a2cba
+      tag: 0.2.5@sha256:19538058bb98a5e74ef1cffba79e252041da1049b5e8ef06fd5ac8b63bddc070
     host: netbox.network.svc.cluster.local
     https: false
     restorationHashFieldName: "netboxOperatorRestorationHash"

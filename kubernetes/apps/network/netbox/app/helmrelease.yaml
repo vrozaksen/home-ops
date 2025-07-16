@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 6.0.54
+    tag: 6.0.55
   url: oci://ghcr.io/netbox-community/netbox-chart/netbox
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/netbox-community/netbox-chart/refs/heads/main/charts/netbox/values.schema.json

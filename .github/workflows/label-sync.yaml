@@ -30,5 +30,7 @@ jobs:
       - name: Sync Labels
         uses: EndBug/label-sync@52074158190acb45f3077f9099fea818aa43f97a # v2.3.3
         with:
-          config-file: .github/labels.yaml
+          config-file: |
+            https://raw.githubusercontent.com/vrozaksen/renovate-config/refs/heads/main/.github/labels.yaml
+            .github/labels.yaml
           delete-other-labels: true

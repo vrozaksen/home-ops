@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: vernemq/vernemq
-              tag: 2.0.1-alpine
+              tag: 2.1.1-alpine
             env:
               TZ: Europe/Warsaw
               MY_POD_NAME:

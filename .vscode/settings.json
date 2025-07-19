@@ -58,5 +58,6 @@
     "yaml.schemaStore.enable": true,
     "yaml.schemas": {
       "kubernetes": "./kubernetes/**/*.yaml"
-    }
+    },
+    "github.copilot.chat.byok.ollamaEndpoint": "http://aincrad.home.vzkn.eu:11434"
 }

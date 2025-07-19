@@ -2,6 +2,8 @@ include:
   - model_config.yaml
 
 general_settings:
+  user_header_name: X-OpenWebUI-User-Id
+
   proxy_batch_write_at: 60
   database_connection_pool_limit: 10
 

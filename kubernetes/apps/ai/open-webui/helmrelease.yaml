@@ -30,8 +30,8 @@ spec:
               ENABLE_CHANNELS: true
               # Ollama
               ENABLE_FORWARD_USER_INFO_HEADERS: true
-              # ENABLE_OLLAMA_API: true
-              # cOLLAMA_BASE_URL: http://aincrad.home.vzkn.eu:11434
+              ENABLE_OLLAMA_API: true
+              OLLAMA_BASE_URL: http://aincrad.home.vzkn.eu:11434
               ENABLE_RAG_WEB_SEARCH: true
               ENABLE_SEARCH_QUERY: true
               # RAG_EMBEDDING_ENGINE: sentence-transformers

@@ -1,6 +1,5 @@
 include:
   - model_config.yaml
-  - mcp_servers.yaml
 
 general_settings:
   user_header_name: X-OpenWebUI-User-Id

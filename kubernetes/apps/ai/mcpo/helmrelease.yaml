@@ -42,7 +42,7 @@ spec:
                 memory: 512Mi
             args: [
               "--config", "/app/config.json",
-              "--api-key", "$API_KEY"
+              "--api-key", "$(API_KEY)"
             ]
     service:
       app:

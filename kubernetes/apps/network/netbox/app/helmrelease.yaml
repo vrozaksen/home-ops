@@ -35,7 +35,7 @@ spec:
       reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/netbox-community/netbox
-      tag: v4.3.4@sha256:38981d767954b39215cde69c5f0df22bb52d66a7ea99b47c97fbc142f0491aff
+      tag: v4.3.4@sha256:2b4b49d84bbf6747cdcf455cd9111380fd40932894db3a92b97c2f8fa575f7d5
     superuser:
       name: vrozaksen
       email: admin@vzkn.eu

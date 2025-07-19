@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app litellm
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      litellm:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/berriai/litellm-non_root
+              tag: main-v1.74.6-nightly
+            env:
+              TZ: "Europe/Warsaw"
+              LITELLM_LOG: "DEBUG"
+              LITELLM_MODE: "production"
+              LITELLM_DONT_SHOW_FEEDBACK_BOX: "True"
+              PROMETHEUS_URL: "http://prometheus-operated.observability.svc.cluster.local:9090"
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: litellm-pguser-litellm
+                    key: pgbouncer-uri
+            args:
+              - --port
+              - "4000"
+              - --config
+              - /app/config.yaml
+            envFrom:
+              - secretRef:
+                  name: litellm-secret
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/liveliness
+                    port: &port 4000
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/readiness
+                    port: *port
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+    persistence:
+      config:
+        type: configMap
+        name: litellm-configmap
+        globalMounts:
+          - path: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
+          - path: /app/model_config.yaml
+            subPath: model_config.yaml
+            readOnly: true
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /.cache
+            subPath: cache
+          - path: /.npm
+            subPath: npm
+          - path: /tmp
+            subPath: tmp
+      prisma-client:
+        type: emptyDir
+        globalMounts:
+          - path: /usr/local/lib/python3.13/site-packages/prisma
+            subPath: prisma

@@ -28,8 +28,8 @@ spec:
               repository: ghcr.io/github/github-mcp-server
               tag: v0.8.0
               pullPolicy: IfNotPresent
-            stdin: true
-            tty: true
+            # stdin: true
+            # tty: true
             env:
               GITHUB_TOOLSETS: "repos,issues,pull_requests,code_security,experiments"
             envFrom:
@@ -46,7 +46,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 3001
+            port: &port 8000
     route:
       app:
         hostnames: ["github-mcp.vzkn.eu"]

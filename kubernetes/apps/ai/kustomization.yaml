@@ -6,6 +6,7 @@ namespace: ai
 components:
   - ../../components/common
 resources:
+  - ./mcp/ks.yaml
   - ./open-webui/ks.yaml
   - ./perplexica/ks.yaml
   - ./qdrant/ks.yaml

@@ -49,4 +49,4 @@ spec:
             port: 8000
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: github-mcp

@@ -28,8 +28,30 @@ model_list:
 # Each entry maps to a real provider + model pairing
 # Models may define aliases for routing/fallback via `model_groups`
 
-# Anthropic Models
+# Ollama
+  - model_name: "Ollama: llama3.1:8b-instruct-q8_0"
+    litellm_params:
+      model: ollama_chat/llama3.1:8b-instruct-q8_0
+      api_base: "http://aincrad.home.vzkn.eu:11434"
+    aliases: [general_ollama]
+  - model_name: "Ollama: deepseek-coder-v2:16b"
+    litellm_params:
+      model: ollama_chat/deepseek-coder-v2:16b
+      api_base: "http://aincrad.home.vzkn.eu:11434"
+    aliases: [code_ollama_deepseek]
+  - model_name: "Ollama: qwen2.5-coder:1.5b-base"
+    litellm_params:
+      model: ollama_chat/qwen2.5-coder:1.5b-base
+      api_base: "http://aincrad.home.vzkn.eu:11434"
+    aliases: [code_ollama_qwen]
+  - model_name: "Ollama: nomic-embed-text:latest"
+    litellm_params:
+      model: ollama_chat/nomic-embed-text:latest
+      api_base: "http://aincrad.home.vzkn.eu:11434"
+      mode: embedding  # Required for embeddings
+    aliases: [embedding_ollama_nomic]
 
+# Anthropic Models
   - model_name: "Anthopic: claude-3.5-haiku"
     provider: anthropic
     litellm_params:
@@ -38,7 +60,6 @@ model_list:
     aliases: [general_anthropic, vision_anthropic]
 
 # Deepseek Models
-
   - model_name: "Deepseek: Chat"
     provider: deepseek
     litellm_params:
@@ -61,7 +82,6 @@ model_list:
     aliases: [reasoner_deepseek]
 
 # Groq Models
-
   - model_name: "Groq: Meta llama3-70b-8192"
     provider: groq
     litellm_params:
@@ -98,20 +118,27 @@ model_list:
     litellm_params:
       model: openai/whisper-1
     api_key: ${OPENAI_API_KEY}
+    model_info:
+      id: whisper-1
+      mode: completion
+      input_cost_per_token: 0.000000006   # USD $0.006 per million tokens (input)
     aliases: [general_openai_4o, vision_openai_4o, education_4o, whisper-1]
 
-
 # TogetherAI Models
-
   - model_name: "TogetherAI: Qwen2.5-Coder-32B-Instruct"
     provider: togetherai
     litellm_params:
       model: together_ai/Qwen/Qwen2.5-Coder-32B-Instruct
     api_key: ${TOGETHER_API_KEY}
+    model_info:
+      id: Qwen2.5-Coder-32B-Instruct
+      mode: completion
+      input_cost_per_token: 0.0000008  # USD $0.80 per million tokens (input)
+      output_cost_per_token: 0.0000008  # USD $0.80 per million tokens (output)
+      max_tokens: 16384
     aliases: [code_together]
 
 # xAI Models
-
   - model_name: "xAI: grok-3-mini-beta"
     provider: xai
     litellm_params:
@@ -119,7 +146,6 @@ model_list:
       api_base: "https://api.x.ai/v1"  # Required endpoint for xAI
     api_key: ${XAI_API_KEY}
     aliases: [general_xai, vision_xai]
-
 
 # Fallback Groups
 # Each group is a list of model aliases (not full names!)
@@ -130,6 +156,8 @@ model_groups:
     - code_groq            # Fast + cheap reasoning for code
     - code_deepseek        # Strong code reasoning
     - code_together        # Big context + strong code skills
+    - code_ollama_deepseek  # Ollama fallback for code tasks
+    - code_ollama_qwen     # Ollama fallback for code tasks
 
   general_tasks:
     - general_openai_4o             # GPT-4o – multilingual, expressive
@@ -137,6 +165,7 @@ model_groups:
     - general_anthropic             # Claude 3.5 – ideal for thoughtful reasoning and tone
     - general_xai                   # Grok 3 – experimental fallback
     - general_deepseek              # DeepSeek Chat – strong reasoning
+    - general_ollama                # Ollama fallback for general tasks
 
   vision_tasks:
     - vision_openai_4o              # GPT-4o – best visual model for accuracy

@@ -35,9 +35,6 @@ spec:
             envFrom:
               - secretRef:
                   name: github-mcp-secret
-            args: [
-              "--port", "8000"
-            ]
             resources:
               requests:
                 cpu: 50m
@@ -49,7 +46,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 8000
+            port: &port 8080
     route:
       app:
         hostnames: ["github-mcp.vzkn.eu"]

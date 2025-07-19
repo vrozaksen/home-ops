@@ -108,6 +108,9 @@ spec:
           - path: /app/model_config.yaml
             subPath: model_config.yaml
             readOnly: true
+          - path: /app/mcp_servers.yaml
+            subPath: mcp_servers.yaml
+            readOnly: true
       cache:
         type: emptyDir
         globalMounts:

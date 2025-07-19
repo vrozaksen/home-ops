@@ -10,5 +10,6 @@ configMapGenerator:
     files:
       - config.yaml=./resources/config.yaml
       - model_config.yaml=./resources/model_config.yaml
+      - mcp_servers.yaml=./resources/mcp_servers.yaml
 generatorOptions:
   disableNameSuffixHash: true

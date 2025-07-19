@@ -1,0 +1,24 @@
+mcp_servers:
+  # HTTP Streamable Server
+  deepwiki_mcp:
+    url: "https://mcp.deepwiki.com/mcp"
+  # SSE Server
+  # zapier_mcp:
+  #   url: "https://actions.zapier.com/mcp/sk-akxxxxx/sse"
+
+  # Standard Input/Output (stdio) Server - CircleCI Example
+  # circleci_mcp:
+  #   transport: "stdio"
+  #   command: "npx"
+  #   args: ["-y", "@circleci/mcp-server-circleci"]
+  #   env:
+  #     CIRCLECI_TOKEN: "your-circleci-token"
+  #     CIRCLECI_BASE_URL: "https://circleci.com"
+
+  # Full configuration with all optional fields
+  # my_http_server:
+  #   url: "https://my-mcp-server.com/mcp"
+  #   transport: "http"
+  #   description: "My custom MCP server"
+  #   auth_type: "api_key"
+  #   spec_version: "2025-03-26"

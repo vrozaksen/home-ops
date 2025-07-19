@@ -46,7 +46,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 80
+            port: &port 3001
     route:
       app:
         hostnames: ["github-mcp.vzkn.eu"]

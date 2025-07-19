@@ -47,17 +47,17 @@ spec:
         ports:
           http:
             port: &port 8000
-    # route:
-    #   app:
-    #     hostnames: ["github-mcp.vzkn.eu"]
-    #     parentRefs:
-    #       - name: internal
-    #         namespace: kube-system
-    #         sectionName: https
-    #     rules:
-    #       - backendRefs:
-    #           - name: *app
-    #             port: *port
+    route:
+      app:
+        hostnames: ["github-mcp.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: github-mcp

@@ -46,7 +46,7 @@ spec:
       app:
         ports:
           http:
-            port: 8000
+            port: &port 8000
     route:
       app:
         hostnames: ["github-mcp.vzkn.eu"]
@@ -54,6 +54,10 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
     persistence:
       config:
         existingClaim: github-mcp

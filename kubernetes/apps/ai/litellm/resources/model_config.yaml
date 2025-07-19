@@ -78,8 +78,6 @@ model_list:
     provider: deepseek
     litellm_params:
       model: deepseek/deepseek-reasoner
-      thinking: {"type": "enabled", "budget_tokens": 1024}
-      merge_reasoning_content_in_choices: true
     api_key: ${DEEPSEEK_API_KEY}
     aliases: [reasoner_deepseek]
 

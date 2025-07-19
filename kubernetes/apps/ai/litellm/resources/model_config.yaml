@@ -31,22 +31,22 @@ model_list:
 # Ollama
   - model_name: "Ollama: llama3.1:8b-instruct-q8_0"
     litellm_params:
-      model: ollama_chat/llama3.1:8b-instruct-q8_0
+      model: ollama/llama3.1:8b-instruct-q8_0
       api_base: "http://aincrad.home.vzkn.eu:11434"
     aliases: [general_ollama]
   - model_name: "Ollama: deepseek-coder-v2:16b"
     litellm_params:
-      model: ollama_chat/deepseek-coder-v2:16b
+      model: ollama/deepseek-coder-v2:16b
       api_base: "http://aincrad.home.vzkn.eu:11434"
     aliases: [code_ollama_deepseek]
   - model_name: "Ollama: qwen2.5-coder:1.5b-base"
     litellm_params:
-      model: ollama_chat/qwen2.5-coder:1.5b-base
+      model: ollama/qwen2.5-coder:1.5b-base
       api_base: "http://aincrad.home.vzkn.eu:11434"
     aliases: [code_ollama_qwen]
   - model_name: "Ollama: nomic-embed-text:latest"
     litellm_params:
-      model: ollama_chat/nomic-embed-text:latest
+      model: ollama/nomic-embed-text:latest
       api_base: "http://aincrad.home.vzkn.eu:11434"
       mode: embedding  # Required for embeddings
     aliases: [embedding_ollama_nomic]

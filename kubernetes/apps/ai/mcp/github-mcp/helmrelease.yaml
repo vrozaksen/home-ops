@@ -25,11 +25,11 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/github/github-mcp-server
-              tag: v0.8.0
+              repository: mcp/github-mcp-server
+              tag: latest
               pullPolicy: IfNotPresent
-            # stdin: true
-            # tty: true
+            stdin: true
+            tty: true
             env:
               GITHUB_TOOLSETS: "repos,issues,pull_requests,code_security,experiments"
             envFrom:
@@ -47,17 +47,17 @@ spec:
         ports:
           http:
             port: &port 8000
-    route:
-      app:
-        hostnames: ["github-mcp.vzkn.eu"]
-        parentRefs:
-          - name: internal
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - name: *app
-                port: *port
+    # route:
+    #   app:
+    #     hostnames: ["github-mcp.vzkn.eu"]
+    #     parentRefs:
+    #       - name: internal
+    #         namespace: kube-system
+    #         sectionName: https
+    #     rules:
+    #       - backendRefs:
+    #           - name: *app
+    #             port: *port
     persistence:
       config:
         existingClaim: github-mcp

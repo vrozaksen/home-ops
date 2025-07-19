@@ -19,6 +19,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      GATUS_GROUP: ai
       VOLSYNC_CAPACITY: 25Gi
   prune: true
   retryInterval: 2m

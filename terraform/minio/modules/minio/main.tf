@@ -7,26 +7,26 @@ terraform {
   }
 }
 
-resource "minio_s3_bucket" "this" {
+resource "minio_s3_bucket" "bucket" {
   bucket = var.bucket_name
   acl    = "private"
 }
 
-resource "minio_s3_bucket_versioning" "this" {
-  depends_on = [minio_s3_bucket.this]
-  bucket     = minio_s3_bucket.this.bucket
+resource "minio_s3_bucket_versioning" "bucket" {
+  depends_on = [minio_s3_bucket.bucket]
+  bucket     = minio_s3_bucket.bucket.bucket
   versioning_configuration {
     status = "Enabled"
   }
   count = var.versioning ? 1 : 0
 }
 
-resource "minio_iam_user" "this" {
+resource "minio_iam_user" "user" {
   name   = var.user_name
   secret = var.user_secret
 }
 
-resource "minio_iam_policy" "this" {
+resource "minio_iam_policy" "policy" {
   name   = "${var.bucket_name}-policy"
   policy = <<EOF
 {
@@ -38,8 +38,8 @@ resource "minio_iam_policy" "this" {
                 "s3:*"
             ],
             "Resource": [
-                "arn:aws:s3:::${minio_s3_bucket.this.bucket}",
-                "arn:aws:s3:::${minio_s3_bucket.this.bucket}/*"
+                "arn:aws:s3:::${minio_s3_bucket.bucket.bucket}",
+                "arn:aws:s3:::${minio_s3_bucket.bucket.bucket}/*"
             ],
             "Sid": ""
         }
@@ -48,7 +48,7 @@ resource "minio_iam_policy" "this" {
 EOF
 }
 
-resource "minio_iam_user_policy_attachment" "this" {
-  user_name   = minio_iam_user.this.id
-  policy_name = minio_iam_policy.this.id
+resource "minio_iam_user_policy_attachment" "attachment" {
+  user_name   = minio_iam_user.user.id
+  policy_name = minio_iam_policy.policy.id
 }

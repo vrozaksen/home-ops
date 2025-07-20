@@ -15,6 +15,7 @@ kubeconfig
 *.pem
 # Other
 *.psql
+node_modules
 # Private
 .private
 .bin

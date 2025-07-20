@@ -27,3 +27,28 @@ rules:
   # allow longer lines in comments
   comments:
     min-spaces-from-content: 2
+
+  # be lenient with indentation for complex Kubernetes manifests
+  indentation:
+    spaces: consistent
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # allow brackets for lists (common in Kubernetes)
+  brackets:
+    max-spaces-inside: 1
+    max-spaces-inside-empty: 0
+
+  # allow braces for objects (common in Kubernetes)
+  braces:
+    max-spaces-inside: 1
+    max-spaces-inside-empty: 0
+
+  # don't enforce key ordering (Kubernetes manifests often have specific ordering requirements)
+  key-ordering: disable
+
+  # allow float values like 0.5 (common in resource limits)
+  float-values: disable
+
+  # allow octal values (sometimes used in Kubernetes)
+  octal-values: disable

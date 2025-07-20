@@ -1,4 +1,4 @@
-﻿{
+{
   "Name": "V Rising Server",
   "Description": "",
   "Port": 9876,
@@ -26,3 +26,4 @@
     "Port": 25575,
     "Password": ""
   }
+}

@@ -26,6 +26,7 @@ includes:
   kubernetes: .taskfiles/kubernetes
   sops: .taskfiles/sops
   talos: .taskfiles/talos
+  terraform: .taskfiles/terraform
   volsync: .taskfiles/volsync
   workstation: .taskfiles/workstation
 

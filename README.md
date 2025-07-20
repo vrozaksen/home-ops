@@ -2,7 +2,6 @@
 
 <img src="https://github.com/user-attachments/assets/9c0bb329-e7a5-4d45-af57-87a7f892d5f4" align="center" width="144px" height="144px"/>
 
-
 ### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" alt="🚀" width="16" height="16"> My Home Operations Repository <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6a7/512.gif" alt="🚧" width="16" height="16">
 
 _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.gif" alt="🤖" width="16" height="16">
@@ -91,11 +90,13 @@ This Git repository contains the following directories under [Kubernetes](./kube
 ### Flux Workflow
 
 This diagram illustrates how Flux manages application deployments with complex dependencies. In this scenario:
+
 1. `Kustomization` resources depend on other `Kustomization` resources
 2. `HelmRelease` resources depend on custom resources (`PostgresCluster`/`Dragonfly`)
 3. Operators manage stateful components that applications require
 
 The workflow ensures **Authentik won't deploy** until:
+
 - The PostgreSQL operator is installed and ready
 - The Dragonfly operator is installed and ready
 - A dedicated PostgreSQL cluster for Authentik is provisioned and healthy

@@ -27,3 +27,20 @@ tasks:
     preconditions:
       - kubectl krew version
       - which kubectl
+
+  precommit:
+    desc: Setup pre-commit hooks for the entire repository
+    deps: [brew]
+    cmd: |
+      echo "Setting up pre-commit hooks for home-ops repository..."
+      pre-commit install
+      pre-commit install --hook-type commit-msg
+      echo "✅ Pre-commit hooks installed successfully!"
+      echo "This will now validate:"
+      echo "  • Terraform files (.tf)"
+      echo "  • Kubernetes manifests (.yaml)"
+      echo "  • Documentation (.md)"
+      echo "  • General file quality (whitespace, etc.)"
+    preconditions:
+      - sh: command -v pre-commit
+        msg: 'pre-commit not found. Run: task workstation:brew'

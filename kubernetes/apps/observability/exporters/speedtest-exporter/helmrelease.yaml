@@ -31,39 +31,15 @@ spec:
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /metrics
-                    port: &port 9798
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 15m
                 memory: 50Mi
               limits:
                 memory: 100Mi
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 100
-        fsGroup: 100
-        fsGroupChangePolicy: OnRootMismatch
     service:
       metrics:
         ipFamilyPolicy: PreferDualStack
         ports:
           metrics:
-            port: *port
+            port: 9798

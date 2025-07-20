@@ -19,18 +19,14 @@ spec:
   values:
     controllers:
       navidrome:
-        pod:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 100
-            fsGroup: 100
-            fsGroupChangePolicy: OnRootMismatch
+        replicas: 1
+        strategy: RollingUpdate
         containers:
           app:
             image:
               repository: ghcr.io/navidrome/navidrome
               tag: 0.57.0@sha256:d753f3f0ba65d838d288e58c2cb1254a519f439b88fa0fa8378178f5e8b17587
+              pullPolicy: IfNotPresent
             env:
               # Baisc
               TZ: Europe/Warsaw
@@ -61,10 +57,6 @@ spec:
               ND_SEARCHFULLSTRING: true
               ND_TRANSCODINGCACHESIZE: 1GB
               ND_SUBSONIC_ARTISTPARTICIPATIONS: true
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             probes:
               liveness: &probes
                 enabled: true
@@ -80,12 +72,23 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
                 memory: 128Mi
               limits:
                 memory: 256Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:
@@ -116,7 +119,6 @@ spec:
         globalMounts:
           - path: /music
             subPath: music
-            #readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:

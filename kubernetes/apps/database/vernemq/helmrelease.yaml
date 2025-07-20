@@ -24,10 +24,6 @@ spec:
         type: statefulset
         strategy: RollingUpdate
         replicas: 2
-        pod:
-          securityContext:
-            runAsUser: 10000
-            runAsNonRoot: true
         statefulset:
           serviceName:
             identifier: headless
@@ -36,6 +32,7 @@ spec:
             image:
               repository: vernemq/vernemq
               tag: 2.1.1-alpine
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               MY_POD_NAME:
@@ -91,6 +88,10 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 10000
+        runAsNonRoot: true
     service:
       app:
         primary: true

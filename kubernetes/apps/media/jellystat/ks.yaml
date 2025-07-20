@@ -13,6 +13,8 @@ spec:
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
+    - name: emby
+      namespace: media
     - name: crunchy-postgres-operator
       namespace: database
     - name: external-secrets-store

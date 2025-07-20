@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       jellyseerr:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/fallenbagel/jellyseerr
               tag: 2.7.1@sha256:702603e935a295b8745bafe706373e2941b1df238de161e0319d5942e1fa432c
+              pullPolicy: IfNotPresent
             env:
               DB_TYPE: "postgres"
               DB_HOST: jellyseerr-pgbouncer.media.svc

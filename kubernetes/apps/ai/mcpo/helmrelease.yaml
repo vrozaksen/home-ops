@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       mcpo:
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -28,22 +29,53 @@ spec:
               repository: ghcr.io/open-webui/mcpo
               tag: latest
               pullPolicy: IfNotPresent
+            args: [
+              "--config", "/app/config.json",
+              "--api-key", "$(API_KEY)"
+            ]
             env:
               - name: API_KEY
                 valueFrom:
                   secretKeyRef:
                     name: mcpo-secret
                     key: API_KEY
+            # TODO: Add envFrom for secrets management
+            # envFrom:
+            #   - secretRef:
+            #       name: mcpo-secrets
+            # TODO: Add probes for health checks
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /health
+            #         port: 8000
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 1
+            #       failureThreshold: 3
+            #   readiness: *probes
+            # TODO: Add securityContext for container security
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
                 memory: 192Mi
               limits:
                 memory: 512Mi
-            args: [
-              "--config", "/app/config.json",
-              "--api-key", "$(API_KEY)"
-            ]
+    # TODO: Add defaultPodOptions for pod-level security
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: 568
+    #     runAsGroup: 568
+    #     fsGroup: 568
+    #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

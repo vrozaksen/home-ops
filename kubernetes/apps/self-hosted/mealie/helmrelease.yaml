@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       mealie:
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -27,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/mealie-recipes/mealie
               tag: v3.0.1
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               ALLOW_PASSWORD_LOGIN: false
@@ -46,6 +48,20 @@ spec:
             envFrom:
               - secretRef:
                   name: mealie-secret
+            # TODO: Add probes for health checks
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /api/app/about
+            #         port: 9000
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 1
+            #       failureThreshold: 3
+            #   readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

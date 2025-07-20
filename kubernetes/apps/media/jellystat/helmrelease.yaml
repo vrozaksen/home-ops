@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       jellystat:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,6 +28,7 @@ spec:
             image:
               repository: docker.io/cyfershepard/jellystat
               tag: unstable@sha256:eac13ef652ebb108d9622ce7b23ef10b0070105e9a8df4353bdf596019b181ee
+              pullPolicy: IfNotPresent
             env:
               TZ: "Europe/Warsaw"
               MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK: "30"
@@ -42,6 +45,19 @@ spec:
             envFrom:
               - secretRef:
                   name: jellystat-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
             resources:
               requests:
                 cpu: 10m

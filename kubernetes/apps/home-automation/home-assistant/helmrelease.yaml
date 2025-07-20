@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       home-assistant:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,8 +28,22 @@ spec:
             image:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2025.7.2@sha256:1ccea0e903924bb3198f130b4018ff27315b03fbbe343c3f4aee289b5050660e
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8123
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -42,8 +58,7 @@ spec:
             image:
               repository: ghcr.io/coder/code-server
               tag: 4.102.1@sha256:8e54ed8a175d4dc223186078dc0c89157887ad8a2c17b41b2ff6f1a0b3d724d9
-            env:
-              TZ: Europe/Warsaw
+              pullPolicy: IfNotPresent
             args: [
               "--auth", "none",
               "--user-data-dir", "/config/.vscode",
@@ -51,6 +66,25 @@ spec:
               "--port", "12321",
               "/config"
             ]
+            env:
+              TZ: Europe/Warsaw
+            probes:
+              liveness: &codeserver-probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &codeserverPort 12321
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *codeserver-probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
@@ -71,9 +105,9 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.43
         ports:
           http:
-            port: &port 8123
+            port: *port
           codeserver:
-            port: &codeserverPort 12321
+            port: *codeserverPort
     route:
       app:
         hostnames:

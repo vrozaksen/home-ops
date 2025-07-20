@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       zipline:
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -27,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/diced/zipline
               tag: v4@sha256:d38fb637858f56d8ccdd30552bc391e204fe4e0280bf1a955ab542df518b920f
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               CORE_HOSTNAME: 0.0.0.0
@@ -70,6 +72,19 @@ spec:
             envFrom:
               - secretRef:
                   name: zipline-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/stats
+                    port: 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

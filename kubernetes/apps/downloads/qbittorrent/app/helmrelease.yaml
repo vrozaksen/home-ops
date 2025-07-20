@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       qbittorrent:
+        replicas: 1
+        strategy: RollingUpdate
         labels:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -27,6 +29,7 @@ spec:
             image:
               repository: ghcr.io/home-operations/qbittorrent
               tag: 5.1.2@sha256:9dd0164cc23e9c937e0af27fd7c3f627d1df30c182cf62ed34d3f129c55dc0e8
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               QBT_WEBUI_PORT: &port 80
@@ -46,6 +49,7 @@ spec:
             envFrom:
               - secretRef:
                   name: qbittorrent-secret
+            # TODO: Enable probes for health checks
             # probes:
             #   liveness: &probes
             #     enabled: true

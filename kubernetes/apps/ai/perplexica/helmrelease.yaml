@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       perplexica:
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -27,15 +28,47 @@ spec:
             image:
               repository: itzcrazykns1337/perplexica
               tag: main@sha256:a959a528aa9813af13c8fe14ea498a516ca28cd9088bb0ea91c63807900e4716
+              pullPolicy: IfNotPresent
             env:
               SEARXNG_API_URL: http://searxng:8080
               DATA_DIR: /home/perplexica
+            # TODO: Add envFrom for secrets management
+            # envFrom:
+            #   - secretRef:
+            #       name: perplexica-secret
+            # TODO: Add probes for health checks
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /
+            #         port: 3000
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 1
+            #       failureThreshold: 3
+            #   readiness: *probes
+            # TODO: Add securityContext for container security
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
                 memory: 192Mi
               limits:
                 memory: 512Mi
+    # TODO: Add defaultPodOptions for pod-level security
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: 568
+    #     runAsGroup: 568
+    #     fsGroup: 568
+    #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

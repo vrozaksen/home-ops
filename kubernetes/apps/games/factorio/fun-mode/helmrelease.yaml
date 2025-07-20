@@ -19,7 +19,9 @@ spec:
   values:
     controllers:
       factorio-fun-mode:
+        replicas: 1
         type: statefulset
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -27,6 +29,7 @@ spec:
             image:
               repository: factoriotools/factorio
               tag: 2.0.60
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               GENERATE_NEW_SAVE: false
@@ -48,11 +51,12 @@ spec:
               limits:
                 memory: 8Gi
           filebrowser:
-            env:
-              TZ: Europe/Warsaw
             image:
               repository: filebrowser/filebrowser
               tag: v2.40.2
+              pullPolicy: IfNotPresent
+            env:
+              TZ: Europe/Warsaw
             resources:
               requests:
                 cpu: 25m

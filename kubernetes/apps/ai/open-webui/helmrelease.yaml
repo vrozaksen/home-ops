@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       open-webui:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/open-webui/open-webui
               tag: v0.6.18@sha256:ff87dd7605720f33411d87ed5550357b665cec4880378176f2f95bfe751f5e32
+              pullPolicy: IfNotPresent
             env:
               ENABLE_CHANNELS: true
               # Ollama
@@ -49,12 +52,39 @@ spec:
             envFrom:
               - secretRef:
                   name: *app
+            # TODO: Add probes for health checks
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /health
+            #         port: 8080
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 1
+            #       failureThreshold: 3
+            #   readiness: *probes
+            # TODO: Add securityContext for container security
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 250m
                 memory: 1Gi
               limits:
                 memory: 2Gi
+    # TODO: Add defaultPodOptions for pod-level security
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: 568
+    #     runAsGroup: 568
+    #     fsGroup: 568
+    #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

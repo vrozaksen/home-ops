@@ -28,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/kashalls/kromgo
               tag: v0.7.0@sha256:98202ba862023c1f78c6bc227f1de89d7777e5f621333511241a6242a230880e
+              pullPolicy: IfNotPresent
             env:
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
               SERVER_HOST: 0.0.0.0
@@ -57,18 +58,20 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 128Mi
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 100
-            runAsNonRoot: true
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  app.kubernetes.io/name: *app
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 100
+        runAsNonRoot: true
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
     service:
       app:
         ports:

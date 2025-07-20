@@ -18,36 +18,19 @@ spec:
   values:
     controllers:
       reactive-resume:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          chrome:
-            image:
-              repository: ghcr.io/browserless/chromium
-              tag: v2.33.0@sha256:a7ef061130e593b2a8e03c3b1c379ef0cbca95f857ae532831d66ba6a933cd72
-            env:
-              TZ: "Europe/Warsaw"
-              DEBUG: "browserless*,-*:trace,-*:verbose"
-              ENABLE_DEBUGGER: "false"
-              TIMEOUT: "60000"
-              CONCURRENT: "10"
-              EXIT_ON_HEALTH_FAILURE: "true"
-              HEALTH: "true"
-            envFrom:
-              - secretRef:
-                  name: browserless-chrome-secret
-            securityContext:
-              runAsUser: 999
-              runAsGroup: 999
-              allowPrivilegeEscalation: false
-              capabilities: { drop: [ALL] }
           app:
             image:
               repository: ghcr.io/amruthpillai/reactive-resume
               tag: v4.4.6@sha256:53ce201e15d79535494d278fd13658f57d0331f2b5eba12163bf38b879366c65
+              pullPolicy: IfNotPresent
             env:
               TZ: "Europe/Warsaw"
-              PORT: "3001"
+              PORT: &port 3001
               NODE_ENV: "production"
               PUBLIC_URL: https://rr.vzkn.eu
               CHROME_URL: ws://reactive-resume-chrome.self-hosted.svc.cluster.local.:3000
@@ -66,21 +49,67 @@ spec:
             envFrom:
               - secretRef:
                   name: reactive-resume-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
               limits:
                 cpu: 3000m
                 memory: 600Mi
+      chrome:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/browserless/chromium
+              tag: v2.33.0@sha256:a7ef061130e593b2a8e03c3b1c379ef0cbca95f857ae532831d66ba6a933cd72
+              pullPolicy: IfNotPresent
+            env:
+              TZ: "Europe/Warsaw"
+              DEBUG: "browserless*,-*:trace,-*:verbose"
+              ENABLE_DEBUGGER: "false"
+              TIMEOUT: "60000"
+              CONCURRENT: "10"
+              EXIT_ON_HEALTH_FAILURE: "true"
+              HEALTH: "true"
+            envFrom:
+              - secretRef:
+                  name: browserless-chrome-secret
+            securityContext:
+              runAsUser: 999
+              runAsGroup: 999
+              allowPrivilegeEscalation: false
+              capabilities: { drop: [ALL] }
     service:
       chrome:
+        controller: chrome
         ports:
           http:
             port: 3000
       app:
+        controller: reactive-resume
         ports:
           http:
-            port: &port 3001
+            port: *port
     route:
       app:
         hostnames:
@@ -90,6 +119,10 @@ spec:
           - name: external
             namespace: kube-system
             sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       tmpfs:
         type: emptyDir

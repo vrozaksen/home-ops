@@ -19,13 +19,18 @@ spec:
   values:
     controllers:
       qdrant:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "6333"
         containers:
           app:
             image:
               repository: qdrant/qdrant
               tag: v1.15.0@sha256:709bd2656bb929b745a956260f61a6395d09f8eed72c5bf2131985ae70f95974
+              pullPolicy: IfNotPresent
             env:
               QDRANT__SERVICE__HTTP_PORT: &http-port 6333
               QDRANT__SERVICE__GRPC_PORT: &grpc-port 6334
@@ -36,11 +41,19 @@ spec:
             envFrom:
               - secretRef:
                   name: qdrant-secret
-            ports:
-              - name: http
-                containerPort: *http-port
-              - name: grpc
-                containerPort: *grpc-port
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *http-port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -51,10 +64,11 @@ spec:
                 cpu: 100m
               limits:
                 memory: 1Gi
-        pod:
-          annotations:
-            prometheus.io/scrape: "true"
-            prometheus.io/port: "6333"
+            ports:
+              - name: http
+                containerPort: *http-port
+              - name: grpc
+                containerPort: *grpc-port
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

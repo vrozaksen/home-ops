@@ -19,27 +19,16 @@ spec:
   values:
     controllers:
       emby:
-        pod:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 100
-            fsGroup: 100
-            fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups:
-              - 44 # video
-              - 109 # render
+        replicas: 1
+        strategy: RollingUpdate
         containers:
           app:
             image:
               repository: ghcr.io/home-operations/emby
               tag: 4.8.11.0@sha256:48cd01b20e49548aee694fcdeff273fc623f0ac83c31ac99d55d31c22b2177a6
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             probes:
               liveness: &probes
                 enabled: true
@@ -64,6 +53,10 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 500m
@@ -71,6 +64,16 @@ spec:
               limits:
                 memory: 8Gi
                 gpu.intel.com/i915: 1
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 44 # video
+          - 109 # render
     service:
       app:
         type: LoadBalancer
@@ -79,6 +82,13 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      app:
+        hostnames: ["emby.vzkn.eu"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
     persistence:
       config:
         existingClaim: *app

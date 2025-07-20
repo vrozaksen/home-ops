@@ -18,6 +18,8 @@ spec:
   values:
     controllers:
       paperless:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -25,6 +27,7 @@ spec:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
               tag: 2.17.1
+              pullPolicy: IfNotPresent
             env:
               # Application
               PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
@@ -66,12 +69,39 @@ spec:
             envFrom:
               - secretRef:
                   name: paperless-secret
+            # TODO: Add probes for health checks
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /
+            #         port: 8000
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 10
+            #       timeoutSeconds: 1
+            #       failureThreshold: 3
+            #   readiness: *probes
+            # TODO: Add securityContext for container security
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 60m
                 memory: 1Gi
               limits:
                 memory: 2Gi
+    # TODO: Add defaultPodOptions for pod-level security
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: 1000
+    #     runAsGroup: 100
+    #     fsGroup: 100
+    #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

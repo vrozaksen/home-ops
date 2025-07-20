@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       metube:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,12 +28,30 @@ spec:
             image:
               repository: ghcr.io/alexta69/metube
               tag: "2025-06-10"
+              pullPolicy: IfNotPresent
             env:
               DOWNLOAD_DIR: "/downloads"
               DOWNLOAD_MODE: concurrent # defaults to limited
               # MAX_CONCURRENT_DOWNLOADS: 5 #only used with limited, default to 3
               STATE_DIR: "/config"
               YTDL_OPTIONS: '{"http_headers":{"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"}}'
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8081
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 15m
@@ -49,7 +69,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 8081
+            port: *port
     route:
       app:
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]

@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       searxng:
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -27,6 +28,7 @@ spec:
             image:
               repository: ghcr.io/searxng/searxng
               tag: 2025.5.17-86373e7@sha256:2f45ccc0b330faa47d8706de883c6e583b38806e32b51172d93c381ce1d92f0b
+              pullPolicy: IfNotPresent
             env:
               SEARXNG_BASE_URL: https://search.vzkn.eu
               SEARXNG_PORT: &port 8080
@@ -47,12 +49,6 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-            resources:
-              requests:
-                cpu: 10m
-                memory: 256Mi
-              limits:
-                memory: 1Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -64,6 +60,20 @@ spec:
                   - SETGID
                   - SETUID
                   - DAC_OVERRIDE
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    # TODO: Add defaultPodOptions for pod-level security
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: 568
+    #     runAsGroup: 568
+    #     fsGroup: 568
+    #     fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

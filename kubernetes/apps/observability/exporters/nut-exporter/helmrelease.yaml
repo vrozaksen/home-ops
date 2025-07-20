@@ -20,6 +20,8 @@ spec:
     fullnameOverride: *app
     controllers:
       nut-exporter:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -27,14 +29,15 @@ spec:
             image:
               repository: ghcr.io/druggeri/nut_exporter
               tag: 3.2.1
+              pullPolicy: IfNotPresent
+            args:
+              # the first time I set this, the first and last entries were ignored, so I have doubled them.
+              - --nut.vars_enable="battery.charge,battery.charge,battery.runtime,battery.voltage,battery.voltage.nominal,input.voltage,input.voltage.nominal,output.voltage,output.voltage.nominal,ups.realpower,ups.load,ups.status,ups.status"
             env:
               TZ: "Europe/Warsaw"
               NUT_EXPORTER_SERVER: "pi.home.vzkn.eu"
               NUT_EXPORTER_USERNAME: "observer"
               NUT_EXPORTER_PASSWORD: "1234"
-            args:
-              # the first time I set this, the first and last entries were ignored, so I have doubled them.
-              - --nut.vars_enable="battery.charge,battery.charge,battery.runtime,battery.voltage,battery.voltage.nominal,input.voltage,input.voltage.nominal,output.voltage,output.voltage.nominal,ups.realpower,ups.load,ups.status,ups.status"
             probes:
               liveness:
                 enabled: true
@@ -42,10 +45,21 @@ spec:
                 enabled: true
               startup:
                 enabled: true
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               limits:
                 cpu: 100m
                 memory: 200Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         ports:

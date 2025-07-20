@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       litellm:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -26,6 +28,12 @@ spec:
             image:
               repository: ghcr.io/berriai/litellm-non_root
               tag: main-v1.74.6-nightly
+              pullPolicy: IfNotPresent
+            args:
+              - --port
+              - "4000"
+              - --config
+              - /app/config.yaml
             env:
               TZ: "Europe/Warsaw"
               LITELLM_LOG: "DEBUG"
@@ -37,11 +45,6 @@ spec:
                   secretKeyRef:
                     name: litellm-pguser-litellm
                     key: pgbouncer-uri
-            args:
-              - --port
-              - "4000"
-              - --config
-              - /app/config.yaml
             envFrom:
               - secretRef:
                   name: litellm-secret

@@ -36,17 +36,20 @@ spec:
               - secretRef:
                   name: mumble-secret
             probes:
-              liveness: &probes
+              startup:
                 enabled: true
                 custom: true
                 spec:
                   tcpSocket:
-                    port: 64738
+                    port: &port 64738
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
+                  failureThreshold: 30
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -73,7 +76,7 @@ spec:
           external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
         ports:
           control:
-            port: &port 64738
+            port: *port
             protocol: TCP
           voice:
             port: *port

@@ -14,4 +14,3 @@ data:
         interval: 1m
         conditions: ["[CONNECTED] == true"]
         alerts: [{ type: pushover }]
-

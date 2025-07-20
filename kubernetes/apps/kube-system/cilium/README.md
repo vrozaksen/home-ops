@@ -22,6 +22,7 @@ exit
 ```
 
 ## Mikrotik BGP (ROS 7.18.2)
+
 ```sh
 /routing bgp connection
 add add-path-out=none address-families=ip as=64513 connect=yes disabled=no \

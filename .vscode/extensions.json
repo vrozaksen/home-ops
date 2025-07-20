@@ -1,14 +1,14 @@
 {
-    "recommendations": [
-        "albert.TabOut",
-        "fcrespo82.markdown-table-formatter",
-        "mikestead.dotenv",
-        "mitchdenny.ecdc",
-        "redhat.ansible",
-        "redhat.vscode-yaml",
-        "will-stone.in-any-case",
-        "BriteSnow.vscode-toggle-quotes",
-        "HashiCorp.terraform",
-        "PKief.material-icon-theme",
-    ]
+  "recommendations": [
+    "albert.TabOut",
+    "fcrespo82.markdown-table-formatter",
+    "mikestead.dotenv",
+    "mitchdenny.ecdc",
+    "redhat.ansible",
+    "redhat.vscode-yaml",
+    "will-stone.in-any-case",
+    "BriteSnow.vscode-toggle-quotes",
+    "HashiCorp.terraform",
+    "PKief.material-icon-theme"
+  ]
 }

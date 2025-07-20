@@ -1,61 +1,57 @@
 {
-    "editor.bracketPairColorization.enabled": true,
-    "editor.fontFamily": "0xProto Nerd Font",
-    "editor.fontLigatures": true,
-    "editor.guides.bracketPairs": true,
-    "editor.guides.bracketPairsHorizontal": true,
-    "editor.guides.highlightActiveBracketPair": true,
-    "editor.hover.delay": 1500,
-    "editor.rulers": [
-      100
-    ],
-    "editor.stickyScroll.enabled": false,
-    "explorer.autoReveal": false,
-    "files.associations": {
-        "**/*.json5": "jsonc",
-        "**/terraform/**/*.tf": "terraform"
-    },
-    "files.trimTrailingWhitespace": true,
-    "material-icon-theme.files.associations": {
-      "helmfile.yaml": "helm",
-      "kubeconfig": "kubernetes",
-      "talosconfig": "kubernetes"
-    },
-    "material-icon-theme.folders.associations": {
-        // top level
-        ".github/workflows": "ci",
-        ".private": "archive",
-        ".renovate": "robot",
-        "bootstrap": "seeders",
-        "flux": "pipe",
-        "talos": "linux",
-        // namespaces
-        "actions-runner-system": "github",
-        "ai": "robot",
-        "cert-manager": "guard",
-        "default": "constant",
-        "home-automation": "home",
-        "external-secrets": "secure",
-        "flux-system": "pipe",
-        "games": "console",
-        "kube-system": "kubernetes",
-        "network": "connection",
-        "observability": "event",
-        "rook-ceph": "dump",
-        "self-hosted": "docker",
-        "storage": "base",
-          "volsync": "aws",
-        "system-upgrade": "update"
-    },
-    "vs-kubernetes": {
-        "vs-kubernetes.kubeconfig": "./kubeconfig",
-        "vs-kubernetes.knownKubeconfigs": [
-          "./kubeconfig"
-        ]
-    },
-    "yaml.schemaStore.enable": true,
-    "yaml.schemas": {
-      "kubernetes": "./kubernetes/**/*.yaml"
-    },
-    "github.copilot.chat.byok.ollamaEndpoint": "http://aincrad.home.vzkn.eu:11434"
+  "editor.bracketPairColorization.enabled": true,
+  "editor.fontFamily": "0xProto Nerd Font",
+  "editor.fontLigatures": true,
+  "editor.guides.bracketPairs": true,
+  "editor.guides.bracketPairsHorizontal": true,
+  "editor.guides.highlightActiveBracketPair": true,
+  "editor.hover.delay": 1500,
+  "editor.rulers": [100],
+  "editor.stickyScroll.enabled": false,
+  "explorer.autoReveal": false,
+  "files.associations": {
+    "**/*.json5": "jsonc",
+    "**/terraform/**/*.tf": "terraform"
+  },
+  "files.trimTrailingWhitespace": true,
+  "material-icon-theme.files.associations": {
+    "helmfile.yaml": "helm",
+    "kubeconfig": "kubernetes",
+    "talosconfig": "kubernetes"
+  },
+  "material-icon-theme.folders.associations": {
+    // top level
+    ".github/workflows": "ci",
+    ".private": "archive",
+    ".renovate": "robot",
+    "bootstrap": "seeders",
+    "flux": "pipe",
+    "talos": "linux",
+    // namespaces
+    "actions-runner-system": "github",
+    "ai": "robot",
+    "cert-manager": "guard",
+    "default": "constant",
+    "home-automation": "home",
+    "external-secrets": "secure",
+    "flux-system": "pipe",
+    "games": "console",
+    "kube-system": "kubernetes",
+    "network": "connection",
+    "observability": "event",
+    "rook-ceph": "dump",
+    "self-hosted": "docker",
+    "storage": "base",
+    "volsync": "aws",
+    "system-upgrade": "update"
+  },
+  "vs-kubernetes": {
+    "vs-kubernetes.kubeconfig": "./kubeconfig",
+    "vs-kubernetes.knownKubeconfigs": ["./kubeconfig"]
+  },
+  "yaml.schemaStore.enable": true,
+  "yaml.schemas": {
+    "kubernetes": "./kubernetes/**/*.yaml"
+  },
+  "github.copilot.chat.byok.ollamaEndpoint": "http://aincrad.home.vzkn.eu:11434"
 }

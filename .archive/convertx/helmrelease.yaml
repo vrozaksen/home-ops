@@ -19,27 +19,31 @@ spec:
   values:
     controllers:
       convertx:
+        replicas: 1
         strategy: RollingUpdate
         containers:
           app:
             image:
               repository: ghcr.io/c4illin/convertx
               tag: v0.14.1@sha256:346589f154332997329fdc888417d4b24c49cc9140eab80e637a68cfbdd8041b
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               ACCOUNT_REGISTRATION: true
               HTTP_ALLOWED: false
               ALLOW_UNAUTHENTICATED: false
               AUTO_DELETE_EVERY_N_HOURS: 1
-            # resources:
-            #   requests:
-            #     gpu.intel.com/i915: 1
-            #   limits:
-            #     gpu.intel.com/i915: 1
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              NEXTAUTH_URL: https://convert.${SECRET_DOMAIN}
+              NEXTAUTH_SECRET: ${SECRET_CONVERTX_NEXTAUTH_SECRET}
+              AUTH0_CLIENT_ID: ${SECRET_AUTH0_CLIENT_ID}
+              AUTH0_CLIENT_SECRET: ${SECRET_AUTH0_CLIENT_SECRET}
+              AUTH0_ISSUER: ${SECRET_AUTH0_ISSUER}
+              GOOGLE_CLIENT_ID: ${SECRET_CONVERTX_GOOGLE_CLIENT_ID}
+              GOOGLE_CLIENT_SECRET: ${SECRET_CONVERTX_GOOGLE_CLIENT_SECRET}
+              DATABASE_URL: ${SECRET_CONVERTX_DATABASE_URL}
+              FFMPEG_PATH: /usr/bin/ffmpeg
+              FFPROBE_PATH: /usr/bin/ffprobe
+              PYTHON_PATH: /usr/bin/python3
             probes:
               liveness: &probes
                 enabled: true
@@ -53,16 +57,26 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-        pod:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 100
-            fsGroup: 100
-            fsGroupChangePolicy: OnRootMismatch
-            # supplementalGroups:
-            #   - 44 # video
-            #   - 109 # render
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            # TODO: Add resources for CPU/memory limits
+            # resources:
+            #   requests:
+            #     gpu.intel.com/i915: 1
+            #   limits:
+            #     gpu.intel.com/i915: 1
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        # supplementalGroups:
+        #   - 44 # video
+        #   - 109 # render
     service:
       app:
         ports:

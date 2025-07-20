@@ -24,7 +24,7 @@ resource "authentik_stage_identification" "authentication-identification" {
   password_stage            = authentik_stage_password.authentication-password.id
   passwordless_flow         = authentik_flow.passwordless_authentication.uuid
   recovery_flow             = authentik_flow.recovery.uuid
-  sources                   = [
+  sources = [
     #authentik_source_oauth.discord.uuid,
     authentik_source_oauth.github.uuid
   ]

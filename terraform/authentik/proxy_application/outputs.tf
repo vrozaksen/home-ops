@@ -1,7 +1,9 @@
 output "id" {
-  value = authentik_provider_proxy.proxy_provider.id
+  description = "The ID of the proxy provider"
+  value       = authentik_provider_proxy.this.id
 }
 
 output "uuid" {
-  value = authentik_application.proxy_application.uuid
+  description = "The UUID of the proxy application"
+  value       = authentik_application.this.uuid
 }

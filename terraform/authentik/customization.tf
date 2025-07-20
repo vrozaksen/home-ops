@@ -42,15 +42,6 @@ resource "authentik_policy_expression" "user-settings-authorization" {
   return True
   EOT
 }
-## OAuth scopes
-data "authentik_property_mapping_provider_scope" "scopes" {
-  managed_list = [
-    "goauthentik.io/providers/oauth2/scope-email",
-    "goauthentik.io/providers/oauth2/scope-openid",
-    "goauthentik.io/providers/oauth2/scope-profile"
-  ]
-}
-
 resource "authentik_property_mapping_provider_scope" "openid-nextcloud" {
   name       = "OAuth Mapping: OpenID 'nextcloud'"
   scope_name = "nextcloud"

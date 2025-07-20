@@ -1,7 +1,8 @@
 terraform {
   required_providers {
     authentik = {
-      source = "goauthentik/authentik"
+      source  = "goauthentik/authentik"
+      version = "~> 2025.6.0"
     }
   }
 }
@@ -19,7 +20,7 @@ data "authentik_property_mapping_provider_scope" "scopes" {
   ]
 }
 
-resource "authentik_provider_oauth2" "oauth2-application" {
+resource "authentik_provider_oauth2" "this" {
   name                       = var.name
   client_id                  = var.client_id
   client_secret              = local.client_secret
@@ -36,20 +37,21 @@ resource "authentik_provider_oauth2" "oauth2-application" {
   allowed_redirect_uris      = local.allowed_redirect_uris
 }
 
-resource "authentik_application" "oauth2-application" {
+resource "authentik_application" "this" {
   name              = var.name
   slug              = lower(var.name)
   group             = var.group
-  protocol_provider = authentik_provider_oauth2.oauth2-application.id
+  protocol_provider = authentik_provider_oauth2.this.id
   meta_icon         = var.icon_url
   meta_description  = var.description
   meta_launch_url   = var.launch_url
   open_in_new_tab   = var.newtab
 }
 
-resource "authentik_policy_binding" "oauth2-application" {
-  target = authentik_application.oauth2-application.uuid
-  group  = var.auth_groups[count.index]
-  order  = count.index
-  count  = length(var.auth_groups)
+resource "authentik_policy_binding" "this" {
+  for_each = toset(var.auth_groups)
+
+  target = authentik_application.this.uuid
+  group  = each.value
+  order  = index(var.auth_groups, each.value)
 }

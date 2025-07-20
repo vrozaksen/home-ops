@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.0"
+
   required_providers {
     bitwarden = {
       source  = "maxlaverse/bitwarden"
@@ -8,6 +10,11 @@ terraform {
     minio = {
       source  = "aminueza/minio"
       version = "3.6.1"
+    }
+
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
     }
   }
 }

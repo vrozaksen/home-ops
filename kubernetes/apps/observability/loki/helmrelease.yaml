@@ -101,6 +101,7 @@ spec:
           query_timeout: 300s
         compactor:
           retention_enabled: true
+          delete_request_store: s3
           compaction_interval: 30m
           retention_delete_delay: 6h
           retention_delete_worker_count: 100

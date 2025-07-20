@@ -15,11 +15,11 @@ spec:
         - name: emby
           namespace: media
           port: 8096
-      # filters:
-      #   - type: ResponseHeaderModifier
-      #     responseHeaderModifier:
-      #       add:
-      #         - name: Cross-Origin-Resource-Policy
-      #           value: "cross-origin"
-      #         - name: Access-Control-Allow-Origin
-      #           value: "*"
+    # filters:
+    #   - type: ResponseHeaderModifier
+    #     responseHeaderModifier:
+    #       add:
+    #         - name: Cross-Origin-Resource-Policy
+    #           value: "cross-origin"
+    #         - name: Access-Control-Allow-Origin
+    #           value: "*"

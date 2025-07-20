@@ -22,12 +22,12 @@ spec:
         use_path_style              = true
       }
   backendConfigsFrom:
-  - kind: Secret
-    name: terraform-backend-secret
+    - kind: Secret
+      name: terraform-backend-secret
   path: ./authentik
   sourceRef:
     kind: OCIRepository
     name: terraform
   varsFrom:
-  - kind: Secret
-    name: terraform-secret
+    - kind: Secret
+      name: terraform-secret

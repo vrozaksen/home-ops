@@ -2,9 +2,9 @@
 extends: default
 
 rules:
-  # 120 chars should be enough, but don't fail if a line is longer
+  # 160 chars should be enough, but don't fail if a line is longer
   line-length:
-    max: 120
+    max: 160
     level: warning
 
   # accept both key: value and key:value
@@ -26,7 +26,7 @@ rules:
 
   # allow longer lines in comments
   comments:
-    min-spaces-from-content: 2
+    min-spaces-from-content: 1
 
   # be lenient with indentation for complex Kubernetes manifests
   indentation:

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/9c0bb329-e7a5-4d45-af57-87a7f892d5f4" align="center" width="144px" height="144px"/>
+<img src="https://github.com/user-attachments/assets/9c0bb329-e7a5-4d45-af57-87a7f892d5f4" alt="Home Operations Logo" align="center" width="144px" height="144px"/>
 
 ### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" alt="🚀" width="16" height="16"> My Home Operations Repository <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6a7/512.gif" alt="🚧" width="16" height="16">
 
@@ -42,7 +42,9 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 ## Overview
 
 This is a monorepository is for my home kubernetes clusters.
-I try to adhere to Infrastructure as Code (IaC) and GitOps practices using tools like [Terraform](https://www.terraform.io/), [Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2), [Renovate](https://github.com/renovatebot/renovate), and [GitHub Actions](https://github.com/features/actions).
+I try to adhere to Infrastructure as Code (IaC) and GitOps practices using tools like [Terraform](https://www.terraform.io/),
+[Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2), [Renovate](https://github.com/renovatebot/renovate),
+and [GitHub Actions](https://github.com/features/actions).
 
 The purpose here is to learn k8s, while practicing Gitops.
 
@@ -50,9 +52,12 @@ The purpose here is to learn k8s, while practicing Gitops.
 
 ## ⛵ Kubernetes
 
-My Kubernetes clusters are deployed with [Talos](https://www.talos.dev). One is a low-power utility cluster, running important services, and the other is a semi-hyper-converged cluster, workloads and block storage are sharing the same available resources on my nodes while I have a separate NAS with ZFS for NFS/SMB shares, bulk file storage and backups.
+My Kubernetes clusters are deployed with [Talos](https://www.talos.dev). One is a low-power utility cluster, running important services,
+and the other is a semi-hyper-converged cluster, workloads and block storage are sharing the same available resources on my nodes while
+I have a separate NAS with ZFS for NFS/SMB shares, bulk file storage and backups.
 
-There is a template over at [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template) if you want to try and follow along with some of the practices I use here.
+There is a template over at [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template) if you want to try and follow along
+with some of the practices I use here.
 
 ### Core Components
 
@@ -64,16 +69,22 @@ There is a template over at [onedr0p/cluster-template](https://github.com/onedr0
 - [ingress-nginx](https://github.com/kubernetes/ingress-nginx/): ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer
 - [rook-ceph](https://rook.io/): Cloud native distributed block storage for Kubernetes
 - [spegel](https://github.com/XenitAB/spegel): stateless cluster local OCI registry mirror
-- [tofu-controller](https://github.com/weaveworks/tf-controller): additional Flux component used to run Terraform from within a Kubernetes cluster.
+- [tofu-controller](https://github.com/weaveworks/tf-controller): additional Flux component used to run Terraform from within a
+  Kubernetes cluster.
 - [volsync](https://github.com/backube/volsync): backup and recovery of persistent volume claims
 
 ### GitOps
 
-[Flux](https://github.com/fluxcd/flux2) watches the clusters in my [kubernetes](./kubernetes/) folder (see Directories below) and makes the changes to my clusters based on the state of my Git repository.
+[Flux](https://github.com/fluxcd/flux2) watches the clusters in my [kubernetes](./kubernetes/) folder (see Directories below) and makes
+the changes to my clusters based on the state of my Git repository.
 
-The way Flux works for me here is it will recursively search the `kubernetes/apps` folder until it finds the most top level `kustomization.yaml` per directory and then apply all the resources listed in it. That aforementioned `kustomization.yaml` will generally only have a namespace resource and one or many Flux kustomizations (`ks.yaml`). Under the control of those Flux kustomizations there will be a `HelmRelease` or other resources related to the application which will be applied.
+The way Flux works for me here is it will recursively search the `kubernetes/apps` folder until it finds the most top level
+`kustomization.yaml` per directory and then apply all the resources listed in it. That aforementioned `kustomization.yaml` will generally
+only have a namespace resource and one or many Flux kustomizations (`ks.yaml`). Under the control of those Flux kustomizations there will
+be a `HelmRelease` or other resources related to the application which will be applied.
 
-[Renovate](https://github.com/renovatebot/renovate) watches my **entire** repository looking for dependency updates, when they are found a PR is automatically created. When some PRs are merged Flux applies the changes to my cluster.
+[Renovate](https://github.com/renovatebot/renovate) watches my **entire** repository looking for dependency updates, when they are found
+a PR is automatically created. When some PRs are merged Flux applies the changes to my cluster.
 
 ### Directories
 
@@ -136,9 +147,14 @@ graph TD
 
 ## ☁️ Cloud Dependencies
 
-While most of my infrastructure and workloads are self-hosted I do rely upon the cloud for certain key parts of my setup. This saves me from having to worry about two things. (1) Dealing with chicken/egg scenarios and (2) services I critically need whether my cluster is online or not.
+While most of my infrastructure and workloads are self-hosted I do rely upon the cloud for certain key parts of my setup.
+This saves me from having to worry about two things. (1) Dealing with chicken/egg scenarios and (2) services I critically need whether
+my cluster is online or not.
 
-The alternative solution to these two problems would be to host a Kubernetes cluster in the cloud and deploy applications like [HCVault](https://www.vaultproject.io/), [Vaultwarden](https://github.com/dani-garcia/vaultwarden), [ntfy](https://ntfy.sh/), and [Gatus](https://gatus.io/). However, maintaining another cluster and monitoring another group of workloads is a lot more time and effort than I am willing to put in.
+The alternative solution to these two problems would be to host a Kubernetes cluster in the cloud and deploy applications like
+[HCVault](https://www.vaultproject.io/), [Vaultwarden](https://github.com/dani-garcia/vaultwarden), [ntfy](https://ntfy.sh/), and
+[Gatus](https://gatus.io/). However, maintaining another cluster and monitoring another group of workloads is a lot more time and effort
+than I am willing to put in.
 
 | Service                                     | Use                                                               | Cost          |
 |---------------------------------------------|-------------------------------------------------------------------|---------------|
@@ -152,7 +168,10 @@ The alternative solution to these two problems would be to host a Kubernetes clu
 
 ## 🌐 DNS
 
-In my cluster there are two instances of [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) running. One for syncing private DNS records to my `AdGuard Home` using [ExternalDNS webhook provider for AdGuard](https://github.com/muhlba91/external-dns-provider-adguard), while another instance syncs public DNS to `Cloudflare`. This setup is managed by creating ingresses with two specific classes: `internal` for private DNS and `external` for public DNS. The `external-dns` instances then syncs the DNS records to their respective platforms accordingly.
+In my cluster there are two instances of [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) running. One for syncing
+private DNS records to my `AdGuard Home` using [ExternalDNS webhook provider for AdGuard](https://github.com/muhlba91/external-dns-provider-adguard),
+while another instance syncs public DNS to `Cloudflare`. This setup is managed by creating ingresses with two specific classes: `internal`
+for private DNS and `external` for public DNS. The `external-dns` instances then syncs the DNS records to their respective platforms accordingly.
 
 ---
 
@@ -197,4 +216,6 @@ Total RAM: 128 GB
 
 ## 🤝 Thanks
 
-Big shout out to the [cluster-template](https://github.com/onedr0p/cluster-template), and the [Home Operations](https://discord.gg/home-operations) Discord community. Be sure to check out [kubesearch.dev](https://kubesearch.dev/) for ideas on how to deploy applications or get ideas on what you may deploy.
+Big shout out to the [cluster-template](https://github.com/onedr0p/cluster-template), and the [Home Operations](https://discord.gg/home-operations)
+Discord community. Be sure to check out [kubesearch.dev](https://kubesearch.dev/) for ideas on how to deploy applications or get ideas
+on what you may deploy.

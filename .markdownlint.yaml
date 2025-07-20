@@ -6,7 +6,7 @@ default: true
 
 # Line length - allow longer lines for URLs and code
 MD013:
-  line_length: 120
+  line_length: 160
   headings: false
   code_blocks: false
   tables: false

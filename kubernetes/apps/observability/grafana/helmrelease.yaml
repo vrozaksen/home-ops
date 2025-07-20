@@ -201,7 +201,7 @@ spec:
               path: /var/lib/grafana/dashboards/others
     dashboards:
       data:
-        crunchy-pgbackrest: #https://github.com/CrunchyData/postgres-operator-examples/issues/264
+        crunchy-pgbackrest: # https://github.com/CrunchyData/postgres-operator-examples/issues/264
           url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/pgbackrest.json
           datasource: Prometheus
         crunchy-pod-details:

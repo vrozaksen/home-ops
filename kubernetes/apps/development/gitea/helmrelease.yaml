@@ -94,7 +94,7 @@ spec:
           DISABLE_SSH: false
           SSH_DOMAIN: gitea.vzkn.eu
           SSH_PORT: 22
-          #SSH_LISTEN_PORT: 2222
+          # SSH_LISTEN_PORT: 2222
           ENABLE_GZIP: true
           LFS_START_SERVER: true
         database:

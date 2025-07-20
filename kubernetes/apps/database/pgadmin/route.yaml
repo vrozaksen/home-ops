@@ -6,8 +6,8 @@ metadata:
   name: pgadmin
 spec:
   hostnames:
-  - "pgadmin.vzkn.eu"
-  - "pg.vzkn.eu"
+    - "pgadmin.vzkn.eu"
+    - "pg.vzkn.eu"
   parentRefs:
     - name: internal
       namespace: kube-system

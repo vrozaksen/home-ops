@@ -1,6 +1,6 @@
 ## Standalone
 
-#### This one will use whole "secret" as secret
+### This one will use whole "secret" as secret
 
 ```yaml
 ---
@@ -24,7 +24,7 @@ spec:
 
 ## Template
 
-#### This one can use one of these
+### This one can use one of these
 
 ```yaml
 key1: value1

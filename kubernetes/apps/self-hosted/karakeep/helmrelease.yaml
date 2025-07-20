@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       karakeep:
+        replicas: 1
         forceRename: karakeep
         strategy: RollingUpdate
         annotations:
@@ -28,6 +29,7 @@ spec:
             image:
               repository: ghcr.io/karakeep-app/karakeep
               tag: 0.25.0
+              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               ### Configuration
@@ -46,8 +48,6 @@ spec:
                     key: MEILI_MASTER_KEY
               MAX_ASSET_SIZE_MB: 50
               DISABLE_NEW_RELEASE_CHECK: true
-              # FIXME: Remove this when the following PR is merged and released https://github.com/karakeep-app/karakeep/pull/969/files
-              COREPACK_INTEGRITY_KEYS: 0
               ### Authentication / Signup
               DISABLE_SIGNUPS: false
               DISABLE_PASSWORD_AUTH: true  # OAuth login only
@@ -56,16 +56,16 @@ spec:
               OAUTH_PROVIDER_NAME: Authentik
               OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING: true
               ### Inference Configs
-              # OLLAMA_BASE_URL: http://localhost < If OLLAMA!
-              # OLLAMA_KEEP_ALIVE: 5m < If OLLAMA!
-              INFERENCE_TEXT_MODEL: gpt-4.1-mini # OPENAI/OLLAMA
-              INFERENCE_IMAGE_MODEL: gpt-4o-mini # OPENAI/OLLAMA ex. llava
-              EMBEDDING_TEXT_MODEL: text-embedding-3-small
-              INFERENCE_CONTEXT_LENGTH: 2048
+              OLLAMA_BASE_URL: http://aincrad.home.vzkn.eu:11434
+              OLLAMA_KEEP_ALIVE: 5m
+              INFERENCE_TEXT_MODEL: qwen2.5:7b
+              INFERENCE_IMAGE_MODEL: llava:7b
+              EMBEDDING_TEXT_MODEL: nomic-embed-text
+              INFERENCE_CONTEXT_LENGTH: 8192
               INFERENCE_LANG: english
               INFERENCE_ENABLE_AUTO_TAGGING: true
-              INFERENCE_ENABLE_AUTO_SUMMARIZATION: false
-              INFERENCE_JOB_TIMEOUT_SEC: 30 # Increase for OLLAMA if needed
+              INFERENCE_ENABLE_AUTO_SUMMARIZATION: true
+              INFERENCE_JOB_TIMEOUT_SEC: 60 # Increase for OLLAMA if needed
               ### Crawler Configs
               CRAWLER_NUM_WORKERS: 1
               BROWSER_WEB_URL: http://karakeep-chrome.self-hosted.svc.cluster.local:9222
@@ -93,6 +93,8 @@ spec:
               limits:
                 memory: 2Gi
       chrome:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -118,6 +120,8 @@ spec:
               limits:
                 memory: 1Gi
       meilisearch:
+        replicas: 1
+        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         pod:

@@ -63,7 +63,6 @@ There is a template over at [onedr0p/cluster-template](https://github.com/onedr0
 - [external-secrets](https://github.com/external-secrets/external-secrets/): managed Kubernetes secrets using [1Password](https://1password.com/).
 - [ingress-nginx](https://github.com/kubernetes/ingress-nginx/): ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer
 - [rook-ceph](https://rook.io/): Cloud native distributed block storage for Kubernetes
-- [sops](https://toolkit.fluxcd.io/guides/mozilla-sops/): managed secrets for Talos, which are committed to Git
 - [spegel](https://github.com/XenitAB/spegel): stateless cluster local OCI registry mirror
 - [tofu-controller](https://github.com/weaveworks/tf-controller): additional Flux component used to run Terraform from within a Kubernetes cluster.
 - [volsync](https://github.com/backube/volsync): backup and recovery of persistent volume claims

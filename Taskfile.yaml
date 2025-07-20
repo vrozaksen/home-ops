@@ -17,14 +17,12 @@ dotenv:
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
   MINIJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/.minijinja.toml'
-  SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
   TALOSCONFIG: '{{.ROOT_DIR}}/talosconfig'
 
 includes:
   bootstrap: .taskfiles/bootstrap
   bitwarden: .taskfiles/bitwarden
   kubernetes: .taskfiles/kubernetes
-  sops: .taskfiles/sops
   talos: .taskfiles/talos
   terraform: .taskfiles/terraform
   volsync: .taskfiles/volsync

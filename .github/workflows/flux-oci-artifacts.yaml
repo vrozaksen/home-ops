@@ -226,9 +226,6 @@ jobs:
             exit 1
           fi
 
-          SIGNED_COUNT=0
-          FAILED_COUNT=0
-
           # Sign all pushed tags using their exact digests
           for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
             echo "🖊️ Processing signature for: $tag"
@@ -245,44 +242,17 @@ jobs:
             fi
 
             if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
-              ARTIFACT_REF="$tag@$DIGEST"
-              echo "✍️ Signing with digest: $ARTIFACT_REF"
-
-              # Sign the artifact and capture exit code properly
-              if cosign sign --yes "$ARTIFACT_REF"; then
-                echo "✅ Successfully signed: $ARTIFACT_REF"
-                ((SIGNED_COUNT++))
-              else
-                COSIGN_EXIT_CODE=$?
-                echo "❌ Failed to sign: $ARTIFACT_REF (exit code: $COSIGN_EXIT_CODE)"
-                ((FAILED_COUNT++))
-                # Continue with other tags instead of failing immediately
-              fi
+              echo "✍️ Signing with digest: $tag@$DIGEST"
+              cosign sign --yes "$tag@$DIGEST"
+              echo "✅ Successfully signed: $tag@$DIGEST"
             else
               echo "⚠️ Warning: Could not find digest for $tag, signing with tag (not recommended)"
-              if cosign sign --yes "$tag"; then
-                echo "✅ Successfully signed (tag): $tag"
-                ((SIGNED_COUNT++))
-              else
-                COSIGN_EXIT_CODE=$?
-                echo "❌ Failed to sign (tag): $tag (exit code: $COSIGN_EXIT_CODE)"
-                ((FAILED_COUNT++))
-                # Continue with other tags
-              fi
+              cosign sign --yes "$tag"
+              echo "✅ Successfully signed (tag): $tag"
             fi
           done
 
-          echo "📊 Signing summary: $SIGNED_COUNT successful, $FAILED_COUNT failed"
-
-          # Only fail if ALL signatures failed
-          if [ $SIGNED_COUNT -eq 0 ] && [ $FAILED_COUNT -gt 0 ]; then
-            echo "❌ All signatures failed!"
-            exit 1
-          elif [ $FAILED_COUNT -gt 0 ]; then
-            echo "⚠️ Some signatures failed, but $SIGNED_COUNT succeeded"
-          else
-            echo "🎉 All signatures completed successfully!"
-          fi
+          echo "🎉 All artifacts signed successfully!"
 
       - name: Clean up cache
         run: |

@@ -146,7 +146,7 @@ jobs:
             if ! grep -q "securityContext\|runAsNonRoot\|runAsUser" "$helmrelease" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$helmrelease" "spec:\|values:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$helmrelease:$LINE_NUM No securityContext found in HelmRelease values" >> warnings.txt
+              echo "$helmrelease:$LINE_NUM:No securityContext found in HelmRelease values" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -154,35 +154,35 @@ jobs:
             if ! grep -q "resources:\|limits:\|requests:" "$helmrelease" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$helmrelease" "spec:\|values:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$helmrelease:$LINE_NUM No resource limits specified in HelmRelease" >> warnings.txt
+              echo "$helmrelease:$LINE_NUM:No resource limits specified in HelmRelease" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for potential privileged access
             if PRIV_LINE=$(grep -n "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$PRIV_LINE" | cut -d: -f1)
-              echo "$helmrelease:$LINE_NUM Privileged container configuration detected in HelmRelease" >> security_issues.txt
+              echo "$helmrelease:$LINE_NUM:Privileged container configuration detected in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostNetwork
             if HOST_LINE=$(grep -n "hostNetwork.*true" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$HOST_LINE" | cut -d: -f1)
-              echo "$helmrelease:$LINE_NUM Host network access enabled in HelmRelease" >> security_issues.txt
+              echo "$helmrelease:$LINE_NUM:Host network access enabled in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostPath volumes
             if HOSTPATH_LINE=$(grep -n "hostPath:" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$HOSTPATH_LINE" | cut -d: -f1)
-              echo "$helmrelease:$LINE_NUM Host path volume detected in HelmRelease" >> warnings.txt
+              echo "$helmrelease:$LINE_NUM:Host path volume detected in HelmRelease" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for latest image tags
             if LATEST_LINE=$(grep -n "tag:\s*['\"]latest['\"]" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$LATEST_LINE" | cut -d: -f1)
-              echo "$helmrelease:$LINE_NUM Using 'latest' image tag in HelmRelease - use specific versions" >> warnings.txt
+              echo "$helmrelease:$LINE_NUM:Using 'latest' image tag in HelmRelease - use specific versions" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -243,7 +243,7 @@ jobs:
             if ! grep -q "url:\s*https://" "$helmrepo" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$helmrepo" "url:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$helmrepo:$LINE_NUM HelmRepository not using HTTPS" >> security_issues.txt
+              echo "$helmrepo:$LINE_NUM:HelmRepository not using HTTPS" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
@@ -251,7 +251,7 @@ jobs:
             if ! grep -q "verify:\|secretRef:" "$helmrepo" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$helmrepo" "spec:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$helmrepo:$LINE_NUM No signature verification configured" >> warnings.txt
+              echo "$helmrepo:$LINE_NUM:No signature verification configured" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -273,7 +273,7 @@ jobs:
             if ! grep -q "url:\s*https://" "$gitrepo" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$gitrepo" "url:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$gitrepo:$LINE_NUM GitRepository not using HTTPS" >> security_issues.txt
+              echo "$gitrepo:$LINE_NUM:GitRepository not using HTTPS" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
@@ -281,7 +281,7 @@ jobs:
             if ! grep -q "verify:\|secretRef:" "$gitrepo" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$gitrepo" "spec:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$gitrepo:$LINE_NUM No GPG verification configured" >> warnings.txt
+              echo "$gitrepo:$LINE_NUM:No GPG verification configured" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -303,7 +303,7 @@ jobs:
             if ! grep -q "verify:" "$ocirepo" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$ocirepo" "spec:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$ocirepo:$LINE_NUM No OCI signature verification configured - add verify section with cosign provider" >> warnings.txt
+              echo "$ocirepo:$LINE_NUM:No OCI signature verification configured - add verify section with cosign provider" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -359,7 +359,7 @@ jobs:
             if ! grep -q "secretStoreRef\|clusterSecretStoreRef" "$externalsecret" 2>/dev/null; then
               LINE_NUM=$(get_line_number "$externalsecret" "spec:")
               LINE_NUM=${LINE_NUM:-1}
-              echo "$externalsecret:$LINE_NUM Missing secret store reference" >> warnings.txt
+              echo "$externalsecret:$LINE_NUM:Missing secret store reference" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -414,14 +414,14 @@ jobs:
             # Check for wildcard permissions
             if WILDCARD_LINE=$(grep -n "resources:\s*\[.*\*.*\]" "$rbacfile" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$WILDCARD_LINE" | cut -d: -f1)
-              echo "$rbacfile:$LINE_NUM Wildcard (*) permissions detected" >> security_issues.txt
+              echo "$rbacfile:$LINE_NUM:Wildcard (*) permissions detected" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for cluster-admin role
             if ADMIN_LINE=$(grep -n "cluster-admin" "$rbacfile" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$ADMIN_LINE" | cut -d: -f1)
-              echo "$rbacfile:$LINE_NUM cluster-admin role binding found" >> warnings.txt
+              echo "$rbacfile:$LINE_NUM:cluster-admin role binding found" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -521,16 +521,33 @@ jobs:
           # Process critical security issues
           if [ -f security_issues.txt ] && [ -s security_issues.txt ]; then
             while IFS= read -r issue; do
+              # Skip empty lines
+              if [ -z "$issue" ]; then
+                continue
+              fi
+
               if [[ "$issue" == *":"* ]]; then
                 # Parse file:line:message format
                 file_and_line=$(echo "$issue" | cut -d: -f1,2)
                 file_path=$(echo "$file_and_line" | cut -d: -f1)
                 line_num=$(echo "$file_and_line" | cut -d: -f2)
-                message=$(echo "$issue" | cut -d: -f3- | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+                message=$(echo "$issue" | cut -d: -f3- | sed 's/^ *//')
 
-                # Ensure message is not empty
-                if [ -z "$message" ]; then
-                  message="Security issue detected"
+                # Skip if this looks like a malformed entry (no file path or weird characters)
+                if [ -z "$file_path" ] || [[ "$file_path" == *" "* ]] || [[ "$file_path" != *".yaml" ]] && [[ "$file_path" != *".yml" ]]; then
+                  echo "⚠️ Skipping malformed critical issue entry: $issue"
+                  continue
+                fi
+
+                # Clean and escape the message properly
+                if [ -n "$message" ]; then
+                  # Remove any remaining colons at the start and clean the message
+                  message=$(echo "$message" | sed 's/^:*//' | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+                fi
+
+                # Ensure message is not empty and not just whitespace
+                if [ -z "$message" ] || [[ "$message" =~ ^[[:space:]]*$ ]]; then
+                  message="Critical security issue detected"
                 fi
 
                 # Validate line number is numeric, default to 1 if not
@@ -543,6 +560,8 @@ jobs:
                   fingerprint=$(create_fingerprint "$file_path" "$message" "critical-security")
                   SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
+              else
+                echo "⚠️ Skipping non-colon critical issue entry: $issue"
               fi
             done < security_issues.txt
           fi
@@ -550,16 +569,33 @@ jobs:
           # Process warnings - only file-specific ones
           if [ -f warnings.txt ] && [ -s warnings.txt ]; then
             while IFS= read -r warning; do
+              # Skip empty lines
+              if [ -z "$warning" ]; then
+                continue
+              fi
+
               if [[ "$warning" == *":"* ]]; then
                 # Parse file:line:message format
                 file_and_line=$(echo "$warning" | cut -d: -f1,2)
                 file_path=$(echo "$file_and_line" | cut -d: -f1)
                 line_num=$(echo "$file_and_line" | cut -d: -f2)
-                message=$(echo "$warning" | cut -d: -f3- | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+                message=$(echo "$warning" | cut -d: -f3- | sed 's/^ *//')
 
-                # Ensure message is not empty
-                if [ -z "$message" ]; then
-                  message="Security warning detected"
+                # Skip if this looks like a malformed entry (no file path or weird characters)
+                if [ -z "$file_path" ] || [[ "$file_path" == *" "* ]] || [[ "$file_path" != *".yaml" ]] && [[ "$file_path" != *".yml" ]]; then
+                  echo "⚠️ Skipping malformed warning entry: $warning"
+                  continue
+                fi
+
+                # Clean and escape the message properly
+                if [ -n "$message" ]; then
+                  # Remove any remaining colons at the start and clean the message
+                  message=$(echo "$message" | sed 's/^:*//' | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+                fi
+
+                # Ensure message is not empty and not just whitespace
+                if [ -z "$message" ] || [[ "$message" =~ ^[[:space:]]*$ ]]; then
+                  message="Security configuration warning detected"
                 fi
 
                 # Validate line number is numeric, default to 1 if not
@@ -572,6 +608,8 @@ jobs:
                   fingerprint=$(create_fingerprint "$file_path" "$message" "security-warning")
                   SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
+              else
+                echo "⚠️ Skipping non-colon warning entry: $warning"
               fi
             done < warnings.txt
           fi

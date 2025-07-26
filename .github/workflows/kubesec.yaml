@@ -584,71 +584,69 @@ jobs:
           # Add timestamp to make fingerprints more stable across runs
           SCAN_TIMESTAMP=$(date -u '+%Y%m%d')
 
-          # Create basic SARIF structure using jq
-          jq -n '{
-            "version": "2.1.0",
-            "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
-            "runs": [{
-              "tool": {
-                "driver": {
-                  "name": "home-ops-security-scanner",
-                  "version": "2.0.0",
-                  "informationUri": "https://github.com/vrozaksen/home-ops",
-                  "shortDescription": {
-                    "text": "Custom GitOps security scanner for home-ops repository"
-                  },
-                  "rules": [
-                    {
-                      "id": "critical-security",
-                      "name": "Critical Security Issue",
-                      "shortDescription": {
-                        "text": "Critical security configuration issue requiring immediate attention"
-                      },
-                      "defaultConfiguration": {
-                        "level": "error"
-                      },
-                      "help": {
-                        "text": "This rule identifies critical security misconfigurations in Kubernetes manifests that require immediate attention."
-                      }
-                    },
-                    {
-                      "id": "security-warning",
-                      "name": "Security Warning",
-                      "shortDescription": {
-                        "text": "Security configuration warning that should be reviewed"
-                      },
-                      "defaultConfiguration": {
-                        "level": "warning"
-                      },
-                      "help": {
-                        "text": "This rule identifies security configurations that could be improved but are not immediately critical."
-                      }
-                    }
-                  ]
-                }
-              },
-              "results": []
-            }]
-          }' > security-results.sarif
+          # Create basic SARIF structure incrementally to avoid argument length issues
+          echo '{' > security-results.sarif
+          echo '  "version": "2.1.0",' >> security-results.sarif
+          echo '  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",' >> security-results.sarif
+          echo '  "runs": [{' >> security-results.sarif
+          echo '    "tool": {' >> security-results.sarif
+          echo '      "driver": {' >> security-results.sarif
+          echo '        "name": "home-ops-security-scanner",' >> security-results.sarif
+          echo '        "version": "2.0.0",' >> security-results.sarif
+          echo '        "informationUri": "https://github.com/vrozaksen/home-ops",' >> security-results.sarif
+          echo '        "shortDescription": {' >> security-results.sarif
+          echo '          "text": "Custom GitOps security scanner for home-ops repository"' >> security-results.sarif
+          echo '        },' >> security-results.sarif
+          echo '        "rules": [' >> security-results.sarif
+          echo '          {' >> security-results.sarif
+          echo '            "id": "critical-security",' >> security-results.sarif
+          echo '            "name": "Critical Security Issue",' >> security-results.sarif
+          echo '            "shortDescription": {' >> security-results.sarif
+          echo '              "text": "Critical security configuration issue requiring immediate attention"' >> security-results.sarif
+          echo '            },' >> security-results.sarif
+          echo '            "defaultConfiguration": {' >> security-results.sarif
+          echo '              "level": "error"' >> security-results.sarif
+          echo '            },' >> security-results.sarif
+          echo '            "help": {' >> security-results.sarif
+          echo '              "text": "This rule identifies critical security misconfigurations in Kubernetes manifests that require immediate attention."' >> security-results.sarif
+          echo '            }' >> security-results.sarif
+          echo '          },' >> security-results.sarif
+          echo '          {' >> security-results.sarif
+          echo '            "id": "security-warning",' >> security-results.sarif
+          echo '            "name": "Security Warning",' >> security-results.sarif
+          echo '            "shortDescription": {' >> security-results.sarif
+          echo '              "text": "Security configuration warning that should be reviewed"' >> security-results.sarif
+          echo '            },' >> security-results.sarif
+          echo '            "defaultConfiguration": {' >> security-results.sarif
+          echo '              "level": "warning"' >> security-results.sarif
+          echo '            },' >> security-results.sarif
+          echo '            "help": {' >> security-results.sarif
+          echo '              "text": "This rule identifies security configurations that could be improved but are not immediately critical."' >> security-results.sarif
+          echo '            }' >> security-results.sarif
+          echo '          }' >> security-results.sarif
+          echo '        ]' >> security-results.sarif
+          echo '      }' >> security-results.sarif
+          echo '    },' >> security-results.sarif
+          echo '    "results": []' >> security-results.sarif
+          echo '  }]' >> security-results.sarif
+          echo '}' >> security-results.sarif
 
           # Now add results to the SARIF file using jq for proper JSON handling
           if [ ! -z "$SARIF_RESULTS" ]; then
-            # Convert comma-separated results to proper JSON array
-            SARIF_RESULTS="[${SARIF_RESULTS%,}]"
+            # Convert comma-separated results to proper JSON array and save to file
+            echo "[${SARIF_RESULTS%,}]" > temp_results.json
 
-            # Use jq to properly merge the results into the SARIF structure
-            echo "$SARIF_RESULTS" | jq '.' > temp_results.json 2>/dev/null || {
+            # Validate the results JSON first
+            if ! jq empty temp_results.json 2>/dev/null; then
               echo "❌ Error: Invalid JSON in SARIF results. Creating empty results."
               echo '[]' > temp_results.json
-            }
+            fi
 
-            # Merge results into SARIF file
+            # Merge results into SARIF file using file input instead of command line
             jq --argjson results "$(cat temp_results.json)" '.runs[0].results = $results' security-results.sarif > temp_sarif.json
             mv temp_sarif.json security-results.sarif
             rm -f temp_results.json
-          fi
-
-          # Validate the final SARIF file
+          fi          # Validate the final SARIF file
           if ! jq empty security-results.sarif 2>/dev/null; then
             echo "❌ Generated SARIF file is invalid JSON. Creating minimal valid SARIF."
             jq -n '{

@@ -79,7 +79,8 @@ jobs:
 
           # Download kubesec binary
           echo "📥 Downloading kubesec v${{ env.KUBESEC_VERSION }}..."
-          curl -sSLo kubesec "https://github.com/controlplaneio/kubesec/releases/download/v${{ env.KUBESEC_VERSION }}/kubesec_linux_amd64"
+          curl -sSLo kubesec.tar.gz "https://github.com/controlplaneio/kubesec/releases/download/v${{ env.KUBESEC_VERSION }}/kubesec_linux_amd64.tar.gz"
+          tar -xzf kubesec.tar.gz
           chmod +x kubesec
 
           # Verify download

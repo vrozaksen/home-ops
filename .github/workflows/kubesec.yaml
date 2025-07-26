@@ -510,12 +510,13 @@ jobs:
 
           SARIF_RESULTS=""
 
-          # Function to create stable fingerprint
+          # Function to create stable fingerprint with version reset to bypass dismissed findings
           create_fingerprint() {
             local file_path="$1"
             local message="$2"
             local rule_id="$3"
-            echo "${rule_id}:${file_path}:${message}" | sha256sum | cut -d' ' -f1
+            # Use version 2.1.0 to create new fingerprints that will bypass previously dismissed findings
+            echo "${rule_id}:${file_path}:${message}:v2.1.0" | sha256sum | cut -d' ' -f1
           }
 
           # Process critical security issues
@@ -619,9 +620,6 @@ jobs:
             SARIF_RESULTS=${SARIF_RESULTS%,}
           fi
 
-          # Add timestamp to make fingerprints more stable across runs
-          SCAN_TIMESTAMP=$(date -u '+%Y%m%d')
-
           # Create basic SARIF structure incrementally to avoid argument length issues
           echo '{' > security-results.sarif
           echo '  "version": "2.1.0",' >> security-results.sarif
@@ -630,7 +628,7 @@ jobs:
           echo '    "tool": {' >> security-results.sarif
           echo '      "driver": {' >> security-results.sarif
           echo '        "name": "home-ops-security-scanner",' >> security-results.sarif
-          echo '        "version": "2.0.0",' >> security-results.sarif
+          echo '        "version": "2.1.0",' >> security-results.sarif
           echo '        "informationUri": "https://github.com/vrozaksen/home-ops",' >> security-results.sarif
           echo '        "shortDescription": {' >> security-results.sarif
           echo '          "text": "Custom GitOps security scanner for home-ops repository"' >> security-results.sarif

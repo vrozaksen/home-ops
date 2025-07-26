@@ -41,33 +41,27 @@ spec:
               QBT_Preferences__WebUI__LocalHostAuth: false
               QBT_Preferences__WebUI__RootFolder: /addons/VueTorrent
               QBT_Preferences__WebUI__UseUPNP: false
-              # CROSS_SEED_ENABLED: false
-              # CROSS_SEED_HOST: cross-seed.downloads.svc.cluster.local
-              # CROSS_SEED_PORT: 80
-              # CROSS_SEED_SLEEP_INTERVAL: 0
-              PUSHOVER_ENABLED: true
             envFrom:
               - secretRef:
                   name: qbittorrent-secret
-            # TODO: Enable probes for health checks
-            # probes:
-            #   liveness: &probes
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /api/v2/app/version
-            #         port: *port
-            #       initialDelaySeconds: 0
-            #       periodSeconds: 10
-            #       timeoutSeconds: 1
-            #       failureThreshold: 3
-            #   readiness: *probes
-            #   startup:
-            #     enabled: true
-            #     spec:
-            #       failureThreshold: 30
-            #       periodSeconds: 10
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
             securityContext:
               runAsUser: 1000
               runAsGroup: 100
@@ -77,8 +71,8 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 350m
-                memory: 8Gi
+                cpu: 100m
+                memory: 4Gi
               limits:
                 memory: 12Gi
           vuetorrent:
@@ -97,21 +91,6 @@ spec:
                 memory: 100Mi
               limits:
                 memory: 100Mi
-    defaultPodOptions:
-      terminationGracePeriodSeconds: 120
-      # nodeSelector:
-      #   topology.kubernetes.io/zone: worker
-      # affinity:
-      #   podAntiAffinity:
-      #     preferredDuringSchedulingIgnoredDuringExecution:
-      #       - weight: 100
-      #         podAffinityTerm:
-      #           labelSelector:
-      #             matchExpressions:
-      #               - key: app.kubernetes.io/name
-      #                 operator: In
-      #                 values: ["sabnzbd"]
-      #           topologyKey: kubernetes.io/hostname
     service:
       app:
         type: LoadBalancer
@@ -134,15 +113,22 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+    configMaps:
+      config:
+        data:
+          .qbt.toml: |
+            [qbittorrent]
+            addr = "http://localhost:80"
     persistence:
       config:
         existingClaim: *app
-      scripts:
+      config-file:
         type: configMap
-        name: qbittorrent-scripts
-        defaultMode: 0775
+        name: qbittorrent
         globalMounts:
-          - readOnly: true
+          - path: /config/.qbt.toml
+            subPath: .qbt.toml
+            readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:

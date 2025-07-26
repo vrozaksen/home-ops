@@ -76,11 +76,9 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Flux CLI
-        # renovate: datasource=github-tags depName=fluxcd/flux2
-        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
+        uses: fluxcd/flux2/action@main
         with:
-          # renovate: datasource=github-releases depName=fluxcd/flux2
-          version: 'v2.6.4'
+          version: 'latest'
 
       - name: Validate Kubernetes manifests
         run: |
@@ -210,11 +208,9 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Flux CLI
-        # renovate: datasource=github-tags depName=fluxcd/flux2
-        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
+        uses: fluxcd/flux2/action@main
         with:
-          # renovate: datasource=github-releases depName=fluxcd/flux2
-          version: 'v2.6.4'
+          version: 'latest'
 
       - name: Cache flux manifests
         id: cache

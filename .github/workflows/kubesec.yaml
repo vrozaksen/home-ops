@@ -97,61 +97,67 @@ jobs:
 
           echo "🔍 Analyzing HelmRelease configurations..."
 
-          # Check for insecure HelmRelease configurations
+          # Check for insecure HelmRelease configurations - ONLY in HelmRelease files
           while IFS= read -r helmrelease; do
-            echo "� Scanning HelmRelease: $helmrelease"
+            echo "📦 Scanning HelmRelease: $helmrelease"
+
+            # Verify this is actually a HelmRelease by checking content
+            if ! grep -q "kind:\s*HelmRelease" "$helmrelease" 2>/dev/null; then
+              echo "⏭️ Skipping $helmrelease - not a HelmRelease"
+              continue
+            fi
 
             # Check for missing security contexts in values
             if ! grep -q "securityContext\|runAsNonRoot\|runAsUser" "$helmrelease" 2>/dev/null; then
-              WARNINGS+=("$helmrelease: No securityContext found in values")
+              WARNINGS+=("$helmrelease: No securityContext found in HelmRelease values")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for missing resource limits
             if ! grep -q "resources:\|limits:\|requests:" "$helmrelease" 2>/dev/null; then
-              WARNINGS+=("$helmrelease: No resource limits specified")
+              WARNINGS+=("$helmrelease: No resource limits specified in HelmRelease")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for potential privileged access
             if grep -q "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null; then
-              SECURITY_ISSUES+=("$helmrelease: Privileged container configuration detected")
+              SECURITY_ISSUES+=("$helmrelease: Privileged container configuration detected in HelmRelease")
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostNetwork
             if grep -q "hostNetwork.*true" "$helmrelease" 2>/dev/null; then
-              SECURITY_ISSUES+=("$helmrelease: Host network access enabled")
+              SECURITY_ISSUES+=("$helmrelease: Host network access enabled in HelmRelease")
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostPath volumes
             if grep -q "hostPath:" "$helmrelease" 2>/dev/null; then
-              WARNINGS+=("$helmrelease: Host path volume detected")
+              WARNINGS+=("$helmrelease: Host path volume detected in HelmRelease")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for latest image tags
             if grep -q "tag:\s*['\"]latest['\"]" "$helmrelease" 2>/dev/null; then
-              WARNINGS+=("$helmrelease: Using 'latest' image tag - use specific versions")
+              WARNINGS+=("$helmrelease: Using 'latest' image tag in HelmRelease - use specific versions")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for missing image pull policies
             if ! grep -q "imagePullPolicy" "$helmrelease" 2>/dev/null; then
-              INFO_ITEMS+=("$helmrelease: Consider specifying imagePullPolicy")
+              INFO_ITEMS+=("$helmrelease: Consider specifying imagePullPolicy in HelmRelease")
               INFO_COUNT=$((INFO_COUNT + 1))
             fi
 
             # Check for missing read-only root filesystem
             if ! grep -q "readOnlyRootFilesystem.*true" "$helmrelease" 2>/dev/null; then
-              INFO_ITEMS+=("$helmrelease: Consider enabling readOnlyRootFilesystem")
+              INFO_ITEMS+=("$helmrelease: Consider enabling readOnlyRootFilesystem in HelmRelease")
               INFO_COUNT=$((INFO_COUNT + 1))
             fi
 
             # Check for capabilities configuration
             if ! grep -q "capabilities:" "$helmrelease" 2>/dev/null; then
-              INFO_ITEMS+=("$helmrelease: Consider configuring container capabilities (drop ALL)")
+              INFO_ITEMS+=("$helmrelease: Consider configuring container capabilities (drop ALL) in HelmRelease")
               INFO_COUNT=$((INFO_COUNT + 1))
             fi
 
@@ -159,9 +165,15 @@ jobs:
 
           echo "🔍 Analyzing Flux Source Security..."
 
-          # Check HelmRepository sources
+          # Check HelmRepository sources - ONLY in HelmRepository files
           while IFS= read -r helmrepo; do
             echo "📦 Scanning HelmRepository: $helmrepo"
+
+            # Verify this is actually a HelmRepository by checking content
+            if ! grep -q "kind:\s*HelmRepository" "$helmrepo" 2>/dev/null; then
+              echo "⏭️ Skipping $helmrepo - not a HelmRepository"
+              continue
+            fi
 
             # Check for HTTPS URLs
             if ! grep -q "url:\s*https://" "$helmrepo" 2>/dev/null; then
@@ -171,7 +183,7 @@ jobs:
 
             # Check for signature verification
             if ! grep -q "verify:\|secretRef:" "$helmrepo" 2>/dev/null; then
-              WARNINGS+=("$helmrepo: No signature verification configured")
+              WARNINGS+=("$helmrepo: No signature verification configured for HelmRepository")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
@@ -179,16 +191,22 @@ jobs:
             if grep -q "interval:\s*[0-9]*[sm]" "$helmrepo" 2>/dev/null; then
               INTERVAL=$(grep -o "interval:\s*[0-9]*[sm]" "$helmrepo" 2>/dev/null | grep -o "[0-9]*[sm]")
               if [[ "$INTERVAL" =~ ^[0-9]+s$ ]] || [[ "$INTERVAL" =~ ^[1-4]m$ ]]; then
-                WARNINGS+=("$helmrepo: Short reconciliation interval ($INTERVAL) may cause DoS")
+                WARNINGS+=("$helmrepo: Short reconciliation interval ($INTERVAL) may cause DoS for HelmRepository")
                 WARNING_COUNT=$((WARNING_COUNT + 1))
               fi
             fi
 
           done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRepository" {} \; 2>/dev/null)
 
-          # Check GitRepository sources
+          # Check GitRepository sources - ONLY in GitRepository files
           while IFS= read -r gitrepo; do
             echo "📂 Scanning GitRepository: $gitrepo"
+
+            # Verify this is actually a GitRepository by checking content
+            if ! grep -q "kind:\s*GitRepository" "$gitrepo" 2>/dev/null; then
+              echo "⏭️ Skipping $gitrepo - not a GitRepository"
+              continue
+            fi
 
             # Check for HTTPS URLs
             if ! grep -q "url:\s*https://" "$gitrepo" 2>/dev/null; then
@@ -198,25 +216,31 @@ jobs:
 
             # Check for GPG verification
             if ! grep -q "verify:\|secretRef:" "$gitrepo" 2>/dev/null; then
-              WARNINGS+=("$gitrepo: No GPG verification configured")
+              WARNINGS+=("$gitrepo: No GPG verification configured for GitRepository")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
           done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*GitRepository" {} \; 2>/dev/null)
 
-          # Check OCIRepository sources
+          # Check OCIRepository sources - ONLY in OCIRepository files
           while IFS= read -r ocirepo; do
             echo "🐳 Scanning OCIRepository: $ocirepo"
 
+            # Verify this is actually an OCIRepository by checking content
+            if ! grep -q "kind:\s*OCIRepository" "$ocirepo" 2>/dev/null; then
+              echo "⏭️ Skipping $ocirepo - not an OCIRepository"
+              continue
+            fi
+
             # Check for signature verification
             if ! grep -q "verify:" "$ocirepo" 2>/dev/null; then
-              WARNINGS+=("$ocirepo: No OCI signature verification configured")
+              WARNINGS+=("$ocirepo: No OCI signature verification configured - add verify section with cosign provider")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for cosign provider
             if grep -q "verify:" "$ocirepo" && ! grep -q "provider:\s*cosign" "$ocirepo" 2>/dev/null; then
-              INFO_ITEMS+=("$ocirepo: Consider using cosign for OCI verification")
+              INFO_ITEMS+=("$ocirepo: Consider using cosign provider for OCI verification")
               INFO_COUNT=$((INFO_COUNT + 1))
             fi
 
@@ -224,19 +248,25 @@ jobs:
 
           echo "🔍 Analyzing ExternalSecret configurations..."
 
-          # Check ExternalSecret security
+          # Check ExternalSecret security - ONLY in ExternalSecret files
           while IFS= read -r externalsecret; do
             echo "🔐 Scanning ExternalSecret: $externalsecret"
 
+            # Verify this is actually an ExternalSecret by checking content
+            if ! grep -q "kind:\s*ExternalSecret" "$externalsecret" 2>/dev/null; then
+              echo "⏭️ Skipping $externalsecret - not an ExternalSecret"
+              continue
+            fi
+
             # Check for proper secret store references
             if ! grep -q "secretStoreRef\|clusterSecretStoreRef" "$externalsecret" 2>/dev/null; then
-              WARNINGS+=("$externalsecret: Missing secret store reference")
+              WARNINGS+=("$externalsecret: Missing secret store reference in ExternalSecret")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for refresh interval (security best practice)
             if ! grep -q "refreshInterval" "$externalsecret" 2>/dev/null; then
-              INFO_ITEMS+=("$externalsecret: Consider adding refreshInterval for secret rotation")
+              INFO_ITEMS+=("$externalsecret: Consider adding refreshInterval for secret rotation in ExternalSecret")
               INFO_COUNT=$((INFO_COUNT + 1))
             fi
 
@@ -244,31 +274,37 @@ jobs:
 
           echo "🛡️ Performing RBAC Security Analysis..."
 
-          # Check ServiceAccounts and Roles
+          # Check ServiceAccounts and Roles - ONLY in RBAC files
           while IFS= read -r rbacfile; do
             echo "🔑 Scanning RBAC: $rbacfile"
 
+            # Verify this is actually an RBAC resource by checking content
+            if ! grep -q "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" "$rbacfile" 2>/dev/null; then
+              echo "⏭️ Skipping $rbacfile - not an RBAC resource"
+              continue
+            fi
+
             # Check for wildcard permissions
             if grep -q "resources:\s*\[.*\*.*\]" "$rbacfile" 2>/dev/null; then
-              SECURITY_ISSUES+=("$rbacfile: Wildcard (*) permissions detected")
+              SECURITY_ISSUES+=("$rbacfile: Wildcard (*) permissions detected in RBAC")
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for cluster-admin role
             if grep -q "cluster-admin" "$rbacfile" 2>/dev/null; then
-              WARNINGS+=("$rbacfile: cluster-admin role binding found")
+              WARNINGS+=("$rbacfile: cluster-admin role binding found - review if necessary")
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for privileged verbs
             for verb in create delete deletecollection patch; do
               if grep -q "verbs:.*$verb" "$rbacfile" 2>/dev/null; then
-                INFO_ITEMS+=("$rbacfile: Privileged verb '$verb' detected")
+                INFO_ITEMS+=("$rbacfile: Privileged verb '$verb' detected in RBAC - review permissions")
                 INFO_COUNT=$((INFO_COUNT + 1))
               fi
             done
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\)" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" {} \; 2>/dev/null)
 
           echo "🌐 Checking Network Security Policies..."
 
@@ -415,6 +451,13 @@ jobs:
             echo "${rule_id}:${file_path}:${message}" | sha256sum | cut -d' ' -f1
           }
 
+          # Function to get line number for specific patterns
+          get_line_number() {
+            local file="$1"
+            local pattern="$2"
+            grep -n "$pattern" "$file" 2>/dev/null | head -1 | cut -d: -f1 || echo "1"
+          }
+
           # Process critical security issues
           for issue in "${SECURITY_ISSUES[@]}"; do
             if [[ "$issue" == *":"* ]]; then
@@ -423,8 +466,22 @@ jobs:
 
               # Only add if file exists and path is valid
               if [ -f "$file_path" ]; then
+                # Try to find relevant line number based on message content
+                line_number=1
+                if [[ "$message" == *"Privileged"* ]]; then
+                  line_number=$(get_line_number "$file_path" "privileged.*true\|allowPrivilegeEscalation.*true")
+                elif [[ "$message" == *"Host network"* ]]; then
+                  line_number=$(get_line_number "$file_path" "hostNetwork.*true")
+                elif [[ "$message" == *"HelmRepository not using HTTPS"* ]]; then
+                  line_number=$(get_line_number "$file_path" "url:")
+                elif [[ "$message" == *"GitRepository not using HTTPS"* ]]; then
+                  line_number=$(get_line_number "$file_path" "url:")
+                elif [[ "$message" == *"Wildcard"* ]]; then
+                  line_number=$(get_line_number "$file_path" "resources:.*\*")
+                fi
+
                 fingerprint=$(create_fingerprint "$file_path" "$message" "critical-security")
-                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_number}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
               fi
             else
               # Skip general issues without specific file to reduce noise
@@ -440,8 +497,30 @@ jobs:
 
               # Only add if file exists and path is valid
               if [ -f "$file_path" ]; then
+                # Try to find relevant line number based on message content
+                line_number=1
+                if [[ "$message" == *"securityContext"* ]]; then
+                  line_number=$(get_line_number "$file_path" "kind:\s*HelmRelease")
+                elif [[ "$message" == *"resource limits"* ]]; then
+                  line_number=$(get_line_number "$file_path" "kind:\s*HelmRelease")
+                elif [[ "$message" == *"Host path volume"* ]]; then
+                  line_number=$(get_line_number "$file_path" "hostPath:")
+                elif [[ "$message" == *"latest.*tag"* ]]; then
+                  line_number=$(get_line_number "$file_path" "tag:.*latest")
+                elif [[ "$message" == *"signature verification"* ]]; then
+                  line_number=$(get_line_number "$file_path" "spec:")
+                elif [[ "$message" == *"OCI signature verification"* ]]; then
+                  line_number=$(get_line_number "$file_path" "spec:")
+                elif [[ "$message" == *"cluster-admin"* ]]; then
+                  line_number=$(get_line_number "$file_path" "cluster-admin")
+                elif [[ "$message" == *"secret store reference"* ]]; then
+                  line_number=$(get_line_number "$file_path" "spec:")
+                elif [[ "$message" == *"reconciliation interval"* ]]; then
+                  line_number=$(get_line_number "$file_path" "interval:")
+                fi
+
                 fingerprint=$(create_fingerprint "$file_path" "$message" "security-warning")
-                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_number}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
               fi
             else
               # Skip general warnings to reduce noise

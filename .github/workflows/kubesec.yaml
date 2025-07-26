@@ -2,7 +2,7 @@
 # Automated security analysis for Kubernetes manifests
 # This workflow uses actions that are not certified by GitHub.
 
-name: 🔒 Kubesec Security Analysis
+name: 🔒 Home-Ops Security Analysis
 
 on:
   push:
@@ -19,13 +19,9 @@ on:
     - cron: '26 23 * * 1'
   workflow_dispatch:
 
-env:
-  # renovate: datasource=github-releases depName=controlplaneio/kubesec
-  KUBESEC_VERSION: "2.14.2"
-
 jobs:
   security-scan:
-    name: 🛡️ Kubernetes Security Scan
+    name: 🛡️ GitOps Security Analysis
     runs-on: home-ops-runner
     permissions:
       actions: read
@@ -40,55 +36,402 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔍 Discover Kubernetes Manifests
+      - name: 🔍 Discover GitOps Manifests
         id: discover
         run: |
-          echo "🔍 Discovering Kubernetes manifests..."
+          echo "🔍 Discovering GitOps manifests for security analysis..."
 
-          # Find all relevant YAML files, excluding certain patterns
+          # Find all YAML files in the repository
           find kubernetes/ \
             \( -name "*.yaml" -o -name "*.yml" \) \
             ! -name "kustomization.yaml" \
             ! -name "kustomization.yml" \
             ! -path "*/flux-system/*" \
-            ! -path "*/kube-system/*" \
-            > manifests.txt
+            > all_manifests.txt
 
-          MANIFEST_COUNT=$(wc -l < manifests.txt)
+          TOTAL_COUNT=$(wc -l < all_manifests.txt)
+          echo "📊 Found $TOTAL_COUNT YAML files total"
+          echo "total_manifests=$TOTAL_COUNT" >> $GITHUB_OUTPUT
 
-          echo "📊 Found $MANIFEST_COUNT Kubernetes manifests to scan:"
-          echo "manifest_count=$MANIFEST_COUNT" >> $GITHUB_OUTPUT
+          # Categorize files by type
+          echo "🔍 Analyzing manifest types..."
 
-          if [ $MANIFEST_COUNT -eq 0 ]; then
-            echo "⚠️ No manifests found to scan!"
+          # HelmReleases
+          HELM_COUNT=$(grep -l "kind:\s*HelmRelease" kubernetes/**/*.yaml kubernetes/**/*.yml 2>/dev/null | wc -l || echo "0")
+          echo "helmrelease_count=$HELM_COUNT" >> $GITHUB_OUTPUT
+
+          # Kustomizations
+          KUSTOMIZATION_COUNT=$(grep -l "kind:\s*Kustomization" kubernetes/**/*.yaml kubernetes/**/*.yml 2>/dev/null | wc -l || echo "0")
+          echo "kustomization_count=$KUSTOMIZATION_COUNT" >> $GITHUB_OUTPUT
+
+          # ExternalSecrets
+          EXTERNALSECRET_COUNT=$(grep -l "kind:\s*ExternalSecret" kubernetes/**/*.yaml kubernetes/**/*.yml 2>/dev/null | wc -l || echo "0")
+          echo "externalsecret_count=$EXTERNALSECRET_COUNT" >> $GITHUB_OUTPUT
+
+          echo "📊 Manifest breakdown:"
+          echo "  📦 HelmReleases: $HELM_COUNT"
+          echo "  🔧 Kustomizations: $KUSTOMIZATION_COUNT"
+          echo "  🔐 ExternalSecrets: $EXTERNALSECRET_COUNT"
+
+          if [ $TOTAL_COUNT -eq 0 ]; then
             echo "scan_needed=false" >> $GITHUB_OUTPUT
           else
             echo "scan_needed=true" >> $GITHUB_OUTPUT
-            echo "📋 Manifest list:"
-            cat manifests.txt | head -10
-            if [ $MANIFEST_COUNT -gt 10 ]; then
-              echo "... and $(($MANIFEST_COUNT - 10)) more files"
-            fi
           fi
 
-      - name: 🔒 Run Kubesec Security Scanner
+          rm -f all_manifests.txt
+
+      - name: 🔒 Home-Ops Security Scanner
         id: scan
         if: steps.discover.outputs.scan_needed == 'true'
         run: |
-          echo "🔒 Installing and running Kubesec security scanner..."
+          echo "🔒 Running custom Home-Ops security analysis..."
 
-          # Download kubesec binary
-          echo "📥 Downloading kubesec v${{ env.KUBESEC_VERSION }}..."
-          curl -sSLo kubesec.tar.gz "https://github.com/controlplaneio/kubesec/releases/download/v${{ env.KUBESEC_VERSION }}/kubesec_linux_amd64.tar.gz"
-          tar -xzf kubesec.tar.gz
-          chmod +x kubesec
+          # Initialize results
+          SECURITY_ISSUES=()
+          WARNINGS=()
+          INFO_ITEMS=()
+          CRITICAL_COUNT=0
+          WARNING_COUNT=0
+          INFO_COUNT=0
 
-          # Verify download
-          ./kubesec version
+          echo "🔍 Analyzing HelmRelease configurations..."
 
-          # Initialize SARIF structure
-          echo "📋 Initializing SARIF results..."
-          cat > kubesec-results.sarif << EOF
+          # Check for insecure HelmRelease configurations
+          while IFS= read -r helmrelease; do
+            echo "� Scanning HelmRelease: $helmrelease"
+
+            # Check for missing security contexts in values
+            if ! grep -q "securityContext\|runAsNonRoot\|runAsUser" "$helmrelease" 2>/dev/null; then
+              WARNINGS+=("$helmrelease: No securityContext found in values")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for missing resource limits
+            if ! grep -q "resources:\|limits:\|requests:" "$helmrelease" 2>/dev/null; then
+              WARNINGS+=("$helmrelease: No resource limits specified")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for potential privileged access
+            if grep -q "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null; then
+              SECURITY_ISSUES+=("$helmrelease: Privileged container configuration detected")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            fi
+
+            # Check for hostNetwork
+            if grep -q "hostNetwork.*true" "$helmrelease" 2>/dev/null; then
+              SECURITY_ISSUES+=("$helmrelease: Host network access enabled")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            fi
+
+            # Check for hostPath volumes
+            if grep -q "hostPath:" "$helmrelease" 2>/dev/null; then
+              WARNINGS+=("$helmrelease: Host path volume detected")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for latest image tags
+            if grep -q "tag:\s*['\"]latest['\"]" "$helmrelease" 2>/dev/null; then
+              WARNINGS+=("$helmrelease: Using 'latest' image tag - use specific versions")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for missing image pull policies
+            if ! grep -q "imagePullPolicy" "$helmrelease" 2>/dev/null; then
+              INFO_ITEMS+=("$helmrelease: Consider specifying imagePullPolicy")
+              INFO_COUNT=$((INFO_COUNT + 1))
+            fi
+
+            # Check for missing read-only root filesystem
+            if ! grep -q "readOnlyRootFilesystem.*true" "$helmrelease" 2>/dev/null; then
+              INFO_ITEMS+=("$helmrelease: Consider enabling readOnlyRootFilesystem")
+              INFO_COUNT=$((INFO_COUNT + 1))
+            fi
+
+            # Check for capabilities configuration
+            if ! grep -q "capabilities:" "$helmrelease" 2>/dev/null; then
+              INFO_ITEMS+=("$helmrelease: Consider configuring container capabilities (drop ALL)")
+              INFO_COUNT=$((INFO_COUNT + 1))
+            fi
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRelease" {} \; 2>/dev/null)
+
+          echo "🔍 Analyzing Flux Source Security..."
+
+          # Check HelmRepository sources
+          while IFS= read -r helmrepo; do
+            echo "📦 Scanning HelmRepository: $helmrepo"
+
+            # Check for HTTPS URLs
+            if ! grep -q "url:\s*https://" "$helmrepo" 2>/dev/null; then
+              SECURITY_ISSUES+=("$helmrepo: HelmRepository not using HTTPS")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            fi
+
+            # Check for signature verification
+            if ! grep -q "verify:\|secretRef:" "$helmrepo" 2>/dev/null; then
+              WARNINGS+=("$helmrepo: No signature verification configured")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check reconciliation interval (too frequent can cause DoS)
+            if grep -q "interval:\s*[0-9]*[sm]" "$helmrepo" 2>/dev/null; then
+              INTERVAL=$(grep -o "interval:\s*[0-9]*[sm]" "$helmrepo" 2>/dev/null | grep -o "[0-9]*[sm]")
+              if [[ "$INTERVAL" =~ ^[0-9]+s$ ]] || [[ "$INTERVAL" =~ ^[1-4]m$ ]]; then
+                WARNINGS+=("$helmrepo: Short reconciliation interval ($INTERVAL) may cause DoS")
+                WARNING_COUNT=$((WARNING_COUNT + 1))
+              fi
+            fi
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRepository" {} \; 2>/dev/null)
+
+          # Check GitRepository sources
+          while IFS= read -r gitrepo; do
+            echo "📂 Scanning GitRepository: $gitrepo"
+
+            # Check for HTTPS URLs
+            if ! grep -q "url:\s*https://" "$gitrepo" 2>/dev/null; then
+              SECURITY_ISSUES+=("$gitrepo: GitRepository not using HTTPS")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            fi
+
+            # Check for GPG verification
+            if ! grep -q "verify:\|secretRef:" "$gitrepo" 2>/dev/null; then
+              WARNINGS+=("$gitrepo: No GPG verification configured")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*GitRepository" {} \; 2>/dev/null)
+
+          # Check OCIRepository sources
+          while IFS= read -r ocirepo; do
+            echo "🐳 Scanning OCIRepository: $ocirepo"
+
+            # Check for signature verification
+            if ! grep -q "verify:" "$ocirepo" 2>/dev/null; then
+              WARNINGS+=("$ocirepo: No OCI signature verification configured")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for cosign provider
+            if grep -q "verify:" "$ocirepo" && ! grep -q "provider:\s*cosign" "$ocirepo" 2>/dev/null; then
+              INFO_ITEMS+=("$ocirepo: Consider using cosign for OCI verification")
+              INFO_COUNT=$((INFO_COUNT + 1))
+            fi
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*OCIRepository" {} \; 2>/dev/null)
+
+          echo "🔍 Analyzing ExternalSecret configurations..."
+
+          # Check ExternalSecret security
+          while IFS= read -r externalsecret; do
+            echo "🔐 Scanning ExternalSecret: $externalsecret"
+
+            # Check for proper secret store references
+            if ! grep -q "secretStoreRef\|clusterSecretStoreRef" "$externalsecret" 2>/dev/null; then
+              WARNINGS+=("$externalsecret: Missing secret store reference")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for refresh interval (security best practice)
+            if ! grep -q "refreshInterval" "$externalsecret" 2>/dev/null; then
+              INFO_ITEMS+=("$externalsecret: Consider adding refreshInterval for secret rotation")
+              INFO_COUNT=$((INFO_COUNT + 1))
+            fi
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*ExternalSecret" {} \; 2>/dev/null)
+
+          echo "🛡️ Performing RBAC Security Analysis..."
+
+          # Check ServiceAccounts and Roles
+          while IFS= read -r rbacfile; do
+            echo "🔑 Scanning RBAC: $rbacfile"
+
+            # Check for wildcard permissions
+            if grep -q "resources:\s*\[.*\*.*\]" "$rbacfile" 2>/dev/null; then
+              SECURITY_ISSUES+=("$rbacfile: Wildcard (*) permissions detected")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            fi
+
+            # Check for cluster-admin role
+            if grep -q "cluster-admin" "$rbacfile" 2>/dev/null; then
+              WARNINGS+=("$rbacfile: cluster-admin role binding found")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+
+            # Check for privileged verbs
+            for verb in create delete deletecollection patch; do
+              if grep -q "verbs:.*$verb" "$rbacfile" 2>/dev/null; then
+                INFO_ITEMS+=("$rbacfile: Privileged verb '$verb' detected")
+                INFO_COUNT=$((INFO_COUNT + 1))
+              fi
+            done
+
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\)" {} \; 2>/dev/null)
+
+          echo "🌐 Checking Network Security Policies..."
+
+          # Check for NetworkPolicies
+          NETPOL_COUNT=$(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*NetworkPolicy" {} \; 2>/dev/null | wc -l)
+          APP_COUNT=$(find kubernetes/apps/ -maxdepth 1 -type d 2>/dev/null | wc -l)
+
+          if [ "$NETPOL_COUNT" -lt $((APP_COUNT / 2)) ]; then
+            WARNINGS+=("Network policies may be missing for some applications")
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+          fi
+
+          # Check for service mesh configurations
+          if ! find kubernetes/ -name "*.yaml" -exec grep -l "istio\|linkerd\|consul" {} \; 2>/dev/null | head -1 > /dev/null; then
+            INFO_ITEMS+=("Consider implementing a service mesh for enhanced security")
+            INFO_COUNT=$((INFO_COUNT + 1))
+          fi
+
+          echo "📊 Analyzing Image Security Policies..."
+
+          # Check for ImagePolicy
+          if ! find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*ImagePolicy" {} \; 2>/dev/null | head -1 > /dev/null; then
+            WARNINGS+=("No Flux ImagePolicy found - consider implementing automated image updates")
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+          fi
+
+          # Check for PodSecurityStandards
+          if ! find kubernetes/ -name "*.yaml" -exec grep -l "pod-security.kubernetes.io" {} \; 2>/dev/null | head -1 > /dev/null; then
+            WARNINGS+=("Pod Security Standards labels not found - consider implementing PSS")
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+          fi
+
+          echo "🔒 Checking Certificate and TLS Security..."
+
+          # Check for cert-manager certificates
+          CERT_COUNT=$(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*Certificate" {} \; 2>/dev/null | wc -l)
+          INGRESS_COUNT=$(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*Ingress" {} \; 2>/dev/null | wc -l)
+
+          if [ "$INGRESS_COUNT" -gt 0 ] && [ "$CERT_COUNT" -eq 0 ]; then
+            WARNINGS+=("Ingresses found but no cert-manager Certificates - TLS may not be automated")
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+          fi
+
+          # Check for HTTP-only services
+          while IFS= read -r servicefile; do
+            if grep -q "port:\s*80\|targetPort:\s*80" "$servicefile" 2>/dev/null; then
+              if ! grep -q "port:\s*443\|targetPort:\s*443" "$servicefile" 2>/dev/null; then
+                INFO_ITEMS+=("$servicefile: Service using HTTP port 80 without HTTPS")
+                INFO_COUNT=$((INFO_COUNT + 1))
+              fi
+            fi
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*Service" {} \; 2>/dev/null)
+
+          echo "⚠️ Checking for Deprecated APIs..."
+
+          # Check for deprecated API versions
+          for api in "extensions/v1beta1" "apps/v1beta1" "apps/v1beta2" "networking.k8s.io/v1beta1"; do
+            if find kubernetes/ -name "*.yaml" -exec grep -l "apiVersion:\s*$api" {} \; 2>/dev/null | head -1 > /dev/null; then
+              WARNINGS+=("Deprecated API version found: $api")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            fi
+          done
+
+          echo "🔍 Analyzing general security patterns..."
+
+          # Check for hardcoded secrets/tokens
+          if HARDCODED_SECRETS=$(grep -r -i -E "(password|token|key|secret):\s*['\"]?[a-zA-Z0-9]{8,}" kubernetes/ --include="*.yaml" --include="*.yml" 2>/dev/null | grep -v "secretRef\|valueFrom\|secretKeyRef" | head -5); then
+            if [ ! -z "$HARDCODED_SECRETS" ]; then
+              SECURITY_ISSUES+=("Potential hardcoded secrets detected in YAML files")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+              echo "⚠️ Hardcoded secrets found:"
+              echo "$HARDCODED_SECRETS" | while read -r line; do
+                echo "  - $(echo "$line" | cut -d: -f1)"
+              done
+            fi
+          fi
+
+          # Check for default service accounts
+          if DEFAULT_SA=$(grep -r "serviceAccountName:\s*default" kubernetes/ --include="*.yaml" --include="*.yml" 2>/dev/null); then
+            WARNINGS+=("Default service account usage detected")
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+          fi
+
+          # Check for privileged containers
+          echo "🔍 Checking for privileged containers..."
+          PRIVILEGED_COUNT=0
+          if PRIVILEGED_FILES=$(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null); then
+            PRIVILEGED_COUNT=$(echo "$PRIVILEGED_FILES" | wc -l)
+            echo "⚠️ Found $PRIVILEGED_COUNT files with privileged containers:"
+            echo "$PRIVILEGED_FILES" | while read -r file; do
+              echo "  - $file"
+              SECURITY_ISSUES+=("$file: Privileged container configuration detected")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            done
+          else
+            echo "✅ No privileged containers found"
+          fi
+
+          # Check for hostNetwork usage
+          echo "🔍 Checking for hostNetwork usage..."
+          HOST_NETWORK_COUNT=0
+          if HOST_NETWORK_FILES=$(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null); then
+            HOST_NETWORK_COUNT=$(echo "$HOST_NETWORK_FILES" | wc -l)
+            echo "⚠️ Found $HOST_NETWORK_COUNT files with hostNetwork usage:"
+            echo "$HOST_NETWORK_FILES" | while read -r file; do
+              echo "  - $file"
+              SECURITY_ISSUES+=("$file: Host network access enabled")
+              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+            done
+          else
+            echo "✅ No hostNetwork usage found"
+          fi
+
+          # Check for root users
+          echo "🔍 Checking for root users..."
+          ROOT_USER_COUNT=0
+          if ROOT_USER_FILES=$(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null); then
+            ROOT_USER_COUNT=$(echo "$ROOT_USER_FILES" | wc -l)
+            echo "⚠️ Found $ROOT_USER_COUNT files with containers running as root:"
+            echo "$ROOT_USER_FILES" | while read -r file; do
+              echo "  - $file"
+              WARNINGS+=("$file: Container running as root user")
+              WARNING_COUNT=$((WARNING_COUNT + 1))
+            done
+          else
+            echo "✅ No root user containers found"
+          fi
+
+          # Check for missing network policies references
+          if [ $(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*NetworkPolicy" {} \; 2>/dev/null | wc -l) -eq 0 ]; then
+            INFO_ITEMS+=("No NetworkPolicy resources found - consider implementing network segmentation")
+            INFO_COUNT=$((INFO_COUNT + 1))
+          fi
+
+          # Create comprehensive SARIF output for all security findings
+          echo "📋 Generating comprehensive SARIF results..."
+          SARIF_RESULTS=""
+
+          # Process critical security issues
+          for issue in "${SECURITY_ISSUES[@]}"; do
+            file_path=$(echo "$issue" | cut -d: -f1)
+            message=$(echo "$issue" | cut -d: -f2-)
+            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"}}}]},"
+          done
+
+          # Process warnings
+          for warning in "${WARNINGS[@]}"; do
+            file_path=$(echo "$warning" | cut -d: -f1)
+            message=$(echo "$warning" | cut -d: -f2-)
+            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"}}}]},"
+          done
+
+          # Process info items
+          for info in "${INFO_ITEMS[@]}"; do
+            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-info\",\"level\":\"note\",\"message\":{\"text\":\"$info\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"kubernetes/\"}}}]},"
+          done
+
+          # Remove trailing comma if results exist
+          if [ ! -z "$SARIF_RESULTS" ]; then
+            SARIF_RESULTS=${SARIF_RESULTS%,}
+          fi
+
+          cat > security-results.sarif << EOF
           {
             "version": "2.1.0",
             "\$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
@@ -96,225 +439,169 @@ jobs:
               {
                 "tool": {
                   "driver": {
-                    "name": "kubesec",
-                    "version": "${{ env.KUBESEC_VERSION }}",
-                    "informationUri": "https://kubesec.io/",
+                    "name": "home-ops-security-scanner",
+                    "version": "1.0.0",
+                    "informationUri": "https://github.com/vrozaksen/home-ops",
+                    "shortDescription": {
+                      "text": "Custom GitOps security scanner for home-ops repository"
+                    },
                     "rules": [
                       {
-                        "id": "kubesec-score",
-                        "name": "Kubesec Security Score",
+                        "id": "critical-security",
+                        "name": "Critical Security Issue",
                         "shortDescription": {
-                          "text": "Security score based on Kubernetes best practices"
+                          "text": "Critical security configuration issue requiring immediate attention"
                         },
-                        "fullDescription": {
-                          "text": "Kubesec analyzes Kubernetes manifests and provides a security score based on various security checks."
+                        "defaultConfiguration": {
+                          "level": "error"
+                        }
+                      },
+                      {
+                        "id": "security-warning",
+                        "name": "Security Warning",
+                        "shortDescription": {
+                          "text": "Security configuration warning that should be reviewed"
+                        },
+                        "defaultConfiguration": {
+                          "level": "warning"
+                        }
+                      },
+                      {
+                        "id": "security-info",
+                        "name": "Security Recommendation",
+                        "shortDescription": {
+                          "text": "Security best practice recommendation"
+                        },
+                        "defaultConfiguration": {
+                          "level": "note"
                         }
                       }
                     ]
                   }
                 },
-                "results": []
+                "results": [$SARIF_RESULTS]
               }
             ]
           }
           EOF
 
-          # Scan each manifest and collect results
-          echo "🔍 Scanning manifests..."
-          RESULTS_TEMP=$(mktemp)
-          echo "[]" > "$RESULTS_TEMP"
-
-          SCANNED_COUNT=0
-          CRITICAL_COUNT=0
-          WARNING_COUNT=0
-          INFO_COUNT=0
-
-          while IFS= read -r manifest; do
-            echo "🔍 Scanning: $manifest"
-
-            # Run kubesec scan
-            if RESULT=$(./kubesec scan "$manifest" --format json 2>/dev/null); then
-              # Parse the result
-              SCORE=$(echo "$RESULT" | jq -r '.[0].score // 0' 2>/dev/null || echo "0")
-              CRITICAL_ITEMS=$(echo "$RESULT" | jq -r '.[0].scoring.critical // []' 2>/dev/null || echo "[]")
-              PASSED_ITEMS=$(echo "$RESULT" | jq -r '.[0].scoring.passed // []' 2>/dev/null || echo "[]")
-
-              # Determine severity level
-              if [ "$SCORE" -lt 0 ]; then
-                LEVEL="error"
-                CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
-              elif [ "$SCORE" -lt 10 ]; then
-                LEVEL="warning"
-                WARNING_COUNT=$((WARNING_COUNT + 1))
-              else
-                LEVEL="note"
-                INFO_COUNT=$((INFO_COUNT + 1))
-              fi
-
-              # Add result to SARIF if score is concerning
-              if [ "$SCORE" -lt 10 ]; then
-                # Create a proper SARIF result entry
-                jq --arg manifest "$manifest" --arg score "$SCORE" --arg level "$LEVEL" \
-                   '. + [{
-                     "ruleId": "kubesec-score",
-                     "level": $level,
-                     "message": {
-                       "text": ("Kubesec security score: " + $score + "/10 for " + ($manifest | split("/") | last))
-                     },
-                     "locations": [{
-                       "physicalLocation": {
-                         "artifactLocation": {
-                           "uri": $manifest
-                         }
-                       }
-                     }]
-                   }]' "$RESULTS_TEMP" > "${RESULTS_TEMP}.new" && mv "${RESULTS_TEMP}.new" "$RESULTS_TEMP"
-              fi
-
-              echo "� Score: $SCORE/10 ($LEVEL)"
-              SCANNED_COUNT=$((SCANNED_COUNT + 1))
-            else
-              echo "⚠️ Failed to scan $manifest"
-            fi
-          done < manifests.txt
-
-          # Update SARIF with collected results
-          jq --argjson results "$(cat "$RESULTS_TEMP")" '.runs[0].results = $results' kubesec-results.sarif > kubesec-results-final.sarif
-          mv kubesec-results-final.sarif kubesec-results.sarif
-
-          # Cleanup
-          rm -f "$RESULTS_TEMP"
-
-          echo "✅ Kubesec scan completed!"
-          echo "📊 Summary: Scanned $SCANNED_COUNT manifests"
-          echo "🔴 Critical issues: $CRITICAL_COUNT"
+          echo "✅ Home-Ops security scan completed!"
+          echo "📊 Security Analysis Complete"
+          echo "═══════════════════════════════"
+          echo "🔴 Critical Issues: $CRITICAL_COUNT"
           echo "🟡 Warnings: $WARNING_COUNT"
-          echo "🟢 Info/Good: $INFO_COUNT"
+          echo "ℹ️  Info: $INFO_COUNT"
+          echo ""
+          echo "📈 Analysis Coverage:"
+          echo "  • Flux CRDs (HelmRelease, Kustomization, ExternalSecret)"
+          echo "  • Source Security (HelmRepository, GitRepository, OCIRepository)"
+          echo "  • Container Security (Images, Capabilities, Filesystems)"
+          echo "  • RBAC Analysis (Roles, Permissions, Service Accounts)"
+          echo "  • Network Security (Policies, Service Mesh)"
+          echo "  • Image Policies & Pod Security Standards"
+          echo "  • Certificate Management & TLS"
+          echo "  • Deprecated API Detection"
+          echo "  • Secret Management & External Sources"
 
-          # Set outputs for summary
-          echo "scanned_count=$SCANNED_COUNT" >> $GITHUB_OUTPUT
+          # Output results for summary
           echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
           echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
           echo "info_count=$INFO_COUNT" >> $GITHUB_OUTPUT
-
-      - name: 🔍 Additional Security Checks
-        id: security
-        if: steps.discover.outputs.scan_needed == 'true'
-        run: |
-          echo "🔒 Running additional security checks on manifests..."
-
-          # Initialize counters and results
-          PRIVILEGED_COUNT=0
-          HOST_NETWORK_COUNT=0
-          ROOT_USER_COUNT=0
-          SECURITY_ISSUES=""
-
-          # Check for privileged containers
-          echo "🔍 Checking for privileged containers..."
-          if PRIVILEGED_FILES=$(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null); then
-            PRIVILEGED_COUNT=$(echo "$PRIVILEGED_FILES" | wc -l)
-            echo "⚠️ Found $PRIVILEGED_COUNT files with privileged containers:"
-            echo "$PRIVILEGED_FILES" | while read -r file; do
-              echo "  - $file"
-            done
-            SECURITY_ISSUES="${SECURITY_ISSUES}Privileged containers: $PRIVILEGED_COUNT files; "
-          else
-            echo "✅ No privileged containers found"
-          fi
-
-          # Check for hostNetwork usage
-          echo "🔍 Checking for hostNetwork usage..."
-          if HOST_NETWORK_FILES=$(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null); then
-            HOST_NETWORK_COUNT=$(echo "$HOST_NETWORK_FILES" | wc -l)
-            echo "⚠️ Found $HOST_NETWORK_COUNT files with hostNetwork usage:"
-            echo "$HOST_NETWORK_FILES" | while read -r file; do
-              echo "  - $file"
-            done
-            SECURITY_ISSUES="${SECURITY_ISSUES}HostNetwork usage: $HOST_NETWORK_COUNT files; "
-          else
-            echo "✅ No hostNetwork usage found"
-          fi
-
-          # Check for root users
-          echo "🔍 Checking for root users..."
-          if ROOT_USER_FILES=$(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null); then
-            ROOT_USER_COUNT=$(echo "$ROOT_USER_FILES" | wc -l)
-            echo "⚠️ Found $ROOT_USER_COUNT files with containers running as root:"
-            echo "$ROOT_USER_FILES" | while read -r file; do
-              echo "  - $file"
-            done
-            SECURITY_ISSUES="${SECURITY_ISSUES}Root users: $ROOT_USER_COUNT files; "
-          else
-            echo "✅ No root user containers found"
-          fi
-
-          # Set outputs
+          echo "scanned_count=${{ steps.discover.outputs.total_manifests }}" >> $GITHUB_OUTPUT
           echo "privileged_containers=$PRIVILEGED_COUNT" >> $GITHUB_OUTPUT
           echo "host_network=$HOST_NETWORK_COUNT" >> $GITHUB_OUTPUT
           echo "root_users=$ROOT_USER_COUNT" >> $GITHUB_OUTPUT
 
           # Generate security summary
-          if [ -z "$SECURITY_ISSUES" ]; then
-            SECURITY_SUMMARY="✅ All additional security checks passed"
+          ADDITIONAL_ISSUES=""
+          if [ $PRIVILEGED_COUNT -gt 0 ]; then
+            ADDITIONAL_ISSUES="${ADDITIONAL_ISSUES}Privileged containers: $PRIVILEGED_COUNT files; "
+          fi
+          if [ $HOST_NETWORK_COUNT -gt 0 ]; then
+            ADDITIONAL_ISSUES="${ADDITIONAL_ISSUES}HostNetwork usage: $HOST_NETWORK_COUNT files; "
+          fi
+          if [ $ROOT_USER_COUNT -gt 0 ]; then
+            ADDITIONAL_ISSUES="${ADDITIONAL_ISSUES}Root users: $ROOT_USER_COUNT files; "
+          fi
+
+          if [ -z "$ADDITIONAL_ISSUES" ]; then
+            SECURITY_SUMMARY="✅ All security checks passed"
           else
-            SECURITY_SUMMARY="⚠️ Security issues found: $SECURITY_ISSUES"
+            SECURITY_SUMMARY="⚠️ Security issues found: $ADDITIONAL_ISSUES"
           fi
           echo "security_summary=$SECURITY_SUMMARY" >> $GITHUB_OUTPUT
 
-          echo "✅ Additional security checks completed!"
-          echo "📊 Summary: $SECURITY_SUMMARY"
+          # Print findings
+          if [ $CRITICAL_COUNT -gt 0 ]; then
+            echo "🔴 Critical Security Issues:"
+            printf '%s\n' "${SECURITY_ISSUES[@]}"
+          fi
 
-      - name: 📊 Generate Scan Summary
+          if [ $WARNING_COUNT -gt 0 ]; then
+            echo "🟡 Security Warnings:"
+            printf '%s\n' "${WARNINGS[@]}"
+          fi
+
+          if [ $INFO_COUNT -gt 0 ]; then
+            echo "🟢 Security Recommendations:"
+            printf '%s\n' "${INFO_ITEMS[@]}"
+          fi
+
+      - name:  Generate Scan Summary
         if: steps.discover.outputs.scan_needed == 'true'
         run: |
-          echo "## 🔒 Kubesec Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Home-Ops Security Analysis Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📁 **Scanned**: ${{ steps.discover.outputs.manifest_count }} Kubernetes manifests" >> $GITHUB_STEP_SUMMARY
+          echo "🏠 **Repository**: GitOps Home Operations" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Analyzed**: ${{ steps.discover.outputs.total_manifests }} YAML manifests" >> $GITHUB_STEP_SUMMARY
           echo "🕒 **Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "🔧 **Kubesec Version**: ${{ env.KUBESEC_VERSION }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          echo "### 📊 Kubesec Scan Statistics" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Scanned | ${{ steps.scan.outputs.scanned_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔴 Critical | ${{ steps.scan.outputs.critical_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🟡 Warnings | ${{ steps.scan.outputs.warning_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🟢 Good/Info | ${{ steps.scan.outputs.info_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Manifest Breakdown" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource Type | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| � HelmReleases | ${{ steps.discover.outputs.helmrelease_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔧 Kustomizations | ${{ steps.discover.outputs.kustomization_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔐 ExternalSecrets | ${{ steps.discover.outputs.externalsecret_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          echo "### 🔍 Additional Security Checks" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Security Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Severity | Count | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔴 Critical | ${{ steps.scan.outputs.critical_count || '0' }} | ${{ steps.scan.outputs.critical_count == '0' && '✅ None Found' || '⚠️ Requires Attention' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟡 Warnings | ${{ steps.scan.outputs.warning_count || '0' }} | ${{ steps.scan.outputs.warning_count == '0' && '✅ None Found' || '💡 Recommendations' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟢 Info | ${{ steps.scan.outputs.info_count || '0' }} | ${{ steps.scan.outputs.info_count == '0' && '✅ None Found' || '📋 Suggestions' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 🔍 Specific Security Checks" >> $GITHUB_STEP_SUMMARY
           echo "| Security Check | Count | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------------|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Privileged Containers | ${{ steps.security.outputs.privileged_containers || '0' }} | ${{ steps.security.outputs.privileged_containers == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Host Network Usage | ${{ steps.security.outputs.host_network || '0' }} | ${{ steps.security.outputs.host_network == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Root User Containers | ${{ steps.security.outputs.root_users || '0' }} | ${{ steps.security.outputs.root_users == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Privileged Containers | ${{ steps.scan.outputs.privileged_containers || '0' }} | ${{ steps.scan.outputs.privileged_containers == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Host Network Usage | ${{ steps.scan.outputs.host_network || '0' }} | ${{ steps.scan.outputs.host_network == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Root User Containers | ${{ steps.scan.outputs.root_users || '0' }} | ${{ steps.scan.outputs.root_users == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Additional Security Summary:** ${{ steps.security.outputs.security_summary || 'No additional security scan data available' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Security Status:** ${{ steps.scan.outputs.security_summary || 'No security scan data available' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f kubesec-results.sarif ]; then
-            echo "✅ **Status**: Scan completed successfully" >> $GITHUB_STEP_SUMMARY
-            echo "📋 **Results**: Available in Security tab" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🎯 **Runner**: home-ops-runner (native kubesec binary)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Status**: Scan failed" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "🎯 **Scanner**: Custom Home-Ops GitOps Security Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "� **Runner**: home-ops-runner" >> $GITHUB_STEP_SUMMARY
 
       - name: 📤 Upload Security Results
         if: steps.discover.outputs.scan_needed == 'true' && always()
         # renovate: datasource=github-tags depName=github/codeql-action
         uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:
-          sarif_file: kubesec-results.sarif
-          category: kubesec
+          sarif_file: security-results.sarif
+          category: home-ops-security
 
       - name: ⚠️ Skip Notification
         if: steps.discover.outputs.scan_needed == 'false'
         run: |
-          echo "## 🔒 Kubesec Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Home-Ops Security Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "ℹ️ **No Kubernetes manifests found to scan**" >> $GITHUB_STEP_SUMMARY
+          echo "ℹ️ **No YAML manifests found to analyze**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The scan was skipped because no relevant YAML files were detected." >> $GITHUB_STEP_SUMMARY
+          echo "This is unexpected for a GitOps repository. Please check:" >> $GITHUB_STEP_SUMMARY
+          echo "- The kubernetes/ directory exists" >> $GITHUB_STEP_SUMMARY
+          echo "- YAML files are present in the repository" >> $GITHUB_STEP_SUMMARY
+          echo "- File permissions allow reading" >> $GITHUB_STEP_SUMMARY

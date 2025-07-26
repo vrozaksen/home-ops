@@ -82,9 +82,6 @@ jobs:
       - name: Setup Flux CLI
         # renovate: datasource=github-tags depName=fluxcd/flux2
         uses: v2.6.4 # main
-        with:
-          # renovate: datasource=github-releases depName=fluxcd/flux2
-          version: 'v2.6.4'
 
       - name: Cache flux manifests
         id: cache

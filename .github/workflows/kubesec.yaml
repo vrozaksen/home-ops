@@ -159,14 +159,14 @@ jobs:
             fi
 
             # Check for potential privileged access
-            if PRIV_LINE=$(grep -n "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null | head -1); then
+            if PRIV_LINE=$(grep -n "privileged:\s*true\|allowPrivilegeEscalation:\s*true" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$PRIV_LINE" | cut -d: -f1)
               echo "$helmrelease:$LINE_NUM:Privileged container configuration detected in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostNetwork
-            if HOST_LINE=$(grep -n "hostNetwork.*true" "$helmrelease" 2>/dev/null | head -1); then
+            if HOST_LINE=$(grep -n "hostNetwork:\s*true" "$helmrelease" 2>/dev/null | head -1); then
               LINE_NUM=$(echo "$HOST_LINE" | cut -d: -f1)
               echo "$helmrelease:$LINE_NUM:Host network access enabled in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
@@ -456,38 +456,38 @@ jobs:
           # Check for privileged containers
           while IFS= read -r file; do
             if [ -f "$file" ]; then
-              if PRIV_LINE=$(grep -n "privileged.*true" "$file" 2>/dev/null | head -1); then
+              if PRIV_LINE=$(grep -n "privileged:\s*true" "$file" 2>/dev/null | head -1); then
                 LINE_NUM=$(echo "$PRIV_LINE" | cut -d: -f1)
                 echo "$file:$LINE_NUM:Privileged container configuration detected" >> security_issues.txt
                 CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
                 PRIVILEGED_COUNT=$((PRIVILEGED_COUNT + 1))
               fi
             fi
-          done < <(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null || true)
+          done < <(grep -r -l "privileged:\s*true" kubernetes/ 2>/dev/null || true)
 
           # Check for hostNetwork usage
           while IFS= read -r file; do
             if [ -f "$file" ]; then
-              if HOST_LINE=$(grep -n "hostNetwork.*true" "$file" 2>/dev/null | head -1); then
+              if HOST_LINE=$(grep -n "hostNetwork:\s*true" "$file" 2>/dev/null | head -1); then
                 LINE_NUM=$(echo "$HOST_LINE" | cut -d: -f1)
                 echo "$file:$LINE_NUM:Host network access enabled" >> security_issues.txt
                 CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
                 HOST_NETWORK_COUNT=$((HOST_NETWORK_COUNT + 1))
               fi
             fi
-          done < <(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null || true)
+          done < <(grep -r -l "hostNetwork:\s*true" kubernetes/ 2>/dev/null || true)
 
           # Check for root users
           while IFS= read -r file; do
             if [ -f "$file" ]; then
-              if ROOT_LINE=$(grep -n "runAsUser.*0" "$file" 2>/dev/null | head -1); then
+              if ROOT_LINE=$(grep -n "runAsUser:\s*0" "$file" 2>/dev/null | head -1); then
                 LINE_NUM=$(echo "$ROOT_LINE" | cut -d: -f1)
                 echo "$file:$LINE_NUM:Container running as root user" >> warnings.txt
                 WARNING_COUNT=$((WARNING_COUNT + 1))
                 ROOT_USER_COUNT=$((ROOT_USER_COUNT + 1))
               fi
             fi
-          done < <(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null || true)
+          done < <(grep -r -l "runAsUser:\s*0" kubernetes/ 2>/dev/null || true)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt

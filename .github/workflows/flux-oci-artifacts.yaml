@@ -248,7 +248,8 @@ jobs:
               ARTIFACT_REF="$tag@$DIGEST"
               echo "✍️ Signing with digest: $ARTIFACT_REF"
 
-              if cosign sign --yes "$ARTIFACT_REF" 2>&1; then
+              # Sign the artifact and capture exit code properly
+              if cosign sign --yes "$ARTIFACT_REF"; then
                 echo "✅ Successfully signed: $ARTIFACT_REF"
                 ((SIGNED_COUNT++))
               else
@@ -259,7 +260,7 @@ jobs:
               fi
             else
               echo "⚠️ Warning: Could not find digest for $tag, signing with tag (not recommended)"
-              if cosign sign --yes "$tag" 2>&1; then
+              if cosign sign --yes "$tag"; then
                 echo "✅ Successfully signed (tag): $tag"
                 ((SIGNED_COUNT++))
               else

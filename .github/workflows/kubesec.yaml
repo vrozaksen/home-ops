@@ -443,39 +443,51 @@ jobs:
           ROOT_USER_COUNT=$(cat root_users_count.txt)
 
           # Check for hardcoded secrets/tokens
-          if HARDCODED_SECRETS=$(grep -r -i -E "(password|token|key|secret):\s*['\"]?[a-zA-Z0-9]{8,}" kubernetes/ --include="*.yaml" --include="*.yml" 2>/dev/null | grep -v "secretRef\|valueFrom\|secretKeyRef" | head -5); then
-            if [ ! -z "$HARDCODED_SECRETS" ]; then
-              echo "kubernetes/: Potential hardcoded secrets detected in YAML files" >> security_issues.txt
+          while IFS= read -r secret_line; do
+            if [[ "$secret_line" == *":"* ]]; then
+              file_and_line=$(echo "$secret_line" | cut -d: -f1,2)
+              file_path=$(echo "$file_and_line" | cut -d: -f1)
+              line_num=$(echo "$file_and_line" | cut -d: -f2)
+              echo "$file_path:$line_num:Potential hardcoded secret detected" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
-          fi
+          done < <(grep -r -n -i -E "(password|token|key|secret):\s*['\"]?[a-zA-Z0-9]{8,}" kubernetes/ --include="*.yaml" --include="*.yml" 2>/dev/null | grep -v "secretRef\|valueFrom\|secretKeyRef" | head -5 || true)
 
           # Check for privileged containers
-          if PRIVILEGED_FILES=$(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null); then
-            PRIVILEGED_COUNT=$(echo "$PRIVILEGED_FILES" | wc -l)
-            echo "$PRIVILEGED_FILES" | while read -r file; do
-              echo "$file: Privileged container configuration detected" >> security_issues.txt
-              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
-            done
-          fi
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              if PRIV_LINE=$(grep -n "privileged.*true" "$file" 2>/dev/null | head -1); then
+                LINE_NUM=$(echo "$PRIV_LINE" | cut -d: -f1)
+                echo "$file:$LINE_NUM:Privileged container configuration detected" >> security_issues.txt
+                CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+                PRIVILEGED_COUNT=$((PRIVILEGED_COUNT + 1))
+              fi
+            fi
+          done < <(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null || true)
 
           # Check for hostNetwork usage
-          if HOST_NETWORK_FILES=$(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null); then
-            HOST_NETWORK_COUNT=$(echo "$HOST_NETWORK_FILES" | wc -l)
-            echo "$HOST_NETWORK_FILES" | while read -r file; do
-              echo "$file: Host network access enabled" >> security_issues.txt
-              CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
-            done
-          fi
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              if HOST_LINE=$(grep -n "hostNetwork.*true" "$file" 2>/dev/null | head -1); then
+                LINE_NUM=$(echo "$HOST_LINE" | cut -d: -f1)
+                echo "$file:$LINE_NUM:Host network access enabled" >> security_issues.txt
+                CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+                HOST_NETWORK_COUNT=$((HOST_NETWORK_COUNT + 1))
+              fi
+            fi
+          done < <(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null || true)
 
           # Check for root users
-          if ROOT_USER_FILES=$(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null); then
-            ROOT_USER_COUNT=$(echo "$ROOT_USER_FILES" | wc -l)
-            echo "$ROOT_USER_FILES" | while read -r file; do
-              echo "$file: Container running as root user" >> warnings.txt
-              WARNING_COUNT=$((WARNING_COUNT + 1))
-            done
-          fi
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              if ROOT_LINE=$(grep -n "runAsUser.*0" "$file" 2>/dev/null | head -1); then
+                LINE_NUM=$(echo "$ROOT_LINE" | cut -d: -f1)
+                echo "$file:$LINE_NUM:Container running as root user" >> warnings.txt
+                WARNING_COUNT=$((WARNING_COUNT + 1))
+                ROOT_USER_COUNT=$((ROOT_USER_COUNT + 1))
+              fi
+            fi
+          done < <(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null || true)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -514,7 +526,12 @@ jobs:
                 file_and_line=$(echo "$issue" | cut -d: -f1,2)
                 file_path=$(echo "$file_and_line" | cut -d: -f1)
                 line_num=$(echo "$file_and_line" | cut -d: -f2)
-                message=$(echo "$issue" | cut -d: -f3- | sed 's/"/\\"/g' | sed 's/^ *//')
+                message=$(echo "$issue" | cut -d: -f3- | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+
+                # Ensure message is not empty
+                if [ -z "$message" ]; then
+                  message="Security issue detected"
+                fi
 
                 # Validate line number is numeric, default to 1 if not
                 if ! [[ "$line_num" =~ ^[0-9]+$ ]]; then
@@ -522,7 +539,7 @@ jobs:
                 fi
 
                 # Only add if file exists and path is valid
-                if [ -f "$file_path" ]; then
+                if [ -f "$file_path" ] && [ -n "$message" ]; then
                   fingerprint=$(create_fingerprint "$file_path" "$message" "critical-security")
                   SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
@@ -538,7 +555,12 @@ jobs:
                 file_and_line=$(echo "$warning" | cut -d: -f1,2)
                 file_path=$(echo "$file_and_line" | cut -d: -f1)
                 line_num=$(echo "$file_and_line" | cut -d: -f2)
-                message=$(echo "$warning" | cut -d: -f3- | sed 's/"/\\"/g' | sed 's/^ *//')
+                message=$(echo "$warning" | cut -d: -f3- | sed 's/^ *//' | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | sed 's/\t/\\t/g' | sed 's/\r/\\r/g' | sed 's/\n/\\n/g')
+
+                # Ensure message is not empty
+                if [ -z "$message" ]; then
+                  message="Security warning detected"
+                fi
 
                 # Validate line number is numeric, default to 1 if not
                 if ! [[ "$line_num" =~ ^[0-9]+$ ]]; then
@@ -546,7 +568,7 @@ jobs:
                 fi
 
                 # Only add if file exists and path is valid
-                if [ -f "$file_path" ]; then
+                if [ -f "$file_path" ] && [ -n "$message" ]; then
                   fingerprint=$(create_fingerprint "$file_path" "$message" "security-warning")
                   SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
@@ -562,58 +584,93 @@ jobs:
           # Add timestamp to make fingerprints more stable across runs
           SCAN_TIMESTAMP=$(date -u '+%Y%m%d')
 
-          cat > security-results.sarif << EOF
-          {
+          # Create basic SARIF structure using jq
+          jq -n '{
             "version": "2.1.0",
-            "\$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
-            "runs": [
-              {
+            "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+            "runs": [{
+              "tool": {
+                "driver": {
+                  "name": "home-ops-security-scanner",
+                  "version": "2.0.0",
+                  "informationUri": "https://github.com/vrozaksen/home-ops",
+                  "shortDescription": {
+                    "text": "Custom GitOps security scanner for home-ops repository"
+                  },
+                  "rules": [
+                    {
+                      "id": "critical-security",
+                      "name": "Critical Security Issue",
+                      "shortDescription": {
+                        "text": "Critical security configuration issue requiring immediate attention"
+                      },
+                      "defaultConfiguration": {
+                        "level": "error"
+                      },
+                      "help": {
+                        "text": "This rule identifies critical security misconfigurations in Kubernetes manifests that require immediate attention."
+                      }
+                    },
+                    {
+                      "id": "security-warning",
+                      "name": "Security Warning",
+                      "shortDescription": {
+                        "text": "Security configuration warning that should be reviewed"
+                      },
+                      "defaultConfiguration": {
+                        "level": "warning"
+                      },
+                      "help": {
+                        "text": "This rule identifies security configurations that could be improved but are not immediately critical."
+                      }
+                    }
+                  ]
+                }
+              },
+              "results": []
+            }]
+          }' > security-results.sarif
+
+          # Now add results to the SARIF file using jq for proper JSON handling
+          if [ ! -z "$SARIF_RESULTS" ]; then
+            # Convert comma-separated results to proper JSON array
+            SARIF_RESULTS="[${SARIF_RESULTS%,}]"
+
+            # Use jq to properly merge the results into the SARIF structure
+            echo "$SARIF_RESULTS" | jq '.' > temp_results.json 2>/dev/null || {
+              echo "❌ Error: Invalid JSON in SARIF results. Creating empty results."
+              echo '[]' > temp_results.json
+            }
+
+            # Merge results into SARIF file
+            jq --argjson results "$(cat temp_results.json)" '.runs[0].results = $results' security-results.sarif > temp_sarif.json
+            mv temp_sarif.json security-results.sarif
+            rm -f temp_results.json
+          fi
+
+          # Validate the final SARIF file
+          if ! jq empty security-results.sarif 2>/dev/null; then
+            echo "❌ Generated SARIF file is invalid JSON. Creating minimal valid SARIF."
+            jq -n '{
+              "version": "2.1.0",
+              "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+              "runs": [{
                 "tool": {
                   "driver": {
                     "name": "home-ops-security-scanner",
                     "version": "2.0.0",
-                    "informationUri": "https://github.com/vrozaksen/home-ops",
-                    "shortDescription": {
-                      "text": "Custom GitOps security scanner for home-ops repository"
-                    },
-                    "properties": {
-                      "scanTimestamp": "$SCAN_TIMESTAMP"
-                    },
-                    "rules": [
-                      {
-                        "id": "critical-security",
-                        "name": "Critical Security Issue",
-                        "shortDescription": {
-                          "text": "Critical security configuration issue requiring immediate attention"
-                        },
-                        "defaultConfiguration": {
-                          "level": "error"
-                        },
-                        "help": {
-                          "text": "This rule identifies critical security misconfigurations in Kubernetes manifests that require immediate attention."
-                        }
-                      },
-                      {
-                        "id": "security-warning",
-                        "name": "Security Warning",
-                        "shortDescription": {
-                          "text": "Security configuration warning that should be reviewed"
-                        },
-                        "defaultConfiguration": {
-                          "level": "warning"
-                        },
-                        "help": {
-                          "text": "This rule identifies security configurations that could be improved but are not immediately critical."
-                        }
-                      }
-                    ]
+                    "informationUri": "https://github.com/vrozaksen/home-ops"
                   }
                 },
-                "results": [$SARIF_RESULTS]
-              }
-            ]
-          }
-          EOF
+                "results": []
+              }]
+            }' > security-results.sarif
+          fi
+
+          # Debug: Show SARIF file structure
+          echo "📋 Final SARIF file structure:"
+          jq '.runs[0].results | length' security-results.sarif
+          echo "Results count: $(jq '.runs[0].results | length' security-results.sarif)"
 
           echo "✅ Home-Ops security scan completed!"
           echo "📊 Security Analysis Complete"
@@ -694,15 +751,24 @@ jobs:
         run: |
           # Check if we have any SARIF results to upload
           if [ -f "security-results.sarif" ]; then
+            # Validate JSON structure first
+            if ! jq empty security-results.sarif 2>/dev/null; then
+              echo "❌ SARIF file is invalid JSON - skipping upload"
+              echo "sarif_upload_needed=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
             RESULT_COUNT=$(jq '.runs[0].results | length' security-results.sarif 2>/dev/null || echo "0")
             echo "📊 SARIF file contains $RESULT_COUNT security results"
 
+            # Always upload SARIF file, even with 0 results, to establish baseline
+            echo "📤 Uploading security results to GitHub Security tab..."
+            echo "sarif_upload_needed=true" >> $GITHUB_OUTPUT
+
+            # Show first few results for debugging if any exist
             if [ "$RESULT_COUNT" -gt 0 ]; then
-              echo "📤 Uploading security results to GitHub Security tab..."
-              echo "sarif_upload_needed=true" >> $GITHUB_OUTPUT
-            else
-              echo "⏭️ No security results to upload - skipping SARIF upload"
-              echo "sarif_upload_needed=false" >> $GITHUB_OUTPUT
+              echo "📋 Sample results:"
+              jq '.runs[0].results[0] // empty' security-results.sarif
             fi
           else
             echo "❌ SARIF file not found - skipping upload"

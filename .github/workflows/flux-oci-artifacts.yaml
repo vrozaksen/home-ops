@@ -21,6 +21,7 @@ jobs:
   build-and-push:
     runs-on: oci-workflows-runner
     outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: Checkout
@@ -41,6 +42,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=main-{{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Build and push OCI artifact
         id: build
         run: |
@@ -50,37 +61,34 @@ jobs:
           # Copy kubernetes directory to temporary location
           cp -r kubernetes/ flux-manifests/
 
-          # Push main artifact first
-          echo "Pushing main artifact..."
-          flux push artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --path="./flux-manifests" \
-            --source="${{ github.repositoryUrl }}" \
-            --revision="${{ github.sha }}"
+          # Push to OCI registry using flux - iterate through all tags
+          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
+            echo "Pushing artifact with tag: $tag"
 
-          # Tag artifact as latest (if on main branch)
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "Tagging as latest..."
-            flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-              --tag latest
+            # Push and capture output with digest
+            PUSH_OUTPUT=$(flux push artifact oci://$tag \
+              --path="./flux-manifests" \
+              --source="${{ github.repositoryUrl }}" \
+              --revision="${{ github.sha }}" 2>&1)
 
-            # Also tag with branch name
-            flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-              --tag main
-          fi
+            echo "Push output: $PUSH_OUTPUT"
 
-          # Sign the main artifact
-          echo "Signing artifact..."
-          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            # Extract digest from push output
+            DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
 
-          # If on main branch, also sign the latest tag
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          fi
+            if [ -n "$DIGEST" ]; then
+              # Sign the artifact using digest for best practices
+              echo "Signing artifact: $tag@$DIGEST"
+              cosign sign --yes $tag@$DIGEST
+            else
+              # Fallback to signing with tag if digest extraction fails
+              echo "Warning: Could not extract digest, signing with tag: $tag"
+              cosign sign --yes $tag
+            fi
+          done
 
-          # Get digest for the main artifact
-          DIGEST=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --output json | jq -r '.digest')
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+          # Get digest for latest tag
+          echo "digest=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --output json | jq -r .digest)" >> $GITHUB_OUTPUT
 
   update-flux-system:
     needs: build-and-push
@@ -94,7 +102,7 @@ jobs:
 
       - name: Update flux-system to use OCI artifact
         run: |
-          echo "Built OCI artifact: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Built OCI artifact: ${{ needs.build-and-push.outputs.image-tag }}"
           echo "Digest: ${{ needs.build-and-push.outputs.image-digest }}"
 
           # Send webhook to main receiver - Flux will automatically detect what changed

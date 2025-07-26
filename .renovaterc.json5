@@ -11,7 +11,8 @@
     ":semanticCommits",
   ],
   ignorePaths: [
-    "**/resources/**"
+    "**/resources/**",
+    "**/.archive/**"
   ],
   flux: {
     managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"]

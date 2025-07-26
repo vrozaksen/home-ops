@@ -14,7 +14,7 @@ instance:
     kind: OCIRepository
     url: oci://ghcr.io/vrozaksen/home-ops/flux-manifests
     ref:
-      tag: latest
+      tag: main
     path: kubernetes/flux/cluster
     interval: 1h
   commonMetadata:

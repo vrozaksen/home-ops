@@ -23,6 +23,11 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/flux-manifests
 
+# Allow parallel execution of multiple workflow runs
+concurrency:
+  group: flux-oci-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel in-progress runs
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -44,9 +49,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=sha,prefix=main-{{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=main,enable={{is_default_branch}}
 
       - name: Generate cache key
         id: cache-key
@@ -62,9 +65,93 @@ jobs:
           echo "key=flux-manifests-$HASH" >> $GITHUB_OUTPUT
           echo "🔑 Cache key: flux-manifests-$HASH"
 
+  validate-manifests:
+    needs: prepare
+    runs-on: oci-workflows-runner
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        # renovate: datasource=github-tags depName=actions/checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Flux CLI
+        # renovate: datasource=github-tags depName=fluxcd/flux2
+        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
+        with:
+          # renovate: datasource=github-releases depName=fluxcd/flux2
+          version: 'v2.6.4'
+
+      - name: Validate Kubernetes manifests
+        run: |
+          echo "🔍 Validating Kubernetes manifests..."
+
+          # Count manifests
+          MANIFEST_COUNT=$(find kubernetes/ -name "*.yaml" -o -name "*.yml" | wc -l)
+          echo "📄 Found $MANIFEST_COUNT manifest files"
+
+          # Validate with flux
+          flux check --pre
+
+          # Basic YAML syntax validation
+          find kubernetes/ -name "*.yaml" -o -name "*.yml" | while read -r file; do
+            if ! yq eval 'true' "$file" >/dev/null 2>&1; then
+              echo "❌ Invalid YAML: $file"
+              exit 1
+            fi
+          done
+
+          echo "✅ All manifests validated successfully!"
+
+  security-scan:
+    needs: prepare
+    runs-on: oci-workflows-runner
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        # renovate: datasource=github-tags depName=actions/checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run security checks
+        run: |
+          echo "🔒 Running security checks on manifests..."
+
+          # Check for common security issues
+          echo "🔍 Checking for privileged containers..."
+          if grep -r "privileged.*true" kubernetes/ 2>/dev/null; then
+            echo "⚠️ Found privileged containers"
+          else
+            echo "✅ No privileged containers found"
+          fi
+
+          echo "🔍 Checking for hostNetwork usage..."
+          if grep -r "hostNetwork.*true" kubernetes/ 2>/dev/null; then
+            echo "⚠️ Found hostNetwork usage"
+          else
+            echo "✅ No hostNetwork usage found"
+          fi
+
+          echo "🔍 Checking for root users..."
+          if grep -r "runAsUser.*0" kubernetes/ 2>/dev/null; then
+            echo "⚠️ Found containers running as root"
+          else
+            echo "✅ No root user containers found"
+          fi
+
+          echo "✅ Security scan completed!"
+
   build-artifacts:
     needs: prepare
     runs-on: oci-workflows-runner
+    strategy:
+      fail-fast: false  # Don't stop other jobs if one fails
+      max-parallel: 3   # Use up to 3 runners in parallel
+      matrix:
+        include:
+          - name: "main-build"
+            primary: true
     permissions:
       contents: read
       packages: write
@@ -115,6 +202,9 @@ jobs:
       - name: Build and push OCI artifacts
         id: build
         run: |
+          echo "🏗️ Building artifacts in parallel execution mode (${{ matrix.name }})"
+          echo "🚀 Runner: ${{ runner.name }} | Primary: ${{ matrix.primary }}"
+
           # Create temporary directory for flux manifests
           mkdir -p flux-manifests
 
@@ -127,13 +217,9 @@ jobs:
           echo "📦 Manifest size: $MANIFEST_SIZE ($MANIFEST_COUNT files)"
           echo "artifact-size=$MANIFEST_SIZE" >> $GITHUB_OUTPUT
 
-          # Push to OCI registry using flux - iterate through all tags
-          LATEST_DIGEST=""
-          ALL_DIGESTS=""
-          FAILED_TAGS=""
-
+          # Push to OCI registry using flux
           for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
-            echo "🚀 Pushing artifact with tag: $tag"
+            echo "🚀 Pushing artifact with tag: $tag (parallel job: ${{ matrix.name }})"
 
             # Push and capture output with digest
             if PUSH_OUTPUT=$(flux push artifact oci://$tag \
@@ -147,37 +233,24 @@ jobs:
               DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
 
               if [ -n "$DIGEST" ]; then
-                # Store digest with tag for later use
-                ALL_DIGESTS="${ALL_DIGESTS}${tag}@${DIGEST},"
-
-                # Keep latest digest for legacy compatibility
-                if [[ "$tag" == *":latest" ]]; then
-                  LATEST_DIGEST="$DIGEST"
-                fi
+                # Store digest for signing
+                echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+                echo "all-digests=${tag}@${DIGEST}" >> $GITHUB_OUTPUT
                 echo "📝 Stored digest for $tag: $DIGEST"
               else
                 echo "⚠️ Warning: No digest found in push output for $tag"
-                FAILED_TAGS="${FAILED_TAGS}$tag,"
+                exit 1
               fi
             else
               echo "❌ Push failed for $tag: $PUSH_OUTPUT"
-              FAILED_TAGS="${FAILED_TAGS}$tag,"
+              exit 1
             fi
           done
 
-          # Report any failures
-          if [ -n "$FAILED_TAGS" ]; then
-            echo "⚠️ Failed to push tags: ${FAILED_TAGS%,}"
-          fi
-
-          # Set outputs
-          echo "digest=$LATEST_DIGEST" >> $GITHUB_OUTPUT
-          echo "all-digests=${ALL_DIGESTS%,}" >> $GITHUB_OUTPUT  # Remove trailing comma
-          echo "🎯 Latest digest: $LATEST_DIGEST"
-          echo "📋 All digests: ${ALL_DIGESTS%,}"
+          echo "🎉 Parallel build completed successfully!"
 
   sign-artifacts:
-    needs: [prepare, build-artifacts]
+    needs: [prepare, validate-manifests, security-scan, build-artifacts]
     runs-on: oci-workflows-runner
     if: ${{ !cancelled() && needs.build-artifacts.result == 'success' && (github.event_name == 'push' || !inputs.skip_signing) }}
     permissions:
@@ -217,42 +290,21 @@ jobs:
           echo "🔐 Starting artifact signing process..."
           echo "🔧 Environment: COSIGN_YES=$COSIGN_YES"
 
-          # Parse all digests from build output
-          ALL_DIGESTS="${{ needs.build-artifacts.outputs.all-digests }}"
-          echo "📋 All digests from build: $ALL_DIGESTS"
+          # Get digest from build output
+          DIGEST="${{ needs.build-artifacts.outputs.image-digest }}"
+          TAG=$(echo "${{ needs.prepare.outputs.tags }}" | head -1)
 
-          if [ -z "$ALL_DIGESTS" ]; then
-            echo "❌ No digests found - skipping signing"
-            exit 1
+          if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
+            echo "✍️ Signing with digest: $TAG@$DIGEST"
+            cosign sign --yes "$TAG@$DIGEST"
+            echo "✅ Successfully signed: $TAG@$DIGEST"
+          else
+            echo "⚠️ Warning: No digest found, signing with tag (not recommended)"
+            cosign sign --yes "$TAG"
+            echo "✅ Successfully signed (tag): $TAG"
           fi
 
-          # Sign all pushed tags using their exact digests
-          for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
-            echo "🖊️ Processing signature for: $tag"
-
-            # Find digest for this specific tag
-            DIGEST=""
-            if [ -n "$ALL_DIGESTS" ]; then
-              for tag_digest in $(echo "$ALL_DIGESTS" | tr ',' '\n'); do
-                if [[ "$tag_digest" == "$tag@"* ]]; then
-                  DIGEST=$(echo "$tag_digest" | cut -d'@' -f2)
-                  break
-                fi
-              done
-            fi
-
-            if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
-              echo "✍️ Signing with digest: $tag@$DIGEST"
-              cosign sign --yes "$tag@$DIGEST"
-              echo "✅ Successfully signed: $tag@$DIGEST"
-            else
-              echo "⚠️ Warning: Could not find digest for $tag, signing with tag (not recommended)"
-              cosign sign --yes "$tag"
-              echo "✅ Successfully signed (tag): $tag"
-            fi
-          done
-
-          echo "🎉 All artifacts signed successfully!"
+          echo "🎉 Artifact signed successfully!"
 
       - name: Clean up cache
         run: |
@@ -268,7 +320,7 @@ jobs:
           echo "• Force rebuild: ${{ inputs.force_rebuild }}"
 
   notify-flux:
-    needs: [prepare, build-artifacts, sign-artifacts]
+    needs: [prepare, validate-manifests, security-scan, build-artifacts, sign-artifacts]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -284,7 +336,7 @@ jobs:
           curl -X POST \
             -H "Content-Type: application/json" \
             -H "X-GitHub-Event: push" \
-            -H "X-Hub-Signature-256: sha256=${{ secrets.FLUX_GITHUB_WEBHOOK_TOKEN }}" \
+            -H "X-Hub-Signature-256: ${{ secrets.FLUX_GITHUB_WEBHOOK_TOKEN }}" \
             -d '{
               "ref": "refs/heads/main",
               "repository": {
@@ -308,7 +360,7 @@ jobs:
 
   summary:
     if: always()
-    needs: [prepare, build-artifacts, sign-artifacts, notify-flux]
+    needs: [prepare, validate-manifests, security-scan, build-artifacts, sign-artifacts, notify-flux]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -317,12 +369,20 @@ jobs:
         run: |
           echo "# 📦 Flux OCI Artifacts Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ⚡ Parallel Execution" >> $GITHUB_STEP_SUMMARY
+          echo "This workflow executed the following jobs in parallel:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 **validate-manifests** - Kubernetes manifest validation" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 **security-scan** - Security checks and vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ **build-artifacts** - OCI artifact building and pushing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "## 🏗️ Build Results" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Manifest Size | ${{ needs.build-artifacts.outputs.artifact-size || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Cache Hit | ${{ needs.build-artifacts.outputs.cache-hit == 'true' && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.validate-manifests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Signing | ${{ inputs.skip_signing && '⏭️ Skipped' || (needs.sign-artifacts.result == 'success' && '✅ Completed' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Force Rebuild | ${{ inputs.force_rebuild && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
 

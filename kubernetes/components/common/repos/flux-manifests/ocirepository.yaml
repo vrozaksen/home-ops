@@ -8,6 +8,6 @@ spec:
   interval: 5m
   url: oci://ghcr.io/vrozaksen/home-ops/flux-manifests
   ref:
-    tag: latest
+    tag: main
   verify:
     provider: cosign

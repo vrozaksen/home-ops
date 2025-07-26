@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: flux-manifests
+spec:
+  interval: 5m
+  url: oci://ghcr.io/vrozaksen/home-ops/flux-manifests
+  ref:
+    tag: latest
+  verify:
+    provider: cosign

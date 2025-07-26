@@ -41,9 +41,6 @@ spec:
               QBT_Preferences__WebUI__LocalHostAuth: false
               QBT_Preferences__WebUI__RootFolder: /addons/VueTorrent
               QBT_Preferences__WebUI__UseUPNP: false
-            envFrom:
-              - secretRef:
-                  name: qbittorrent-secret
             probes:
               liveness: &probes
                 enabled: true

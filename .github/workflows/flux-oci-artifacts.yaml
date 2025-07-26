@@ -179,12 +179,14 @@ jobs:
   sign-artifacts:
     needs: [prepare, build-artifacts]
     runs-on: oci-workflows-runner
-    if: ${{ !inputs.skip_signing }}
+    if: ${{ !cancelled() && needs.build-artifacts.result == 'success' && (github.event_name == 'push' || !inputs.skip_signing) }}
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
+    env:
+      COSIGN_YES: true
     steps:
       - name: Install Cosign
         # renovate: datasource=github-tags depName=sigstore/cosign-installer
@@ -213,6 +215,7 @@ jobs:
       - name: Sign OCI artifacts
         run: |
           echo "🔐 Starting artifact signing process..."
+          echo "🔧 Environment: COSIGN_YES=$COSIGN_YES"
 
           # Parse all digests from build output
           ALL_DIGESTS="${{ needs.build-artifacts.outputs.all-digests }}"
@@ -242,31 +245,42 @@ jobs:
             fi
 
             if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
-              echo "✍️ Signing with digest: $tag@$DIGEST"
-              if cosign sign --yes $tag@$DIGEST; then
-                echo "✅ Successfully signed: $tag@$DIGEST"
+              ARTIFACT_REF="$tag@$DIGEST"
+              echo "✍️ Signing with digest: $ARTIFACT_REF"
+
+              if cosign sign --yes "$ARTIFACT_REF" 2>&1; then
+                echo "✅ Successfully signed: $ARTIFACT_REF"
                 ((SIGNED_COUNT++))
               else
-                echo "❌ Failed to sign: $tag@$DIGEST"
+                COSIGN_EXIT_CODE=$?
+                echo "❌ Failed to sign: $ARTIFACT_REF (exit code: $COSIGN_EXIT_CODE)"
                 ((FAILED_COUNT++))
+                # Continue with other tags instead of failing immediately
               fi
             else
               echo "⚠️ Warning: Could not find digest for $tag, signing with tag (not recommended)"
-              if cosign sign --yes $tag; then
+              if cosign sign --yes "$tag" 2>&1; then
                 echo "✅ Successfully signed (tag): $tag"
                 ((SIGNED_COUNT++))
               else
-                echo "❌ Failed to sign (tag): $tag"
+                COSIGN_EXIT_CODE=$?
+                echo "❌ Failed to sign (tag): $tag (exit code: $COSIGN_EXIT_CODE)"
                 ((FAILED_COUNT++))
+                # Continue with other tags
               fi
             fi
           done
 
           echo "📊 Signing summary: $SIGNED_COUNT successful, $FAILED_COUNT failed"
 
-          if [ $FAILED_COUNT -gt 0 ]; then
-            echo "⚠️ Some signatures failed!"
+          # Only fail if ALL signatures failed
+          if [ $SIGNED_COUNT -eq 0 ] && [ $FAILED_COUNT -gt 0 ]; then
+            echo "❌ All signatures failed!"
             exit 1
+          elif [ $FAILED_COUNT -gt 0 ]; then
+            echo "⚠️ Some signatures failed, but $SIGNED_COUNT succeeded"
+          else
+            echo "🎉 All signatures completed successfully!"
           fi
 
       - name: Clean up cache

@@ -64,14 +64,25 @@ jobs:
           # Push to OCI registry using flux - iterate through all tags
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
             echo "Pushing artifact with tag: $tag"
-            DIGEST=$(flux push artifact oci://$tag \
+
+            # Push and capture full output
+            PUSH_OUTPUT=$(flux push artifact oci://$tag \
               --path="./flux-manifests" \
               --source="${{ github.repositoryUrl }}" \
-              --revision="${{ github.sha }}" | grep -o 'sha256:[a-f0-9]\{64\}')
+              --revision="${{ github.sha }}" 2>&1)
 
-            # Sign the artifact using digest instead of tag to avoid warning
-            echo "Signing artifact: $tag@$DIGEST"
-            cosign sign --yes $tag@$DIGEST
+            echo "Push output: $PUSH_OUTPUT"
+
+            # Extract digest from output (more robust pattern)
+            DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
+
+            if [ -z "$DIGEST" ]; then
+              echo "Warning: Could not extract digest, signing with tag only"
+              cosign sign --yes $tag
+            else
+              echo "Signing artifact: $tag@$DIGEST"
+              cosign sign --yes $tag@$DIGEST
+            fi
           done
 
           # Get digest for latest tag

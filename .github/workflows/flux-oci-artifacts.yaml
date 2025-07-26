@@ -77,7 +77,7 @@ jobs:
 
       - name: Setup Flux CLI
         # renovate: datasource=github-tags depName=fluxcd/flux2
-        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
+        uses: v2.6.4 # main
         with:
           # renovate: datasource=github-releases depName=fluxcd/flux2
           version: 'v2.6.4'
@@ -211,7 +211,7 @@ jobs:
 
       - name: Setup Flux CLI
         # renovate: datasource=github-tags depName=fluxcd/flux2
-        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
+        uses: v2.6.4 # main
         with:
           # renovate: datasource=github-releases depName=fluxcd/flux2
           version: 'v2.6.4'

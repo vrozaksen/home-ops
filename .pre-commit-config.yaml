@@ -13,7 +13,7 @@ repos:
         exclude: |
           (?x)(
             ^\.archive/.*\.yaml$|
-            ^kubernetes/apps/downloads/tqm/resources/config\.yml$|
+            ^kubernetes/apps/downloads/tqm/resources/config\.yaml$|
             ^kubernetes/apps/downloads/recyclarr/config/recyclarr\.yml$|
             ^kubernetes/apps/observability/kube-prometheus-stack/alertmanagerconfig\.yaml$
           )
@@ -44,7 +44,7 @@ repos:
         exclude: |
           (?x)(
             ^\.archive/.*\.yaml$|
-            ^kubernetes/apps/downloads/tqm/resources/config\.yml$|
+            ^kubernetes/apps/downloads/tqm/resources/config\.yaml$|
             ^kubernetes/apps/downloads/recyclarr/config/recyclarr\.yml$
           )
 

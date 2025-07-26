@@ -107,3 +107,16 @@
     - envname: SONARR_SERIES_TITLE
       source: payload
       name: series.title
+
+- id: tqm-pushover
+  execute-command: /config/tqm-pushover.sh
+  command-working-directory: /config
+  pass-environment-to-command:
+    - envname: TQM_PUSHOVER_URL
+      source: string
+      name: '{{ getenv "TQM_PUSHOVER_URL" }}'
+    - envname: TQM_APPLICATION_URL
+      source: string
+      name: '{{ getenv "TQM_APPLICATION_URL" }}'
+  pass-arguments-to-command:
+    - source: entire-payload

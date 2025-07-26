@@ -1,0 +1,149 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app tqm
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      tqm:
+        type: cronjob
+        cronjob: &cronJobSpec
+          schedule: 0 * * * *
+          backoffLimit: 0
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+          ttlSecondsAfterFinished: 3600
+        initContainers:
+          retag: &container
+            image:
+              repository: ghcr.io/home-operations/tqm
+              tag: 1.15.0@sha256:70545e1a52e5afc4a6474c5b492e127be7b776eb9cea7adea3c6399e67ae2287
+            args:
+              - retag
+              - qb
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 64Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        containers:
+          clean:
+            <<: *container
+            args:
+              - clean
+              - qb
+              - --dry-run
+        pod:
+          restartPolicy: Never
+      orphaned:
+        type: cronjob
+        cronjob:
+          <<: *cronJobSpec
+          schedule: 0 0 * * 0
+          suspend: true
+        containers:
+          app:
+            <<: *container
+            args:
+              - orphan
+              - qb
+              - --dry-run
+        pod:
+          restartPolicy: Never
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      config:
+        type: emptyDir
+        globalMounts:
+          - path: /.config/tqm
+      config-file:
+        type: configMap
+        name: tqm-configmap
+        globalMounts:
+          - path: /.config/tqm/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      anime:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/zfs_data/torrents/anime
+        globalMounts:
+          - path: /downloads/anime
+      animeimported:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/zfs_data/torrents/imported-anime
+        globalMounts:
+          - path: /downloads/imported-anime
+      moviesimported:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/imported-moviesfhd
+        globalMounts:
+          - path: /downloads/imported-moviesfhd
+      tvimported:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/imported-tv
+        globalMounts:
+          - path: /downloads/imported-tv
+      manual:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/manual
+        globalMounts:
+          - path: /downloads/manual
+      movies:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/moviesfhd
+        globalMounts:
+          - path: /downloads/moviesfhd
+      seed:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/seed
+        globalMounts:
+          - path: /downloads/seed
+      tv:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/tv
+        globalMounts:
+          - path: /downloads/tv
+      2160p:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/2160p
+        globalMounts:
+          - path: /downloads/2160p
+      shellcm:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents/Sheller-CM
+        globalMounts:
+          - path: /downloads/Sheller-CM

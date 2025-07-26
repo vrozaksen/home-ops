@@ -1,0 +1,69 @@
+---
+clients:
+  qb:
+    download_path: /downloads
+    enabled: true
+    filter: default
+    type: qbittorrent
+    url: http://qbittorrent.downloads.svc.cluster.local:80
+
+notifications:
+  detailed: true
+  skip_empty_run: true
+  service:
+    discord:
+      webhook_url: http://webhook.downloads.svc.cluster.local/hooks/tqm-pushover
+
+filters:
+  default:
+    MapHardlinksFor:
+      - retag
+
+    ignore:
+      - IsTrackerDown()
+      - Downloaded == false && !IsUnregistered()
+      - SeedingHours < 26 && !IsUnregistered()
+
+    remove:
+      - IsUnregistered()
+      - (
+          Label in ["imported-anime", "imported-moviesfhd", "imported-tv", "seed"]
+          && (
+            (
+              HasAnyTag("site:at", "site:ipt")
+              && Ratio > 3.0
+            )
+            ||
+            (
+              HasAnyTag("site:at", "site:ipt", "site:phd", "site:cm", "site:et", "site:tl-pl", "site:pt")
+              && SeedingDays > 24
+            )
+            ||
+            (
+              HasAnyTag("not-linked")
+              && SeedingDays > 24
+            )
+          )
+        )
+
+    tag:
+      - { name: added:1d,     mode: full, update: ['AddedDays < 7'] }
+      - { name: added:7d,     mode: full, update: ['AddedDays >= 7 && AddedDays < 14'] }
+      - { name: added:14d,    mode: full, update: ['AddedDays >= 14 && AddedDays < 30'] }
+      - { name: added:30d,    mode: full, update: ['AddedDays >= 30 && AddedDays < 180'] }
+      - { name: added:180d,   mode: full, update: ['AddedDays >= 180'] }
+      - { name: not-linked,   mode: full, update: ['HardlinkedOutsideClient == false && Label in ["sonarr", "radarr"]'] }
+      - { name: site:cm,      mode: full, update: ['TrackerName == "cinemamovies.pl"'] }
+      - { name: site:et,      mode: full, update: ['TrackerName == "exitorrent.org"'] }
+      - { name: site:tl-pl,   mode: full, update: ['TrackerName == "torrentleech.pl"'] }
+      - { name: site:pt,      mode: full, update: ['TrackerName == "polishtorrent.top"'] }
+      - { name: site:at,      mode: full, update: ['TrackerName == "animetorrents.me"'] }
+      - { name: site:ipt,     mode: full, update: ['TrackerName in ["bgp.technology", "empirehost.me", "stackoverflow.tech"]'] }
+      - { name: site:phd,     mode: full, update: ['TrackerName == "privatehd.to"'] }
+      - { name: tracker-down, mode: full, update: ['IsTrackerDown()'] }
+      - { name: unregistered, mode: full, update: ['IsUnregistered()'] }
+
+    orphan:
+      ignore_paths:
+        - /downloads/manual
+        - /downloads/2160p

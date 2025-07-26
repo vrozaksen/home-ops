@@ -7,6 +7,17 @@ on:
     paths:
       - 'kubernetes/**'
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild even if cache exists'
+        required: false
+        default: false
+        type: boolean
+      skip_signing:
+        description: 'Skip artifact signing (faster for testing)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -42,7 +53,14 @@ jobs:
         run: |
           # Create hash of kubernetes directory content
           HASH=$(find kubernetes/ -type f -name "*.yaml" -o -name "*.yml" | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+
+          # Add force rebuild flag to cache key if enabled
+          if [[ "${{ inputs.force_rebuild }}" == "true" ]]; then
+            HASH="${HASH}-force-$(date +%s)"
+          fi
+
           echo "key=flux-manifests-$HASH" >> $GITHUB_OUTPUT
+          echo "🔑 Cache key: flux-manifests-$HASH"
 
   build-artifacts:
     needs: prepare
@@ -54,6 +72,8 @@ jobs:
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       all-digests: ${{ steps.build.outputs.all-digests }}
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+      artifact-size: ${{ steps.build.outputs.artifact-size }}
     steps:
       - name: Checkout
         # renovate: datasource=github-tags depName=actions/checkout
@@ -61,12 +81,13 @@ jobs:
 
       - name: Setup Flux CLI
         # renovate: datasource=github-tags depName=fluxcd/flux2
-        uses: fluxcd/flux2/action@main
+        uses: fluxcd/flux2/action@4e53b6cb8dd1961b523fa2d7df82fd3cd9eab78c # main
         with:
           # renovate: datasource=github-releases depName=fluxcd/flux2
           version: 'v2.6.4'
 
       - name: Cache flux manifests
+        id: cache
         # renovate: datasource=github-tags depName=actions/cache
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
@@ -74,6 +95,14 @@ jobs:
           key: ${{ needs.prepare.outputs.cache-key }}
           restore-keys: |
             flux-manifests-
+
+      - name: Check cache status
+        run: |
+          if [[ "${{ steps.cache.outputs.cache-hit }}" == "true" ]]; then
+            echo "✅ Cache hit! Using cached manifests"
+          else
+            echo "🔄 Cache miss - will build fresh artifacts"
+          fi
 
       - name: Log in to Container Registry
         # renovate: datasource=github-tags depName=docker/login-action
@@ -92,43 +121,65 @@ jobs:
           # Copy kubernetes directory to temporary location
           cp -r kubernetes/ flux-manifests/
 
+          # Calculate and display manifest size
+          MANIFEST_SIZE=$(du -sh flux-manifests/ | cut -f1)
+          MANIFEST_COUNT=$(find flux-manifests/ -name "*.yaml" -o -name "*.yml" | wc -l)
+          echo "📦 Manifest size: $MANIFEST_SIZE ($MANIFEST_COUNT files)"
+          echo "artifact-size=$MANIFEST_SIZE" >> $GITHUB_OUTPUT
+
           # Push to OCI registry using flux - iterate through all tags
           LATEST_DIGEST=""
           ALL_DIGESTS=""
+          FAILED_TAGS=""
+
           for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
-            echo "Pushing artifact with tag: $tag"
+            echo "🚀 Pushing artifact with tag: $tag"
 
             # Push and capture output with digest
-            PUSH_OUTPUT=$(flux push artifact oci://$tag \
+            if PUSH_OUTPUT=$(flux push artifact oci://$tag \
               --path="./flux-manifests" \
               --source="${{ github.repositoryUrl }}" \
-              --revision="${{ github.sha }}" 2>&1)
+              --revision="${{ github.sha }}" 2>&1); then
 
-            echo "Push output: $PUSH_OUTPUT"
+              echo "✅ Push successful: $PUSH_OUTPUT"
 
-            # Extract digest from push output
-            DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
+              # Extract digest from push output
+              DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
 
-            if [ -n "$DIGEST" ]; then
-              # Store digest with tag for later use
-              ALL_DIGESTS="${ALL_DIGESTS}${tag}@${DIGEST},"
+              if [ -n "$DIGEST" ]; then
+                # Store digest with tag for later use
+                ALL_DIGESTS="${ALL_DIGESTS}${tag}@${DIGEST},"
 
-              # Keep latest digest for legacy compatibility
-              if [[ "$tag" == *":latest" ]]; then
-                LATEST_DIGEST="$DIGEST"
+                # Keep latest digest for legacy compatibility
+                if [[ "$tag" == *":latest" ]]; then
+                  LATEST_DIGEST="$DIGEST"
+                fi
+                echo "📝 Stored digest for $tag: $DIGEST"
+              else
+                echo "⚠️ Warning: No digest found in push output for $tag"
+                FAILED_TAGS="${FAILED_TAGS}$tag,"
               fi
+            else
+              echo "❌ Push failed for $tag: $PUSH_OUTPUT"
+              FAILED_TAGS="${FAILED_TAGS}$tag,"
             fi
           done
+
+          # Report any failures
+          if [ -n "$FAILED_TAGS" ]; then
+            echo "⚠️ Failed to push tags: ${FAILED_TAGS%,}"
+          fi
 
           # Set outputs
           echo "digest=$LATEST_DIGEST" >> $GITHUB_OUTPUT
           echo "all-digests=${ALL_DIGESTS%,}" >> $GITHUB_OUTPUT  # Remove trailing comma
-          echo "Latest digest: $LATEST_DIGEST"
-          echo "All digests: ${ALL_DIGESTS%,}"
+          echo "🎯 Latest digest: $LATEST_DIGEST"
+          echo "📋 All digests: ${ALL_DIGESTS%,}"
 
   sign-artifacts:
     needs: [prepare, build-artifacts]
     runs-on: oci-workflows-runner
+    if: ${{ !inputs.skip_signing }}
     permissions:
       contents: read
       packages: write
@@ -161,13 +212,23 @@ jobs:
 
       - name: Sign OCI artifacts
         run: |
+          echo "🔐 Starting artifact signing process..."
+
           # Parse all digests from build output
           ALL_DIGESTS="${{ needs.build-artifacts.outputs.all-digests }}"
-          echo "All digests from build: $ALL_DIGESTS"
+          echo "📋 All digests from build: $ALL_DIGESTS"
+
+          if [ -z "$ALL_DIGESTS" ]; then
+            echo "❌ No digests found - skipping signing"
+            exit 1
+          fi
+
+          SIGNED_COUNT=0
+          FAILED_COUNT=0
 
           # Sign all pushed tags using their exact digests
           for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
-            echo "Signing artifact: $tag"
+            echo "🖊️ Processing signature for: $tag"
 
             # Find digest for this specific tag
             DIGEST=""
@@ -181,16 +242,76 @@ jobs:
             fi
 
             if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
-              echo "Signing with digest: $tag@$DIGEST"
-              cosign sign --yes $tag@$DIGEST
+              echo "✍️ Signing with digest: $tag@$DIGEST"
+              if cosign sign --yes $tag@$DIGEST; then
+                echo "✅ Successfully signed: $tag@$DIGEST"
+                ((SIGNED_COUNT++))
+              else
+                echo "❌ Failed to sign: $tag@$DIGEST"
+                ((FAILED_COUNT++))
+              fi
             else
-              echo "Warning: Could not find digest for $tag, signing with tag (not recommended)"
-              cosign sign --yes $tag
+              echo "⚠️ Warning: Could not find digest for $tag, signing with tag (not recommended)"
+              if cosign sign --yes $tag; then
+                echo "✅ Successfully signed (tag): $tag"
+                ((SIGNED_COUNT++))
+              else
+                echo "❌ Failed to sign (tag): $tag"
+                ((FAILED_COUNT++))
+              fi
             fi
           done
 
+          echo "📊 Signing summary: $SIGNED_COUNT successful, $FAILED_COUNT failed"
+
+          if [ $FAILED_COUNT -gt 0 ]; then
+            echo "⚠️ Some signatures failed!"
+            exit 1
+          fi
+
       - name: Clean up cache
         run: |
-          echo "Cleaning up flux-manifests cache after successful signing..."
+          echo "🧹 Cleaning up flux-manifests cache after successful signing..."
           rm -rf flux-manifests/ || true
           echo "✅ OCI artifacts built, signed and cache cleaned!"
+
+          # Summary report
+          echo "📊 Workflow Summary:"
+          echo "• Artifacts size: ${{ needs.build-artifacts.outputs.artifact-size }}"
+          echo "• Cache hit: ${{ needs.build-artifacts.outputs.cache-hit }}"
+          echo "• Signing: ${{ inputs.skip_signing && 'Skipped' || 'Completed' }}"
+          echo "• Force rebuild: ${{ inputs.force_rebuild }}"
+
+  summary:
+    if: always()
+    needs: [prepare, build-artifacts, sign-artifacts]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Generate workflow summary
+        run: |
+          echo "# 📦 Flux OCI Artifacts Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 🏗️ Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Manifest Size | ${{ needs.build-artifacts.outputs.artifact-size || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cache Hit | ${{ needs.build-artifacts.outputs.cache-hit == 'true' && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signing | ${{ inputs.skip_signing && '⏭️ Skipped' || (needs.sign-artifacts.result == 'success' && '✅ Completed' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Force Rebuild | ${{ inputs.force_rebuild && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏷️ Generated Tags" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.build-artifacts.outputs.all-digests }}" != "" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## 🔍 Artifact Digests" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ needs.build-artifacts.outputs.all-digests }}" | tr ',' '\n' >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi

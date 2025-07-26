@@ -44,13 +44,45 @@ jobs:
           persist-credentials: false
           ref: ${{ matrix.branch == 'default' && github.event.repository.default_branch || '' }}
 
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare manifests for image extraction
+        run: |
+          if [[ "${{ matrix.branch }}" == "default" ]]; then
+            # For default branch, try to pull from OCI first
+            mkdir -p oci-manifests
+            if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
+               --output oci-manifests/ 2>/dev/null; then
+              echo "✅ Using OCI artifacts from main branch"
+              MANIFESTS_PATH="oci-manifests/kubernetes"
+            else
+              echo "ℹ️ Fallback to local manifests"
+              MANIFESTS_PATH="kubernetes"
+            fi
+          else
+            # For PR branch, use local manifests
+            echo "ℹ️ Using local PR manifests"
+            MANIFESTS_PATH="kubernetes"
+          fi
+          echo "MANIFESTS_PATH=$MANIFESTS_PATH" >> $GITHUB_ENV
+
       - name: Gather Images
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
         with:
           args: >-
             get cluster
             --all-namespaces
-            --path /github/workspace/kubernetes/flux/cluster
+            --path /github/workspace/${{ env.MANIFESTS_PATH }}
             --enable-images
             --only-images
             --output json

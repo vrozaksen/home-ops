@@ -36,14 +36,52 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run flux-local test
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull current OCI artifacts
+        run: |
+          # Create directory for current manifests
+          mkdir -p current-manifests
+
+          # Try to pull current OCI artifacts (may not exist for new branches)
+          if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
+             --output current-manifests/ 2>/dev/null; then
+            echo "✅ Current OCI artifacts pulled successfully"
+          else
+            echo "ℹ️ No current OCI artifacts found (expected for new setup)"
+            mkdir -p current-manifests/kubernetes
+          fi
+
+      - name: Build test OCI artifacts
+        run: |
+          # Create directory for new manifests
+          mkdir -p test-manifests
+
+          # Copy current kubernetes directory
+          cp -r kubernetes/ test-manifests/
+
+          echo "🏗️ Test manifests prepared for validation"
+
+      - name: Run flux-local test on new manifests
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
         with:
           args: >-
             test
             --all-namespaces
             --enable-helm
-            --path /github/workspace/kubernetes/flux/cluster
+            --path /github/workspace/test-manifests/kubernetes
+            --skip-crds
+            --enable-kustomize
             --verbose
 
   diff:
@@ -72,18 +110,47 @@ jobs:
           persist-credentials: false
           ref: "${{ github.event.repository.default_branch }}"
 
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull current OCI artifacts (main branch)
+        run: |
+          mkdir -p main-artifacts
+          if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
+             --output main-artifacts/ 2>/dev/null; then
+            echo "✅ Current main OCI artifacts pulled"
+          else
+            echo "ℹ️ Using local main branch manifests as fallback"
+            cp -r default/kubernetes/ main-artifacts/
+          fi
+
+      - name: Build PR artifacts for comparison
+        run: |
+          mkdir -p pr-artifacts
+          cp -r pull/kubernetes/ pr-artifacts/
+
       - name: Run flux-local diff
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
         with:
           args: >-
             diff ${{ matrix.resource }}
             --unified 6
-            --path /github/workspace/pull/kubernetes/flux/cluster
-            --path-orig /github/workspace/default/kubernetes/flux/cluster
+            --path /github/workspace/pr-artifacts/kubernetes
+            --path-orig /github/workspace/main-artifacts/kubernetes
             --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart"
             --limit-bytes 10000
             --all-namespaces
-            --sources "flux-system"
+            --skip-crds
+            --enable-kustomize
             --output-file diff.patch
 
       - name: Generate Diff

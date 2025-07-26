@@ -109,53 +109,84 @@ jobs:
           WARNING_COUNT=$(cat warning_count.txt)
           INFO_COUNT=$(cat info_count.txt)
 
-          # Check for insecure HelmRelease configurations - ONLY in HelmRelease files
-          while IFS= read -r helmrelease; do
-            echo "📦 Scanning HelmRelease: $helmrelease"
+          # Function to check if a file is primarily a HelmRelease (not just containing references)
+          is_primary_helmrelease() {
+            local file="$1"
+            # Check if the first non-comment kind declaration is HelmRelease
+            awk '
+              /^[[:space:]]*#/ { next }                    # Skip comments
+              /^[[:space:]]*kind:[[:space:]]*HelmRelease/ { print "true"; exit }
+              /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+              /^[[:space:]]*apiVersion:/ { api_found=1; next }
+              api_found && /^[[:space:]]*kind:[[:space:]]*HelmRelease/ { print "true"; exit }
+              api_found && /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+            ' "$file" 2>/dev/null
+          }
 
-            # Verify this is actually a HelmRelease by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*HelmRelease" "$helmrelease" 2>/dev/null; then
-              echo "⏭️ Skipping $helmrelease - not a HelmRelease"
+          # Function to get line number for a pattern match
+          get_line_number() {
+            local file="$1"
+            local pattern="$2"
+            grep -n "$pattern" "$file" 2>/dev/null | head -1 | cut -d: -f1 | tr -d '\n'
+          }
+
+          # Check for insecure HelmRelease configurations - ONLY in actual HelmRelease files
+          while IFS= read -r helmrelease; do
+            echo "📦 Scanning potential HelmRelease: $helmrelease"
+
+            # Verify this is actually a primary HelmRelease file
+            if [[ "$(is_primary_helmrelease "$helmrelease")" != "true" ]]; then
+              echo "⏭️ Skipping $helmrelease - not a primary HelmRelease (likely a reference or different resource type)"
               continue
             fi
 
+            echo "✅ Confirmed HelmRelease file: $helmrelease"
+
             # Check for missing security contexts in values
             if ! grep -q "securityContext\|runAsNonRoot\|runAsUser" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: No securityContext found in HelmRelease values" >> warnings.txt
+              LINE_NUM=$(get_line_number "$helmrelease" "spec:\|values:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$helmrelease:$LINE_NUM No securityContext found in HelmRelease values" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for missing resource limits
             if ! grep -q "resources:\|limits:\|requests:" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: No resource limits specified in HelmRelease" >> warnings.txt
+              LINE_NUM=$(get_line_number "$helmrelease" "spec:\|values:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$helmrelease:$LINE_NUM No resource limits specified in HelmRelease" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for potential privileged access
-            if grep -q "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: Privileged container configuration detected in HelmRelease" >> security_issues.txt
+            if PRIV_LINE=$(grep -n "privileged.*true\|allowPrivilegeEscalation.*true" "$helmrelease" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$PRIV_LINE" | cut -d: -f1)
+              echo "$helmrelease:$LINE_NUM Privileged container configuration detected in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostNetwork
-            if grep -q "hostNetwork.*true" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: Host network access enabled in HelmRelease" >> security_issues.txt
+            if HOST_LINE=$(grep -n "hostNetwork.*true" "$helmrelease" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$HOST_LINE" | cut -d: -f1)
+              echo "$helmrelease:$LINE_NUM Host network access enabled in HelmRelease" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for hostPath volumes
-            if grep -q "hostPath:" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: Host path volume detected in HelmRelease" >> warnings.txt
+            if HOSTPATH_LINE=$(grep -n "hostPath:" "$helmrelease" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$HOSTPATH_LINE" | cut -d: -f1)
+              echo "$helmrelease:$LINE_NUM Host path volume detected in HelmRelease" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
             # Check for latest image tags
-            if grep -q "tag:\s*['\"]latest['\"]" "$helmrelease" 2>/dev/null; then
-              echo "$helmrelease: Using 'latest' image tag in HelmRelease - use specific versions" >> warnings.txt
+            if LATEST_LINE=$(grep -n "tag:\s*['\"]latest['\"]" "$helmrelease" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$LATEST_LINE" | cut -d: -f1)
+              echo "$helmrelease:$LINE_NUM Using 'latest' image tag in HelmRelease - use specific versions" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*HelmRelease" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRelease" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -170,71 +201,113 @@ jobs:
           WARNING_COUNT=$(cat warning_count.txt)
           INFO_COUNT=$(cat info_count.txt)
 
+          # Function to check if a file is primarily a specific resource type
+          is_primary_resource() {
+            local file="$1"
+            local resource_type="$2"
+            # Check if the first non-comment kind declaration matches the resource type
+            awk -v resource="$resource_type" '
+              /^[[:space:]]*#/ { next }                    # Skip comments
+              /^[[:space:]]*kind:[[:space:]]*/ {
+                if ($0 ~ "kind:[[:space:]]*" resource) { print "true"; exit }
+                else { print "false"; exit }
+              }
+              /^[[:space:]]*apiVersion:/ { api_found=1; next }
+              api_found && /^[[:space:]]*kind:[[:space:]]*/ {
+                if ($0 ~ "kind:[[:space:]]*" resource) { print "true"; exit }
+                else { print "false"; exit }
+              }
+            ' "$file" 2>/dev/null
+          }
+
+          # Function to get line number for a pattern match
+          get_line_number() {
+            local file="$1"
+            local pattern="$2"
+            grep -n "$pattern" "$file" 2>/dev/null | head -1 | cut -d: -f1 | tr -d '\n'
+          }
+
           # Check HelmRepository sources
           while IFS= read -r helmrepo; do
-            echo "📦 Scanning HelmRepository: $helmrepo"
+            echo "📦 Scanning potential HelmRepository: $helmrepo"
 
-            # Verify this is actually a HelmRepository by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*HelmRepository" "$helmrepo" 2>/dev/null; then
-              echo "⏭️ Skipping $helmrepo - not a HelmRepository"
+            # Verify this is actually a primary HelmRepository file
+            if [[ "$(is_primary_resource "$helmrepo" "HelmRepository")" != "true" ]]; then
+              echo "⏭️ Skipping $helmrepo - not a primary HelmRepository"
               continue
             fi
 
+            echo "✅ Confirmed HelmRepository file: $helmrepo"
+
             # Check for HTTPS URLs
             if ! grep -q "url:\s*https://" "$helmrepo" 2>/dev/null; then
-              echo "$helmrepo: HelmRepository not using HTTPS" >> security_issues.txt
+              LINE_NUM=$(get_line_number "$helmrepo" "url:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$helmrepo:$LINE_NUM HelmRepository not using HTTPS" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for signature verification
             if ! grep -q "verify:\|secretRef:" "$helmrepo" 2>/dev/null; then
-              echo "$helmrepo: No signature verification configured" >> warnings.txt
+              LINE_NUM=$(get_line_number "$helmrepo" "spec:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$helmrepo:$LINE_NUM No signature verification configured" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*HelmRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRepository" {} \; 2>/dev/null)
 
           # Check GitRepository sources
           while IFS= read -r gitrepo; do
-            echo "📂 Scanning GitRepository: $gitrepo"
+            echo "📂 Scanning potential GitRepository: $gitrepo"
 
-            # Verify this is actually a GitRepository by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*GitRepository" "$gitrepo" 2>/dev/null; then
-              echo "⏭️ Skipping $gitrepo - not a GitRepository"
+            # Verify this is actually a primary GitRepository file
+            if [[ "$(is_primary_resource "$gitrepo" "GitRepository")" != "true" ]]; then
+              echo "⏭️ Skipping $gitrepo - not a primary GitRepository"
               continue
             fi
 
+            echo "✅ Confirmed GitRepository file: $gitrepo"
+
             # Check for HTTPS URLs
             if ! grep -q "url:\s*https://" "$gitrepo" 2>/dev/null; then
-              echo "$gitrepo: GitRepository not using HTTPS" >> security_issues.txt
+              LINE_NUM=$(get_line_number "$gitrepo" "url:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$gitrepo:$LINE_NUM GitRepository not using HTTPS" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for GPG verification
             if ! grep -q "verify:\|secretRef:" "$gitrepo" 2>/dev/null; then
-              echo "$gitrepo: No GPG verification configured" >> warnings.txt
+              LINE_NUM=$(get_line_number "$gitrepo" "spec:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$gitrepo:$LINE_NUM No GPG verification configured" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*GitRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*GitRepository" {} \; 2>/dev/null)
 
           # Check OCIRepository sources
           while IFS= read -r ocirepo; do
-            echo "🐳 Scanning OCIRepository: $ocirepo"
+            echo "🐳 Scanning potential OCIRepository: $ocirepo"
 
-            # Verify this is actually an OCIRepository by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*OCIRepository" "$ocirepo" 2>/dev/null; then
-              echo "⏭️ Skipping $ocirepo - not an OCIRepository"
+            # Verify this is actually a primary OCIRepository file
+            if [[ "$(is_primary_resource "$ocirepo" "OCIRepository")" != "true" ]]; then
+              echo "⏭️ Skipping $ocirepo - not a primary OCIRepository"
               continue
             fi
 
+            echo "✅ Confirmed OCIRepository file: $ocirepo"
+
             # Check for signature verification
             if ! grep -q "verify:" "$ocirepo" 2>/dev/null; then
-              echo "$ocirepo: No OCI signature verification configured - add verify section with cosign provider" >> warnings.txt
+              LINE_NUM=$(get_line_number "$ocirepo" "spec:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$ocirepo:$LINE_NUM No OCI signature verification configured - add verify section with cosign provider" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*OCIRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*OCIRepository" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -249,23 +322,48 @@ jobs:
           WARNING_COUNT=$(cat warning_count.txt)
           INFO_COUNT=$(cat info_count.txt)
 
+          # Function to check if a file is primarily an ExternalSecret
+          is_primary_externalsecret() {
+            local file="$1"
+            # Check if the first non-comment kind declaration is ExternalSecret
+            awk '
+              /^[[:space:]]*#/ { next }                    # Skip comments
+              /^[[:space:]]*kind:[[:space:]]*ExternalSecret/ { print "true"; exit }
+              /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+              /^[[:space:]]*apiVersion:/ { api_found=1; next }
+              api_found && /^[[:space:]]*kind:[[:space:]]*ExternalSecret/ { print "true"; exit }
+              api_found && /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+            ' "$file" 2>/dev/null
+          }
+
+          # Function to get line number for a pattern match
+          get_line_number() {
+            local file="$1"
+            local pattern="$2"
+            grep -n "$pattern" "$file" 2>/dev/null | head -1 | cut -d: -f1 | tr -d '\n'
+          }
+
           # Check ExternalSecret security
           while IFS= read -r externalsecret; do
-            echo "🔐 Scanning ExternalSecret: $externalsecret"
+            echo "🔐 Scanning potential ExternalSecret: $externalsecret"
 
-            # Verify this is actually an ExternalSecret by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*ExternalSecret" "$externalsecret" 2>/dev/null; then
-              echo "⏭️ Skipping $externalsecret - not an ExternalSecret"
+            # Verify this is actually a primary ExternalSecret file
+            if [[ "$(is_primary_externalsecret "$externalsecret")" != "true" ]]; then
+              echo "⏭️ Skipping $externalsecret - not a primary ExternalSecret"
               continue
             fi
 
+            echo "✅ Confirmed ExternalSecret file: $externalsecret"
+
             # Check for proper secret store references
             if ! grep -q "secretStoreRef\|clusterSecretStoreRef" "$externalsecret" 2>/dev/null; then
-              echo "$externalsecret: Missing secret store reference" >> warnings.txt
+              LINE_NUM=$(get_line_number "$externalsecret" "spec:")
+              LINE_NUM=${LINE_NUM:-1}
+              echo "$externalsecret:$LINE_NUM Missing secret store reference" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*ExternalSecret" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*ExternalSecret" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -280,29 +378,54 @@ jobs:
           WARNING_COUNT=$(cat warning_count.txt)
           INFO_COUNT=$(cat info_count.txt)
 
+          # Function to check if a file is primarily an RBAC resource
+          is_primary_rbac() {
+            local file="$1"
+            # Check if the first non-comment kind declaration is RBAC-related
+            awk '
+              /^[[:space:]]*#/ { next }                    # Skip comments
+              /^[[:space:]]*kind:[[:space:]]*(Role|ClusterRole|RoleBinding|ClusterRoleBinding|ServiceAccount)([[:space:]]|$)/ { print "true"; exit }
+              /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+              /^[[:space:]]*apiVersion:/ { api_found=1; next }
+              api_found && /^[[:space:]]*kind:[[:space:]]*(Role|ClusterRole|RoleBinding|ClusterRoleBinding|ServiceAccount)([[:space:]]|$)/ { print "true"; exit }
+              api_found && /^[[:space:]]*kind:[[:space:]]*/ { print "false"; exit }
+            ' "$file" 2>/dev/null
+          }
+
+          # Function to get line number for a pattern match
+          get_line_number() {
+            local file="$1"
+            local pattern="$2"
+            grep -n "$pattern" "$file" 2>/dev/null | head -1 | cut -d: -f1 | tr -d '\n'
+          }
+
           # Check ServiceAccounts and Roles
           while IFS= read -r rbacfile; do
-            echo "🔑 Scanning RBAC: $rbacfile"
+            echo "🔑 Scanning potential RBAC resource: $rbacfile"
 
-            # Verify this is actually an RBAC resource by checking content (strict match)
-            if ! grep -q "^\s*kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" "$rbacfile" 2>/dev/null; then
-              echo "⏭️ Skipping $rbacfile - not an RBAC resource"
+            # Verify this is actually a primary RBAC resource file
+            if [[ "$(is_primary_rbac "$rbacfile")" != "true" ]]; then
+              echo "⏭️ Skipping $rbacfile - not a primary RBAC resource"
               continue
             fi
 
+            echo "✅ Confirmed RBAC resource file: $rbacfile"
+
             # Check for wildcard permissions
-            if grep -q "resources:\s*\[.*\*.*\]" "$rbacfile" 2>/dev/null; then
-              echo "$rbacfile: Wildcard (*) permissions detected" >> security_issues.txt
+            if WILDCARD_LINE=$(grep -n "resources:\s*\[.*\*.*\]" "$rbacfile" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$WILDCARD_LINE" | cut -d: -f1)
+              echo "$rbacfile:$LINE_NUM Wildcard (*) permissions detected" >> security_issues.txt
               CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
             fi
 
             # Check for cluster-admin role
-            if grep -q "cluster-admin" "$rbacfile" 2>/dev/null; then
-              echo "$rbacfile: cluster-admin role binding found" >> warnings.txt
+            if ADMIN_LINE=$(grep -n "cluster-admin" "$rbacfile" 2>/dev/null | head -1); then
+              LINE_NUM=$(echo "$ADMIN_LINE" | cut -d: -f1)
+              echo "$rbacfile:$LINE_NUM cluster-admin role binding found" >> warnings.txt
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -387,13 +510,21 @@ jobs:
           if [ -f security_issues.txt ] && [ -s security_issues.txt ]; then
             while IFS= read -r issue; do
               if [[ "$issue" == *":"* ]]; then
-                file_path=$(echo "$issue" | cut -d: -f1)
-                message=$(echo "$issue" | cut -d: -f2- | sed 's/"/\\"/g' | sed 's/^ *//')
+                # Parse file:line:message format
+                file_and_line=$(echo "$issue" | cut -d: -f1,2)
+                file_path=$(echo "$file_and_line" | cut -d: -f1)
+                line_num=$(echo "$file_and_line" | cut -d: -f2)
+                message=$(echo "$issue" | cut -d: -f3- | sed 's/"/\\"/g' | sed 's/^ *//')
+
+                # Validate line number is numeric, default to 1 if not
+                if ! [[ "$line_num" =~ ^[0-9]+$ ]]; then
+                  line_num=1
+                fi
 
                 # Only add if file exists and path is valid
                 if [ -f "$file_path" ]; then
                   fingerprint=$(create_fingerprint "$file_path" "$message" "critical-security")
-                  SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+                  SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
               fi
             done < security_issues.txt
@@ -403,13 +534,21 @@ jobs:
           if [ -f warnings.txt ] && [ -s warnings.txt ]; then
             while IFS= read -r warning; do
               if [[ "$warning" == *":"* ]]; then
-                file_path=$(echo "$warning" | cut -d: -f1)
-                message=$(echo "$warning" | cut -d: -f2- | sed 's/"/\\"/g' | sed 's/^ *//')
+                # Parse file:line:message format
+                file_and_line=$(echo "$warning" | cut -d: -f1,2)
+                file_path=$(echo "$file_and_line" | cut -d: -f1)
+                line_num=$(echo "$file_and_line" | cut -d: -f2)
+                message=$(echo "$warning" | cut -d: -f3- | sed 's/"/\\"/g' | sed 's/^ *//')
+
+                # Validate line number is numeric, default to 1 if not
+                if ! [[ "$line_num" =~ ^[0-9]+$ ]]; then
+                  line_num=1
+                fi
 
                 # Only add if file exists and path is valid
                 if [ -f "$file_path" ]; then
                   fingerprint=$(create_fingerprint "$file_path" "$message" "security-warning")
-                  SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+                  SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":$line_num}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
                 fi
               fi
             done < warnings.txt

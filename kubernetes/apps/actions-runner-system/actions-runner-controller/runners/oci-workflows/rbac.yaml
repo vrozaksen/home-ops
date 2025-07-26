@@ -34,4 +34,4 @@ kind: ServiceAccount
 metadata:
   name: oci-workflows-runner
 spec:
-  roles: ["os:reader"]  # Read-only instead of admin
+  roles: ["os:admin"]

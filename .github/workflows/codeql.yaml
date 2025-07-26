@@ -1,231 +1,40 @@
-# 🔍 CodeQL Advanced Security Analysis
-# Automated code security analysis for multiple languages
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-
-name: 🔍 CodeQL Advanced Security
+name: 🔍 CodeQL
 
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - ".gitignore"
+    paths:
+      - ".github/workflows/**"
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - ".gitignore"
+    paths:
+      - ".github/workflows/**"
   schedule:
     - cron: '16 22 * * 6'
   workflow_dispatch:
 
-env:
-  # Enable CodeQL debugging for troubleshooting
-  CODEQL_EXTRACTOR_VERBOSE: false
-
 jobs:
   analyze:
-    name: 🧪 Analyze (${{ matrix.language }})
-    # Runner size impacts CodeQL analysis time. To learn more, please see:
-    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
-    #   - https://gh.io/supported-runners-and-hardware-resources
+    name: Analyze
     runs-on: home-ops-runner
     timeout-minutes: 60
     permissions:
-      # Required for all workflows
       security-events: write
-      # Required to fetch internal or private CodeQL packs
       packages: read
-      # Only required for workflows in private repositories
       actions: read
       contents: read
-      pull-requests: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: actions
-            build-mode: none
-            display-name: "GitHub Actions"
-            icon: "⚡"
-          # Only GitHub Actions is relevant for this repository
-          # Terraform and Shell scripts are not directly supported by CodeQL
-          #
-          # Available CodeQL languages for future use:
-          # - language: javascript-typescript
-          #   build-mode: none
-          #   display-name: "JavaScript/TypeScript"
-          #   icon: "🟨"
-          # - language: python
-          #   build-mode: none
-          #   display-name: "Python"
-          #   icon: "🐍"
-          # - language: go
-          #   build-mode: none
-          #   display-name: "Go"
-          #   icon: "🐹"
 
     steps:
-      - name: 📥 Checkout Repository
-        # renovate: datasource=github-tags depName=actions/checkout
+      - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          # Fetch full history for better analysis
-          fetch-depth: 0
 
-      - name: 🔍 Detect Language Files
-        id: detect
-        run: |
-          echo "🔍 Detecting ${{ matrix.display-name }} files..."
-
-          case "${{ matrix.language }}" in
-            "actions")
-              FILE_COUNT=$(find .github/workflows/ -name "*.yml" -o -name "*.yaml" 2>/dev/null | wc -l)
-              ;;
-            "ruby")
-              FILE_COUNT=$(find . -name "*.rb" -o -name "Gemfile*" -o -name "*.gemspec" 2>/dev/null | wc -l)
-              ;;
-            "javascript-typescript")
-              FILE_COUNT=$(find . -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "package.json" 2>/dev/null | wc -l)
-              ;;
-            "python")
-              FILE_COUNT=$(find . -name "*.py" -o -name "requirements*.txt" -o -name "setup.py" -o -name "pyproject.toml" 2>/dev/null | wc -l)
-              ;;
-            *)
-              FILE_COUNT=1  # Default assume files exist
-              ;;
-          esac
-
-          echo "${{ matrix.icon }} Found $FILE_COUNT ${{ matrix.display-name }} files"
-          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
-
-          if [ $FILE_COUNT -eq 0 ]; then
-            echo "⚠️ No ${{ matrix.display-name }} files found - analysis may be skipped"
-            echo "analysis_needed=false" >> $GITHUB_OUTPUT
-          else
-            echo "✅ ${{ matrix.display-name }} analysis needed"
-            echo "analysis_needed=true" >> $GITHUB_OUTPUT
-          fi
-
-      # Add any setup steps before running the `github/codeql-action/init` action.
-      # This includes steps like installing compilers or runtimes.
-      - name: 🔧 Setup Runtime Environment
-        if: steps.detect.outputs.analysis_needed == 'true'
-        run: |
-          echo "🔧 Setting up environment for ${{ matrix.display-name }}..."
-
-          # Language-specific setup can be added here
-          case "${{ matrix.language }}" in
-            "ruby")
-              echo "💎 Ruby environment ready"
-              ;;
-            "actions")
-              echo "⚡ GitHub Actions environment ready"
-              ;;
-            *)
-              echo "✅ Generic environment ready"
-              ;;
-          esac
-
-      # Initializes the CodeQL tools for scanning
-      - name: 🚀 Initialize CodeQL
-        if: steps.detect.outputs.analysis_needed == 'true'
-        # renovate: datasource=github-tags depName=github/codeql-action
+      - name: Initialize CodeQL
         uses: github/codeql-action/init@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-          # Enhanced query packs for better security coverage
+          languages: actions
           queries: +security-extended,security-and-quality
-          # Custom configuration for better analysis
-          config: |
-            name: "CodeQL Config"
-            disable-default-rules: false
-            queries:
-              - uses: security-extended
-              - uses: security-and-quality
 
-      # Manual build step for compiled languages
-      - name: 🔨 Manual Build
-        if: steps.detect.outputs.analysis_needed == 'true' && matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          echo "🔨 Manual build mode detected for ${{ matrix.display-name }}"
-          echo "Add your build commands here:"
-          echo "  make bootstrap"
-          echo "  make release"
-          exit 1
-
-      # Perform the CodeQL analysis
-      - name: 🧪 Perform CodeQL Analysis
-        if: steps.detect.outputs.analysis_needed == 'true'
-        # renovate: datasource=github-tags depName=github/codeql-action
+      - name: Perform Analysis
         uses: github/codeql-action/analyze@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:
-          category: "/language:${{ matrix.language }}"
-          upload: true
-          # Add debugging output for troubleshooting
-          debug: ${{ env.CODEQL_EXTRACTOR_VERBOSE }}
-
-      # Generate analysis summary
-      - name: 📊 Generate Analysis Summary
-        if: always() && steps.detect.outputs.analysis_needed == 'true'
-        run: |
-          echo "## ${{ matrix.icon }} CodeQL Analysis: ${{ matrix.display-name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Language | ${{ matrix.display-name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Files Found | ${{ steps.detect.outputs.file_count }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Mode | ${{ matrix.build-mode }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Runner | ${{ runner.os }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Timestamp | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔍 **Results**: Available in Security tab under Code Scanning" >> $GITHUB_STEP_SUMMARY
-
-      # Skip notification for languages with no files
-      - name: ⚠️ Skip Analysis Notification
-        if: steps.detect.outputs.analysis_needed == 'false'
-        run: |
-          echo "## ${{ matrix.icon }} CodeQL Analysis: ${{ matrix.display-name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "ℹ️ **Analysis Skipped**: No ${{ matrix.display-name }} files found" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The analysis was skipped because no relevant source files were detected." >> $GITHUB_STEP_SUMMARY
-
-  # Summary job to collect all results
-  summary:
-    if: always()
-    needs: analyze
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: 📋 Generate Workflow Summary
-        run: |
-          echo "# 🔍 CodeQL Advanced Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 🎯 Analysis Overview" >> $GITHUB_STEP_SUMMARY
-          echo "This workflow performed advanced security analysis using GitHub CodeQL." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔧 Analyzed Languages:" >> $GITHUB_STEP_SUMMARY
-          echo "- ⚡ **GitHub Actions** - Workflow security analysis" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### � Note:" >> $GITHUB_STEP_SUMMARY
-          echo "- 🏗️ **Terraform** files detected but not analyzed (CodeQL doesn't support Terraform)" >> $GITHUB_STEP_SUMMARY
-          echo "- 🐚 **Shell scripts** detected but not analyzed (CodeQL doesn't support Shell/Bash)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Analysis Features:" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Security-extended query pack" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Security-and-quality rules" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ File detection and smart skipping" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Enhanced error handling" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔍 **Results Location**: GitHub Security tab → Code scanning alerts" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⏰ **Next Scheduled Run**: Every Saturday at 22:16 UTC" >> $GITHUB_STEP_SUMMARY
+          category: "/language:actions"

@@ -135,7 +135,7 @@ jobs:
       - name: 🚀 Initialize CodeQL
         if: steps.detect.outputs.analysis_needed == 'true'
         # renovate: datasource=github-tags depName=github/codeql-action
-        uses: github/codeql-action/init@8fd294e26a0b6efc6be7b6b0b7e3b0a7e4c3b8d1 # v3.28.0
+        uses: github/codeql-action/init@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -164,7 +164,7 @@ jobs:
       - name: 🧪 Perform CodeQL Analysis
         if: steps.detect.outputs.analysis_needed == 'true'
         # renovate: datasource=github-tags depName=github/codeql-action
-        uses: github/codeql-action/analyze@8fd294e26a0b6efc6be7b6b0b7e3b0a7e4c3b8d1 # v3.28.0
+        uses: github/codeql-action/analyze@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:
           category: "/language:${{ matrix.language }}"
           upload: true

@@ -20,7 +20,8 @@ on:
   workflow_dispatch:
 
 env:
-  KUBESEC_VERSION: "2.14.0"
+  # renovate: datasource=github-releases depName=controlplaneio/kubesec
+  KUBESEC_VERSION: "2.14.2"
 
 jobs:
   security-scan:
@@ -34,7 +35,8 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        # renovate: datasource=github-tags depName=actions/checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
@@ -70,14 +72,196 @@ jobs:
           fi
 
       - name: 🔒 Run Kubesec Security Scanner
+        id: scan
         if: steps.discover.outputs.scan_needed == 'true'
-        uses: controlplaneio/kubesec-action@43d0ddff5ffee89a6bb9f29b64cd865411137b14
-        with:
-          input: kubernetes/
-          format: template
-          template: template/sarif.tpl
-          output: kubesec-results.sarif
-          exit-code: "0"
+        run: |
+          echo "🔒 Installing and running Kubesec security scanner..."
+
+          # Download kubesec binary
+          echo "📥 Downloading kubesec v${{ env.KUBESEC_VERSION }}..."
+          curl -sSLo kubesec "https://github.com/controlplaneio/kubesec/releases/download/v${{ env.KUBESEC_VERSION }}/kubesec_linux_amd64"
+          chmod +x kubesec
+
+          # Verify download
+          ./kubesec version
+
+          # Initialize SARIF structure
+          echo "📋 Initializing SARIF results..."
+          cat > kubesec-results.sarif << EOF
+          {
+            "version": "2.1.0",
+            "\$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "kubesec",
+                    "version": "${{ env.KUBESEC_VERSION }}",
+                    "informationUri": "https://kubesec.io/",
+                    "rules": [
+                      {
+                        "id": "kubesec-score",
+                        "name": "Kubesec Security Score",
+                        "shortDescription": {
+                          "text": "Security score based on Kubernetes best practices"
+                        },
+                        "fullDescription": {
+                          "text": "Kubesec analyzes Kubernetes manifests and provides a security score based on various security checks."
+                        }
+                      }
+                    ]
+                  }
+                },
+                "results": []
+              }
+            ]
+          }
+          EOF
+
+          # Scan each manifest and collect results
+          echo "🔍 Scanning manifests..."
+          RESULTS_TEMP=$(mktemp)
+          echo "[]" > "$RESULTS_TEMP"
+
+          SCANNED_COUNT=0
+          CRITICAL_COUNT=0
+          WARNING_COUNT=0
+          INFO_COUNT=0
+
+          while IFS= read -r manifest; do
+            echo "🔍 Scanning: $manifest"
+
+            # Run kubesec scan
+            if RESULT=$(./kubesec scan "$manifest" --format json 2>/dev/null); then
+              # Parse the result
+              SCORE=$(echo "$RESULT" | jq -r '.[0].score // 0' 2>/dev/null || echo "0")
+              CRITICAL_ITEMS=$(echo "$RESULT" | jq -r '.[0].scoring.critical // []' 2>/dev/null || echo "[]")
+              PASSED_ITEMS=$(echo "$RESULT" | jq -r '.[0].scoring.passed // []' 2>/dev/null || echo "[]")
+
+              # Determine severity level
+              if [ "$SCORE" -lt 0 ]; then
+                LEVEL="error"
+                CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
+              elif [ "$SCORE" -lt 10 ]; then
+                LEVEL="warning"
+                WARNING_COUNT=$((WARNING_COUNT + 1))
+              else
+                LEVEL="note"
+                INFO_COUNT=$((INFO_COUNT + 1))
+              fi
+
+              # Add result to SARIF if score is concerning
+              if [ "$SCORE" -lt 10 ]; then
+                # Create a proper SARIF result entry
+                jq --arg manifest "$manifest" --arg score "$SCORE" --arg level "$LEVEL" \
+                   '. + [{
+                     "ruleId": "kubesec-score",
+                     "level": $level,
+                     "message": {
+                       "text": ("Kubesec security score: " + $score + "/10 for " + ($manifest | split("/") | last))
+                     },
+                     "locations": [{
+                       "physicalLocation": {
+                         "artifactLocation": {
+                           "uri": $manifest
+                         }
+                       }
+                     }]
+                   }]' "$RESULTS_TEMP" > "${RESULTS_TEMP}.new" && mv "${RESULTS_TEMP}.new" "$RESULTS_TEMP"
+              fi
+
+              echo "� Score: $SCORE/10 ($LEVEL)"
+              SCANNED_COUNT=$((SCANNED_COUNT + 1))
+            else
+              echo "⚠️ Failed to scan $manifest"
+            fi
+          done < manifests.txt
+
+          # Update SARIF with collected results
+          jq --argjson results "$(cat "$RESULTS_TEMP")" '.runs[0].results = $results' kubesec-results.sarif > kubesec-results-final.sarif
+          mv kubesec-results-final.sarif kubesec-results.sarif
+
+          # Cleanup
+          rm -f "$RESULTS_TEMP"
+
+          echo "✅ Kubesec scan completed!"
+          echo "📊 Summary: Scanned $SCANNED_COUNT manifests"
+          echo "🔴 Critical issues: $CRITICAL_COUNT"
+          echo "🟡 Warnings: $WARNING_COUNT"
+          echo "🟢 Info/Good: $INFO_COUNT"
+
+          # Set outputs for summary
+          echo "scanned_count=$SCANNED_COUNT" >> $GITHUB_OUTPUT
+          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+          echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+          echo "info_count=$INFO_COUNT" >> $GITHUB_OUTPUT
+
+      - name: 🔍 Additional Security Checks
+        id: security
+        if: steps.discover.outputs.scan_needed == 'true'
+        run: |
+          echo "🔒 Running additional security checks on manifests..."
+
+          # Initialize counters and results
+          PRIVILEGED_COUNT=0
+          HOST_NETWORK_COUNT=0
+          ROOT_USER_COUNT=0
+          SECURITY_ISSUES=""
+
+          # Check for privileged containers
+          echo "🔍 Checking for privileged containers..."
+          if PRIVILEGED_FILES=$(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null); then
+            PRIVILEGED_COUNT=$(echo "$PRIVILEGED_FILES" | wc -l)
+            echo "⚠️ Found $PRIVILEGED_COUNT files with privileged containers:"
+            echo "$PRIVILEGED_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}Privileged containers: $PRIVILEGED_COUNT files; "
+          else
+            echo "✅ No privileged containers found"
+          fi
+
+          # Check for hostNetwork usage
+          echo "🔍 Checking for hostNetwork usage..."
+          if HOST_NETWORK_FILES=$(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null); then
+            HOST_NETWORK_COUNT=$(echo "$HOST_NETWORK_FILES" | wc -l)
+            echo "⚠️ Found $HOST_NETWORK_COUNT files with hostNetwork usage:"
+            echo "$HOST_NETWORK_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}HostNetwork usage: $HOST_NETWORK_COUNT files; "
+          else
+            echo "✅ No hostNetwork usage found"
+          fi
+
+          # Check for root users
+          echo "🔍 Checking for root users..."
+          if ROOT_USER_FILES=$(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null); then
+            ROOT_USER_COUNT=$(echo "$ROOT_USER_FILES" | wc -l)
+            echo "⚠️ Found $ROOT_USER_COUNT files with containers running as root:"
+            echo "$ROOT_USER_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}Root users: $ROOT_USER_COUNT files; "
+          else
+            echo "✅ No root user containers found"
+          fi
+
+          # Set outputs
+          echo "privileged_containers=$PRIVILEGED_COUNT" >> $GITHUB_OUTPUT
+          echo "host_network=$HOST_NETWORK_COUNT" >> $GITHUB_OUTPUT
+          echo "root_users=$ROOT_USER_COUNT" >> $GITHUB_OUTPUT
+
+          # Generate security summary
+          if [ -z "$SECURITY_ISSUES" ]; then
+            SECURITY_SUMMARY="✅ All additional security checks passed"
+          else
+            SECURITY_SUMMARY="⚠️ Security issues found: $SECURITY_ISSUES"
+          fi
+          echo "security_summary=$SECURITY_SUMMARY" >> $GITHUB_OUTPUT
+
+          echo "✅ Additional security checks completed!"
+          echo "📊 Summary: $SECURITY_SUMMARY"
 
       - name: 📊 Generate Scan Summary
         if: steps.discover.outputs.scan_needed == 'true'
@@ -86,18 +270,41 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📁 **Scanned**: ${{ steps.discover.outputs.manifest_count }} Kubernetes manifests" >> $GITHUB_STEP_SUMMARY
           echo "🕒 **Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "🔧 **Kubesec Version**: ${{ env.KUBESEC_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 📊 Kubesec Scan Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Scanned | ${{ steps.scan.outputs.scanned_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔴 Critical | ${{ steps.scan.outputs.critical_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟡 Warnings | ${{ steps.scan.outputs.warning_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟢 Good/Info | ${{ steps.scan.outputs.info_count || '0' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 🔍 Additional Security Checks" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Check | Count | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Privileged Containers | ${{ steps.security.outputs.privileged_containers || '0' }} | ${{ steps.security.outputs.privileged_containers == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Host Network Usage | ${{ steps.security.outputs.host_network || '0' }} | ${{ steps.security.outputs.host_network == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Root User Containers | ${{ steps.security.outputs.root_users || '0' }} | ${{ steps.security.outputs.root_users == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Additional Security Summary:** ${{ steps.security.outputs.security_summary || 'No additional security scan data available' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f kubesec-results.sarif ]; then
             echo "✅ **Status**: Scan completed successfully" >> $GITHUB_STEP_SUMMARY
             echo "📋 **Results**: Available in Security tab" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🎯 **Runner**: home-ops-runner (native kubesec binary)" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Status**: Scan failed" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: 📤 Upload Security Results
         if: steps.discover.outputs.scan_needed == 'true' && always()
-        uses: github/codeql-action/upload-sarif@v3
+        # renovate: datasource=github-tags depName=github/codeql-action
+        uses: github/codeql-action/upload-sarif@07bb2b932c90fc1ec97637495e4072a0966fa74c # v3.29.4
         with:
           sarif_file: kubesec-results.sarif
           category: kubesec

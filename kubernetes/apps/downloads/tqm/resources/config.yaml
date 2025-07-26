@@ -28,6 +28,7 @@ filters:
       - IsUnregistered()
       - (
           Label in ["imported-anime", "imported-moviesfhd", "imported-tv", "seed"]
+          && HasAnyTag("not-linked")
           && (
             (
               HasAnyTag("site:at", "site:ipt")
@@ -36,11 +37,6 @@ filters:
             ||
             (
               HasAnyTag("site:at", "site:ipt", "site:phd", "site:cm", "site:et", "site:tl-pl", "site:pt")
-              && SeedingDays > 24
-            )
-            ||
-            (
-              HasAnyTag("not-linked")
               && SeedingDays > 24
             )
           )

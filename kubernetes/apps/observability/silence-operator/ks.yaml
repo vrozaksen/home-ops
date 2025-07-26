@@ -18,8 +18,8 @@ spec:
   prune: true
   retryInterval: 2m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
+    kind: OCIRepository
+    name: flux-manifests
     namespace: flux-system
   targetNamespace: observability
   timeout: 5m
@@ -41,8 +41,8 @@ spec:
   path: ./kubernetes/apps/observability/silence-operator/silences
   prune: true
   sourceRef:
-    kind: GitRepository
-    name: flux-system
+    kind: OCIRepository
+    name: flux-manifests
     namespace: flux-system
   targetNamespace: observability
   timeout: 5m

@@ -21,8 +21,8 @@ spec:
   prune: true
   retryInterval: 2m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
+    kind: OCIRepository
+    name: flux-manifests
     namespace: flux-system
   targetNamespace: home-tools
   timeout: 5m

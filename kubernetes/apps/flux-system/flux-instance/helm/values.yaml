@@ -11,9 +11,10 @@ instance:
     - helm-controller
     - notification-controller
   sync:
-    kind: GitRepository
-    url: https://github.com/vrozaksen/home-ops
-    ref: refs/heads/main
+    kind: OCIRepository
+    url: oci://ghcr.io/vrozaksen/home-ops/flux-manifests
+    ref:
+      tag: latest
     path: kubernetes/flux/cluster
     interval: 1h
   commonMetadata:

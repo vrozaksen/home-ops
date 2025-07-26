@@ -36,8 +36,8 @@ spec:
   prune: true
   retryInterval: 2m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
+    kind: OCIRepository
+    name: flux-manifests
     namespace: flux-system
   targetNamespace: network
   timeout: 5m
@@ -63,8 +63,8 @@ spec:
 #   prune: true
 #   retryInterval: 2m
 #   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
+#     kind: OCIRepository
+#     name: flux-manifests
 #     namespace: flux-system
 #   targetNamespace: network
 #   timeout: 5m
@@ -92,8 +92,8 @@ spec:
 #   prune: true
 #   retryInterval: 2m
 #   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
+#     kind: OCIRepository
+#     name: flux-manifests
 #     namespace: flux-system
 #   targetNamespace: network
 #   timeout: 5m

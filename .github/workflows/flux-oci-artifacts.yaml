@@ -109,38 +109,81 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    outputs:
+      privileged-containers: ${{ steps.security.outputs.privileged-containers }}
+      host-network: ${{ steps.security.outputs.host-network }}
+      root-users: ${{ steps.security.outputs.root-users }}
+      security-summary: ${{ steps.security.outputs.security-summary }}
     steps:
       - name: Checkout
         # renovate: datasource=github-tags depName=actions/checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run security checks
+        id: security
         run: |
           echo "🔒 Running security checks on manifests..."
 
-          # Check for common security issues
+          # Initialize counters and results
+          PRIVILEGED_COUNT=0
+          HOST_NETWORK_COUNT=0
+          ROOT_USER_COUNT=0
+          SECURITY_ISSUES=""
+
+          # Check for privileged containers
           echo "🔍 Checking for privileged containers..."
-          if grep -r "privileged.*true" kubernetes/ 2>/dev/null; then
-            echo "⚠️ Found privileged containers"
+          if PRIVILEGED_FILES=$(grep -r -l "privileged.*true" kubernetes/ 2>/dev/null); then
+            PRIVILEGED_COUNT=$(echo "$PRIVILEGED_FILES" | wc -l)
+            echo "⚠️ Found $PRIVILEGED_COUNT files with privileged containers:"
+            echo "$PRIVILEGED_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}Privileged containers: $PRIVILEGED_COUNT files; "
           else
             echo "✅ No privileged containers found"
           fi
 
+          # Check for hostNetwork usage
           echo "🔍 Checking for hostNetwork usage..."
-          if grep -r "hostNetwork.*true" kubernetes/ 2>/dev/null; then
-            echo "⚠️ Found hostNetwork usage"
+          if HOST_NETWORK_FILES=$(grep -r -l "hostNetwork.*true" kubernetes/ 2>/dev/null); then
+            HOST_NETWORK_COUNT=$(echo "$HOST_NETWORK_FILES" | wc -l)
+            echo "⚠️ Found $HOST_NETWORK_COUNT files with hostNetwork usage:"
+            echo "$HOST_NETWORK_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}HostNetwork usage: $HOST_NETWORK_COUNT files; "
           else
             echo "✅ No hostNetwork usage found"
           fi
 
+          # Check for root users
           echo "🔍 Checking for root users..."
-          if grep -r "runAsUser.*0" kubernetes/ 2>/dev/null; then
-            echo "⚠️ Found containers running as root"
+          if ROOT_USER_FILES=$(grep -r -l "runAsUser.*0" kubernetes/ 2>/dev/null); then
+            ROOT_USER_COUNT=$(echo "$ROOT_USER_FILES" | wc -l)
+            echo "⚠️ Found $ROOT_USER_COUNT files with containers running as root:"
+            echo "$ROOT_USER_FILES" | while read -r file; do
+              echo "  - $file"
+            done
+            SECURITY_ISSUES="${SECURITY_ISSUES}Root users: $ROOT_USER_COUNT files; "
           else
             echo "✅ No root user containers found"
           fi
 
+          # Set outputs
+          echo "privileged-containers=$PRIVILEGED_COUNT" >> $GITHUB_OUTPUT
+          echo "host-network=$HOST_NETWORK_COUNT" >> $GITHUB_OUTPUT
+          echo "root-users=$ROOT_USER_COUNT" >> $GITHUB_OUTPUT
+
+          # Generate security summary
+          if [ -z "$SECURITY_ISSUES" ]; then
+            SECURITY_SUMMARY="✅ All security checks passed"
+          else
+            SECURITY_SUMMARY="⚠️ Security issues found: $SECURITY_ISSUES"
+          fi
+          echo "security-summary=$SECURITY_SUMMARY" >> $GITHUB_OUTPUT
+
           echo "✅ Security scan completed!"
+          echo "📊 Summary: $SECURITY_SUMMARY"
 
   build-artifacts:
     needs: prepare
@@ -319,48 +362,9 @@ jobs:
           echo "• Signing: ${{ inputs.skip_signing && 'Skipped' || 'Completed' }}"
           echo "• Force rebuild: ${{ inputs.force_rebuild }}"
 
-  notify-flux:
-    needs: [prepare, validate-manifests, security-scan, build-artifacts, sign-artifacts]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Notify Flux webhook
-        run: |
-          echo "📦 Built and signed OCI artifacts:"
-          echo "🏷️ Tags: ${{ needs.prepare.outputs.tags }}"
-          echo "🔍 Digest: ${{ needs.build-artifacts.outputs.image-digest }}"
-
-          # Notify Flux about OCI artifacts update - only AFTER they're built and signed
-          echo "🔔 Notifying Flux about new OCI artifacts..."
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -H "X-GitHub-Event: push" \
-            -H "X-Hub-Signature-256: ${{ secrets.FLUX_GITHUB_WEBHOOK_TOKEN }}" \
-            -d '{
-              "ref": "refs/heads/main",
-              "repository": {
-                "name": "${{ github.event.repository.name }}",
-                "full_name": "${{ github.repository }}",
-                "html_url": "${{ github.event.repository.html_url }}"
-              },
-              "head_commit": {
-                "id": "${{ github.sha }}",
-                "message": "OCI artifacts updated - ${{ github.event.head_commit.message }}",
-                "timestamp": "${{ github.event.head_commit.timestamp }}",
-                "url": "${{ github.event.head_commit.url }}"
-              },
-              "pusher": {
-                "name": "${{ github.actor }}"
-              }
-            }' \
-            "${{ secrets.FLUX_WEBHOOK_URL }}" || echo "⚠️ Webhook failed, but OCI artifacts are ready"
-
-          echo "🎉 OCI artifacts built, signed and Flux notified!"
-
   summary:
     if: always()
-    needs: [prepare, validate-manifests, security-scan, build-artifacts, sign-artifacts, notify-flux]
+    needs: [prepare, validate-manifests, security-scan, build-artifacts, sign-artifacts]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -375,6 +379,9 @@ jobs:
           echo "- 🔒 **security-scan** - Security checks and vulnerability scanning" >> $GITHUB_STEP_SUMMARY
           echo "- 🏗️ **build-artifacts** - OCI artifact building and pushing" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔐 **sign-artifacts** executed after parallel jobs completed" >> $GITHUB_STEP_SUMMARY
+          echo "📋 Flux webhook receiver handles automatic reconciliation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "## 🏗️ Build Results" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
@@ -385,6 +392,16 @@ jobs:
           echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Signing | ${{ inputs.skip_signing && '⏭️ Skipped' || (needs.sign-artifacts.result == 'success' && '✅ Completed' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Force Rebuild | ${{ inputs.force_rebuild && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Security Scan Details" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Check | Count | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Privileged Containers | ${{ needs.security-scan.outputs.privileged-containers || '0' }} | ${{ needs.security-scan.outputs.privileged-containers == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Host Network Usage | ${{ needs.security-scan.outputs.host-network || '0' }} | ${{ needs.security-scan.outputs.host-network == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Root User Containers | ${{ needs.security-scan.outputs.root-users || '0' }} | ${{ needs.security-scan.outputs.root-users == '0' && '✅ Safe' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Security Summary:** ${{ needs.security-scan.outputs.security-summary || 'No security scan data available' }}" >> $GITHUB_STEP_SUMMARY
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 🏷️ Generated Tags" >> $GITHUB_STEP_SUMMARY

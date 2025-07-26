@@ -64,18 +64,18 @@ jobs:
           # Push to OCI registry using flux - iterate through all tags
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
             echo "Pushing artifact with tag: $tag"
-            flux push artifact oci://$tag \
+            DIGEST=$(flux push artifact oci://$tag \
               --path="./flux-manifests" \
               --source="${{ github.repositoryUrl }}" \
-              --revision="${{ github.sha }}"
+              --revision="${{ github.sha }}" | grep -o 'sha256:[a-f0-9]\{64\}')
 
-            # Sign the artifact with Cosign
-            echo "Signing artifact: $tag"
-            cosign sign --yes $tag
+            # Sign the artifact using digest instead of tag to avoid warning
+            echo "Signing artifact: $tag@$DIGEST"
+            cosign sign --yes $tag@$DIGEST
           done
 
           # Get digest for latest tag
-          echo "digest=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --output json | jq -r .digest)" >> $GITHUB_OUTPUT
+          echo "digest=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest)" >> $GITHUB_OUTPUT
 
   update-flux-system:
     needs: build-and-push

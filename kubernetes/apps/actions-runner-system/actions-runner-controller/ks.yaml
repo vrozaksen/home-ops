@@ -17,9 +17,10 @@ spec:
   path: ./kubernetes/apps/actions-runner-system/actions-runner-controller/app
   prune: true
   retryInterval: 2m
+  # MIGRATION: Changed from GitRepository to OCIRepository
   sourceRef:
-    kind: GitRepository
-    name: flux-system
+    kind: OCIRepository
+    name: flux-manifests
     namespace: flux-system
   targetNamespace: actions-runner-system
   timeout: 5m

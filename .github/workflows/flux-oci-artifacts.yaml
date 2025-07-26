@@ -193,7 +193,7 @@ jobs:
         uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
         with:
           # renovate: datasource=github-releases depName=sigstore/cosign
-          cosign-release: 'v2.2.4'
+          cosign-release: v2.5.3
 
       - name: Log in to Container Registry
         # renovate: datasource=github-tags depName=docker/login-action

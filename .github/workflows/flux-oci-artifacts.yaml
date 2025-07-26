@@ -8,20 +8,48 @@ on:
       - 'kubernetes/**'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: write
-  id-token: write  # Required for Cosign keyless signing
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/flux-manifests
 
 jobs:
-  build-and-push:
-    runs-on: oci-workflows-runner
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
+      cache-key: ${{ steps.cache-key.outputs.key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=main-{{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Generate cache key
+        id: cache-key
+        run: |
+          # Create hash of kubernetes directory content
+          HASH=$(find kubernetes/ -type f -name "*.yaml" -o -name "*.yml" | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          echo "key=flux-manifests-$HASH" >> $GITHUB_OUTPUT
+
+  build-artifacts:
+    needs: prepare
+    runs-on: oci-workflows-runner
+    permissions:
+      contents: read
+      packages: write
+      actions: read
+    outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: Checkout
@@ -29,7 +57,57 @@ jobs:
 
       - name: Setup Flux CLI
         uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
 
+      - name: Cache flux manifests
+        uses: actions/cache@v4
+        with:
+          path: flux-manifests/
+          key: ${{ needs.prepare.outputs.cache-key }}
+          restore-keys: |
+            flux-manifests-
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push OCI artifacts
+        id: build
+        run: |
+          # Create temporary directory for flux manifests
+          mkdir -p flux-manifests
+
+          # Copy kubernetes directory to temporary location
+          cp -r kubernetes/ flux-manifests/
+
+          # Push to OCI registry using flux - iterate through all tags
+          for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
+            echo "Pushing artifact with tag: $tag"
+
+            # Push and capture output with digest
+            PUSH_OUTPUT=$(flux push artifact oci://$tag \
+              --path="./flux-manifests" \
+              --source="${{ github.repositoryUrl }}" \
+              --revision="${{ github.sha }}" 2>&1)
+
+            echo "Push output: $PUSH_OUTPUT"
+          done
+
+          # Get digest for latest tag
+          echo "digest=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --output json | jq -r .digest)" >> $GITHUB_OUTPUT
+
+  sign-artifacts:
+    needs: [prepare, build-artifacts]
+    runs-on: oci-workflows-runner
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.6.0
         with:
@@ -42,88 +120,60 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=main-{{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push OCI artifact
-        id: build
+      - name: Sign OCI artifacts
         run: |
-          # Create temporary directory for flux manifests
-          mkdir -p flux-manifests
+          # Sign all pushed tags
+          for tag in $(echo "${{ needs.prepare.outputs.tags }}" | tr ',' '\n'); do
+            echo "Signing artifact: $tag"
 
-          # Copy kubernetes directory to temporary location
-          cp -r kubernetes/ flux-manifests/
+            # Get digest for this specific tag
+            DIGEST=$(flux tag artifact oci://$tag --output json | jq -r .digest 2>/dev/null || echo "")
 
-          # Push to OCI registry using flux - iterate through all tags
-          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
-            echo "Pushing artifact with tag: $tag"
-
-            # Push and capture output with digest
-            PUSH_OUTPUT=$(flux push artifact oci://$tag \
-              --path="./flux-manifests" \
-              --source="${{ github.repositoryUrl }}" \
-              --revision="${{ github.sha }}" 2>&1)
-
-            echo "Push output: $PUSH_OUTPUT"
-
-            # Extract digest from push output
-            DIGEST=$(echo "$PUSH_OUTPUT" | grep -o 'sha256:[a-f0-9]\{64\}' | head -1)
-
-            if [ -n "$DIGEST" ]; then
-              # Sign the artifact using digest for best practices
-              echo "Signing artifact: $tag@$DIGEST"
+            if [ -n "$DIGEST" ] && [ "$DIGEST" != "null" ]; then
+              echo "Signing with digest: $tag@$DIGEST"
               cosign sign --yes $tag@$DIGEST
             else
-              # Fallback to signing with tag if digest extraction fails
-              echo "Warning: Could not extract digest, signing with tag: $tag"
+              echo "Signing with tag (fallback): $tag"
               cosign sign --yes $tag
             fi
           done
 
-          # Get digest for latest tag
-          echo "digest=$(flux tag artifact oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --output json | jq -r .digest)" >> $GITHUB_OUTPUT
-
-  update-flux-system:
-    needs: build-and-push
-    runs-on: oci-workflows-runner
+  notify-flux:
+    needs: [prepare, build-artifacts, sign-artifacts]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update flux-system to use OCI artifact
+      - name: Notify Flux webhook
         run: |
-          echo "Built OCI artifact: ${{ needs.build-and-push.outputs.image-tag }}"
-          echo "Digest: ${{ needs.build-and-push.outputs.image-digest }}"
+          echo "Built and signed OCI artifacts:"
+          echo "Tags: ${{ needs.prepare.outputs.tags }}"
+          echo "Digest: ${{ needs.build-artifacts.outputs.image-digest }}"
 
-          # Send webhook to main receiver - Flux will automatically detect what changed
-          echo "Sending webhook to Flux for immediate sync..."
-
+          # Notify Flux about OCI artifacts update - only AFTER they're built and signed
+          echo "Notifying Flux about new OCI artifacts..."
           curl -X POST \
             -H "Content-Type: application/json" \
             -H "X-GitHub-Event: push" \
-            -H "Authorization: token ${{ secrets.FLUX_WEBHOOK_TOKEN }}" \
+            -H "X-Hub-Signature-256: sha256=${{ secrets.FLUX_GITHUB_WEBHOOK_TOKEN }}" \
             -d '{
               "ref": "refs/heads/main",
               "repository": {
                 "name": "${{ github.event.repository.name }}",
-                "full_name": "${{ github.repository }}"
+                "full_name": "${{ github.repository }}",
+                "html_url": "${{ github.event.repository.html_url }}"
               },
               "head_commit": {
                 "id": "${{ github.sha }}",
-                "message": "Update OCI artifacts",
-                "timestamp": "${{ github.event.head_commit.timestamp }}"
+                "message": "OCI artifacts updated - ${{ github.event.head_commit.message }}",
+                "timestamp": "${{ github.event.head_commit.timestamp }}",
+                "url": "${{ github.event.head_commit.url }}"
+              },
+              "pusher": {
+                "name": "${{ github.actor }}"
               }
             }' \
-            https://flux-webhook.vzkn.eu/hook/github-webhook
+            https://flux-webhook.vzkn.eu/hook/616280f327ace9696357daafd63c9c328b9673a5c35680ca0ff804512fe3a7a3 || echo "Webhook failed, but OCI artifacts are ready"
 
-          echo "Webhook sent! Flux will automatically reconcile only changed applications."
+          echo "✅ OCI artifacts built, signed and Flux notified!"

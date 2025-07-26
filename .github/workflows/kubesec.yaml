@@ -680,8 +680,8 @@ jobs:
               echo '[]' > temp_results.json
             fi
 
-            # Merge results into SARIF file using file input instead of command line
-            jq --argjson results "$(cat temp_results.json)" '.runs[0].results = $results' security-results.sarif > temp_sarif.json
+            # Merge results into SARIF file using file input to avoid command line length limits
+            jq '.runs[0].results = input' security-results.sarif temp_results.json > temp_sarif.json
             mv temp_sarif.json security-results.sarif
             rm -f temp_results.json
           fi          # Validate the final SARIF file

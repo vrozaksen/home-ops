@@ -407,29 +407,65 @@ jobs:
           echo "📋 Generating comprehensive SARIF results..."
           SARIF_RESULTS=""
 
+          # Function to create stable fingerprint
+          create_fingerprint() {
+            local file_path="$1"
+            local message="$2"
+            local rule_id="$3"
+            echo "${rule_id}:${file_path}:${message}" | sha256sum | cut -d' ' -f1
+          }
+
           # Process critical security issues
           for issue in "${SECURITY_ISSUES[@]}"; do
-            file_path=$(echo "$issue" | cut -d: -f1)
-            message=$(echo "$issue" | cut -d: -f2-)
-            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"}}}]},"
+            if [[ "$issue" == *":"* ]]; then
+              file_path=$(echo "$issue" | cut -d: -f1)
+              message=$(echo "$issue" | cut -d: -f2- | sed 's/"/\\"/g' | sed 's/^ *//')
+
+              # Only add if file exists and path is valid
+              if [ -f "$file_path" ]; then
+                fingerprint=$(create_fingerprint "$file_path" "$message" "critical-security")
+                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"critical-security\",\"level\":\"error\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+              fi
+            else
+              # Skip general issues without specific file to reduce noise
+              echo "⏭️ Skipping general critical issue: $issue"
+            fi
           done
 
-          # Process warnings
+          # Process warnings - only file-specific ones
           for warning in "${WARNINGS[@]}"; do
-            file_path=$(echo "$warning" | cut -d: -f1)
-            message=$(echo "$warning" | cut -d: -f2-)
-            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"}}}]},"
+            if [[ "$warning" == *":"* ]]; then
+              file_path=$(echo "$warning" | cut -d: -f1)
+              message=$(echo "$warning" | cut -d: -f2- | sed 's/"/\\"/g' | sed 's/^ *//')
+
+              # Only add if file exists and path is valid
+              if [ -f "$file_path" ]; then
+                fingerprint=$(create_fingerprint "$file_path" "$message" "security-warning")
+                SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-warning\",\"level\":\"warning\",\"message\":{\"text\":\"$message\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"$file_path\"},\"region\":{\"startLine\":1}}}],\"fingerprints\":{\"home-ops-security\":\"$fingerprint\"}},"
+              fi
+            else
+              # Skip general warnings to reduce noise
+              echo "⏭️ Skipping general warning: $warning"
+            fi
           done
 
-          # Process info items
-          for info in "${INFO_ITEMS[@]}"; do
-            SARIF_RESULTS="$SARIF_RESULTS{\"ruleId\":\"security-info\",\"level\":\"note\",\"message\":{\"text\":\"$info\"},\"locations\":[{\"physicalLocation\":{\"artifactLocation\":{\"uri\":\"kubernetes/\"}}}]},"
-          done
+          # Skip Info items to reduce alert volume - only report Critical and Warning
+          # Info items are logged but not added to SARIF
+
+          # Log skipped info items for debugging
+          if [ $INFO_COUNT -gt 0 ]; then
+            echo "📝 Skipped $INFO_COUNT info items to reduce alert noise"
+            echo "ℹ️ Info items (logged only, not reported to security tab):"
+            printf '  • %s\n' "${INFO_ITEMS[@]}"
+          fi
 
           # Remove trailing comma if results exist
           if [ ! -z "$SARIF_RESULTS" ]; then
             SARIF_RESULTS=${SARIF_RESULTS%,}
           fi
+
+          # Add timestamp to make fingerprints more stable across runs
+          SCAN_TIMESTAMP=$(date -u '+%Y%m%d')
 
           cat > security-results.sarif << EOF
           {
@@ -440,10 +476,13 @@ jobs:
                 "tool": {
                   "driver": {
                     "name": "home-ops-security-scanner",
-                    "version": "1.0.0",
+                    "version": "2.0.0",
                     "informationUri": "https://github.com/vrozaksen/home-ops",
                     "shortDescription": {
                       "text": "Custom GitOps security scanner for home-ops repository"
+                    },
+                    "properties": {
+                      "scanTimestamp": "$SCAN_TIMESTAMP"
                     },
                     "rules": [
                       {
@@ -454,6 +493,9 @@ jobs:
                         },
                         "defaultConfiguration": {
                           "level": "error"
+                        },
+                        "help": {
+                          "text": "This rule identifies critical security misconfigurations in Kubernetes manifests that require immediate attention."
                         }
                       },
                       {
@@ -464,16 +506,9 @@ jobs:
                         },
                         "defaultConfiguration": {
                           "level": "warning"
-                        }
-                      },
-                      {
-                        "id": "security-info",
-                        "name": "Security Recommendation",
-                        "shortDescription": {
-                          "text": "Security best practice recommendation"
                         },
-                        "defaultConfiguration": {
-                          "level": "note"
+                        "help": {
+                          "text": "This rule identifies security configurations that could be improved but are not immediately critical."
                         }
                       }
                     ]
@@ -490,7 +525,7 @@ jobs:
           echo "═══════════════════════════════"
           echo "🔴 Critical Issues: $CRITICAL_COUNT"
           echo "🟡 Warnings: $WARNING_COUNT"
-          echo "ℹ️  Info: $INFO_COUNT"
+          echo "ℹ️  Info: $INFO_COUNT (not reported to avoid noise)"
           echo ""
           echo "📈 Analysis Coverage:"
           echo "  • Flux CRDs (HelmRelease, Kustomization, ExternalSecret)"
@@ -502,6 +537,16 @@ jobs:
           echo "  • Certificate Management & TLS"
           echo "  • Deprecated API Detection"
           echo "  • Secret Management & External Sources"
+          echo ""
+          echo "📋 SARIF Details:"
+          if [ ! -z "$SARIF_RESULTS" ]; then
+            SARIF_COUNT=$(echo "$SARIF_RESULTS" | tr ',' '\n' | grep -c '"ruleId"' || echo "0")
+            echo "  • Generated $SARIF_COUNT SARIF result entries"
+            echo "  • Category: home-ops-security"
+            echo "  • Fingerprints enabled for deduplication"
+          else
+            echo "  • No SARIF results to upload (all issues were general or files missing)"
+          fi
 
           # Output results for summary
           echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
@@ -587,7 +632,28 @@ jobs:
           echo "� **Runner**: home-ops-runner" >> $GITHUB_STEP_SUMMARY
 
       - name: 📤 Upload Security Results
+        id: check_sarif
         if: steps.discover.outputs.scan_needed == 'true' && always()
+        run: |
+          # Check if we have any SARIF results to upload
+          if [ -f "security-results.sarif" ]; then
+            RESULT_COUNT=$(jq '.runs[0].results | length' security-results.sarif 2>/dev/null || echo "0")
+            echo "📊 SARIF file contains $RESULT_COUNT security results"
+
+            if [ "$RESULT_COUNT" -gt 0 ]; then
+              echo "📤 Uploading security results to GitHub Security tab..."
+              echo "sarif_upload_needed=true" >> $GITHUB_OUTPUT
+            else
+              echo "⏭️ No security results to upload - skipping SARIF upload"
+              echo "sarif_upload_needed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ SARIF file not found - skipping upload"
+            echo "sarif_upload_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📤 Upload SARIF to GitHub Security
+        if: steps.discover.outputs.scan_needed == 'true' && always() && steps.check_sarif.outputs.sarif_upload_needed == 'true'
         # renovate: datasource=github-tags depName=github/codeql-action
         uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         with:

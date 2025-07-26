@@ -17,4 +17,5 @@ resources:
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr-anime/ks.yaml
+  - ./tqm/ks.yaml
   - ./webhook/ks.yaml

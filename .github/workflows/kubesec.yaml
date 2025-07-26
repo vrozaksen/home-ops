@@ -113,8 +113,8 @@ jobs:
           while IFS= read -r helmrelease; do
             echo "📦 Scanning HelmRelease: $helmrelease"
 
-            # Verify this is actually a HelmRelease by checking content
-            if ! grep -q "kind:\s*HelmRelease" "$helmrelease" 2>/dev/null; then
+            # Verify this is actually a HelmRelease by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*HelmRelease" "$helmrelease" 2>/dev/null; then
               echo "⏭️ Skipping $helmrelease - not a HelmRelease"
               continue
             fi
@@ -155,7 +155,7 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRelease" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*HelmRelease" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -174,8 +174,8 @@ jobs:
           while IFS= read -r helmrepo; do
             echo "📦 Scanning HelmRepository: $helmrepo"
 
-            # Verify this is actually a HelmRepository by checking content
-            if ! grep -q "kind:\s*HelmRepository" "$helmrepo" 2>/dev/null; then
+            # Verify this is actually a HelmRepository by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*HelmRepository" "$helmrepo" 2>/dev/null; then
               echo "⏭️ Skipping $helmrepo - not a HelmRepository"
               continue
             fi
@@ -192,14 +192,14 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*HelmRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*HelmRepository" {} \; 2>/dev/null)
 
           # Check GitRepository sources
           while IFS= read -r gitrepo; do
             echo "📂 Scanning GitRepository: $gitrepo"
 
-            # Verify this is actually a GitRepository by checking content
-            if ! grep -q "kind:\s*GitRepository" "$gitrepo" 2>/dev/null; then
+            # Verify this is actually a GitRepository by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*GitRepository" "$gitrepo" 2>/dev/null; then
               echo "⏭️ Skipping $gitrepo - not a GitRepository"
               continue
             fi
@@ -216,14 +216,14 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*GitRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*GitRepository" {} \; 2>/dev/null)
 
           # Check OCIRepository sources
           while IFS= read -r ocirepo; do
             echo "🐳 Scanning OCIRepository: $ocirepo"
 
-            # Verify this is actually an OCIRepository by checking content
-            if ! grep -q "kind:\s*OCIRepository" "$ocirepo" 2>/dev/null; then
+            # Verify this is actually an OCIRepository by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*OCIRepository" "$ocirepo" 2>/dev/null; then
               echo "⏭️ Skipping $ocirepo - not an OCIRepository"
               continue
             fi
@@ -234,7 +234,7 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*OCIRepository" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*OCIRepository" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -253,8 +253,8 @@ jobs:
           while IFS= read -r externalsecret; do
             echo "🔐 Scanning ExternalSecret: $externalsecret"
 
-            # Verify this is actually an ExternalSecret by checking content
-            if ! grep -q "kind:\s*ExternalSecret" "$externalsecret" 2>/dev/null; then
+            # Verify this is actually an ExternalSecret by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*ExternalSecret" "$externalsecret" 2>/dev/null; then
               echo "⏭️ Skipping $externalsecret - not an ExternalSecret"
               continue
             fi
@@ -265,7 +265,7 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*ExternalSecret" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*ExternalSecret" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt
@@ -284,8 +284,8 @@ jobs:
           while IFS= read -r rbacfile; do
             echo "🔑 Scanning RBAC: $rbacfile"
 
-            # Verify this is actually an RBAC resource by checking content
-            if ! grep -q "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" "$rbacfile" 2>/dev/null; then
+            # Verify this is actually an RBAC resource by checking content (strict match)
+            if ! grep -q "^\s*kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" "$rbacfile" 2>/dev/null; then
               echo "⏭️ Skipping $rbacfile - not an RBAC resource"
               continue
             fi
@@ -302,7 +302,7 @@ jobs:
               WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" {} \; 2>/dev/null)
+          done < <(find kubernetes/ -name "*.yaml" -exec grep -l "^\s*kind:\s*\(Role\|ClusterRole\|RoleBinding\|ClusterRoleBinding\|ServiceAccount\)" {} \; 2>/dev/null)
 
           echo "$CRITICAL_COUNT" > critical_count.txt
           echo "$WARNING_COUNT" > warning_count.txt

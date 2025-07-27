@@ -49,7 +49,7 @@ filters:
       - { name: added:14d,    mode: full, update: ['AddedDays >= 14 && AddedDays < 30'] }
       - { name: added:30d,    mode: full, update: ['AddedDays >= 30 && AddedDays < 180'] }
       - { name: added:180d,   mode: full, update: ['AddedDays >= 180'] }
-      - { name: not-linked,   mode: full, update: ['HardlinkedOutsideClient == false && Label in ["sonarr", "radarr"]'] }
+      - { name: not-linked,   mode: full, update: ['HardlinkedOutsideClient == false && Label in ["imported-anime", "imported-moviesfhd", "imported-tv", "seed"]'] }
       - { name: site:cm,      mode: full, update: ['TrackerName == "cinemamovies.pl"'] }
       - { name: site:et,      mode: full, update: ['TrackerName == "exitorrent.org"'] }
       - { name: site:tl-pl,   mode: full, update: ['TrackerName == "torrentleech.pl"'] }

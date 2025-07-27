@@ -48,29 +48,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull current OCI artifacts
+      - name: Prepare test manifests
         run: |
-          # Create directory for current manifests
-          mkdir -p current-manifests
-
-          # Try to pull current OCI artifacts (may not exist for new branches)
-          if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
-             --output current-manifests/ 2>/dev/null; then
-            echo "✅ Current OCI artifacts pulled successfully"
-          else
-            echo "ℹ️ No current OCI artifacts found (expected for new setup)"
-            mkdir -p current-manifests/kubernetes
-          fi
-
-      - name: Build test OCI artifacts
-        run: |
-          # Create directory for new manifests
+          # Always use local manifests for flux-local processing
+          # OCI artifacts contain raw Flux manifests that flux-local cannot process
+          echo "ℹ️ Using local manifests for flux-local testing"
           mkdir -p test-manifests
-
-          # Copy current kubernetes directory
           cp -r kubernetes/ test-manifests/
-
-          echo "🏗️ Test manifests prepared for validation"
 
       - name: Run flux-local test on new manifests
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.1
@@ -80,8 +64,6 @@ jobs:
             --all-namespaces
             --enable-helm
             --path /github/workspace/test-manifests/kubernetes
-            --skip-crds
-            --enable-kustomize
             --verbose
 
   diff:
@@ -122,20 +104,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull current OCI artifacts (main branch)
+      - name: Prepare manifests for comparison
         run: |
-          mkdir -p main-artifacts
-          if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
-             --output main-artifacts/ 2>/dev/null; then
-            echo "✅ Current main OCI artifacts pulled"
-          else
-            echo "ℹ️ Using local main branch manifests as fallback"
-            cp -r default/kubernetes/ main-artifacts/
-          fi
-
-      - name: Build PR artifacts for comparison
-        run: |
-          mkdir -p pr-artifacts
+          # Always use local manifests for flux-local processing
+          # OCI artifacts contain raw Flux manifests that flux-local cannot process
+          echo "ℹ️ Using local manifests for flux-local processing"
+          mkdir -p main-artifacts pr-artifacts
+          cp -r default/kubernetes/ main-artifacts/
           cp -r pull/kubernetes/ pr-artifacts/
 
       - name: Run flux-local diff
@@ -149,8 +124,6 @@ jobs:
             --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart"
             --limit-bytes 10000
             --all-namespaces
-            --skip-crds
-            --enable-kustomize
             --output-file diff.patch
 
       - name: Generate Diff

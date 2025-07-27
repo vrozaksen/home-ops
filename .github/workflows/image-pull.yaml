@@ -58,22 +58,10 @@ jobs:
 
       - name: Prepare manifests for image extraction
         run: |
-          if [[ "${{ matrix.branch }}" == "default" ]]; then
-            # For default branch, try to pull from OCI first
-            mkdir -p oci-manifests
-            if flux pull artifact oci://ghcr.io/vrozaksen/home-ops/flux-manifests:main \
-               --output oci-manifests/ 2>/dev/null; then
-              echo "✅ Using OCI artifacts from main branch"
-              MANIFESTS_PATH="oci-manifests/kubernetes"
-            else
-              echo "ℹ️ Fallback to local manifests"
-              MANIFESTS_PATH="kubernetes"
-            fi
-          else
-            # For PR branch, use local manifests
-            echo "ℹ️ Using local PR manifests"
-            MANIFESTS_PATH="kubernetes"
-          fi
+          # Always use local manifests for flux-local processing
+          # OCI artifacts contain raw Flux manifests that flux-local cannot process
+          echo "ℹ️ Using local manifests for flux-local processing"
+          MANIFESTS_PATH="kubernetes"
           echo "MANIFESTS_PATH=$MANIFESTS_PATH" >> $GITHUB_ENV
 
       - name: Gather Images

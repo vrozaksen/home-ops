@@ -36,6 +36,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Replace OCIRepository with GitRepository for flux-local
+        run: |
+          sed -i 's/kind: OCIRepository/kind: GitRepository/' kubernetes/flux/cluster/ks.yaml
+          sed -i 's/name: flux-manifests/name: flux-system/' kubernetes/flux/cluster/ks.yaml
+
       - name: Run flux-local test
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.1
         with:
@@ -71,6 +76,16 @@ jobs:
           path: default
           persist-credentials: false
           ref: "${{ github.event.repository.default_branch }}"
+
+      - name: Replace OCIRepository with GitRepository for flux-local (PR)
+        run: |
+          sed -i 's/kind: OCIRepository/kind: GitRepository/' pull/kubernetes/flux/cluster/ks.yaml
+          sed -i 's/name: flux-manifests/name: flux-system/' pull/kubernetes/flux/cluster/ks.yaml
+
+      - name: Replace OCIRepository with GitRepository for flux-local (Default)
+        run: |
+          sed -i 's/kind: OCIRepository/kind: GitRepository/' default/kubernetes/flux/cluster/ks.yaml
+          sed -i 's/name: flux-manifests/name: flux-system/' default/kubernetes/flux/cluster/ks.yaml
 
       - name: Run flux-local diff
         uses: docker://ghcr.io/allenporter/flux-local:v7.7.1

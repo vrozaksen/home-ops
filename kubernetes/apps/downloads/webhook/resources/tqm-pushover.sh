@@ -20,11 +20,11 @@ function notify() {
             message_body+="$clean_description"
         fi
         if [[ -n "$footer" ]]; then
-            message_body+="\n<small>$footer</small>"
+            message_body+="<br><small>$footer</small>"
         fi
-        # Add newline between embeds except after last
+        # Add HTML line break between embeds except after last
         if (( i < embed_count - 1 )); then
-            message_body+="\n\n"
+            message_body+="<br><br>"
         fi
     done
     # Send message in batches of 1024 chars

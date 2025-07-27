@@ -57,14 +57,13 @@ spec:
         cronjob:
           <<: *cronJobSpec
           schedule: 0 0 * * 0
-          suspend: true
+          suspend: false
         containers:
           app:
             <<: *container
             args:
               - orphan
               - qb
-              - --dry-run
         pod:
           restartPolicy: Never
     defaultPodOptions:

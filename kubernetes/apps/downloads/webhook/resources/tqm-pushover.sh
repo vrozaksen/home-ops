@@ -8,8 +8,8 @@ function notify() {
     # Read JSON payload from stdin
     payload=$(cat)
 
-    # Extract title and description using jq
-    # Discord webhook format: {"embeds": [{"title": "...", "description": "..."}]}
+    # Try to extract content, fallback to embed description
+    content=$(echo "$payload" | jq -r '.content // empty')
     title=$(echo "$payload" | jq -r '.embeds[0].title // "TQM Notification"')
     description=$(echo "$payload" | jq -r '.embeds[0].description // "No description"')
 
@@ -20,10 +20,16 @@ function notify() {
     client_info=$(echo "$payload" | jq -r '.embeds[0].footer.text // ""')
 
     # Build Pushover message
-    if [[ -n "${client_info}" ]]; then
-        printf -v PUSHOVER_MESSAGE "%s\n\n<small>%s</small>" "${clean_description}" "${client_info}"
+    if [[ -n "$content" && "$content" != "null" ]]; then
+        pushover_body="$content"
     else
-        printf -v PUSHOVER_MESSAGE "%s" "${clean_description}"
+        pushover_body="$clean_description"
+    fi
+
+    if [[ -n "${client_info}" ]]; then
+        printf -v PUSHOVER_MESSAGE "%s\n\n<small>%s</small>" "$pushover_body" "${client_info}"
+    else
+        printf -v PUSHOVER_MESSAGE "%s" "$pushover_body"
     fi
 
     printf -v PUSHOVER_TITLE "%s" "${title}"

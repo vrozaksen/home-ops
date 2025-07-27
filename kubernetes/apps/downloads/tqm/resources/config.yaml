@@ -18,7 +18,6 @@ filters:
   default:
     MapHardlinksFor:
       - retag
-      - clean
 
     ignore:
       - IsTrackerDown()

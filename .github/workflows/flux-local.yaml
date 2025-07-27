@@ -46,8 +46,6 @@ jobs:
             --path /github/workspace/kubernetes/flux/cluster
             --sources flux-manifests
             --verbose
-            --skip-crds
-            --skip-secrets
   diff:
     if: ${{ needs.filter.outputs.changed-files != '[]' }}
     needs: filter
@@ -82,10 +80,10 @@ jobs:
             --unified 6
             --path /github/workspace/pull/kubernetes/flux/cluster
             --path-orig /github/workspace/default/kubernetes/flux/cluster
-            --sources flux-manifests
             --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart"
             --limit-bytes 10000
             --all-namespaces
+            --sources flux-manifests
             --output-file diff.patch
       - name: Generate Diff
         id: diff

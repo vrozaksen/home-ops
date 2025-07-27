@@ -26,10 +26,34 @@ function notify() {
         pushover_body="$clean_description"
     fi
 
+    # Add fields if they exist
+    fields=$(echo "$payload" | jq -c '.embeds[0].fields // empty')
+    if [[ -n "$fields" && "$fields" != "null" && "$fields" != "[]" ]]; then
+        # Format fields as a list
+        fields_text=""
+        field_count=$(echo "$fields" | jq 'length')
+        for ((i=0; i<field_count; i++)); do
+            name=$(echo "$fields" | jq -r ".[$i].name")
+            value=$(echo "$fields" | jq -r ".[$i].value")
+            inline=$(echo "$fields" | jq -r ".[$i].inline")
+            if [[ "$inline" == "true" ]]; then
+                fields_text+="<b>$name:</b> $value  "
+            else
+                fields_text+="<b>$name:</b> $value\n"
+            fi
+        done
+        pushover_body+="\n\n$fields_text"
+    fi
+
     if [[ -n "${client_info}" ]]; then
         printf -v PUSHOVER_MESSAGE "%s\n\n<small>%s</small>" "$pushover_body" "${client_info}"
     else
         printf -v PUSHOVER_MESSAGE "%s" "$pushover_body"
+    fi
+
+    # Fallback if the message is empty
+    if [[ -z "$PUSHOVER_MESSAGE" ]]; then
+        PUSHOVER_MESSAGE="No details"
     fi
 
     printf -v PUSHOVER_TITLE "%s" "${title}"

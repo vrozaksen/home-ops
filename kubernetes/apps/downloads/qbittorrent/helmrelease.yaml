@@ -185,12 +185,6 @@ spec:
         path: /mnt/user/data/torrents/tv
         globalMounts:
           - path: /downloads/tv
-      2160p:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/2160p
-        globalMounts:
-          - path: /downloads/2160p
       shellcm:
         type: nfs
         server: aincrad.home.vzkn.eu

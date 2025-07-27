@@ -63,7 +63,3 @@ filters:
     orphan:
       ignore_paths:
         - /downloads/manual
-        - /downloads/2160p
-        - /downloads/anime
-        - /downloads/moviesfhd
-        - /downloads/tv

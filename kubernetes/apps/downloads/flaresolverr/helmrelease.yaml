@@ -26,8 +26,8 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/alexfozor/flaresolverr
-              tag: pr-1300-experimental
+              repository: ghcr.io/flaresolverr/flaresolverr
+              tag: v3.3.25
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

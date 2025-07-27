@@ -5,8 +5,8 @@ function notify() {
     # Parse Discord webhook payload from TQM
     # TQM sends Discord webhook format, so we need to extract the info
 
-    # Read JSON payload from stdin
-    payload=$(cat)
+    # Read JSON payload from first argument
+    payload="$1"
 
     # Extract title, description, and footer
     title=$(echo "$payload" | jq -r '.embeds[0].title // "TQM Notification"')
@@ -35,7 +35,7 @@ function notify() {
 }
 
 function main() {
-    notify
+    notify "$@"
 }
 
 main "$@"

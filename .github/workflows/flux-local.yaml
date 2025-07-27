@@ -73,7 +73,7 @@ jobs:
           echo "🏗️ Test manifests prepared for validation"
 
       - name: Run flux-local test on new manifests
-        uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
+        uses: docker://ghcr.io/allenporter/flux-local:v7.7.1
         with:
           args: >-
             test
@@ -139,7 +139,7 @@ jobs:
           cp -r pull/kubernetes/ pr-artifacts/
 
       - name: Run flux-local diff
-        uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
+        uses: docker://ghcr.io/allenporter/flux-local:v7.7.1
         with:
           args: >-
             diff ${{ matrix.resource }}

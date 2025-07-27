@@ -77,7 +77,7 @@ jobs:
           echo "MANIFESTS_PATH=$MANIFESTS_PATH" >> $GITHUB_ENV
 
       - name: Gather Images
-        uses: docker://ghcr.io/allenporter/flux-local:v7.7.0
+        uses: docker://ghcr.io/allenporter/flux-local:v7.7.1
         with:
           args: >-
             get cluster

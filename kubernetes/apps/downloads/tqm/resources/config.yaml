@@ -9,7 +9,7 @@ clients:
 
 notifications:
   detailed: true
-  skip_empty_run: true
+  skip_empty_run: false
   service:
     discord:
       webhook_url: http://webhook.downloads.svc.cluster.local/hooks/tqm-pushover

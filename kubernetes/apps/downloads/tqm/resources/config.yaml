@@ -39,6 +39,7 @@ filters:
             (
               HasAnyTag("site:cm", "site:et", "site:tl-pl", "site:pt")
               && SeedingDays > 7
+            )
             ||
             (
               HasAnyTag("site:at", "site:ipt", "site:phd")

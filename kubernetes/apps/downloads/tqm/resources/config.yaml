@@ -32,13 +32,17 @@ filters:
           && HasAnyTag("not-linked")
           && (
             (
-              HasAnyTag("site:at", "site:ipt")
-              && Ratio > 3.0
+              HasAnyTag("site:at", "site:ipt", "site:phd", "site:cm", "site:tl-pl")
+              && Ratio > 2.0
             )
             ||
             (
-              HasAnyTag("site:at", "site:ipt", "site:phd", "site:cm", "site:et", "site:tl-pl", "site:pt")
-              && SeedingDays > 24
+              HasAnyTag("site:cm", "site:et", "site:tl-pl", "site:pt")
+              && SeedingDays > 7
+            ||
+            (
+              HasAnyTag("site:at", "site:ipt", "site:phd")
+              && SeedingDays > 21
             )
           )
         )

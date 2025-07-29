@@ -48,7 +48,7 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        runAsGroup: 100
+        runAsGroup: 1000
     rawResources:
       talosServiceAccount:
         apiVersion: talos.dev/v1alpha1

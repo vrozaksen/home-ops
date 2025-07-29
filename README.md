@@ -14,7 +14,7 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 [![Talos](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Ftalos_version&style=for-the-badge&logo=talos&logoColor=white&color=blue&label=%20)](https://talos.dev)&nbsp;&nbsp;
 [![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fkubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://kubernetes.io)&nbsp;&nbsp;
 [![Flux](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fflux_version&style=for-the-badge&logo=flux&logoColor=white&color=blue&label=%20)](https://fluxcd.io)&nbsp;&nbsp;
-[![Renovate](https://img.shields.io/github/actions/workflow/status/vrozaksen/home-ops/renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/vrozaksen/home-ops/actions/workflows/renovate.yaml)
+[![Renovate](https://img.shields.io/github/actions/workflow/status/vrozaksen/renovate-config/renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/vrozaksen/renovate-config/actions/workflows/renovate.yaml)
 
 </div>
 
@@ -33,7 +33,6 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 [![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Power-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_power_usage&style=flat-square&label=Power)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_alert_count&style=flat-square&label=Alerts)](https://github.com/kashalls/kromgo)
 </div>
 

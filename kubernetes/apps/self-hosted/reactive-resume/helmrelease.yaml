@@ -38,7 +38,7 @@ spec:
               STORAGE_URL: https://s3.vzkn.eu/rresume
               STORAGE_ENDPOINT: aincrad.home.vzkn.eu
               STORAGE_PORT: "9000"
-              STORAGE_REGION: main
+              STORAGE_REGION: eu-central-1
               STORAGE_BUCKET: rresume
               STORAGE_USE_SSL: "false"
               DATABASE_URL:

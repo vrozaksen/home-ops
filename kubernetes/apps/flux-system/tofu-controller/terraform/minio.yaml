@@ -10,7 +10,7 @@ spec:
       backend "s3" {
         bucket = "terraform-state"
         key    = "minio/minio.tfstate"
-        region   = "main"
+        region   = "eu-central-1"
         endpoints = {
           s3 = "https://s3.vzkn.eu"
         }

@@ -5,8 +5,8 @@
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_bitwarden"></a> [bitwarden](#requirement\_bitwarden) | >= 0.11.0 |
-| <a name="requirement_minio"></a> [minio](#requirement\_minio) | 3.6.1 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.6 |
+| <a name="requirement_minio"></a> [minio](#requirement\_minio) | 3.6.2 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | 3.7.2 |
 
 ## Providers
 
@@ -26,8 +26,8 @@
 
 | Name | Type |
 |------|------|
-| [random_password.user_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
-| [random_password.user_secret](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [random_password.user_name](https://registry.terraform.io/providers/hashicorp/random/3.7.2/docs/resources/password) | resource |
+| [random_password.user_secret](https://registry.terraform.io/providers/hashicorp/random/3.7.2/docs/resources/password) | resource |
 | [bitwarden_secret.bw_proj_id](https://registry.terraform.io/providers/maxlaverse/bitwarden/latest/docs/data-sources/secret) | data source |
 | [bitwarden_secret.minio](https://registry.terraform.io/providers/maxlaverse/bitwarden/latest/docs/data-sources/secret) | data source |
 

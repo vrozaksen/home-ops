@@ -24,7 +24,6 @@ includes:
   bitwarden: .taskfiles/bitwarden
   kubernetes: .taskfiles/kubernetes
   talos: .taskfiles/talos
-  terraform: .taskfiles/terraform
   volsync: .taskfiles/volsync
   workstation: .taskfiles/workstation
 

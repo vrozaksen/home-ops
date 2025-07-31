@@ -7,8 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./litellm/ks.yaml
-  # - ./mcp/ks.yaml
-  - ./mcpo/ks.yaml
   - ./open-webui/ks.yaml
   - ./perplexica/ks.yaml
   - ./qdrant/ks.yaml

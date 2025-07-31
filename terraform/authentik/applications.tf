@@ -1,15 +1,10 @@
 locals {
   oauth_apps = [
-    "gitea",
     "grafana",
     "headlamp",
     "karakeep",
-    "mealie",
     "miniflux",
-    "mirotalk",
-    "nextcloud",
     "open-webui",
-    "outline",
     "paperless",
     "pgadmin",
     "rresume",
@@ -40,6 +35,7 @@ locals {
   }
 }
 
+# Downloads
 module "proxy-prowlarr" {
   source             = "./proxy_application"
   name               = "Prowlarr"
@@ -105,42 +101,9 @@ module "proxy-bazarr" {
   auth_groups        = [authentik_group.media.id]
 }
 
-# module "proxy-navidrome" {
-#   source             = "./proxy_application"
-#   name               = "Navidrome"
-#   description        = "Music player"
-#   icon_url           = "https://github.com/navidrome/navidrome/raw/master/resources/logo-192x192.png"
-#   group              = "Selfhosted"
-#   slug               = "navidrome"
-#   domain             = var.cluster_domain
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   auth_groups        = [authentik_group.media.id]
-#   ignore_paths       = <<-EOT
-#   /rest/*
-#   /share/*
-#   EOT
-# }
-
 ## Media
 
 ## Infrastructure
-module "oauth2-gitea" {
-  source             = "./oauth2_application"
-  name               = "Gitea"
-  icon_url           = "https://raw.githubusercontent.com/go-gitea/gitea/refs/heads/main/public/assets/img/logo.png"
-  launch_url         = "https://gitea.${var.cluster_domain}"
-  description        = "Version control"
-  newtab             = true
-  group              = "Infrastructure"
-  auth_groups        = [authentik_group.infrastructure.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["gitea"].client_id
-  client_secret      = local.parsed_secrets["gitea"].client_secret
-  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/Authentik/callback"]
-}
-
 module "oauth2-grafana" {
   source             = "./oauth2_application"
   name               = "Grafana"
@@ -206,25 +169,6 @@ module "oauth2-karakeep" {
   redirect_uris      = ["https://karakeep.${var.cluster_domain}/api/auth/callback/custom"]
 }
 
-module "oauth2-mealie" {
-  source             = "./oauth2_application"
-  name               = "Mealie"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/mealie.png"
-  launch_url         = "https://mealie.${var.cluster_domain}"
-  description        = "Recipes"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.home.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["mealie"].client_id
-  client_secret      = local.parsed_secrets["mealie"].client_secret
-  redirect_uris = [
-    "https://mealie.${var.cluster_domain}/login",
-    "https://mealie.${var.cluster_domain}/login?direct=1"
-  ]
-}
-
 module "oauth2-miniflux" {
   source             = "./oauth2_application"
   name               = "Miniflux"
@@ -239,22 +183,6 @@ module "oauth2-miniflux" {
   client_id          = local.parsed_secrets["miniflux"].client_id
   client_secret      = local.parsed_secrets["miniflux"].client_secret
   redirect_uris      = ["https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"]
-}
-
-module "oauth2-outline" {
-  source             = "./oauth2_application"
-  name               = "Outline"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/outline.png"
-  launch_url         = "https://outline.${var.cluster_domain}"
-  description        = "Outline Desc" # TODO
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.home.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["outline"].client_id
-  client_secret      = local.parsed_secrets["outline"].client_secret
-  redirect_uris      = ["https://outline.${var.cluster_domain}/auth/oidc.callback"]
 }
 
 module "oauth2-paperless" {
@@ -306,22 +234,6 @@ module "oauth2-open-webui" {
   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
 }
 
-module "oauth2-mirotalk" {
-  source             = "./oauth2_application"
-  name               = "MiroTalk"
-  icon_url           = "https://raw.githubusercontent.com/miroslavpejic85/mirotalk/refs/heads/master/public/images/mirotalk-logo.png"
-  launch_url         = "https://mirotalk.${var.cluster_domain}"
-  description        = "MiroTalk"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["mirotalk"].client_id
-  client_secret      = local.parsed_secrets["mirotalk"].client_secret
-  redirect_uris      = ["https://mirotalk.${var.cluster_domain}/auth/callback"]
-}
-
 module "oauth2-vikunja" {
   source             = "./oauth2_application"
   name               = "Vikunja"
@@ -353,57 +265,3 @@ module "oauth2-zipline" {
   client_secret      = local.parsed_secrets["zipline"].client_secret
   redirect_uris      = ["https://z.${var.cluster_domain}/api/auth/oauth/oidc"]
 }
-
-# module "oauth2-immich" {
-#   source             = "./oauth2_application"
-#   name               = "Immich"
-#   icon_url           = "https://github.com/immich-app/immich/raw/main/docs/static/img/favicon.png"
-#   launch_url         = "https://photos.${var.cluster_domain}"
-#   description        = "Photo managment"
-#   newtab             = true
-#   group              = "Selfhosted"
-#   auth_groups        = [authentik_group.media.id]
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   client_id          = module.secret_immich.fields["OIDC_CLIENT_ID"]
-#   client_secret      = module.secret_immich.fields["OIDC_CLIENT_SECRET"]
-#   redirect_uris = [
-#     "https://photos.${var.cluster_domain}/auth/login",
-#     "app.immich:///oauth-callback"
-#   ]
-# }
-
-module "oauth2-nextcloud" {
-  source                       = "./oauth2_application"
-  name                         = "Nextcloud"
-  icon_url                     = "https://upload.wikimedia.org/wikipedia/commons/6/60/Nextcloud_Logo.svg"
-  launch_url                   = "https://cloud.${var.cluster_domain}"
-  description                  = "Files"
-  newtab                       = true
-  group                        = "Selfhosted"
-  auth_groups                  = [authentik_group.users.id]
-  authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
-  client_id                    = local.parsed_secrets["nextcloud"].client_id
-  client_secret                = local.parsed_secrets["nextcloud"].client_secret
-  include_claims_in_id_token   = false
-  additional_property_mappings = formatlist(authentik_property_mapping_provider_scope.openid-nextcloud.id)
-  sub_mode                     = "user_username"
-  redirect_uris                = ["https://cloud.${var.cluster_domain}/apps/oidc_login/oidc"]
-}
-
-# module "oauth2-romm" {
-#   source             = "./oauth2_application"
-#   name               = "Romm"
-#   icon_url           = "https://raw.githubusercontent.com/rommapp/romm/refs/heads/release/frontend/assets/isotipo.svg"
-#   launch_url         = "https://romm.${var.cluster_domain}"
-#   description        = "Games"
-#   newtab             = true
-#   group              = "Selfhosted"
-#   auth_groups        = [authentik_group.media.id]
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   client_id          = module.secret_romm.fields["OIDC_CLIENT_ID"]
-#   client_secret      = module.secret_romm.fields["OIDC_CLIENT_SECRET"]
-#   redirect_uris      = ["https://romm.${var.cluster_domain}/api/oauth/openid"]
-# }

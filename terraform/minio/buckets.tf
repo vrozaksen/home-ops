@@ -1,8 +1,6 @@
 locals {
   buckets = [
     "tfstate-mikrotik-terraform",
-    "gitea",
-    "nextcloud",
     "postgresql",
     "rresume",
     "zipline"

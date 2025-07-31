@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: factoriotools/factorio
-              tag: 2.0.61
+              tag: 2.0.62
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

@@ -12,7 +12,6 @@ resources:
   - ./karakeep/ks.yaml
   - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
-  # - ./paperless/ks.yaml
   # - ./reactive-resume/ks.yaml
   # - ./stirling-pdf/ks.yaml
   - ./vikunja/ks.yaml

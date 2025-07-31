@@ -53,7 +53,7 @@ spec:
           filebrowser:
             image:
               repository: filebrowser/filebrowser
-              tag: v2.42.0
+              tag: v2.42.1
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

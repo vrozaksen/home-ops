@@ -10,4 +10,3 @@ resources:
   - ./cloudflare-tunnel/ks.yaml
   - ./echo/ks.yaml
   - ./mikrotik-dns/ks.yaml
-  # - ./netbox/ks.yaml

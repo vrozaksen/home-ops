@@ -100,12 +100,12 @@ spec:
         existingClaim: radarr-anime-cache
         globalMounts:
           - path: /config/MediaCover
-      data:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/zfs_data
-        globalMounts:
-          - path: /zfs_data
+      # data:
+      #   type: nfs
+      #   server: aincrad.home.vzkn.eu
+      #   path: /mnt/user/zfs_data
+      #   globalMounts:
+      #     - path: /zfs_data
       tmpfs:
         type: emptyDir
         advancedMounts:

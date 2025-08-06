@@ -44,12 +44,13 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-        containers:
+        containers: # TODO remove --dry-run
           clean:
             <<: *container
             args:
               - clean
               - qb
+              - --dry-run
         pod:
           restartPolicy: Never
       orphaned:
@@ -64,6 +65,7 @@ spec:
             args:
               - orphan
               - qb
+              - --dry-run
         pod:
           restartPolicy: Never
     defaultPodOptions:
@@ -85,57 +87,9 @@ spec:
           - path: /.config/tqm/config.yaml
             subPath: config.yaml
             readOnly: true
-      anime:
+      data:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/zfs_data/torrents/anime
+        path: /mnt/user/data/torrents
         globalMounts:
-          - path: /downloads/anime
-      animeimported:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/zfs_data/torrents/imported-anime
-        globalMounts:
-          - path: /downloads/imported-anime
-      moviesimported:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/imported-moviesfhd
-        globalMounts:
-          - path: /downloads/imported-moviesfhd
-      tvimported:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/imported-tv
-        globalMounts:
-          - path: /downloads/imported-tv
-      manual:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/manual
-        globalMounts:
-          - path: /downloads/manual
-      movies:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/moviesfhd
-        globalMounts:
-          - path: /downloads/moviesfhd
-      seed:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/seed
-        globalMounts:
-          - path: /downloads/seed
-      tv:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/tv
-        globalMounts:
-          - path: /downloads/tv
-      shellcm:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents/Sheller-CM
-        globalMounts:
-          - path: /downloads/Sheller-CM
+          - path: /downloads

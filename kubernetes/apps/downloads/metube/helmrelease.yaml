@@ -83,7 +83,7 @@ spec:
       downloads:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/zfs_data/media
+        path: /mnt/user/data/media
         globalMounts:
           - path: /downloads
             subPath: metube

@@ -9,4 +9,4 @@ resources:
   - ./emby/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./jellystat/ks.yaml
-  - ./navidrome/ks.yaml
+  # - ./navidrome/ks.yaml

@@ -93,12 +93,6 @@ spec:
         path: /mnt/user/data
         globalMounts:
           - path: /data
-      zfsdata:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/zfs_data
-        globalMounts:
-          - path: /zfs_data
       tmpfs:
         type: emptyDir
         advancedMounts:

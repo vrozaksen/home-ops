@@ -112,10 +112,10 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /config
-      music: # TODO
+      music:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/media
+        path: /mnt/user/z_media
         globalMounts:
           - path: /music
             subPath: music

@@ -3,35 +3,34 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app emby
+  name: &app kopia
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/gatus/external
     - ../../../components/keda/nfs-scaler
-    - ../../../components/volsync
   dependsOn:
     - name: keda
       namespace: observability
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
     - name: volsync
       namespace: storage
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: storage
   interval: 1h
-  path: ./kubernetes/apps/media/emby
+  path: ./kubernetes/apps/storage/kopia
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home-media
-      VOLSYNC_CAPACITY: 100Gi
   prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
+  targetNamespace: storage
   timeout: 5m
   wait: false

@@ -5,7 +5,6 @@ locals {
     "karakeep",
     "miniflux",
     "open-webui",
-    "paperless",
     "pgadmin",
     "rresume",
     "vikunja",
@@ -185,21 +184,21 @@ module "oauth2-miniflux" {
   redirect_uris      = ["https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"]
 }
 
-module "oauth2-paperless" {
-  source             = "./oauth2_application"
-  name               = "Paperless"
-  icon_url           = "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/dev/resources/logo/web/svg/Color%20logo%20-%20no%20background.svg"
-  launch_url         = "https://docs.${var.cluster_domain}"
-  description        = "Documents"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.home.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["paperless"].client_id
-  client_secret      = local.parsed_secrets["paperless"].client_secret
-  redirect_uris      = ["https://docs.${var.cluster_domain}/accounts/oidc/authentik/login/callback/"]
-}
+# module "oauth2-paperless" {
+#   source             = "./oauth2_application"
+#   name               = "Paperless"
+#   icon_url           = "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/dev/resources/logo/web/svg/Color%20logo%20-%20no%20background.svg"
+#   launch_url         = "https://docs.${var.cluster_domain}"
+#   description        = "Documents"
+#   newtab             = true
+#   group              = "Home"
+#   auth_groups        = [authentik_group.home.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["paperless"].client_id
+#   client_secret      = local.parsed_secrets["paperless"].client_secret
+#   redirect_uris      = ["https://docs.${var.cluster_domain}/accounts/oidc/authentik/login/callback/"]
+# }
 
 module "oauth2-rresume" {
   source             = "./oauth2_application"

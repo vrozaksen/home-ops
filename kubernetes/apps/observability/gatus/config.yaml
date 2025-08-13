@@ -10,6 +10,12 @@ debug: false
 ui:
   title: Status | Gatus
   header: Status
+  link: https://github.com/vrozaksen
+  buttons:
+    - name: Github
+      link: https://github.com/vrozaksen
+    - name: Homelab
+      link: https://github.com/vrozaksen/home-ops
 connectivity:
   checker:
     target: 1.1.1.1:53

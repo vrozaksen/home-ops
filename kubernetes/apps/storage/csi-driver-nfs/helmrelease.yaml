@@ -30,17 +30,3 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  values:
-    storageClass:
-      create: true
-      name: nfs-slow
-      parameters:
-        server: aincrad.home.vzkn.eu
-        share: /mnt/user/kubernetes #HDD ZFS Pool
-      mountOptions:
-        - nfsvers=4.2
-        - nconnect=16
-        - hard
-        - noatime
-      reclaimPolicy: Delete
-      volumeBindingMode: Immediate

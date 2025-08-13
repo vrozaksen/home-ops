@@ -8,7 +8,8 @@
       "matchPackageNames": ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Cert-Manager Group"],
@@ -17,7 +18,8 @@
       "matchPackageNames": ["/cert-manager/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Cilium Group"],
@@ -26,7 +28,8 @@
       "matchPackageNames": ["/cilium/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["CoreDNS Group"],
@@ -35,7 +38,8 @@
       "matchPackageNames": ["/coredns/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Dragonfly Operator Group"],
@@ -44,7 +48,8 @@
       "matchPackageNames": ["/dragonfly/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["External Secrets Operator Group"],
@@ -53,7 +58,8 @@
       "matchPackageNames": ["/external-secrets/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Flux Operator Group"],
@@ -62,7 +68,8 @@
       "matchPackageNames": ["/flux-operator/", "/flux-instance/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Intel Device Plugins Group"],
@@ -71,7 +78,8 @@
       "matchPackageNames": ["/intel-device-plugins-operator/", "/intel-device-plugins-gpu/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Rook-Ceph Group"],
@@ -80,7 +88,8 @@
       "matchPackageNames": ["/rook-ceph/", "/rook-ceph-cluster/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["System Upgrade Controller Group"],
@@ -89,7 +98,8 @@
       "matchPackageNames": ["/system-upgrade-controller/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Spegel Group"],
@@ -98,7 +108,8 @@
       "matchPackageNames": ["/spegel/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Talos Group"],
@@ -107,7 +118,8 @@
       "matchPackageNames": ["/siderolabs/talosctl/", "/siderolabs/installer/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
-      }
+      },
+      "minimumGroupSize": 2
     }
   ]
 }

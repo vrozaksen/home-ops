@@ -10,9 +10,10 @@ kubeconfig
 *.secret.yaml
 *.agekey
 *.crt
-*.pub
+*.iso
 *.key
 *.pem
+*.pub
 # Other
 *.psql
 node_modules/

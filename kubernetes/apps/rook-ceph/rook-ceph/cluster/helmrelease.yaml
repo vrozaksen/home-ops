@@ -37,6 +37,16 @@ spec:
       createPrometheusRules: true
     toolbox:
       enabled: true
+    route:
+      dashboard:
+        host:
+          name: rook.vzkn.eu
+          path: /
+          pathType: PathPrefix
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
     cephClusterSpec:
       cephConfig:
         global:
@@ -183,6 +193,16 @@ spec:
           healthCheck:
             bucket:
               interval: 60s
+        route:
+          enabled: true
+          host:
+            name: rgw.vzkn.eu
+            path: /
+            pathType: PathPrefix
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
         storageClass:
           enabled: true
           name: ceph-bucket

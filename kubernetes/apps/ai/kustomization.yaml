@@ -6,8 +6,8 @@ namespace: ai
 components:
   - ../../components/common
 resources:
-  - ./litellm/ks.yaml
-  - ./open-webui/ks.yaml
-  - ./perplexica/ks.yaml
-  - ./qdrant/ks.yaml
+  # - ./litellm/ks.yaml
+  # - ./open-webui/ks.yaml
+  # - ./perplexica/ks.yaml
+  # - ./qdrant/ks.yaml
   - ./searxng/ks.yaml

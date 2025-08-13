@@ -13,6 +13,5 @@ resources:
   - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   # - ./reactive-resume/ks.yaml
-  # - ./stirling-pdf/ks.yaml
   - ./vikunja/ks.yaml
   - ./zipline/ks.yaml

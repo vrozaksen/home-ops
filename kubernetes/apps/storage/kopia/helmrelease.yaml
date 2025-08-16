@@ -87,7 +87,7 @@ spec:
       repository:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/blaze/volsync-kopia
+        path: /mnt/user/volsync-kopia
         globalMounts:
           - path: /repository
       tmpfs:

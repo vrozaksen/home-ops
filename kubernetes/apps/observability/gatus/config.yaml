@@ -8,8 +8,9 @@ storage:
 metrics: true
 debug: false
 ui:
-  title: Status | Gatus
   header: Status
+  title: Status | Gatus
+  default-sort-by: group
   link: https://github.com/vrozaksen
   buttons:
     - name: Github

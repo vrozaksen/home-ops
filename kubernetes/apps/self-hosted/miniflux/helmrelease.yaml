@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/miniflux/miniflux
-              tag: 2.2.11-distroless
+              tag: 2.2.12-distroless
               pullPolicy: IfNotPresent
             env:
               BASE_URL: https://miniflux.vzkn.eu

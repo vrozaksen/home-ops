@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/diced/zipline
-              tag: v4@sha256:03c43ef882af5d830d0003e6a6dfb009e502d20f5d822142c404c3d0045ac082
+              tag: v4@sha256:1043c9fd03b196d9bdd97b5e1c3874b428d6241e8ec6df28d38cb4a594c7bb71
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

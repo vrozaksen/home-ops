@@ -5,4 +5,4 @@ namespace: games
 components:
   - ../../components/common
 resources:
-  - ./warptorio/ks.yaml
+  - ./factorio/ks.yaml

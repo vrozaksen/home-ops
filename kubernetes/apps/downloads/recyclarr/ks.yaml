@@ -11,13 +11,9 @@ spec:
   components:
     - ../../../components/volsync
   dependsOn:
-    # - name: radarr
-    #   namespace: downloads
-    # - name: sonarr
-    #   namespace: downloads
-    - name: radarr-anime
+    - name: radarr
       namespace: downloads
-    - name: sonarr-anime
+    - name: sonarr
       namespace: downloads
     - name: external-secrets-store
       namespace: external-secrets

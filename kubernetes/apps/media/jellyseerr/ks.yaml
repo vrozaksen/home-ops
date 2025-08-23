@@ -15,11 +15,7 @@ spec:
   dependsOn:
     - name: radarr
       namespace: downloads
-    - name: radarr-anime
-      namespace: downloads
     - name: sonarr
-      namespace: downloads
-    - name: sonarr-anime
       namespace: downloads
     - name: crunchy-postgres-operator
       namespace: database

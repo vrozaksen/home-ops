@@ -2,6 +2,10 @@ machine:
   type: controlplane
   network:
     hostname: ainias
+  disks:
+    - device: /dev/disk/by-id/ata-SAMSUNG_MZ7LN256HAJQ-000L7_S3S7NE0KA16322
+      partitions:
+        - mountpoint: /var/openebs/local
   install:
     diskSelector:
       model: "SAMSUNG*"
@@ -31,11 +35,3 @@ name: enp1s0f1np1
 rings:
     rx: 4096
     tx: 4096
----
-apiVersion: v1alpha1
-kind: UserVolumeConfig
-name: local-hostpath
-provisioning:
-  diskSelector:
-    match: system_disk
-  minSize: 100GB

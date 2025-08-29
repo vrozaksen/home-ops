@@ -14,7 +14,7 @@ spec:
       name: *app
       namespace: &namespace flux-system
   interval: 1h
-  path: ./kubernetes/apps/flux-system/flux-operator
+  path: ./kubernetes/apps/flux-system/flux-operator/app
   prune: true
   retryInterval: 2m
   sourceRef:

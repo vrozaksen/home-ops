@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-system/coredns
+  path: ./kubernetes/apps/kube-system/coredns/app
   prune: true
   retryInterval: 2m
   sourceRef:

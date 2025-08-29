@@ -11,27 +11,27 @@ releases:
     namespace: kube-system
     chart: oci://ghcr.io/home-operations/charts-mirror/cilium
     version: 1.18.1
-    values: ['../kubernetes/apps/kube-system/cilium/app/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
 
   - name: coredns
     namespace: kube-system
     chart: oci://ghcr.io/coredns/charts/coredns
     version: 1.43.2
-    values: ['../kubernetes/apps/kube-system/coredns/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     needs: ['kube-system/cilium']
 
   - name: spegel
     namespace: kube-system
     chart: oci://ghcr.io/spegel-org/helm-charts/spegel
     version: 0.3.0
-    values: ['../kubernetes/apps/kube-system/spegel/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     needs: ['kube-system/coredns']
 
   - name: cert-manager
     namespace: cert-manager
     chart: oci://quay.io/jetstack/charts/cert-manager
     version: v1.18.2
-    values: ['../kubernetes/apps/cert-manager/cert-manager/app/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     hooks:
       - # Apply cluster secret store configuration
         # We need this for bitwarden, which we need for the cluster-secrets to get populated
@@ -44,7 +44,7 @@ releases:
           - --server-side
           - --field-manager=kustomize-controller
           - --filename
-          - ../kubernetes/apps/cert-manager/cert-manager/app/clusterissuers.yaml
+          - ../../kubernetes/apps/cert-manager/cert-manager/app/clusterissuers.yaml
           - --wait=true
         showlogs: true
       - # bitwarden needs its cert so it can come up, othewrise it just stays pending
@@ -56,7 +56,7 @@ releases:
           - --server-side
           - --field-manager=kustomize-controller
           - --filename
-          - ../kubernetes/apps/external-secrets/store/certificate.yaml
+          - ../../kubernetes/apps/external-secrets/store/certificate.yaml
           - --wait=true
     needs: ['kube-system/spegel']
 
@@ -64,19 +64,19 @@ releases:
     namespace: external-secrets
     chart: oci://ghcr.io/external-secrets/charts/external-secrets
     version: 0.19.2
-    values: ['../kubernetes/apps/external-secrets/app/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     needs: ['cert-manager/cert-manager']
 
   - name: flux-operator
     namespace: flux-system
     chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
     version: 0.28.0
-    values: ['../kubernetes/apps/flux-system/flux-operator/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     needs: ['external-secrets/external-secrets']
 
   - name: flux-instance
     namespace: flux-system
     chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
     version: 0.28.0
-    values: ['../kubernetes/apps/flux-system/flux-instance/helm/values.yaml']
+    values: ['../values.yaml.gotmpl']
     needs: ['flux-system/flux-operator']

@@ -2,13 +2,13 @@ machine:
   type: controlplane
   network:
     hostname: alfheim
-  disks:
-    - device: /dev/disk/by-id/ata-Samsung_SSD_870_EVO_500GB_S7EWNL0X715625F
-      partitions:
-        - mountpoint: /var/openebs/local
+  #disks:
+  #  - device: /dev/disk/by-id/ata-Samsung_SSD_870_EVO_500GB_S7EWNL0X715625F
+  #    partitions:
+  #      - mountpoint: /var/openebs/local
   install:
     diskSelector:
-      model: "Samsung*"
+      model: "Samsung SSD 870"
   nodeLabels:
     topology.kubernetes.io/zone: m
     intel.feature.node.kubernetes.io/gpu: "true"

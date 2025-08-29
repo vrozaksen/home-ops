@@ -2,13 +2,13 @@ machine:
   type: controlplane
   network:
     hostname: alne
-  disks:
-    - device: /dev/disk/by-id/ata-MTFDDAK512MBF-1AN15ABHA_164614B4BE51
-      partitions:
-        - mountpoint: /var/openebs/local
+  #disks:
+  #  - device: /dev/disk/by-id/ata-MTFDDAK512MBF-1AN15ABHA_164614B4BE51
+  #    partitions:
+  #      - mountpoint: /var/openebs/local
   install:
     diskSelector:
-      model: "MTFD*"
+      model: "MTFDDAK512MBF-1A"
   nodeLabels:
     topology.kubernetes.io/zone: m
     intel.feature.node.kubernetes.io/gpu: "true"

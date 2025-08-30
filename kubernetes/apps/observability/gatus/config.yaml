@@ -1,26 +1,9 @@
 ---
-web:
-  port: ${WEB_PORT}
-storage:
-  type: postgres
-  path: ${POSTGRES_URI}?sslmode=require
-  caching: true
-metrics: true
-debug: false
-ui:
-  header: Status
-  title: Status | Gatus
-  default-sort-by: group
-  link: https://github.com/vrozaksen
-  buttons:
-    - name: Github
-      link: https://github.com/vrozaksen
-    - name: Homelab
-      link: https://github.com/vrozaksen/home-ops
 connectivity:
   checker:
     target: 1.1.1.1:53
     interval: 1m
+
 endpoints:
   - name: status
     group: infrastructure
@@ -43,3 +26,20 @@ endpoints:
     interval: 1h
     conditions:
       - "[CERTIFICATE_EXPIRATION] > 240h"
+
+metrics: true
+
+ui:
+  header: Status
+  title: Status | Gatus
+  default-sort-by: group
+  logo: https://avatars.githubusercontent.com/u/213795
+  link: https://github.com/vrozaksen
+  buttons:
+    - name: Github
+      link: https://github.com/vrozaksen
+    - name: Homelab
+      link: https://github.com/vrozaksen/home-ops
+
+web:
+  port: ${GATUS_WEB_PORT}

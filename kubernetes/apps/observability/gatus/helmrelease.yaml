@@ -19,8 +19,6 @@ spec:
   values:
     controllers:
       gatus:
-        replicas: 2
-        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -52,12 +50,7 @@ spec:
               TZ: Europe/Warsaw
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
-              WEB_PORT: &port 80
-              POSTGRES_URI:
-                valueFrom:
-                  secretKeyRef:
-                    name: gatus-pguser-gatus
-                    key: pgbouncer-uri
+              GATUS_WEB_PORT: &port 80
             probes:
               liveness: &probes
                 enabled: true
@@ -128,7 +121,7 @@ spec:
         type: emptyDir
       config-file:
         type: configMap
-        name: gatus-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml

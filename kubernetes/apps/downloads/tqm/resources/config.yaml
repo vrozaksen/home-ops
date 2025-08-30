@@ -7,12 +7,12 @@ clients:
     type: qbittorrent
     url: http://qbittorrent.downloads.svc.cluster.local:80
 
-notifications:
-  detailed: true
-  skip_empty_run: true
-  service:
-    discord:
-      webhook_url: http://webhook.downloads.svc.cluster.local/hooks/tqm-pushover
+# notifications:
+#   detailed: true
+#   skip_empty_run: true
+#   service:
+#     discord:
+#       webhook_url: http://webhook.downloads.svc.cluster.local/hooks/tqm-pushover
 
 filters:
   default:

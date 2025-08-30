@@ -140,14 +140,14 @@ spec:
     backend:
       replicas: 2
       persistence:
-        size: 20Gi
+        size: 10Gi
         storageClass: local-hostpath
     read:
       replicas: 2
     write:
       replicas: 2
       persistence:
-        size: 20Gi
+        size: 10Gi
         storageClass: local-hostpath
     chunksCache:
       enabled: true

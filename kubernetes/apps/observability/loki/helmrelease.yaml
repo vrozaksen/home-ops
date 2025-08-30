@@ -141,14 +141,14 @@ spec:
       replicas: 2
       persistence:
         size: 20Gi
-        storageClass: local-hostpath
+        storageClass: ceph-filesystem
     read:
       replicas: 2
     write:
       replicas: 2
       persistence:
         size: 20Gi
-        storageClass: local-hostpath
+        storageClass: ceph-filesystem
     chunksCache:
       enabled: true
       allocatedMemory: 1024

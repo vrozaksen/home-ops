@@ -246,8 +246,8 @@ function test_machine_config_render() {
 
 function main() {
     # TEST
-    # test_bws_render
-    # test_machine_config_render
+    test_bws_render
+    test_machine_config_render
 
     install_talos
     install_kubernetes

@@ -45,8 +45,10 @@ machine:
         [ NFSMount_Global_Options ]
         nfsvers=4.2
         hard=True
-        nconnect=16
+        nconnect=8
         noatime=True
+        rsize=1048576
+        wsize=1048576
   install:
     image: factory.talos.dev/metal-installer/c3b30038c00a41963255daeaf33e40c5c0d607a57ae9d7e05d36ab99b22d2470:v1.11.0-rc.0
     wipe: false
@@ -82,6 +84,7 @@ machine:
   nodeLabels:
     topology.kubernetes.io/region: main
     topology.kubernetes.io/zone: {{ 'm' if machinetype == 'controlplane' else 'w' }}
+    intel.feature.node.kubernetes.io/gpu: true
   sysctls:
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
@@ -189,6 +192,45 @@ cluster:
   serviceAccount:
     key: {{ ENV['CLUSTER_SERVICEACCOUNT_KEY'] }}
   {% endif %}
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: eno1
+features:
+    tx-tcp-segmentation: false
+    tx-tcp6-segmentation: false
+    tx-generic-segmentation: false
+    rx-gro: false
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp1s0f0np0
+rings:
+    rx: 4096
+    tx: 4096
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp1s0f1np1
+rings:
+    rx: 4096
+    tx: 4096
+---
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  diskSelector:
+    match: system_disk
+  maxSize: 200GiB
+---
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: local-hostpath
+provisioning:
+  diskSelector:
+    match: system_disk
+  maxSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: WatchdogTimerConfig

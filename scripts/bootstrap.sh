@@ -197,7 +197,58 @@ function apply_apps() {
     log info "Apps applied successfully"
 }
 
+# Test resource rendering with bws and minijinja-cli
+function test_bws_render() {
+    local -r resources_file="${ROOT_DIR}/bootstrap/resources.yaml.j2"
+
+    if [[ ! -f "${resources_file}" ]]; then
+        log fatal "File does not exist" "file" "${resources_file}"
+    fi
+
+    bws run --no-inherit-env -- minijinja-cli --env "${resources_file}"
+}
+
+# Test function to render machine config and print to console
+function test_machine_config_render() {
+    log info "Testing machine config rendering"
+
+    local machineconfig_file="${ROOT_DIR}/talos/machineconfig.yaml.j2"
+
+    if [[ ! -f ${machineconfig_file} ]]; then
+        log fatal "No Talos machine files found for machineconfig" "file" "${machineconfig_file}"
+    fi
+
+    # Check if Talos nodes are present
+    if ! nodes=$(talosctl config info --output yaml | yq --exit-status '.nodes | join (" ")') || [[ -z "${nodes}" ]]; then
+        log fatal "No Talos nodes found"
+    fi
+
+    # Test rendering for each node
+    for node in ${nodes}; do
+        local node_file="${ROOT_DIR}/talos/nodes/${node}.yaml.j2"
+
+        if [[ ! -f "${node_file}" ]]; then
+            log fatal "No Talos machine files found for node" "node" "${node}" "file" "${node_file}"
+        fi
+
+        log info "Rendering machine config for node" "node" "${node}"
+
+        echo "========== Machine Config for ${node} =========="
+        if machine_config=$(bash "${ROOT_DIR}/scripts/render-machine-config.sh" "${machineconfig_file}" "${node_file}" 2>/dev/null); then
+            echo "${machine_config}"
+        else
+            log error "Failed to render machine config for node" "node" "${node}"
+        fi
+        echo "================================================="
+        echo
+    done
+}
+
 function main() {
+    # TEST
+    # test_bws_render
+    # test_machine_config_render
+
     install_talos
     install_kubernetes
     fetch_kubeconfig

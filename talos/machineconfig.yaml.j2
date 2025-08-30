@@ -2,9 +2,9 @@
 version: v1alpha1
 machine:
   ca:
-    crt: {{ ENV['talsecret_certs_os_crt'] }}
+    crt: {{ ENV['MACHINE_CA_CRT'] }}
     {% if machinetype == 'controlplane' %}
-    key: {{ ENV['talsecret_certs_os_key'] }}
+    key: {{ ENV['MACHINE_CA_KEY'] }}
     {% endif %}
   certSANs:
     - 127.0.0.1
@@ -75,7 +75,7 @@ machine:
           updelay: 200
           downdelay: 200
         dhcp: true
-        mtu: 1500
+        mtu: 9000
         vip:
           ip: 10.10.0.20
   nodeLabels:
@@ -99,17 +99,17 @@ machine:
     sunrpc.tcp_slot_table_entries: "128"
     user.max_user_namespaces: "11255"
     vm.nr_hugepages: "1024"
-  token: {{ ENV['talsecret_trustdinfo_token'] }}
+  token: {{ ENV['MACHINE_TOKEN'] }}
 cluster:
   ca:
-    crt: {{ ENV['talsecret_certs_k8s_crt'] }}
+    crt: {{ ENV['CLUSTER_CA_CRT'] }}
     {% if machinetype == 'controlplane' %}
-    key: {{ ENV['talsecret_certs_k8s_key'] }}
+    key: {{ ENV['CLUSTER_CA_KEY'] }}
     {% endif %}
   clusterName: main
   controlPlane:
     endpoint: https://10.10.0.20:6443
-  id: {{ ENV['talsecret_cluster_id'] }}
+  id: {{ ENV['CLUSTER_ID'] }}
   network:
     cni:
       name: none
@@ -118,12 +118,12 @@ cluster:
       - 10.69.0.0/16
     serviceSubnets:
       - 10.96.0.0/16
-  secret: {{ ENV['talsecret_cluster_secret'] }}
-  token: {{ ENV['talsecret_secrets_bootstraptoken'] }}
+  secret: {{ ENV['CLUSTER_SECRET'] }}
+  token: {{ ENV['CLUSTER_TOKEN'] }}
   {% if machinetype == 'controlplane' %}
   aggregatorCA:
-    crt: {{ ENV['talsecret_certs_k8saggregator_crt'] }}
-    key: {{ ENV['talsecret_certs_k8saggregator_key'] }}
+    crt: {{ ENV['CLUSTER_AGGREGATORCA_CRT'] }}
+    key: {{ ENV['CLUSTER_AGGREGATORCA_KEY'] }}
   allowSchedulingOnControlPlanes: true
   apiServer:
     auditPolicy:
@@ -138,7 +138,7 @@ cluster:
     extraArgs:
       enable-aggregator-routing: "true"
       feature-gates: ImageVolume=true,MutatingAdmissionPolicy=true
-      runtime-config: admissionregistration.k8s.io/v1alpha1=true
+      runtime-config: admissionregistration.k8s.io/v1beta1=true
     image: registry.k8s.io/kube-apiserver:v1.34.0
   controllerManager:
     extraArgs:
@@ -150,12 +150,13 @@ cluster:
     advertisedSubnets:
       - 10.10.0.0/24
     ca:
-      crt: {{ ENV['talsecret_certs_etcd_crt'] }}
-      key: {{ ENV['talsecret_certs_etcd_key'] }}
+      crt: {{ ENV['CLUSTER_ETCD_CA_CRT'] }}
+      key: {{ ENV['CLUSTER_ETCD_CA_KEY'] }}
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
   proxy:
     disabled: true
+    image: registry.k8s.io/kube-proxy:v1.34.0
   scheduler:
     config:
       apiVersion: kubescheduler.config.k8s.io/v1
@@ -177,9 +178,9 @@ cluster:
     extraArgs:
       bind-address: 0.0.0.0
     image: registry.k8s.io/kube-scheduler:v1.34.0
-  secretboxEncryptionSecret: {{ ENV['talsecret_secrets_secretboxencryptionsecret'] }}
+  secretboxEncryptionSecret: {{ ENV['CLUSTER_SECRETBOXENCRYPTIONSECRET'] }}
   serviceAccount:
-    key: {{ ENV['talsecret_certs_k8sserviceaccount_key'] }}
+    key: {{ ENV['CLUSTER_SERVICEACCOUNT_KEY'] }}
   {% endif %}
 ---
 apiVersion: v1alpha1

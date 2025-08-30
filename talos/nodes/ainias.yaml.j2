@@ -2,10 +2,10 @@ machine:
   type: controlplane
   network:
     hostname: ainias
-  #disks:
-  #  - device: /dev/disk/by-id/ata-SAMSUNG_MZ7LN256HAJQ-000L7_S3S7NE0KA16322
-  #    partitions:
-  #      - mountpoint: /var/openebs/local
+  disks:
+    - device: /dev/disk/by-id/ata-SAMSUNG_MZ7LN256HAJQ-000L7_S3S7NE0KA16322
+      partitions:
+        - mountpoint: /var/openebs/local
   install:
     diskSelector:
       model: "SAMSUNG MZ7LN256"

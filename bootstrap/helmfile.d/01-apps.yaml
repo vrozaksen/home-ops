@@ -66,6 +66,21 @@ releases:
     version: 0.19.2
     values: ['../values.yaml.gotmpl']
     needs: ['cert-manager/cert-manager']
+    hooks:
+      - # Add Helm ownership metadata to existing external-secrets CRDs
+        events: [presync]
+        command: bash
+        args:
+          - -c
+          - |
+            for crd in $(kubectl get crd | grep external-secrets | awk '{print $1}'); do
+              echo "Adding Helm metadata to $crd..."
+              kubectl label crd $crd app.kubernetes.io/managed-by=Helm --overwrite
+              kubectl annotate crd $crd meta.helm.sh/release-name=external-secrets --overwrite
+              kubectl annotate crd $crd meta.helm.sh/release-namespace=external-secrets --overwrite
+            done
+        showlogs: true
+    force: true
 
   - name: flux-operator
     namespace: flux-system

@@ -7,8 +7,8 @@ machine:
     key: {{ ENV['MACHINE_CA_KEY'] }}
     {% endif %}
   certSANs:
-    - 127.0.0.1
     - 10.10.0.20
+    - 127.0.0.1
   features:
     apidCheckExtKeyUsage: true
     diskQuotaSupport: true
@@ -56,6 +56,7 @@ machine:
     extraConfig:
       featureGates:
         ImageVolume: true
+      maxPods: 200
       serializeImagePulls: false
     image: ghcr.io/siderolabs/kubelet:v1.34.0
     nodeIP:
@@ -80,6 +81,7 @@ machine:
           ip: 10.10.0.20
   nodeLabels:
     topology.kubernetes.io/region: main
+    topology.kubernetes.io/zone: {{ 'm' if machinetype == 'controlplane' else 'w' }}
   sysctls:
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
@@ -109,6 +111,11 @@ cluster:
   clusterName: main
   controlPlane:
     endpoint: https://10.10.0.20:6443
+  discovery:
+    enabled: true
+    registries:
+      kubernetes: { disabled: true }
+      service: { disabled: false }
   id: {{ ENV['CLUSTER_ID'] }}
   network:
     cni:
@@ -132,8 +139,8 @@ cluster:
       rules:
         - level: Metadata
     certSANs:
-      - 127.0.0.1
       - 10.10.0.20
+      - 127.0.0.1
     disablePodSecurityPolicy: true
     extraArgs:
       enable-aggregator-routing: "true"

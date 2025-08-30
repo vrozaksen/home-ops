@@ -44,13 +44,12 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-        containers: # TODO remove --dry-run
+        containers:
           clean:
             <<: *container
             args:
               - clean
               - qb
-              - --dry-run
         pod:
           restartPolicy: Never
       orphaned:
@@ -65,7 +64,6 @@ spec:
             args:
               - orphan
               - qb
-              - --dry-run
         pod:
           restartPolicy: Never
     defaultPodOptions:

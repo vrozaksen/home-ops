@@ -56,7 +56,7 @@ releases:
           - --server-side
           - --field-manager=kustomize-controller
           - --filename
-          - ../../kubernetes/apps/external-secrets/store/certificate.yaml
+          - ../../kubernetes/apps/external-secrets/external-secrets/store/certificate.yaml
           - --wait=true
     needs: ['kube-system/spegel']
 

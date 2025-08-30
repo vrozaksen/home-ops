@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/external-secrets/app
+  path: ./kubernetes/apps/external-secrets/external-secrets/app
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -50,7 +50,7 @@ spec:
     - name: external-secrets
       namespace: external-secrets
   interval: 1h
-  path: ./kubernetes/apps/external-secrets/store
+  path: ./kubernetes/apps/external-secrets/external-secrets/store
   prune: true
   retryInterval: 2m
   sourceRef:

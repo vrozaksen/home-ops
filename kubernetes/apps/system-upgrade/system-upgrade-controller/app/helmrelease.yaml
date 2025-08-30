@@ -19,30 +19,26 @@ spec:
   values:
     controllers:
       system-upgrade-controller:
-        replicas: 2
         strategy: RollingUpdate
         containers:
           app:
             image:
               repository: docker.io/rancher/system-upgrade-controller
               tag: v0.16.2@sha256:ae933d9d81e9c42e316989a0ce7b1fb0dfe93afe5469631b8f384141b89b106a
-              pullPolicy: IfNotPresent
             env:
               SYSTEM_UPGRADE_CONTROLLER_LEADER_ELECT: true
-              SYSTEM_UPGRADE_CONTROLLER_NAME: *app
-              SYSTEM_UPGRADE_CONTROLLER_NAMESPACE:
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.namespace
+              SYSTEM_UPGRADE_CONTROLLER_NAME: "{{ .Release.Name }}"
+              SYSTEM_UPGRADE_CONTROLLER_NAMESPACE: "{{ .Release.Namespace }}"
               SYSTEM_UPGRADE_CONTROLLER_NODE_NAME:
                 valueFrom:
                   fieldRef:
                     fieldPath: spec.nodeName
+              SYSTEM_UPGRADE_JOB_BACKOFF_LIMIT: "99"
               SYSTEM_UPGRADE_JOB_PRIVILEGED: false
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

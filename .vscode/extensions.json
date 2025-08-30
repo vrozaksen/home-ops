@@ -1,14 +1,17 @@
 {
   "recommendations": [
     "albert.TabOut",
+    "bluebrown.yamlfmt",
+    "blueglassblock.better-json5",
+    "BriteSnow.vscode-toggle-quotes",
     "fcrespo82.markdown-table-formatter",
+    "HashiCorp.terraform",
+    "irongeek.vscode-env",
     "mikestead.dotenv",
     "mitchdenny.ecdc",
+    "PKief.material-icon-theme",
     "redhat.ansible",
     "redhat.vscode-yaml",
-    "will-stone.in-any-case",
-    "BriteSnow.vscode-toggle-quotes",
-    "HashiCorp.terraform",
-    "PKief.material-icon-theme"
+    "will-stone.in-any-case"
   ]
 }

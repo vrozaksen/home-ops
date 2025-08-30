@@ -24,7 +24,6 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  wait: true
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -41,12 +40,6 @@ spec:
       namespace: system-upgrade
   interval: 1h
   path: ./kubernetes/apps/system-upgrade/system-upgrade-controller/plans
-  postBuild:
-    substitute:
-      # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-      KUBERNETES_VERSION: v1.34.0
-      # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-      TALOS_VERSION: v1.10.6
   prune: true
   retryInterval: 2m
   sourceRef:

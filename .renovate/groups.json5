@@ -82,6 +82,22 @@
       "minimumGroupSize": 2
     },
     {
+      "description": ["Kubernetes Group"],
+      "groupName": "kubernetes",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "/kube-apiserver/",
+        "/kube-controller-manager/",
+        "/kube-proxy/",
+        "/kube-scheduler/",
+        "/kubelet/"
+      ],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 5
+    },
+    {
       "description": ["Rook-Ceph Group"],
       "groupName": "Rook-Ceph",
       "matchDatasources": ["docker"],
@@ -115,7 +131,7 @@
       "description": ["Talos Group"],
       "groupName": "Talos",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["/siderolabs/talosctl/", "/siderolabs/installer/"],
+      "matchPackageNames": ["/installer/", "/talosctl/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },

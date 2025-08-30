@@ -10,7 +10,7 @@
   "editor.stickyScroll.enabled": false,
   "explorer.autoReveal": false,
   "files.associations": {
-    "**/*.json5": "jsonc",
+    "**/*.json5": "json5",
     "**/terraform/**/*.tf": "terraform"
   },
   "files.trimTrailingWhitespace": true,
@@ -25,6 +25,7 @@
     ".private": "archive",
     ".renovate": "robot",
     "bootstrap": "seeders",
+    "bootstrap/helmfile.d": "helm",
     "flux": "pipe",
     "talos": "linux",
     // namespaces
@@ -53,5 +54,8 @@
   "yaml.schemas": {
     "kubernetes": "./kubernetes/**/*.yaml"
   },
-  "github.copilot.chat.byok.ollamaEndpoint": "http://aincrad.home.vzkn.eu:11434"
+  "github.copilot.chat.byok.ollamaEndpoint": "http://aincrad.home.vzkn.eu:11434",
+  "[yaml]": {
+    "editor.defaultFormatter": "bluebrown.yamlfmt"
+  }
 }

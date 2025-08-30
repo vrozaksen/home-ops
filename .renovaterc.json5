@@ -6,6 +6,7 @@
     "github>vrozaksen/home-ops//.renovate/customManagers.json5",
     "github>vrozaksen/home-ops//.renovate/grafanaDashboards.json5",
     "github>vrozaksen/home-ops//.renovate/groups.json5",
+    "github>vrozaksen/home-ops//.renovate/overrides.json5",
     "github>vrozaksen/home-ops//.renovate/packageRules.json5",
     ":skipStatusChecks",
     ":semanticCommits",
@@ -15,12 +16,9 @@
     "**/.archive/**"
   ],
   flux: {
-    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"]
-  },
-  "helm-values": {
-    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"]
+    managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"]
   },
   kubernetes: {
-    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"]
+    managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"]
   },
 }

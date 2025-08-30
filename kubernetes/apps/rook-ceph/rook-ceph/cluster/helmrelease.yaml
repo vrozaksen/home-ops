@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: v1.17.8
+    tag: v1.18.1
   url: oci://ghcr.io/rook/rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -64,7 +64,6 @@ spec:
       dashboard:
         enabled: true
         urlPrefix: /
-        port: 7000
         ssl: false
         prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
       mgr:
@@ -137,7 +136,6 @@ spec:
           failureDomain: host
           replicated:
             size: 3
-          enableRBDStats: true
         storageClass:
           enabled: true
           name: ceph-block
@@ -163,8 +161,6 @@ spec:
       name: csi-ceph-blockpool
       isDefault: false
       deletionPolicy: Delete
-    # NOTE: After disabling the filesystem, the filesystem can be removed with the following commands:
-    # ceph fs fail ceph-filesystem && ceph fs rm ceph-filesystem --yes-i-really-mean-it
     cephFileSystems:
       - name: &cephFileSystemName ceph-filesystem
         spec:

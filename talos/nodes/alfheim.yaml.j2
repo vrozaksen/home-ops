@@ -2,10 +2,6 @@ machine:
   type: controlplane
   network:
     hostname: alfheim
-  disks:
-    - device: /dev/disk/by-id/ata-Samsung_SSD_870_EVO_500GB_S7EWNL0X715625F
-      partitions:
-        - mountpoint: /var/openebs/local
   install:
     diskSelector:
       model: "Samsung SSD 870"

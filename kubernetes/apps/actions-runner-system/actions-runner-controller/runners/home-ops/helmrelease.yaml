@@ -39,7 +39,7 @@ spec:
       type: kubernetes
       kubernetesModeWorkVolumeClaim:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: ceph-filesystem
+        storageClassName: local-hostpath
         resources:
           requests:
             storage: 25Gi

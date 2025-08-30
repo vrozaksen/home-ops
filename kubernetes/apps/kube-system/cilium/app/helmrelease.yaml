@@ -53,7 +53,7 @@ spec:
       enabled: true
       annotations:
         grafana_folder: Network
-    devices: bond+ enp1s0 eno1 # backup
+    devices: bond+
     enableIPv4BIGTCP: true
     endpointRoutes:
       enabled: true

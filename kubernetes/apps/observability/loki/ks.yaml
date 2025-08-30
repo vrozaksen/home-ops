@@ -11,8 +11,8 @@ spec:
   components:
     - ../../../components/gatus/guarded
   dependsOn:
-    - name: openebs
-      namespace: storage
+    # - name: openebs
+    #   namespace: storage
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

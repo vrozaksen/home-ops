@@ -115,6 +115,8 @@ spec:
             app:
               - path: /config/logs
                 subPath: logs
+              - path: /config/sync
+                subPath: sync
               - path: /transcode
                 subPath: transcode
               - path: /tmp

@@ -41,7 +41,7 @@ function main() {
     echo "${base}" >"${tmpdir}/base.yaml"
 
     # Render the patch machine configurations
-    if ! patch=$(bws run --no-inherit-env -- minijinja-cli --define "machinetype=${type}" --env "${MACHINEPATCH}") || [[ -z "${patch}" ]]; then
+    if ! patch=$(minijinja-cli --define "machinetype=${type}" "${MACHINEPATCH}") || [[ -z "${patch}" ]]; then
         log fatal "Failed to render patch machine configuration" "file" "${MACHINEPATCH}"
     fi
 

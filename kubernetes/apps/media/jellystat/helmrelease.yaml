@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: docker.io/cyfershepard/jellystat
-              tag: unstable@sha256:eac13ef652ebb108d9622ce7b23ef10b0070105e9a8df4353bdf596019b181ee
+              tag: unstable@sha256:c63088519a4dc70fd82d58f93d37c37ef56a4c73d66963b08493806517c66f77
               pullPolicy: IfNotPresent
             env:
               TZ: "Europe/Warsaw"

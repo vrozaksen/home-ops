@@ -53,7 +53,7 @@ spec:
       app:
         ports:
           http:
-            port: *port
+            port: 8080
     route:
       app:
         hostnames: ["wppilot.vzkn.eu"]

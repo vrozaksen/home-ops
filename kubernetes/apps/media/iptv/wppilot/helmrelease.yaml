@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/wppilot
-              tag: 2025.9.12@sha256:88d841fb9a6d63c8c5a04f0c170e7ad09877564b7b3c9043835253b9dfbbfe21
+              tag: 2025.9.12@sha256:7efe0d9ac892045bbac621dfbef50854531d7aa540aef6f0921efc7630c27061
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

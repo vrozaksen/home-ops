@@ -25,11 +25,16 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/megogo
-              tag: 2025.9.12@sha256:553ac97007f8631ad1b199f71a824787315adf4325ab5c7768fa6bf71cf11b29
+              tag: 2025.9.12@sha256:6f4ced8879cc9bcf93e71ca2072df0926d93622ac25efecf14f329a90523f2cb
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
+              MEGOGO_LANG: "pl"
               ENABLE_EPG: "true"
+              ENABLE_DRM: "false"
+              GEO_ZONE: "PL"
+              REFRESH_INTERVAL: "3600"
+              CACHE_DURATION: "3600"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -37,9 +42,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 32Mi
+                memory: 64Mi
               limits:
-                memory: 128Mi
+                memory: 256Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -59,3 +64,15 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+    persistence:
+      data:
+        existingClaim: *app
+        globalMounts:
+          - path: /app/data
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          megogo:
+            app:
+              - path: /tmp
+                subPath: tmp

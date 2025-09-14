@@ -11,3 +11,4 @@ resources:
   - ./jellyseerr/ks.yaml
   - ./jellystat/ks.yaml
   - ./navidrome/ks.yaml
+  - ./threadfin/ks.yaml

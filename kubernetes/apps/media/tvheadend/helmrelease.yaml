@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: registry.skysolutions.fi/library/tvheadend
-              tag: 4.3.10225@sha256:cae945e9e44023ac38cf9b8201271a05a79de8d7e94ad1799a3a1501737b1690
+              tag: 4.3.10312@sha256:926dc7eda16ff7c8c04eacd012940c9b323fdfe78f9e5175daf3bbe493cea80f
               pullPolicy: IfNotPresent
             command: "/entrypoint.sh"
             args: ["--noacl"]

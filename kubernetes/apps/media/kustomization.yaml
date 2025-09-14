@@ -12,3 +12,4 @@ resources:
   - ./jellystat/ks.yaml
   - ./navidrome/ks.yaml
   - ./threadfin/ks.yaml
+  - ./tvheadend/ks.yaml

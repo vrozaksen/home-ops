@@ -1,0 +1,103 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app tvheadend
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      tvheadend:
+        replicas: 1
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/onedr0p/tvheadend
+              tag: 4.3.10004@sha256:d4456865d39c351bff81ab1f2b7f0ab86a7621b5ebfa6b68a643ecb7ac375850
+              pullPolicy: IfNotPresent
+            env:
+              TZ: Europe/Warsaw
+              PUID: 1000
+              PGID: 100
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+                gpu.intel.com/i915: 1
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 44 # video
+          - 109 # render
+    service:
+      app:
+        ports:
+          http:
+            port: &port 9981
+          htsp:
+            port: 9982
+    route:
+      app:
+        hostnames: ["tv.vzkn.eu"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *port
+          - backendRefs:
+              - name: *app
+                port: *port
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  remove: [ "Range" ]
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /stream/channel
+    persistence:
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config
+      recordings:
+        type: emptyDir
+        globalMounts:
+          - path: /recordings
+      timeshift:
+        type: emptyDir
+        globalMounts:
+          - path: /timeshift
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          tvheadend:
+            app:
+              - path: /tmp
+                subPath: tmp

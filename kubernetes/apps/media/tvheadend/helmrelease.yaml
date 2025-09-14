@@ -24,17 +24,20 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/onedr0p/tvheadend
-              tag: 4.3.10004@sha256:d4456865d39c351bff81ab1f2b7f0ab86a7621b5ebfa6b68a643ecb7ac375850
+              repository: registry.skysolutions.fi/library/tvheadend
+              tag: 4.3.10225@sha256:cae945e9e44023ac38cf9b8201271a05a79de8d7e94ad1799a3a1501737b1690
               pullPolicy: IfNotPresent
+            command: "/entrypoint.sh"
+            args: ["--noacl"]
             env:
               TZ: Europe/Warsaw
               PUID: 1000
               PGID: 100
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
+              privileged: true
+              # allowPrivilegeEscalation: false
+              # readOnlyRootFilesystem: false
+              # capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 100m

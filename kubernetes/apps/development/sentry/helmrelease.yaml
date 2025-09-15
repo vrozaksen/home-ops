@@ -101,7 +101,7 @@ spec:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 1Gi
         # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 2Gi, limits: 4Gi
 
       worker:
@@ -111,7 +111,7 @@ spec:
             cpu: 100m
             memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 4Gi
         # Enterprise (500 users, 20 concurrent): cpu: 1000m, memory: 1Gi, limits: 8Gi
 
       cron:
@@ -120,7 +120,7 @@ spec:
             cpu: 50m
             memory: 128Mi
           limits:
-            memory: 256Mi
+            memory: 512Mi
         # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 256Mi, limits: 512Mi
 
     relay:
@@ -130,7 +130,7 @@ spec:
           cpu: 25m
           memory: 64Mi
         limits:
-          memory: 128Mi
+          memory: 256Mi
       # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 256Mi, limits: 512Mi
 
     snuba:
@@ -141,7 +141,7 @@ spec:
             cpu: 50m
             memory: 128Mi
           limits:
-            memory: 256Mi
+            memory: 1Gi
         # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 1Gi, limits: 2Gi
 
       consumer:
@@ -151,7 +151,7 @@ spec:
             cpu: 50m
             memory: 128Mi
           limits:
-            memory: 256Mi
+            memory: 1Gi
         # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 1Gi, limits: 2Gi
 
       replaysConsumer:
@@ -188,7 +188,7 @@ spec:
           cpu: 25m
           memory: 64Mi
         limits:
-          memory: 128Mi
+          memory: 256Mi
       # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 512Mi, limits: 1Gi
 
     filestore:

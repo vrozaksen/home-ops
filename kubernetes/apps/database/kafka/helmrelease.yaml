@@ -22,6 +22,26 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          format-storage:
+            image:
+              repository: apache/kafka
+              tag: 4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
+              pullPolicy: IfNotPresent
+            command:
+              - /bin/bash
+              - -c
+              - |
+                if [ ! -f /opt/kafka/logs/meta.properties ]; then
+                  echo "Formatting Kafka storage..."
+                  /opt/kafka/bin/kafka-storage.sh format \
+                    --config /opt/kafka/config/kraft/server.properties \
+                    --cluster-id sentry-kafka-cluster
+                else
+                  echo "Kafka storage already formatted"
+                fi
+            env:
+              CLUSTER_ID: "sentry-kafka-cluster"
         containers:
           app:
             image:
@@ -32,11 +52,11 @@ spec:
               # KRaft mode configuration (Apache Kafka official style)
               KAFKA_NODE_ID: "1"
               KAFKA_PROCESS_ROLES: "broker,controller"
-              KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+              KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
               CLUSTER_ID: "sentry-kafka-cluster"
 
               # Network configuration
-              KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+              KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://localhost:9093"
               KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka.database.svc.cluster.local:9092"
               KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
               KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
@@ -44,6 +64,9 @@ spec:
 
               # Data directory
               KAFKA_LOG_DIRS: "/opt/kafka/logs"
+
+              # Auto format storage if needed
+              KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
               # Basic configuration
               KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
@@ -96,5 +119,8 @@ spec:
         advancedMounts:
           kafka:
             app:
+              - path: /opt/kafka/logs
+                subPath: logs
+            format-storage:
               - path: /opt/kafka/logs
                 subPath: logs

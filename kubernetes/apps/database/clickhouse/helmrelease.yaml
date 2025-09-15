@@ -75,15 +75,9 @@ spec:
             port: *tcpPort
     persistence:
       data:
-        type: emptyDir
+        existingClaim: *app
         globalMounts:
           - path: /var/lib/clickhouse
-      config:
-        type: secret
-        name: clickhouse-s3-config
-        globalMounts:
-          - path: /etc/clickhouse-server/config.d/storage.xml
-            subPath: storage.xml
       tmpfs:
         type: emptyDir
         advancedMounts:

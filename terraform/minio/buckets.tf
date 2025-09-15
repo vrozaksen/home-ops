@@ -1,5 +1,6 @@
 locals {
   buckets = [
+    "clickhouse",
     "sentry",
     "tfstate-mikrotik-terraform",
     "postgresql",

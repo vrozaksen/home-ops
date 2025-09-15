@@ -100,7 +100,7 @@ spec:
             cpu: 100m
             memory: 512Mi
           limits:
-            memory: 1Gi
+            memory: 2Gi
 
       worker:
         replicas: 1

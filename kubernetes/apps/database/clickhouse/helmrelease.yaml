@@ -41,8 +41,8 @@ spec:
             probes:
               liveness: &probe
                 enabled: true
-                type: HTTP
-                path: /?query=SELECT+1
+                type: TCP
+                port: 8123
               readiness: *probe
               startup:
                 <<: *probe

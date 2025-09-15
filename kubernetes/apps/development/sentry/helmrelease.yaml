@@ -117,10 +117,10 @@ spec:
       cron:
         resources:
           requests:
-            cpu: 25m
-            memory: 64Mi
-          limits:
+            cpu: 50m
             memory: 128Mi
+          limits:
+            memory: 256Mi
         # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 256Mi, limits: 512Mi
 
     relay:

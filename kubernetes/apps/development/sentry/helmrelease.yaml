@@ -108,10 +108,10 @@ spec:
         replicas: 1
         resources:
           requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
+            cpu: 100m
             memory: 256Mi
+          limits:
+            memory: 1Gi
         # Enterprise (500 users, 20 concurrent): cpu: 1000m, memory: 1Gi, limits: 8Gi
 
       cron:

@@ -89,69 +89,107 @@ spec:
     sentry:
       features:
         enableProfiling: true
-        enableSessionReplay: true
+        enableSessionReplay: false
         enableFeedback: true
         enableSpan: true
+        enableUptime: false
 
       web:
         replicas: 1
         resources:
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 50m
+            memory: 256Mi
           limits:
-            memory: 2Gi
+            memory: 512Mi
+        # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 2Gi, limits: 4Gi
 
       worker:
         replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            memory: 4Gi
-
-      cron:
         resources:
           requests:
             cpu: 50m
             memory: 128Mi
           limits:
             memory: 256Mi
+        # Enterprise (500 users, 20 concurrent): cpu: 1000m, memory: 1Gi, limits: 8Gi
+
+      cron:
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 256Mi, limits: 512Mi
 
     relay:
       replicas: 1
       resources:
         requests:
-          cpu: 50m
-          memory: 128Mi
+          cpu: 25m
+          memory: 64Mi
         limits:
-          memory: 256Mi
+          memory: 128Mi
+      # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 256Mi, limits: 512Mi
 
     snuba:
       api:
         replicas: 1
         resources:
           requests:
-            cpu: 100m
-            memory: 256Mi
+            cpu: 50m
+            memory: 128Mi
           limits:
-            memory: 512Mi
+            memory: 256Mi
+        # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 1Gi, limits: 2Gi
 
       consumer:
         replicas: 1
         resources:
           requests:
-            cpu: 100m
-            memory: 256Mi
+            cpu: 50m
+            memory: 128Mi
           limits:
-            memory: 512Mi
+            memory: 256Mi
+        # Enterprise (500 users, 20 concurrent): cpu: 500m, memory: 1Gi, limits: 2Gi
+
+      replaysConsumer:
+        enabled: false
+      profilesConsumer:
+        enabled: true
+      genericMetricsCountersConsumer:
+        enabled: false
+      genericMetricsDistributionsConsumer:
+        enabled: false
+      genericMetricsGaugesConsumer:
+        enabled: false
+      genericMetricsSetsConsumer:
+        enabled: false
+      subscriptionConsumerGenericMetricsCounters:
+        enabled: false
+      subscriptionConsumerGenericMetricsDistributions:
+        enabled: false
+      subscriptionConsumerGenericMetricsGauges:
+        enabled: false
+      subscriptionConsumerGenericMetricsSets:
+        enabled: false
+      uptimeChecker:
+        enabled: false
 
     symbolicator:
       enabled: false
 
     vroom:
-      enabled: false
+      enabled: true
+      replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+      # Enterprise (500 users, 20 concurrent): cpu: 200m, memory: 512Mi, limits: 1Gi
 
     filestore:
       backend: s3
@@ -167,7 +205,8 @@ spec:
       enabled: true
       resources:
         requests:
-          cpu: 50m
-          memory: 64Mi
+          cpu: 25m
+          memory: 32Mi
         limits:
-          memory: 128Mi
+          memory: 64Mi
+      # Enterprise (500 users, 20 concurrent): cpu: 100m, memory: 128Mi, limits: 256Mi

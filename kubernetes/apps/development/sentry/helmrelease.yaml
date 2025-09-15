@@ -1,0 +1,173 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: sentry
+  namespace: development
+spec:
+  interval: 1h
+  url: https://sentry-kubernetes.github.io/charts
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app sentry
+spec:
+  interval: 1h
+  chart:
+    spec:
+      # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
+      chart: sentry
+      version: 27.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: sentry
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    postgresql:
+      enabled: false
+    redis:
+      enabled: false
+    clickhouse:
+      enabled: false
+    kafka:
+      enabled: false
+    zookeeper:
+      enabled: false
+    rabbitmq:
+      enabled: false
+
+    externalPostgresql:
+      host: sentry-pgbouncer.development.svc.cluster.local
+      port: 5432
+      username: sentry
+      database: sentry
+      existingSecret: sentry-pguser-sentry
+      existingSecretKeys:
+        password: password
+
+    externalRedis:
+      host: sentry-dragonfly.development.svc.cluster.local
+      port: 6379
+      db: 0
+
+    externalClickhouse:
+      host: clickhouse.database.svc.cluster.local
+      tcpPort: 9000
+      httpPort: 8123
+      username: clickhouse
+      password: clickhouse
+      database: default
+      singleNode: true
+
+    externalKafka:
+      host: kafka.database.svc.cluster.local
+      port: 9092
+      security:
+        protocol: plaintext
+
+    system:
+      adminEmail: admin@sentry.vzkn.eu
+      url: https://sentry.vzkn.eu
+      public: false
+      existingSecret: sentry-secret
+
+    user:
+      create: true
+      email: admin@sentry.vzkn.eu
+      existingSecret: sentry-secret
+      existingSecretKey: ADMIN_PASSWORD
+
+    sentry:
+      features:
+        enableProfiling: true
+        enableSessionReplay: true
+        enableFeedback: true
+        enableSpan: true
+
+      web:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+
+      worker:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+      cron:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+
+    relay:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+    snuba:
+      api:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+      consumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+    symbolicator:
+      enabled: false
+
+    vroom:
+      enabled: false
+
+    filestore:
+      backend: s3
+      s3:
+        bucketName: sentry
+        endpointUrl: https://s3.vzkn.eu
+        region: eu-central-1
+        existingSecret: sentry-secret
+        accessKeyIDKey: S3_ACCESS_KEY_ID
+        secretAccessKeyKey: S3_SECRET_ACCESS_KEY
+
+    nginx:
+      enabled: true
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi

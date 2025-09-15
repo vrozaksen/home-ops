@@ -22,26 +22,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          format-storage:
-            image:
-              repository: apache/kafka
-              tag: 4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
-              pullPolicy: IfNotPresent
-            command:
-              - /bin/bash
-              - -c
-              - |
-                if [ ! -f /opt/kafka/logs/meta.properties ]; then
-                  echo "Formatting Kafka storage..."
-                  /opt/kafka/bin/kafka-storage.sh format \
-                    --config /opt/kafka/config/kraft/server.properties \
-                    --cluster-id sentry-kafka-cluster
-                else
-                  echo "Kafka storage already formatted"
-                fi
-            env:
-              CLUSTER_ID: "sentry-kafka-cluster"
         containers:
           app:
             image:
@@ -119,8 +99,5 @@ spec:
         advancedMounts:
           kafka:
             app:
-              - path: /opt/kafka/logs
-                subPath: logs
-            format-storage:
               - path: /opt/kafka/logs
                 subPath: logs

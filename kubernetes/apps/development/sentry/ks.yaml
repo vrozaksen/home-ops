@@ -44,3 +44,10 @@ spec:
   targetNamespace: development
   timeout: 10m
   wait: false
+  # TODO Remove me
+  patches:
+  - patch: |
+      - op: remove
+        path: /spec/dataSource
+    target:
+      kind: PostgresCluster

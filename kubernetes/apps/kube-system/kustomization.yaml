@@ -14,4 +14,4 @@ resources:
   - ./intel-device-plugin-operator/ks.yaml
   - ./irqbalance/ks.yaml
   - ./reloader/ks.yaml
-  # - ./spegel/ks.yaml
+  - ./spegel/ks.yaml

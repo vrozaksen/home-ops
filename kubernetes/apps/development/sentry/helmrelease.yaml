@@ -160,8 +160,8 @@ spec:
         endpointUrl: https://s3.vzkn.eu
         region: eu-central-1
         existingSecret: sentry-secret
-        accessKeyIDKey: S3_ACCESS_KEY_ID
-        secretAccessKeyKey: S3_SECRET_ACCESS_KEY
+        accessKeyIDKey: s3-access-key-id
+        secretAccessKeyKey: s3-secret-access-key
 
     nginx:
       enabled: true

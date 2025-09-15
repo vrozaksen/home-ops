@@ -10,3 +10,4 @@ resources:
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml
   - ./vernemq/ks.yaml
+  - ./clickhouse/ks.yaml

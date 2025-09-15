@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app clickhouse
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      clickhouse:
+        type: statefulset
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: clickhouse/clickhouse-server
+              tag: 25.6.11-alpine@sha256:f62f9b213be2ab60f0effeea84561c4edb0388f346deb1751ebc76246918c0a7
+              pullPolicy: IfNotPresent
+            env:
+              CLICKHOUSE_HTTP_PORT: &httpPort 8123
+              CLICKHOUSE_TCP_PORT: &tcpPort 9000
+              CLICKHOUSE_LISTEN_HOST: 0.0.0.0
+              CLICKHOUSE_LOGGER_CONSOLE: "true"
+              CLICKHOUSE_DB: default
+              CLICKHOUSE_USER: clickhouse
+              CLICKHOUSE_PASSWORD: clickhouse
+              CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+            probes:
+              liveness: &probe
+                enabled: true
+                type: HTTP
+                path: /?query=SELECT+1
+              readiness: *probe
+              startup:
+                <<: *probe
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *httpPort
+          tcp:
+            port: *tcpPort
+    persistence:
+      data:
+        existingClaim: *app
+        globalMounts:
+          - path: /var/lib/clickhouse
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          clickhouse:
+            app:
+              - path: /tmp
+                subPath: tmp
+              - path: /var/log
+                subPath: log

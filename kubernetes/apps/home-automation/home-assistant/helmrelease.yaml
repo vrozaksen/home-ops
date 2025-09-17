@@ -105,6 +105,7 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.43
         ports:
           http:
+            appProtocol: kubernetes.io/ws
             port: *port
           codeserver:
             port: *codeserverPort

@@ -26,7 +26,6 @@ spec:
             image:
               repository: docker.io/collabora/code
               tag: 25.04.3.1.1
-              pullPolicy: IfNotPresent
             env:
               extra_params: --o:ssl.enable=false --o:ssl.ssl_verification=false --o:ssl.termination=true --o:welcome.enable=false --o:net.frame_ancestors=cloud.vzkn.eu
               # proofKeysSecretRef: collabora-proof-keys

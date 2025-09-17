@@ -31,7 +31,6 @@ spec:
             image:
               repository: ghcr.io/prymitive/karma
               tag: v0.121
-              pullPolicy: IfNotPresent
             env:
               CONFIG_FILE: &config /config/config.yaml
             probes:

@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/alexta69/metube
               tag: "2025-06-10"
-              pullPolicy: IfNotPresent
             env:
               DOWNLOAD_DIR: "/downloads"
               DOWNLOAD_MODE: concurrent # defaults to limited

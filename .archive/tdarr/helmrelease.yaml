@@ -46,7 +46,6 @@ spec:
             image:
               repository: ghcr.io/haveagitgat/tdarr_node
               tag: 2.45.01
-              pullPolicy: IfNotPresent
             env:
               - name: TZ
                 value: Europe/Warsaw

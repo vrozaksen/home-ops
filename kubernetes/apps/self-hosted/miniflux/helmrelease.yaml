@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/miniflux/miniflux
               tag: 2.2.12-distroless
-              pullPolicy: IfNotPresent
             env:
               BASE_URL: https://miniflux.vzkn.eu
               CREATE_ADMIN: "1"

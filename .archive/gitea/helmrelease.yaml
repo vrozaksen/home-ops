@@ -41,7 +41,6 @@ spec:
       # renovate: registryUrl=https://ghcr.io/go-gitea/gitea
       repository: gitea
       tag: 1.24.2
-      pullPolicy: IfNotPresent
       rootless: true
 
     podSecurityContext:

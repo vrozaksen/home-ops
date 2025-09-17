@@ -29,7 +29,6 @@ spec:
             image:
               repository: ghcr.io/karakeep-app/karakeep
               tag: 0.25.0
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               ### Configuration

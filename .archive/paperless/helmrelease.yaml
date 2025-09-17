@@ -27,7 +27,6 @@ spec:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
               tag: 2.17.1
-              pullPolicy: IfNotPresent
             env:
               # Application
               PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect

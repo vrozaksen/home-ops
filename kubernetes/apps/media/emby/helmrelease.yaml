@@ -26,7 +26,6 @@ spec:
             image:
               repository: ghcr.io/vrozaksen/emby
               tag: 4.9.1.27@sha256:7606d35b8cd18a07c323827af759e128fd2d65203cd0e6ea637a8d67c6df5714 # BETA
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
             probes:

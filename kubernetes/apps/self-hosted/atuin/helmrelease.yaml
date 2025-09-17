@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/atuinsh/atuin
               tag: v18.8.0@sha256:8a8a8ef4eb5865656072bace5cc49390b56caa81360f9f0869054777155b6ef1
-              pullPolicy: IfNotPresent
             args: ["server", "start"]
             env:
               ATUIN_DB_URI:

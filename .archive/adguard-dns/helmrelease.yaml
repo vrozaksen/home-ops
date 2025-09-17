@@ -40,7 +40,6 @@ spec:
         image:
           repository: ghcr.io/muhlba91/external-dns-provider-adguard
           tag: v8.0.1
-          pullPolicy: IfNotPresent
         env:
           - name: DOMAIN_FILTER
             value: "vzkn.eu"

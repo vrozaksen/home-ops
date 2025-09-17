@@ -27,7 +27,6 @@ spec:
             image:
               repository: mcp/github-mcp-server
               tag: latest
-              pullPolicy: IfNotPresent
             stdin: true
             tty: true
             env:

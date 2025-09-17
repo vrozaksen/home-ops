@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/open-webui/mcpo
               tag: latest
-              pullPolicy: IfNotPresent
             args: [
               "--config", "/app/config.json",
               "--api-key", "$(API_KEY)"

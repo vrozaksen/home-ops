@@ -26,7 +26,6 @@ spec:
             image:
               repository: ghcr.io/mendhak/http-https-echo
               tag: 37
-              pullPolicy: IfNotPresent
             env:
               HTTP_PORT: &port 80
               LOG_WITHOUT_NEWLINE: true

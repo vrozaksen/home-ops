@@ -29,7 +29,6 @@ spec:
             image:
               repository: factoriotools/factorio
               tag: 2.0.66
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               GENERATE_NEW_SAVE: false
@@ -54,7 +53,6 @@ spec:
             image:
               repository: filebrowser/filebrowser
               tag: v2.43.0
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
             resources:

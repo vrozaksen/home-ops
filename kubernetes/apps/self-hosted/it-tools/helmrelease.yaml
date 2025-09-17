@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/home-operations/it-tools
               tag: 2024.10.22@sha256:7f26ae8d7a4a58b8d70b685cba5cbaa54d7df876d9f8bae702207f45b06d9b7c
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
             probes:

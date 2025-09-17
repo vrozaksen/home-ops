@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/berriai/litellm-non_root
               tag: main-v1.74.6-nightly
-              pullPolicy: IfNotPresent
             args:
               - --port
               - "4000"

@@ -134,7 +134,6 @@ spec:
         registry: ghcr.io
         repository: nginx/nginx-unprivileged
         tag: 1.29-alpine
-        pullPolicy: IfNotPresent
       ingress:
         enabled: false
     backend:

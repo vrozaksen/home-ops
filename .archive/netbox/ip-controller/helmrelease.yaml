@@ -28,7 +28,6 @@ spec:
             image:
               repository: docker.io/digitalocean/netbox-ip-controller
               tag: v0.4.2
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               NETBOX_API_URL: "http://netbox.network.svc.cluster.local/api"

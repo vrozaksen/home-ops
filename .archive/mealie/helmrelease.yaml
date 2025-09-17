@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/mealie-recipes/mealie
               tag: v3.0.2
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
               ALLOW_PASSWORD_LOGIN: false

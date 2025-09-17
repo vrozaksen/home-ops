@@ -135,7 +135,6 @@ spec:
             image:
               repository: ghcr.io/example/app
               tag: 1.0.0@sha256:abcd1234...
-              pullPolicy: IfNotPresent
             command: ["/app/start.sh"]
             args: ["--config", "/app/config/app.yaml"]
             env:
@@ -189,7 +188,7 @@ spec:
             image:
               repository: ghcr.io/example/sidecar
               tag: v1.2.0@sha256:def56789...
-              pullPolicy: IfNotPresent
+
             env:
               TZ: "UTC"
               DEBUG: "info"
@@ -323,7 +322,7 @@ When updating existing HelmRelease files:
 - [ ] Ensure `persistence` comes last
 - [ ] Verify all sections are in the recommended order
 - [ ] **Add TODO comments** for missing recommended configurations
-- [ ] **Add `pullPolicy: IfNotPresent`** to all image configurations
+- [ ] **Add ``** to all image configurations
 
 ## Notes
 

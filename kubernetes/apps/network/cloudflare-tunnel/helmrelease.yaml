@@ -28,7 +28,6 @@ spec:
             image:
               repository: docker.io/cloudflare/cloudflared
               tag: 2025.8.1@sha256:b77d84e8704db38db22c22661cf7e56468c526e3a6a5fe9c8b7c151452fa1472
-              pullPolicy: IfNotPresent
             args: ["tunnel", "run"]
             env:
               NO_AUTOUPDATE: true

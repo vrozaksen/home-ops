@@ -26,7 +26,6 @@ spec:
             image:
               repository: ghcr.io/navidrome/navidrome
               tag: 0.57.0@sha256:d753f3f0ba65d838d288e58c2cb1254a519f439b88fa0fa8378178f5e8b17587
-              pullPolicy: IfNotPresent
             env:
               # Baisc
               TZ: Europe/Warsaw

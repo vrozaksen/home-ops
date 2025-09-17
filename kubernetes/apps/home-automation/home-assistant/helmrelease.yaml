@@ -28,7 +28,6 @@ spec:
             image:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2025.9.3@sha256:3191141730b5062769f806ea6130c30709b19c8289e77e49c5d28061bbad6e7a
-              pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw
             probes:
@@ -58,7 +57,6 @@ spec:
             image:
               repository: ghcr.io/coder/code-server
               tag: 4.103.2@sha256:f9ed058d6b1a4aa80846f77902d344bd97e450aec69201a0f8939baf58b18a5f
-              pullPolicy: IfNotPresent
             args: [
               "--auth", "none",
               "--user-data-dir", "/config/.vscode",

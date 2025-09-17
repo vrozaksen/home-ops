@@ -16,7 +16,7 @@ spec:
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
-    - name: vernemq
+    - name: mosquitto
       namespace: database
   interval: 1h
   path: ./kubernetes/apps/home-automation/home-assistant

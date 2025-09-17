@@ -1,0 +1,384 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: sentry
+  namespace: development
+spec:
+  interval: 1h
+  url: https://sentry-kubernetes.github.io/charts
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app sentry
+spec:
+  interval: 1h
+  chart:
+    spec:
+      # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
+      chart: sentry
+      version: 27.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: sentry
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    postgresql:
+      enabled: false
+    redis:
+      enabled: false
+    clickhouse:
+      enabled: false
+    zookeeper:
+      enabled: false
+    rabbitmq:
+      enabled: false
+
+    externalPostgresql:
+      host: sentry-pgbouncer.development.svc.cluster.local
+      port: 5432
+      username: sentry
+      database: sentry
+      existingSecret: sentry-pguser-sentry
+      existingSecretKeys:
+        password: password
+
+    externalRedis:
+      host: sentry-dragonfly.development.svc.cluster.local
+      port: 6379
+      db: 0
+
+    externalClickhouse:
+      host: clickhouse.database.svc.cluster.local
+      tcpPort: 9000
+      httpPort: 8123
+      username: clickhouse
+      password: clickhouse
+      database: default
+      singleNode: true
+
+
+    system:
+      adminEmail: admin@sentry.vzkn.eu
+      url: https://sentry.vzkn.eu
+      public: false
+      existingSecret: sentry-secret
+
+    mail:
+      backend: smtp
+      useTls: true
+      useSsl: false
+      username: "admin@vzkn.eu"
+      password: ""
+      existingSecret: sentry-secret
+      existingSecretKey: mail-password
+      port: 587
+      host: "smtp.protonmail.ch"
+      from: "admin@vzkn.eu"
+
+    user:
+      create: true
+      email: admin@sentry.vzkn.eu
+      existingSecret: sentry-secret
+      existingSecretKey: ADMIN_PASSWORD
+
+    auth:
+      register: false
+
+    sentry:
+      features:
+        orgSubdomains: false
+        enableProfiling: true
+        enableSessionReplay: true
+        enableFeedback: true
+        enableSpan: true
+        enableUptime: true
+
+      web:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+
+      worker:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 4Gi
+
+      cron:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+    relay:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+
+    kafka:
+      enabled: true
+      image:
+        repository: bitnamilegacy/kafka
+      provisioning:
+        replicationFactor: 1
+        enabled: true
+        topics:
+          - name: events
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: event-replacements
+          - name: snuba-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: cdc
+          - name: transactions
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: snuba-transactions-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: snuba-metrics
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: outcomes
+          - name: outcomes-dlq
+          - name: outcomes-billing
+          - name: outcomes-billing-dlq
+          - name: ingest-spans
+          - name: ingest-sessions
+          - name: snuba-metrics-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: scheduled-subscriptions-events
+          - name: scheduled-subscriptions-transactions
+          - name: scheduled-subscriptions-metrics
+          - name: scheduled-subscriptions-generic-metrics-sets
+          - name: scheduled-subscriptions-generic-metrics-distributions
+          - name: scheduled-subscriptions-generic-metrics-counters
+          - name: scheduled-subscriptions-generic-metrics-gauges
+          - name: events-subscription-results
+          - name: transactions-subscription-results
+          - name: metrics-subscription-results
+          - name: generic-metrics-subscription-results
+          - name: snuba-queries
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: processed-profiles
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: profiles-call-tree
+          - name: ingest-replay-events
+            config:
+              "message.timestamp.type": LogAppendTime
+              "max.message.bytes": "15000000"
+          - name: snuba-generic-metrics
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: snuba-generic-metrics-sets-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: snuba-generic-metrics-distributions-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: snuba-generic-metrics-counters-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: snuba-generic-metrics-gauges-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: generic-events
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: snuba-generic-events-commit-log
+            config:
+              "cleanup.policy": "compact,delete"
+              "min.compaction.lag.ms": "3600000"
+          - name: group-attributes
+            config:
+              "message.timestamp.type": LogAppendTime
+          - name: snuba-dead-letter-metrics
+          - name: snuba-dead-letter-generic-metrics
+          - name: snuba-dead-letter-replays
+          - name: snuba-dead-letter-generic-events
+          - name: snuba-dead-letter-querylog
+          - name: snuba-dead-letter-group-attributes
+          - name: ingest-attachments
+          - name: ingest-attachments-dlq
+          - name: ingest-transactions
+          - name: ingest-transactions-dlq
+          - name: ingest-transactions-backlog
+          - name: ingest-events-dlq
+          - name: ingest-events
+          - name: ingest-replay-recordings
+          - name: ingest-metrics
+          - name: ingest-metrics-dlq
+          - name: ingest-performance-metrics
+          - name: ingest-feedback-events
+          - name: ingest-feedback-events-dlq
+          - name: ingest-monitors
+          - name: monitors-clock-tasks
+          - name: monitors-clock-tick
+          - name: monitors-incident-occurrences
+          - name: profiles
+          - name: ingest-occurrences
+          - name: snuba-spans
+          - name: snuba-eap-spans-commit-log
+          - name: scheduled-subscriptions-eap-spans
+          - name: eap-spans-subscription-results
+          - name: snuba-eap-mutations
+          - name: snuba-lw-deletions-generic-events
+          - name: shared-resources-usage
+          - name: snuba-profile-chunks
+          - name: buffered-segments
+          - name: buffered-segments-dlq
+          - name: uptime-configs
+          - name: uptime-results
+          - name: snuba-uptime-results
+          - name: task-worker
+          - name: snuba-ourlogs
+          - name: snuba-items
+          - name: taskworker
+          - name: taskworker-dlq
+          - name: taskworker-billing
+          - name: taskworker-billing-dlq
+          - name: taskworker-control
+          - name: taskworker-control-dlq
+          - name: taskworker-ingest
+          - name: taskworker-ingest-dlq
+          - name: taskworker-ingest-errors
+          - name: taskworker-ingest-errors-dlq
+          - name: taskworker-ingest-transactions
+          - name: taskworker-ingest-transactions-dlq
+          - name: taskworker-internal
+          - name: taskworker-internal-dlq
+          - name: taskworker-limited
+          - name: taskworker-limited-dlq
+          - name: taskworker-long
+          - name: taskworker-long-dlq
+          - name: taskworker-products
+          - name: taskworker-products-dlq
+          - name: taskworker-sentryapp
+          - name: taskworker-sentryapp-dlq
+          - name: taskworker-symbolication
+          - name: taskworker-symbolication-dlq
+          - name: taskworker-usage
+          - name: taskworker-usage-dlq
+      listeners:
+        client:
+          protocol: "PLAINTEXT"
+        controller:
+          protocol: "PLAINTEXT"
+        interbroker:
+          protocol: "PLAINTEXT"
+        external:
+          protocol: "PLAINTEXT"
+      zookeeper:
+        enabled: false
+      kraft:
+        enabled: true
+      controller:
+        replicaCount: 1
+        resourcesPreset: "small"
+
+    snuba:
+      api:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      consumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      cleanup:
+        enabled: true
+        retentionDays: 90
+        schedule: "0 2 * * *"
+        successfulJobsHistoryLimit: 3
+        failedJobsHistoryLimit: 3
+        activeDeadlineSeconds: 300
+
+    symbolicator:
+      enabled: true
+      api:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        persistence:
+          enabled: false
+
+    sourcemaps:
+      enabled: true
+
+    vroom:
+      enabled: true
+      replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+
+    filestore:
+      backend: s3
+      s3:
+        bucketName: sentry
+        endpointUrl: https://s3.vzkn.eu
+        region: eu-central-1
+        existingSecret: sentry-secret
+        accessKeyIDKey: s3-access-key-id
+        secretAccessKeyKey: s3-secret-access-key
+
+    nginx:
+      enabled: false
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: prometheus-operator

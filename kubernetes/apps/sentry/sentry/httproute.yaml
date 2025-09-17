@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sentry
+spec:
+  hostnames:
+    - "sentry.vzkn.eu"
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  rules:
+    # API store and versioned API routes to relay (if relay is enabled)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/store/
+      backendRefs:
+        - name: sentry-relay
+          namespace: sentry
+          port: 3000
+    - matches:
+        - path:
+            type: RegularExpression
+            value: "^/api/[1-9]\\d*/"
+      backendRefs:
+        - name: sentry-relay
+          namespace: sentry
+          port: 3000
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/0/relays/
+      backendRefs:
+        - name: sentry-relay
+          namespace: sentry
+          port: 3000
+    # Assets routing with path rewriting
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /_assets/
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /_static/dist/sentry/
+      backendRefs:
+        - name: sentry-web
+          namespace: sentry
+          port: 9000
+    # Static files routing
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /_static/
+      backendRefs:
+        - name: sentry-web
+          namespace: sentry
+          port: 9000
+    # Default routing for everything else
+    - backendRefs:
+        - name: sentry-web
+          namespace: sentry
+          port: 9000

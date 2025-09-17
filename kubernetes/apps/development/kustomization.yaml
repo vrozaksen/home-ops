@@ -6,4 +6,3 @@ namespace: development
 components:
   - ../../components/common
 resources: []
-  # - ./sentry/ks.yaml

@@ -9,6 +9,5 @@ resources:
   - ./clickhouse/ks.yaml
   - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
-  - ./kafka/ks.yaml
   - ./pgadmin/ks.yaml
   - ./vernemq/ks.yaml

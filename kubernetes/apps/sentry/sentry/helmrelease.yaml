@@ -4,7 +4,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: sentry
-  namespace: development
+  namespace: sentry
 spec:
   interval: 1h
   url: https://sentry-kubernetes.github.io/charts

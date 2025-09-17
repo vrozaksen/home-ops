@@ -111,6 +111,7 @@ spec:
             sectionName: https
     configMaps:
       config:
+        forceRename: &configMapName "{{ .Release.Name }}-configmap"
         data:
           .qbt.toml: |
             [qbittorrent]
@@ -120,11 +121,19 @@ spec:
         existingClaim: *app
       config-file:
         type: configMap
-        name: qbittorrent
+        name: *configMapName
         globalMounts:
           - path: /config/.qbt.toml
             subPath: .qbt.toml
-            readOnly: true
+      data:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents
+        globalMounts:
+          - path: /downloads
+      qbrr:
+        type: image
+        image: ghcr.io/buroa/qbrr:0.1.1@sha256:fe4a1d100ba896999253a5122d9c77cc4920779d618c23f765458cb6ec7383ca
       tmpfs:
         type: emptyDir
         advancedMounts:
@@ -132,13 +141,5 @@ spec:
             app:
               - path: /tmp
                 subPath: tmp
-      addons:
-        type: emptyDir
-        globalMounts:
-          - path: /addons
-      data:
-        type: nfs
-        server: aincrad.home.vzkn.eu
-        path: /mnt/user/data/torrents
-        globalMounts:
-          - path: /downloads
+              - path: /addons
+                subPath: addons

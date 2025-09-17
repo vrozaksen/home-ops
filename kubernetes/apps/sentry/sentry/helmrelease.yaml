@@ -308,7 +308,7 @@ spec:
         enabled: true
       controller:
         replicaCount: 1
-        resourcesPreset: "small"
+        resourcesPreset: "medium"
 
     snuba:
       api:

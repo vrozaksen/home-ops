@@ -12,7 +12,7 @@ spec:
     - name: certificates-import
       namespace: network
   interval: 1h
-  path: ./kubernetes/apps/network/envoy-gateway/app
+  path: ./kubernetes/apps/network/envoy-gateway
   prune: true
   sourceRef:
     kind: GitRepository

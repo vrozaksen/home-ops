@@ -7,7 +7,7 @@ metadata:
 spec:
   hostnames: ["sso.vzkn.eu"]
   parentRefs:
-    - name: envoy-internal
+    - name: envoy-external
       namespace: network
       sectionName: https
   rules:

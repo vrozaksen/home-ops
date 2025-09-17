@@ -111,7 +111,7 @@ spec:
             sectionName: https
     configMaps:
       config:
-        forceRename: &configMapName "{{ .Release.Name }}-configmap"
+        forceRename: &configMapName "{{ .Release.Name }}"
         data:
           .qbt.toml: |
             [qbittorrent]

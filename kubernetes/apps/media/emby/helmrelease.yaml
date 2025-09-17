@@ -24,8 +24,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/vrozaksen/emby
-              tag: 4.9.1.27@sha256:7606d35b8cd18a07c323827af759e128fd2d65203cd0e6ea637a8d67c6df5714 # BETA
+              repository: ghcr.io/home-operations/emby
+              tag: 4.9.1.32@sha256:26b0fd828e732ad559a35c175c8666d99833f2eabeaf7d221fcc7f4da89167ff # BETA
             env:
               TZ: Europe/Warsaw
             probes:

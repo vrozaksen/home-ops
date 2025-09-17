@@ -329,14 +329,6 @@ spec:
           limits:
             memory: 1Gi
 
-      cleanup:
-        enabled: true
-        retentionDays: 90
-        schedule: "0 2 * * *"
-        successfulJobsHistoryLimit: 3
-        failedJobsHistoryLimit: 3
-        activeDeadlineSeconds: 300
-
     symbolicator:
       enabled: true
       api:

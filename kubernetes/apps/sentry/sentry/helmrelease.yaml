@@ -44,7 +44,7 @@ spec:
       enabled: false
 
     externalPostgresql:
-      host: sentry-pgbouncer.development.svc.cluster.local
+      host: sentry-pgbouncer.sentry.svc.cluster.local
       port: 5432
       username: sentry
       database: sentry
@@ -53,7 +53,7 @@ spec:
         password: password
 
     externalRedis:
-      host: sentry-dragonfly.development.svc.cluster.local
+      host: sentry-dragonfly.sentry.svc.cluster.local
       port: 6379
       db: 0
 

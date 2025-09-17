@@ -79,3 +79,20 @@ spec:
           peerAddress: 10.10.0.2
           peerConfigRef:
             name: l3-bgp-peer-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-api
+  annotations:
+    lbipam.cilium.io/ips: 10.10.0.20
+spec:
+  type: LoadBalancer
+  selector:
+    k8s-app: kube-apiserver
+    tier: control-plane
+  ports:
+    - name: https
+      port: 6443
+      protocol: TCP
+      targetPort: 6443

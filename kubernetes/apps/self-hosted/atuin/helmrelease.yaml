@@ -99,8 +99,8 @@ spec:
           - "{{ .Release.Name }}.vzkn.eu"
           - sh.vzkn.eu
         parentRefs:
-          - name: internal
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
     persistence:
       tmpfs:

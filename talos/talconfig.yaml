@@ -13,7 +13,7 @@ clusterPodNets:
 clusterSvcNets:
   - "10.96.0.0/16"
 additionalApiServerCertSans: &sans
-  - &vip "10.10.0.20"
+  - "10.10.0.20"
   - "127.0.0.1"
 # additionalMachineCertSans: *sans
 
@@ -56,8 +56,6 @@ nodes:
           downdelay: 200
         dhcp: true
         mtu: 1500
-        vip:
-          ip: *vip
   - hostname: "alne"
     ipAddress: "10.10.0.22"
     # installDisk: /dev/sda
@@ -88,8 +86,6 @@ nodes:
           downdelay: 200
         dhcp: true
         mtu: 1500
-        vip:
-          ip: *vip
   - hostname: "ainias"
     ipAddress: "10.10.0.23"
     # installDisk: /dev/sda
@@ -120,8 +116,6 @@ nodes:
           downdelay: 200
         dhcp: true
         mtu: 1500
-        vip:
-          ip: *vip
   # Worker Nodes
   # - hostname: "granzam"
   #   ipAddress: "10.10.0.31"

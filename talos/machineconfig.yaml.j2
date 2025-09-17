@@ -79,8 +79,6 @@ machine:
           downdelay: 200
         dhcp: true
         mtu: 9000
-        vip:
-          ip: 10.10.0.20
   nodeLabels:
     topology.kubernetes.io/region: main
     topology.kubernetes.io/zone: {{ 'm' if machinetype == 'controlplane' else 'w' }}

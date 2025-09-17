@@ -264,8 +264,8 @@ spec:
       app:
         hostnames: ["{{ .Release.Name }}.example.com"]
         parentRefs:
-          - name: external
-            namespace: kube-system
+          - name: envoy-external
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:

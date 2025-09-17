@@ -115,8 +115,8 @@ spec:
           - "{{ .Release.Name }}.vzkn.eu"
           - hass.vzkn.eu
         parentRefs:
-          - name: external
-            namespace: kube-system
+          - name: envoy-external
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:
@@ -125,8 +125,8 @@ spec:
       codeserver:
         hostnames: ["hass-code.vzkn.eu"]
         parentRefs:
-          - name: internal
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:

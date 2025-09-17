@@ -59,8 +59,8 @@ spec:
           - "{{ .Release.Name }}.vzkn.eu"
           - draw.vzkn.eu
         parentRefs:
-          - name: external
-            namespace: kube-system
+          - name: envoy-external
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:

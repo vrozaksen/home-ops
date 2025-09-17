@@ -8,8 +8,8 @@ spec:
   hostnames:
     - "sentry.vzkn.eu"
   parentRefs:
-    - name: external
-      namespace: kube-system
+    - name: envoy-internal
+      namespace: network
       sectionName: https
   rules:
     # API store and versioned API routes to relay (if relay is enabled)

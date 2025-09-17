@@ -131,6 +131,10 @@ spec:
         path: /mnt/user/data/torrents
         globalMounts:
           - path: /downloads
+      addons:
+        type: emptyDir
+        globalMounts:
+          - path: /addons
       qbrr:
         type: image
         image: ghcr.io/buroa/qbrr:0.1.1@sha256:fe4a1d100ba896999253a5122d9c77cc4920779d618c23f765458cb6ec7383ca
@@ -141,5 +145,3 @@ spec:
             app:
               - path: /tmp
                 subPath: tmp
-              - path: /addons
-                subPath: addons

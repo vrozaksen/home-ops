@@ -57,6 +57,130 @@ spec:
 
               # JVM options
               KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+            command:
+              - /bin/bash
+              - -c
+              - |
+                # Start Kafka in background
+                /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties &
+                KAFKA_PID=$!
+                
+                # Wait for Kafka to be ready
+                echo "Waiting for Kafka to be ready..."
+                until /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list > /dev/null 2>&1; do
+                  sleep 2
+                done
+                echo "Kafka is ready!"
+                
+                # Create Sentry topics
+                echo "Creating Sentry topics..."
+                
+                # Events & Transactions
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic events --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic event-replacements --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic transactions --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-events --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-events-dlq --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-transactions --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-transactions-dlq --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-attachments --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-attachments-dlq --partitions 3 --replication-factor 1
+                
+                # CDC & Basic Topics
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic cdc --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic generic-events --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic group-attributes --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                
+                # Commit Logs
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-transactions-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-metrics-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-events-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-metrics-sets-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-metrics-distributions-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-metrics-counters-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-metrics-gauges-commit-log --partitions 3 --replication-factor 1 --config cleanup.policy=compact,delete --config min.compaction.lag.ms=3600000
+                
+                # Metrics Topics
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-metrics --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-generic-metrics --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-metrics --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-metrics-dlq --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-performance-metrics --partitions 3 --replication-factor 1
+                
+                # Outcomes
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic outcomes --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic outcomes-dlq --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic outcomes-billing --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic outcomes-billing-dlq --partitions 3 --replication-factor 1
+                
+                # Sessions & Profiles
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-sessions --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic profiles --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic processed-profiles --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic profiles-call-tree --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-profile-chunks --partitions 3 --replication-factor 1
+                
+                # Replays
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-replay-events --partitions 3 --replication-factor 1 --config max.message.bytes=15000000 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-replay-recordings --partitions 3 --replication-factor 1
+                
+                # Scheduled Subscriptions  
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-events --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-transactions --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-metrics --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-generic-metrics-sets --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-generic-metrics-distributions --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-generic-metrics-counters --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic scheduled-subscriptions-generic-metrics-gauges --partitions 3 --replication-factor 1
+                
+                # Subscription Results
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic events-subscription-results --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic transactions-subscription-results --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic metrics-subscription-results --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic generic-metrics-subscription-results --partitions 3 --replication-factor 1
+                
+                # Queries & Dead Letter Queues
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-queries --partitions 3 --replication-factor 1 --config message.timestamp.type=LogAppendTime
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-metrics --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-generic-metrics --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-replays --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-generic-events --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-group-attributes --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-dead-letter-querylog --partitions 3 --replication-factor 1
+                
+                # Feedback
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-feedback-events --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-feedback-events-dlq --partitions 3 --replication-factor 1
+                
+                # Monitoring
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-monitors --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic monitors-clock-tasks --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic monitors-clock-tick --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic monitors-incident-occurrences --partitions 3 --replication-factor 1
+                
+                # Occurrences
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic ingest-occurrences --partitions 3 --replication-factor 1
+                
+                # Spans
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic snuba-spans --partitions 3 --replication-factor 1
+                
+                # Additional Topics
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic shared-resources-usage --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic task-worker --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic buffered-segments --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic buffered-segments-dlq --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic uptime-configs --partitions 3 --replication-factor 1
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists --topic uptime-results --partitions 3 --replication-factor 1
+                
+                echo "All Sentry topics created successfully!"
+                
+                # List all topics to verify
+                echo "Current topics:"
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+                
+                # Keep Kafka running
+                wait $KAFKA_PID
             probes:
               liveness: &probes
                 enabled: true

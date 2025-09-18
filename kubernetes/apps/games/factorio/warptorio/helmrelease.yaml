@@ -49,18 +49,18 @@ spec:
                 memory: 2Gi
               limits:
                 memory: 8Gi
-          filebrowser:
-            image:
-              repository: filebrowser/filebrowser
-              tag: v2.43.0
-            env:
-              TZ: Europe/Warsaw
-            resources:
-              requests:
-                cpu: 25m
-                memory: 64Mi
-              limits:
-                memory: 512Mi
+          # filebrowser:
+          #   image:
+          #     repository: filebrowser/filebrowser
+          #     tag: v2.43.0
+          #   env:
+          #     TZ: Europe/Warsaw
+          #   resources:
+          #     requests:
+          #       cpu: 25m
+          #       memory: 64Mi
+          #     limits:
+          #       memory: 512Mi
     service:
       app:
         type: LoadBalancer
@@ -74,8 +74,8 @@ spec:
           gameudp:
             port: *port
             protocol: UDP
-          filebrowser:
-            port: 80
+          # filebrowser:
+          #   port: 80
     metrics:
       enabled: true
       serviceMonitor:
@@ -87,27 +87,32 @@ spec:
         env:
           port: 9794
           additionalMetrics: true
-          unknownQueueItems: false
-    route:
-      filebrowser:
-        hostnames: ["warptorio-files.vzkn.eu"]
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-            sectionName: https
-        rules:
-          - backendRefs:
-              - name: *app
-                port: 80
+    #       unknownQueueItems: false
+    # route:
+    #   filebrowser:
+    #     hostnames: ["warptorio-files.vzkn.eu"]
+    #     parentRefs:
+    #       - name: envoy-internal
+    #         namespace: network
+    #         sectionName: https
+    #     rules:
+    #       - backendRefs:
+    #           - name: *app
+    #             port: 80
     persistence:
       data:
-        enabled: true
-        existingClaim: *app
-        advancedMounts:
-          warptorio:
-            app:
-              - path: /factorio
-            filebrowser:
-              - path: /db
-                subPath: filebrowser
-              - path: /srv/factorio
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/games/warptorio
+        globalMounts:
+          - path: /factorio
+        # enabled: true
+        # existingClaim: *app
+        # advancedMounts:
+        #   warptorio:
+        #     app:
+        #       - path: /factorio
+        #     filebrowser:
+        #       - path: /db
+        #         subPath: filebrowser
+        #       - path: /srv/factorio

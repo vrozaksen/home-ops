@@ -97,7 +97,7 @@ spec:
         [OUTPUT]
           name loki
           match kubernetes.*
-          host loki-gateway.observability.svc.cluster.local
+          host loki-headless.observability.svc.cluster.local
           port 3100
           uri /loki/api/v1/push
           line_format json

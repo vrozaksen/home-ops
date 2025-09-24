@@ -77,7 +77,7 @@ spec:
           # filebrowser:
           #   port: 80
     metrics:
-      enabled: true
+      enabled: false
       serviceMonitor:
         interval: 3m
         scrapeTimeout: 1m

@@ -46,8 +46,8 @@ spec:
               ND_ENABLESHARING: true
               ND_ENABLESTARRATING: true # Default: false
               ND_IMAGECACHESIZE: 1GB
-              ND_LISTENBRAINZ_BASEURL: http://maloja.media.svc.cluster.local/apis/listenbrainz/1/
-              ND_LISTENBRAINZ_ENABLED: true
+              # ND_LISTENBRAINZ_BASEURL: http://maloja.media.svc.cluster.local/apis/listenbrainz/1/
+              ND_LISTENBRAINZ_ENABLED: false
               ND_PROMETHEUS_ENABLED: true
               ND_PROMETHEUS_METRICSPATH: &metrics /metrics
               ND_REVERSEPROXYUSERHEADER: "X-authentik-username"

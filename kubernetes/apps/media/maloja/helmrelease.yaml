@@ -28,7 +28,11 @@ spec:
               TZ: &tz Europe/Warsaw
               MALOJA_LOCATION_TIMEZONE: *tz
               MALOJA_PORT: &port 8080
-              MALOJA_DATA_DIRECTORY: /data
+              # MALOJA_DATA_DIRECTORY: &pvc /data
+              MALOJA_DIRECTORY_CONFIG: /data/config
+              MALOJA_DIRECTORY_STATE: /data/state
+              MALOJA_DIRECTORY_CACHE: /misc/cache
+              MALOJA_DIRECTORY_LOGS: /misc/logs
               MALOJA_LOGGING: false
             envFrom:
               - secretRef:
@@ -72,3 +76,8 @@ spec:
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - subPath: data
+            path: /data
+      misc:
+        existingClaim: maloja-misc

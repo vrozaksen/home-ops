@@ -29,7 +29,6 @@ spec:
               TZ: &tz Europe/Warsaw
               MALOJA_LOCATION_TIMEZONE: *tz
               MALOJA_PORT: &port 8080
-              # MALOJA_DATA_DIRECTORY: &pvc /data
               MALOJA_DIRECTORY_CONFIG: /data/config
               MALOJA_DIRECTORY_STATE: /data/state
               MALOJA_DIRECTORY_CACHE: /misc/cache

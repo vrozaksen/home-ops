@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/emby
-              tag: 4.9.1.33@sha256:e1f5804bc369e1f7515b735d06db4930e918eaaedf73d4519789338b8963bc3e # BETA
+              tag: 4.9.1.36@sha256:5c8dc62014deda173f95b9c4dcb6ba523558a8f77d34755abf1a7a75e6fddb2c # BETA
             env:
               TZ: Europe/Warsaw
             probes:

@@ -41,9 +41,9 @@ spec:
               ND_COVERJPEGQUALITY: 100 # Default: 75
               ND_DEFAULTTHEME: Spotify-ish
               ND_ENABLEDOWNLOADS: true
-              ND_ENABLEEXTERNALSERVICES: false
+              ND_ENABLEEXTERNALSERVICES: true
               ND_ENABLEGRAVATAR: false
-              ND_ENABLESHARING: false
+              ND_ENABLESHARING: true
               ND_ENABLESTARRATING: true # Default: false
               ND_IMAGECACHESIZE: 1GB
               ND_LISTENBRAINZ_BASEURL: http://maloja.media.svc.cluster.local/apis/listenbrainz/1/

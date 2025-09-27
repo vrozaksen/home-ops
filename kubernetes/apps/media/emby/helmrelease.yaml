@@ -110,10 +110,9 @@ spec:
       music-videos:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/z_media
+        path: /mnt/user/z_media/music-videos
         globalMounts:
           - path: /music-videos
-            subPath: music-videos
       tmpfs:
         type: emptyDir
         advancedMounts:

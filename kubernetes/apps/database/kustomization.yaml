@@ -6,7 +6,7 @@ namespace: database
 components:
   - ../../components/common
 resources:
-  - ./clickhouse/ks.yaml
+  # - ./clickhouse/ks.yaml
   - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml

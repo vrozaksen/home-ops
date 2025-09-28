@@ -56,6 +56,7 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 1Gi
+                gpu.intel.com/i915: 1
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -63,6 +64,9 @@ spec:
         runAsGroup: 100
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 44 # video
+          - 109 # render
     service:
       app:
         ports:

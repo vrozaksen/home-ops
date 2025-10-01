@@ -17,6 +17,6 @@ resources:
   # - ./recyclarr/ks.yaml
   - ./slskd/ks.yaml
   - ./sonarr/ks.yaml
-  - ./soularr/ks.yaml
+  # - ./soularr/ks.yaml
   - ./tqm/ks.yaml
   - ./webhook/ks.yaml

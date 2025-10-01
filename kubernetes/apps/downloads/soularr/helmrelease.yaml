@@ -57,7 +57,7 @@ spec:
         name: "{{ .Release.Name }}-secret"
         globalMounts:
           - path: /data/config.ini
-            subPath: config.yaml
+            subPath: config.ini
             readOnly: true
       data:
         type: nfs

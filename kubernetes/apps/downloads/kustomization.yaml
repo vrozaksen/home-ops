@@ -15,6 +15,7 @@ resources:
   - ./qui/ks.yaml
   - ./radarr/ks.yaml
   # - ./recyclarr/ks.yaml
+  - ./slskd/ks.yaml
   - ./sonarr/ks.yaml
   - ./tqm/ks.yaml
   - ./webhook/ks.yaml

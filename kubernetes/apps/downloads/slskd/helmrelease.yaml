@@ -110,7 +110,6 @@ spec:
         server: aincrad.home.vzkn.eu
         path: /mnt/user/data/soulseek
         globalMounts:
-          - path: /media/soulseek
-            subPath: /soulseek
+          - path: /soulseek
       tmp:
         type: emptyDir

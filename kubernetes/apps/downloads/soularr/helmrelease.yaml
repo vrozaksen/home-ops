@@ -70,10 +70,12 @@ spec:
         type: configMap
         name: "{{ .Release.Name }}-configmap"
         defaultMode: 0775
-        globalMounts:
-          - path: /tmp/config.ini
-            subPath: config.ini
-            readOnly: true
+        advancedMounts:
+          soularr:
+            config-setup:
+              - path: /tmp/config.ini
+                subPath: config.ini
+                readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

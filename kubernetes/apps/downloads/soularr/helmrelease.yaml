@@ -21,20 +21,6 @@ spec:
       soularr:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          config-setup:
-            image:
-              repository: ghcr.io/dmfrey/bash
-              tag: 5.2.26-alpine3.20
-            command:
-              - "/usr/local/bin/bash"
-              - -c
-              - |
-                envsubst < /tmp/config.ini > /data/config.ini
-                exit 0
-            envFrom:
-              - secretRef:
-                  name: "{{ .Release.Name }}-secret"
         containers:
           app:
             image:
@@ -66,16 +52,13 @@ spec:
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
-      config-file:
-        type: configMap
-        name: "{{ .Release.Name }}-configmap"
-        defaultMode: 0775
-        advancedMounts:
-          soularr:
-            config-setup:
-              - path: /tmp/config.ini
-                subPath: config.ini
-                readOnly: true
+      config-secret:
+        type: secret
+        name: "{{ .Release.Name }}-secret"
+        globalMounts:
+          - path: /data/config.ini
+            subPath: config.yaml
+            readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

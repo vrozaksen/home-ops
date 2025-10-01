@@ -20,3 +20,9 @@ shares:
     - \.ini$
     - Thumbs.db$
     - \.DS_Store$
+web:
+  authentication:
+    api_keys:
+      my_api_key:
+        key: ${SLSKD_API_KEY}
+        cidr: 0.0.0.0/0,::/0

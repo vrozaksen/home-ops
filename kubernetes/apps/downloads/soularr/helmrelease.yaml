@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: soularr
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      soularr:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          config-setup:
+            image:
+              repository: ghcr.io/dmfrey/bash
+              tag: 5.2.26-alpine3.20
+            command:
+              - "/usr/local/bin/bash"
+              - -c
+              - |
+                envsubst < /tmp/config.ini > /data/config.ini
+                exit 0
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/mrusse/soularr
+              tag: main@sha256:ff20e8b7537da7f06036b8c2aada56c00195405692a80e44ab11048fe519a1e0
+            env:
+              TZ: Europe/Warsaw
+              SCRIPT_INTERVAL: 300 # Script interval in seconds
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        enabled: false
+    persistence:
+      config:
+        existingClaim: "{{ .Release.Name }}"
+      config-file:
+        type: configMap
+        name: "{{ .Release.Name }}-configmap"
+        defaultMode: 0775
+        globalMounts:
+          - path: /tmp/config.ini
+            subPath: config.ini
+            readOnly: true
+      data:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/soulseek
+        globalMounts:
+          - path: /soulseek
+      music:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/z_media
+        globalMounts:
+          - path: /music
+            subPath: music
+      tmp:
+        type: emptyDir

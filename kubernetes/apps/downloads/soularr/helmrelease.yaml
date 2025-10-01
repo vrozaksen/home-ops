@@ -52,6 +52,8 @@ spec:
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - path: /data
       config-secret:
         type: secret
         name: "{{ .Release.Name }}-secret"

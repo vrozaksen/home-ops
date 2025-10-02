@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mrusse/soularr
-              tag: main@sha256:ff20e8b7537da7f06036b8c2aada56c00195405692a80e44ab11048fe519a1e0
+              tag: main@sha256:61181c5809845d2c49c8c3c182c0280c5c91069cd2e5d7c341ddd8bfa2c01598
             env:
               TZ: Europe/Warsaw
               SCRIPT_INTERVAL: 300 # Script interval in seconds

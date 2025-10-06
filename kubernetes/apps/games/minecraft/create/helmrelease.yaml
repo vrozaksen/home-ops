@@ -90,6 +90,8 @@ spec:
         - https://cdn.modrinth.com/data/2M01OLQq/versions/psdIbUbg/shulkerboxtooltip-neoforge-5.1.6%2B1.21.1.jar # ShulkerBoxTooltip
         - https://cdn.modrinth.com/data/DjLobEOy/versions/MntMLupc/t_and_t-neoforge-fabric-1.13.2.jar # T&T
         - https://cdn.modrinth.com/data/cl223EMc/versions/oLp2OCg3/cristellib-neoforge-1.2.8.jar # CristelliLib
+        - https://cdn.modrinth.com/data/rOUBggPv/versions/I55kQvEh/supermartijn642corelib-1.1.18a-neoforge-mc1.21.jar # SuperMartijn642CoreLib
+        - https://cdn.modrinth.com/data/LN9BxssP/versions/qKL9jM75/supermartijn642configlib-1.1.8-neoforge-mc1.21.jar # SuperMartijn642ConfigLib
       rcon:
         enabled: true
   valuesFrom:

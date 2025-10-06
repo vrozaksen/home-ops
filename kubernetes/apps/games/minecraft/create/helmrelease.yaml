@@ -70,7 +70,7 @@ spec:
       worldSaveName: create
       viewDistance: 16
       pluginUrls:
-        - https://cdn.modrinth.com/data/LNytGWDc/versions/5LpL274U/create-1.21.1-6.0.4.jar # Create
+        - https://cdn.modrinth.com/data/LNytGWDc/versions/tS7ygzAE/create-1.21.1-6.0.6.jar # Create
         - https://cdn.modrinth.com/data/t1VgucWo/versions/xC7Vc2qa/chunkloaders-1.2.8-neoforge-mc1.21.jar # Chunk Loaders
         - https://cdn.modrinth.com/data/U3eoZT3o/versions/QV78XqMj/infinitetrading-1.21.1-4.6.jar # Infinite Trading
         - https://cdn.modrinth.com/data/e0M1UDsY/versions/QZ8hTzIf/collective-1.21.1-8.7.jar # Collective

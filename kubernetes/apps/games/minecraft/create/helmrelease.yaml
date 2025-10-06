@@ -52,9 +52,9 @@ spec:
         enabled: true
         existingClaim: *app
     serviceAnnotations:
-      external-dns.alpha.kubernetes.io/hostname: create.vzkn.eu
+      external-dns.alpha.kubernetes.io/hostname: mc-create.vzkn.eu
       external-dns.alpha.kubernetes.io/target: mc.vzkn.eu
-      mc-router.itzg.me/externalServerName: create.vzkn.eu
+      mc-router.itzg.me/externalServerName: mc-create.vzkn.eu
     minecraftServer:
       eula: true
       version: 1.21.1

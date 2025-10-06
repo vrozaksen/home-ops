@@ -39,4 +39,4 @@ spec:
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: 10.10.0.60
-          external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu, create.vzkn.eu
+          external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu, mc-create.vzkn.eu

@@ -10,7 +10,7 @@ data:
     endpoints:
       - name: minecraft-create
         group: games
-        url: udp://create.vzkn.eu:25565
+        url: udp://mc-create.vzkn.eu:25565
         interval: 1m
         conditions: ["[CONNECTED] == true"]
         alerts: [{ type: pushover }]

@@ -94,6 +94,8 @@ spec:
         - https://cdn.modrinth.com/data/cl223EMc/versions/oLp2OCg3/cristellib-neoforge-1.2.8.jar # CristelliLib
       rcon:
         enabled: true
+        serviceType: ClusterIP
+      serviceType: LoadBalancer
   valuesFrom:
     - kind: Secret
       name: *app

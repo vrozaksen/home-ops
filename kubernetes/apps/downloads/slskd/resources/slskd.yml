@@ -1,0 +1,28 @@
+---
+directories:
+  downloads: /soulseek/complete
+  incomplete: /soulseek/incomplete
+flags:
+  no_version_check: true
+metrics:
+  enabled: true
+  url: /metrics
+  authentication:
+    disabled: true
+permissions:
+  file:
+    mode: 750
+remote_configuration: false
+shares:
+  directories:
+    - /soulseek/shared
+  filters:
+    - \.ini$
+    - Thumbs.db$
+    - \.DS_Store$
+web:
+  authentication:
+    api_keys:
+      my_api_key:
+        key: ${SLSKD_API_KEY}
+        cidr: 0.0.0.0/0,::/0

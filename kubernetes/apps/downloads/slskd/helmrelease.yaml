@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app radarr
+  name: slskd
 spec:
   interval: 1h
   chartRef:
@@ -18,45 +18,33 @@ spec:
       retries: 3
   values:
     controllers:
-      radarr:
-        replicas: 1
-        strategy: RollingUpdate
+      slskd:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
-              repository: ghcr.io/home-operations/radarr
-              tag: 6.0.2.10271@sha256:12b8348c57c556d837d28bbc73a8837fb7f402a29aba40385a0513dbd068881b
+              repository: ghcr.io/slskd/slskd
+              tag: 0.23.2@sha256:28df5325f301537ea8669b2ef90112a30cc9f2efd3eb714c9a778460b5dc6288
+            args: ["sync"]
             env:
-              RADARR__APP__INSTANCENAME: Radarr
-              RADARR__APP__THEME: dark
-              RADARR__AUTH__METHOD: External
-              RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
-              RADARR__LOG__DBENABLED: "False"
-              RADARR__LOG__LEVEL: info
-              RADARR__POSTGRES__HOST: radarr-pgbouncer.downloads.svc
-              RADARR__POSTGRES__MAINDB: *app
-              RADARR__POSTGRES__PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: radarr-pguser-radarr
-                    key: password
-              RADARR__POSTGRES__PORT: "5432"
-              RADARR__POSTGRES__USER: *app
-              RADARR__SERVER__PORT: &port 80
-              RADARR__UPDATE__BRANCH: develop
               TZ: Europe/Warsaw
+              DOTNET_BUNDLE_EXTRACT_BASE_DIR: /tmp/.net
+              SLSKD_APP_DIR: /config
+              SLSKD_HTTP_PORT: &port 80
+              SLSKD_NO_AUTH: true
+              SLSKD_NO_HTTPS: true
+              SLSKD_SLSK_LISTEN_PORT: &soulseekPort 50300
             envFrom:
               - secretRef:
-                  name: radarr-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /ping
+                    path: /health
                     port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
@@ -69,10 +57,10 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 200m
-                memory: 1Gi
+                cpu: 10m
+                memory: 128Mi
               limits:
-                memory: 2Gi
+                memory: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -82,9 +70,19 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        forceRename: "{{ .Release.Name }}"
+        primary: true
         ports:
           http:
             port: *port
+      soulseek:
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.45
+        ports:
+          soulseek-tcp:
+            port: *soulseekPort
+            protocol: TCP
     route:
       app:
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
@@ -92,25 +90,26 @@ spec:
           - name: envoy-internal
             namespace: network
             sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       config:
-        existingClaim: *app
-      config-cache:
-        existingClaim: radarr-cache
+        existingClaim: "{{ .Release.Name }}"
+      config-file:
+        type: configMap
+        name: "{{ .Release.Name }}-configmap"
+        defaultMode: 0775
         globalMounts:
-          - path: /config/MediaCover
+          - path: /config/slskd.yml
+            subPath: slskd.yml
+            readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/data
+        path: /mnt/user/data/soulseek
         globalMounts:
-          - path: /data
-      tmpfs:
+          - path: /soulseek
+      tmp:
         type: emptyDir
-        advancedMounts:
-          radarr:
-            app:
-              - path: /config/logs
-                subPath: logs
-              - path: /tmp
-                subPath: tmp

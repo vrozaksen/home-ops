@@ -3,33 +3,35 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
-  name: flux-operator
+  name: mc-router
 spec:
   interval: 5m
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.31.0
-  url: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
+    tag: 1.4.0
+  url: oci://ghcr.io/itzg/minecraft-server-charts/mc-router
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: flux-operator
+  name: mc-router
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
-    name: flux-operator
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
+    name: mc-router
+  dependsOn: []
+  interval: 15m
   values:
-    serviceMonitor:
-      create: true
+    image:
+      repository: ghcr.io/itzg/mc-router
+      tag: 1.36.0@sha256:c864081f958b2df4182f85b357fcbc9b613749c3c4f23a0f2e4c3b0c5eb615a7
+      pullPolicy: IfNotPresent
+    services:
+      minecraft:
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.60
+          external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu, create.vzkn.eu

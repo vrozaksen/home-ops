@@ -17,7 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      ALERTMANAGER_SUBDOMAIN: alertmanager
       GATUS_SUBDOMAIN: prometheus
       GATUS_GROUP: infrastructure
   prune: true

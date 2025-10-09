@@ -33,7 +33,7 @@ spec:
       route:
         main:
           enabled: true
-          hostnames: ["${ALERTMANAGER_SUBDOMAIN}.vzkn.eu"]
+          hostnames: ["alertmanager.vzkn.eu"]
           parentRefs:
             - name: envoy-internal
               namespace: network
@@ -43,7 +43,7 @@ spec:
           name: alertmanager
           global:
             resolveTimeout: 5m
-        externalUrl: https://${ALERTMANAGER_SUBDOMAIN}.vzkn.eu
+        externalUrl: https://alertmanager.vzkn.eu
         storage:
           volumeClaimTemplate:
             spec:
@@ -128,12 +128,13 @@ spec:
       route:
         main:
           enabled: true
-          hostnames: ["${GATUS_SUBDOMAIN:=${APP}}.vzkn.eu"]
+          hostnames: ["prometheus.vzkn.eu"]
           parentRefs:
             - name: envoy-internal
               namespace: network
               sectionName: https
       prometheusSpec:
+        externalUrl: https://prometheus.vzkn.eu
         externalLabels:
           cluster: main
         resources:

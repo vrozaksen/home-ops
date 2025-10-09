@@ -5,11 +5,7 @@
 # metadata:
 #   name: &app github-mcp
 # spec:
-#   commonMetadata:
-#     labels:
-#       app.kubernetes.io/name: *app
 #   components:
-#     - ../../../../components/defaults
 #     - ../../../../components/gatus/guarded
 #     - ../../../../components/volsync
 #   interval: 1h

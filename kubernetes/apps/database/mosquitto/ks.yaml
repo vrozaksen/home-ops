@@ -5,11 +5,6 @@ kind: Kustomization
 metadata:
   name: &app mosquitto
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../components/defaults
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
@@ -19,11 +14,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: database
-  timeout: 5m
   wait: false

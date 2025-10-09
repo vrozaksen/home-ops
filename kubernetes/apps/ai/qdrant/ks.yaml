@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app qdrant
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
@@ -23,11 +19,8 @@ spec:
       GATUS_GROUP: ai
       VOLSYNC_CAPACITY: 25Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: ai
-  timeout: 5m
   wait: false

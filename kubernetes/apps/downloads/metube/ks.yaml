@@ -5,13 +5,9 @@ kind: Kustomization
 metadata:
   name: &app metube
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
-    - ../../../components/keda/nfs-scaler
+    - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
     - name: keda
@@ -25,11 +21,8 @@ spec:
       APP: *app
       GATUS_GROUP: media-guarded
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
-  timeout: 5m
   wait: false

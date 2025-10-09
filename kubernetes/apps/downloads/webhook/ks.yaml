@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app webhook
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
   interval: 1h
   path: ./kubernetes/apps/downloads/webhook
@@ -18,11 +14,8 @@ spec:
       APP: *app
       GATUS_GROUP: media-guarded
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
-  timeout: 5m
   wait: false

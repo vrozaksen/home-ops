@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app authentik
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/dragonfly
     - ../../../components/gatus/external
     - ../../../components/postgres
@@ -35,11 +31,8 @@ spec:
       GATUS_SUBDOMAIN: sso
       POOL_MODE: transaction
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: security
-  timeout: 5m
   wait: false

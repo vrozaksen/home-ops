@@ -3,33 +3,22 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app external-secrets
+  name: external-secrets
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/external-secrets/external-secrets/app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: external-secrets
-  timeout: 5m
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app external-secrets-store
+  name: external-secrets-store
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   healthChecks:
     - apiVersion: &certApiVersion cert-manager.io/v1
       kind: &certKind Certificate
@@ -53,11 +42,9 @@ spec:
   interval: 1h
   path: ./kubernetes/apps/external-secrets/external-secrets/store
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: external-secrets
   timeout: 15m
   wait: true

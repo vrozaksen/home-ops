@@ -5,22 +5,14 @@ kind: Kustomization
 metadata:
   name: &app tqm
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../components/defaults
   dependsOn:
     - name: qbittorrent
       namespace: downloads
   interval: 1h
   path: ./kubernetes/apps/downloads/tqm
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
-  timeout: 5m
   wait: false

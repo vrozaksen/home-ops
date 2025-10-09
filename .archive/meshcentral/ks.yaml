@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app meshcentral
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
     - ../../../components/volsync
   interval: 1h
@@ -19,11 +15,8 @@ spec:
       APP: *app
       GATUS_GROUP: management
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: management
-  timeout: 5m
   wait: false

@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app reactive-resume
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
     - ../../../components/postgres
   dependsOn:
@@ -27,11 +23,8 @@ spec:
       APP: rresume
       GATUS_SUBDOMAIN: rr
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

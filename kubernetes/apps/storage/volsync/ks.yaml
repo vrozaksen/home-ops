@@ -5,12 +5,8 @@ kind: Kustomization
 metadata:
   name: &app volsync
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
-    - ../../../components/keda/nfs-scaler
+    - ../../../components/nfs-scaler
   dependsOn:
     - name: snapshot-controller
       namespace: storage
@@ -25,11 +21,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: storage
-  timeout: 5m
   wait: false

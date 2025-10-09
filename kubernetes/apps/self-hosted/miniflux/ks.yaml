@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app miniflux
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
     - ../../../components/postgres
   interval: 1h
@@ -28,11 +24,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

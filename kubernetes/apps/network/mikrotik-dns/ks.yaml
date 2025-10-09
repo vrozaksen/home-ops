@@ -3,21 +3,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app mikrotik-dns
+  name: mikrotik-dns
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  # components: # TODO
-  #  - ../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/network/mikrotik-dns
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: network
-  timeout: 5m
   wait: true

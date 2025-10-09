@@ -5,19 +5,11 @@ kind: Kustomization
 metadata:
   name: &app smartctl-exporter
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/observability/exporters/smartctl-exporter
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: observability
-  timeout: 5m
   wait: false

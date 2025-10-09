@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app headlamp
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
   interval: 1h
   path: ./kubernetes/apps/flux-system/headlamp
@@ -18,11 +14,8 @@ spec:
       APP: *app
       GATUS_GROUP: infrastructure
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: flux-system
-  timeout: 5m
   wait: false

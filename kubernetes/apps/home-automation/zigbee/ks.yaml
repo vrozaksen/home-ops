@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app zigbee
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
@@ -26,11 +22,8 @@ spec:
       APP: *app
       GATUS_GROUP: home
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-automation
-  timeout: 5m
   wait: false

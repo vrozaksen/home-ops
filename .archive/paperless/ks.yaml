@@ -5,14 +5,10 @@ kind: Kustomization
 metadata:
   name: &app paperless
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/dragonfly
     - ../../../components/gatus/external
-    - ../../../components/keda/nfs-scaler
+    - ../../../components/nfs-scaler
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
@@ -38,11 +34,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 15Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

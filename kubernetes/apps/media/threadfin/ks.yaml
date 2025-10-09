@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app threadfin
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
@@ -26,11 +22,8 @@ spec:
       GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 1Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
-  timeout: 5m
   wait: false

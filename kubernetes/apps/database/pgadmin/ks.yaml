@@ -5,9 +5,6 @@ kind: Kustomization
 metadata:
   name: &app crunchy-postgres-pgadmin
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   # components:
   #   - ../../../components/gatus/guarded
   #   - ../../../components/volsync
@@ -26,11 +23,8 @@ spec:
   #     VOLSYNC_CAPACITY: 500Mi
   #     GATUS_GROUP: infrastructure
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: database
-  timeout: 5m
   wait: false

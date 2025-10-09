@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app clickhouse
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/database/clickhouse
@@ -18,11 +14,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 50Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: database
-  timeout: 5m
   wait: false

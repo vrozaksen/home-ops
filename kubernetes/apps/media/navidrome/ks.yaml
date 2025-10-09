@@ -5,13 +5,9 @@ kind: Kustomization
 metadata:
   name: &app navidrome
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
-    - ../../../components/keda/nfs-scaler
+    - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
     - name: keda
@@ -29,11 +25,8 @@ spec:
       GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 5Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
-  timeout: 5m
   wait: false

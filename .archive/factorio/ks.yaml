@@ -5,22 +5,16 @@ kind: Kustomization
 metadata:
   name: &app factorio
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: external-secrets-store
       namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/games/factorio
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: games
-  timeout: 5m
   wait: false
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -29,11 +23,7 @@ kind: Kustomization
 metadata:
   name: &app krastorio
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../../components/defaults
     - ../../../../components/volsync
   dependsOn:
     - name: factorio
@@ -47,11 +37,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 20Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: games
-  timeout: 5m
   wait: false

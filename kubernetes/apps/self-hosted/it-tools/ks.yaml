@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app it-tools
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
   interval: 1h
   path: ./kubernetes/apps/self-hosted/it-tools
@@ -17,11 +13,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

@@ -5,22 +5,14 @@ kind: Kustomization
 metadata:
   name: &app collabora
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/self-hosted/collabora
   postBuild:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

@@ -5,19 +5,13 @@ kind: Kustomization
 metadata:
   name: &app mc-router
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/mc-router
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: games
-  timeout: 5m
   wait: false
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -26,9 +20,6 @@ kind: Kustomization
 metadata:
   name: &app minecraft-create
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
   interval: 1h
@@ -38,11 +29,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 50Gi
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: games
-  timeout: 5m
   wait: false

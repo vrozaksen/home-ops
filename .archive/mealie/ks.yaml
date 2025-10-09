@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app mealie
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
     - ../../../components/postgres
     - ../../../components/volsync
@@ -31,11 +27,8 @@ spec:
       VOLSYNC_CAPACITY: 5Gi
       GATUS_PATH: /api/app/about
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
-  timeout: 5m
   wait: false

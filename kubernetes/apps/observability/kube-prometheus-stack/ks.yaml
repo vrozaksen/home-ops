@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app kube-prometheus-stack
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/guarded
   dependsOn:
     - name: external-secrets-store
@@ -25,11 +21,8 @@ spec:
       GATUS_SUBDOMAIN: prometheus
       GATUS_GROUP: infrastructure
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: observability
-  timeout: 5m
   wait: false

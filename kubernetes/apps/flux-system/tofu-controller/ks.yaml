@@ -5,21 +5,13 @@ kind: Kustomization
 metadata:
   name: &app tofu-controller
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/flux-system/tofu-controller/controller
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: flux-system
-  timeout: 5m
   wait: false
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -28,20 +20,14 @@ kind: Kustomization
 metadata:
   name: &app tofu-controller-terraforms
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: tofu-controller
       namespace: flux-system
   interval: 1h
   path: ./kubernetes/apps/flux-system/tofu-controller/terraform
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: flux-system
-  timeout: 5m
   wait: false

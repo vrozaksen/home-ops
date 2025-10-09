@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app jellyseerr
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/gatus/external
     - ../../../components/postgres
     - ../../../components/volsync
@@ -38,11 +34,8 @@ spec:
       GATUS_SUBDOMAIN: requests
       GATUS_GROUP: home-media
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
-  timeout: 5m
   wait: false

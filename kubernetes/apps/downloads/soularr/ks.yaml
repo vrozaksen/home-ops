@@ -5,12 +5,8 @@ kind: Kustomization
 metadata:
   name: &app soularr
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
-    - ../../../components/keda/nfs-scaler
+    - ../../../components/nfs-scaler
   dependsOn:
     - name: slskd
       namespace: downloads
@@ -22,11 +18,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
-  timeout: 5m
   wait: false

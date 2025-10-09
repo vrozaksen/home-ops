@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app outline
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/dragonfly
     - ../../../components/gatus/external
     - ../../../components/postgres
@@ -31,11 +27,8 @@ spec:
       GATUS_SUBDOMAIN: docs
       GATUS_GROUP: home-tools
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-tools
-  timeout: 5m
   wait: false

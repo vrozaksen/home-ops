@@ -5,11 +5,7 @@ kind: Kustomization
 metadata:
   name: &app gitea
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
-    - ../../../components/defaults
     - ../../../components/dragonfly
     - ../../../components/gatus/external
     - ../../../components/postgres
@@ -36,11 +32,8 @@ spec:
     substitute:
       APP: *app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: development
-  timeout: 5m
   wait: false

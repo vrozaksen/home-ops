@@ -90,7 +90,7 @@ spec:
             sectionName: https
     persistence:
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /app/data
       tmpfs:

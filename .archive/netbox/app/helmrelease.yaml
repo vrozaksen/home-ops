@@ -56,7 +56,7 @@ spec:
           bucket_name: "netbox"
           endpoint_url: "https://s3.vzkn.eu"
           region_name: "main"
-    existingSecret: netbox-secret
+    existingSecret: "{{ .Release.Name }}-secret"
     replicaCount: 1
     resourcesPreset: "medium"
     metrics:
@@ -95,7 +95,7 @@ spec:
       successThreshold: 1
     extraConfig:
       - secret:
-          secretName: netbox-secret
+          secretName: "{{ .Release.Name }}-secret"
     housekeeping:
       enabled: false
     worker:
@@ -107,9 +107,9 @@ spec:
   valuesFrom:
     - targetPath: storages.default.OPTIONS.access_key
       kind: Secret
-      name: netbox-secret
+      name: "{{ .Release.Name }}-secret"
       valuesKey: AWS_ACCESS_KEY_ID
     - targetPath: storages.default.OPTIONS.secret_key
       kind: Secret
-      name: netbox-secret
+      name: "{{ .Release.Name }}-secret"
       valuesKey: AWS_SECRET_ACCESS_KEY

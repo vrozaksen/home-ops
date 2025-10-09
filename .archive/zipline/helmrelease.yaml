@@ -70,7 +70,7 @@ spec:
               WEBSITE_DISABLE_MEDIA_PREVIEW: "false"
             envFrom:
               - secretRef:
-                  name: zipline-secret
+                  name: "{{ .Release.Name }}-secret"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

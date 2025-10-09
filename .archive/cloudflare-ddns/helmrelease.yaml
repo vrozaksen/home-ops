@@ -41,7 +41,7 @@ spec:
               QUIET: false
             envFrom:
               - secretRef:
-                  name: cloudflare-ddns-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness: &probes
                 enabled: true

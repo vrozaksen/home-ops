@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app emby
+  name: emby
 spec:
   interval: 1h
   chartRef:
@@ -83,22 +83,22 @@ spec:
             port: *port
     route:
       app:
-        hostnames: ["emby.vzkn.eu"]
+        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:
           - name: envoy-external
             namespace: network
             sectionName: https
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /config
       config-cache:
-        existingClaim: emby-cache
+        existingClaim: "{{ .Release.Name }}-cache"
         globalMounts:
           - path: /config/cache
       emby-metadata:
-        existingClaim: emby-metadata
+        existingClaim: "{{ .Release.Name }}-metadata"
         globalMounts:
           - path: /metadata
       media:

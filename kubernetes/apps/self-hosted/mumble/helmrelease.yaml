@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app mumble
+  name: mumble
 spec:
   interval: 1h
   chartRef:
@@ -33,7 +33,7 @@ spec:
               MUMBLE_CONFIG_WELCOMETEXT: "Welcome to Mumble!"
             envFrom:
               - secretRef:
-                  name: mumble-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               startup:
                 enabled: true
@@ -82,6 +82,6 @@ spec:
             protocol: UDP
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /data

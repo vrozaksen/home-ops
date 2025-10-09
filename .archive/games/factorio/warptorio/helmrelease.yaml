@@ -42,7 +42,7 @@ spec:
               MODS: /factorio/mods
             envFrom:
               - secretRef:
-                  name: factorio-secret
+                  name: "{{ .Release.Name }}-secret"
             resources:
               requests:
                 cpu: 100m
@@ -107,7 +107,7 @@ spec:
         globalMounts:
           - path: /factorio
         # enabled: true
-        # existingClaim: *app
+        # existingClaim: "{{ .Release.Name }}"
         # advancedMounts:
         #   warptorio:
         #     app:

@@ -82,4 +82,4 @@ spec:
           - subPath: data
             path: /data
       misc:
-        existingClaim: maloja-misc
+        existingClaim: "{{ .Release.Name }}-misc"

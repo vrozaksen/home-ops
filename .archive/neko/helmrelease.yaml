@@ -48,7 +48,7 @@ spec:
               NEKO_WEBRTC_NAT1TO1: 10.10.0.51
             envFrom:
               - secretRef:
-                  name: neko-secret
+                  name: "{{ .Release.Name }}-secret"
             resources:
               requests:
                 cpu: 10m
@@ -96,7 +96,7 @@ spec:
               - path: /usr/lib/firefox/distribution/policies.json
                 subPath: policies.json
       profile:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         advancedMounts:
           neko:
             neko:

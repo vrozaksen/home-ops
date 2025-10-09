@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app clickhouse
+  name: clickhouse
 spec:
   interval: 1h
   chartRef:
@@ -74,7 +74,7 @@ spec:
             port: *tcpPort
     persistence:
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /var/lib/clickhouse
       tmpfs:

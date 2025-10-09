@@ -42,7 +42,7 @@ spec:
               MODS: /factorio/mods
             envFrom:
               - secretRef:
-                  name: factorio-secret
+                  name: "{{ .Release.Name }}-secret"
             resources:
               requests:
                 cpu: 100m
@@ -102,7 +102,7 @@ spec:
     persistence:
       data:
         enabled: true
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         advancedMounts:
           factorio-fun-mode:
             app:

@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app perplexica
+  name: perplexica
 spec:
   interval: 1h
   chartRef:
@@ -83,17 +83,17 @@ spec:
     persistence:
       dbstore:
         enabled: true
-        existingClaim: perplexica-dbstore
+        existingClaim: "{{ .Release.Name }}-dbstore"
         globalMounts:
           - path: /home/perplexica/data
       uploads:
         enabled: true
-        existingClaim: perplexica-uploads
+        existingClaim: "{{ .Release.Name }}-uploads"
         globalMounts:
           - path: /home/perplexica/uploads
       config:
         type: secret
-        name: perplexica-secret
+        name: "{{ .Release.Name }}-secret"
         globalMounts:
           - path: /home/perplexica/config.toml
             subPath: config.toml

@@ -32,7 +32,7 @@ spec:
               TZ: Europe/Warsaw
             envFrom:
               - secretRef:
-                  name: homepage-secret
+                  name: "{{ .Release.Name }}-secret"
             resources:
               requests:
                 cpu: 15m

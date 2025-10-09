@@ -48,7 +48,7 @@ spec:
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_USER: grafana
     envFromSecrets:
-      - name: grafana-secret
+      - name: "{{ .Release.Name }}-secret"
     envValueFrom:
       GF_DATABASE_PASSWORD:
         secretKeyRef:
@@ -90,7 +90,7 @@ spec:
       limits:
         memory: 256Mi
     admin:
-      existingSecret: grafana-secret
+      existingSecret: "{{ .Release.Name }}-secret"
       passwordKey: adminPass
       userKey: adminUser
     datasources:

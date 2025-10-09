@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app prowlarr
+  name: prowlarr
 spec:
   interval: 1h
   chartRef:
@@ -37,20 +37,36 @@ spec:
               PROWLARR__LOG__ANALYTICSENABLED: "False"
               PROWLARR__LOG__DBENABLED: "False"
               PROWLARR__LOG__LEVEL: info
-              PROWLARR__POSTGRES__HOST: prowlarr-pgbouncer.downloads.svc
-              PROWLARR__POSTGRES__MAINDB: *app
+              PROWLARR__SERVER__PORT: &port 80
+              PROWLARR__UPDATE__BRANCH: develop
+              PROWLARR__POSTGRES__HOST:
+                valueFrom:
+                  secretKeyRef:
+                    name: &pg prowlarr-pguser-prowlarr
+                    key: pgbouncer-host
+              PROWLARR__POSTGRES__PORT:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: pgbouncer-port
+              PROWLARR__POSTGRES__MAINDB:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: dbname
               PROWLARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: prowlarr-pguser-prowlarr
+                    name: *pg
                     key: password
-              PROWLARR__POSTGRES__PORT: "5432"
-              PROWLARR__POSTGRES__USER: *app
-              PROWLARR__SERVER__PORT: &port 80
-              PROWLARR__UPDATE__BRANCH: develop
+              PROWLARR__POSTGRES__USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: user
             envFrom:
               - secretRef:
-                  name: prowlarr-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness: &probes
                 enabled: true

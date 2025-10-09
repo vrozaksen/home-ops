@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app karakeep
+  name: karakeep
 spec:
   interval: 1h
   chartRef:
@@ -37,13 +37,13 @@ spec:
               NEXTAUTH_SECRET:
                 valueFrom:
                   secretKeyRef:
-                    name: karakeep-secret
+                    name: "{{ .Release.Name }}-secret"
                     key: ENCRYPTION_KEY
               MEILI_ADDR: http://karakeep-meilisearch.self-hosted.svc.cluster.local:7700
               MEILI_MASTER_KEY:
                 valueFrom:
                   secretKeyRef:
-                    name: karakeep-secret
+                    name: "{{ .Release.Name }}-secret"
                     key: MEILI_MASTER_KEY
               MAX_ASSET_SIZE_MB: 50
               DISABLE_NEW_RELEASE_CHECK: true
@@ -79,7 +79,7 @@ spec:
               OCR_LANGS: eng,pol
             envFrom:
               - secretRef:
-                  name: karakeep-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness:
                 enabled: true
@@ -151,7 +151,7 @@ spec:
               MEILI_MASTER_KEY:
                 valueFrom:
                   secretKeyRef:
-                    name: karakeep-secret
+                    name: "{{ .Release.Name }}-secret"
                     key: MEILI_MASTER_KEY
             resources:
               requests:
@@ -196,7 +196,7 @@ spec:
                 port: *httpPort
     persistence:
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         advancedMounts:
           karakeep:
             app:

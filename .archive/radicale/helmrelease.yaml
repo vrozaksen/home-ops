@@ -69,20 +69,20 @@ spec:
     persistence:
       config:
         type: configMap
-        name: radicale-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: /config/config
             subPath: config.cfg
             readOnly: true
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         advancedMounts:
           radicale:
             app:
               - path: /data
       auth:
         type: secret
-        name: radicale-secret
+        name: "{{ .Release.Name }}-secret"
         globalMounts:
           - path: /config/users
             subPath: users

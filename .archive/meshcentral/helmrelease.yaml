@@ -75,7 +75,7 @@ spec:
               - path: /opt/meshcentral/meshcentral-data/config.json
                 subPath: config.json
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /root
             subPath: rootdir

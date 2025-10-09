@@ -25,7 +25,7 @@ spec:
         replicas: 2
         strategy: RollingUpdate
         annotations:
-          configmap.reloader.stakater.com/reload: karma-configmap
+          configmap.reloader.stakater.com/reload: "{{ .Release.Name }}-configmap"
         containers:
           app:
             image:
@@ -92,7 +92,7 @@ spec:
     persistence:
       config-file:
         type: configMap
-        name: karma-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: *config
             subPath: config.yaml

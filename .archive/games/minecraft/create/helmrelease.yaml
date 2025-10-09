@@ -50,7 +50,7 @@ spec:
     persistence:
       dataDir:
         enabled: true
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
     serviceAnnotations:
       mc-router.itzg.me/externalServerName: create.vzkn.eu
     minecraftServer:

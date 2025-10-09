@@ -36,7 +36,7 @@ spec:
               - name: API_KEY
                 valueFrom:
                   secretKeyRef:
-                    name: mcpo-secret
+                    name: "{{ .Release.Name }}-secret"
                     key: API_KEY
             # TODO: Add envFrom for secrets management
             # envFrom:
@@ -90,12 +90,12 @@ spec:
     persistence:
       config:
         type: secret
-        name: mcpo-secret
+        name: "{{ .Release.Name }}-secret"
         globalMounts:
           - path: /app/config.json
             subPath: config.json
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
       tmpfs:
         type: emptyDir
         globalMounts:

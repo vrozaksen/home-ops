@@ -46,7 +46,7 @@ spec:
                     key: password
             envFrom:
               - secretRef:
-                  name: mealie-secret
+                  name: "{{ .Release.Name }}-secret"
             # TODO: Add probes for health checks
             # probes:
             #   liveness: &probes
@@ -92,7 +92,7 @@ spec:
             sectionName: https
     persistence:
       data:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /app/data
       nltk:

@@ -344,7 +344,7 @@ spec:
 
     persistence:
       enabled: true
-      existingClaim: *app
+      existingClaim: "{{ .Release.Name }}"
 
     resources:
       requests:

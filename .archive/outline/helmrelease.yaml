@@ -25,7 +25,7 @@ spec:
       outline:
         annotations:
           reloader.stakater.com/auto: "true"
-          secret.reloader.stakater.com/reload: outline-secret
+          secret.reloader.stakater.com/reload: "{{ .Release.Name }}-secret"
         containers:
           app:
             image:
@@ -33,7 +33,7 @@ spec:
               tag: 0.82.0@sha256:494dfb9249a6799ca3d38e2bb1bdf3c9f63632634737bd996ce0b3509fe93499
             envFrom:
               - secretRef:
-                  name: outline-secret
+                  name: "{{ .Release.Name }}-secret"
             env:
               REDIS_URL: redis://outline-dragonfly:6379
               ENABLE_UPDATES: "false"

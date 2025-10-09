@@ -41,7 +41,7 @@ spec:
     restorationHashFieldName: "netboxOperatorRestorationHash"
     debug: false
     auth:
-      existingSecret: netbox-secret
+      existingSecret: "{{ .Release.Name }}-secret"
     netbox:
       enabled: false
     replicaCount: 1

@@ -67,7 +67,7 @@ spec:
               USERMAP_GID: "65542"
             envFrom:
               - secretRef:
-                  name: paperless-secret
+                  name: "{{ .Release.Name }}-secret"
             # TODO: Add probes for health checks
             # probes:
             #   liveness: &probes
@@ -117,7 +117,7 @@ spec:
             sectionName: https
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /data/local
       nas:

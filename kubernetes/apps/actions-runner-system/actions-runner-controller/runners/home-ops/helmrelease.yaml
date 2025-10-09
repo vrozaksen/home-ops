@@ -25,7 +25,7 @@ spec:
     name: gha-runner-scale-set
   values:
     githubConfigUrl: https://github.com/vrozaksen/home-ops
-    githubConfigSecret: "{{ .Release.Name }}-secret"
+    githubConfigSecret: home-ops-runner-secret
     minRunners: 1
     maxRunners: 3
     containerMode:

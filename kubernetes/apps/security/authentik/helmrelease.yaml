@@ -65,7 +65,7 @@ spec:
               key: password
       envFrom:
         - secretRef:
-            name: "{{ .Release.Name }}-secret"
+            name: authentik-secret
     authentik:
       redis:
         host: authentik-dragonfly

@@ -69,14 +69,29 @@ spec:
           - name: envoy-internal
             namespace: network
             sectionName: https
+    configMaps:
+      config:
+        data:
+          repository.config: |-
+            {
+              "storage": {
+                "type": "filesystem",
+                "config": {
+                  "path": "/repository"
+                }
+              },
+              "hostname": "volsync.{{ .Release.Namespace }}.svc.cluster.local",
+              "username": "volsync",
+              "description": "volsync",
+              "enableActions": false
+            }
     persistence:
       config-file:
         type: configMap
-        name: kopia-repository-configmap
+        identifier: config
         globalMounts:
           - path: /config/repository.config
             subPath: repository.config
-            readOnly: true
       repository:
         type: nfs
         server: aincrad.home.vzkn.eu
@@ -92,3 +107,5 @@ spec:
                 subPath: cache
               - path: /config/logs
                 subPath: logs
+              - path: /tmp
+                subPath: tmp

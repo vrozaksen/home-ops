@@ -114,13 +114,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
   values:
     controllers:
       example-app:

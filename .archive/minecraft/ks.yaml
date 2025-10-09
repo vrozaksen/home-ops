@@ -8,6 +8,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/defaults
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/mc-router
   prune: true
@@ -30,6 +32,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
+    - ../../../../components/defaults
     - ../../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/survival

@@ -25,13 +25,6 @@ spec:
         kind: HelmRepository
         name: itzg-charts
         namespace: games
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
   values:
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: &secret minecraft-secret

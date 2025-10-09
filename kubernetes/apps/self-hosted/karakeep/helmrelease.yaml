@@ -21,7 +21,7 @@ spec:
       karakeep:
         replicas: 1
         forceRename: karakeep
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -120,7 +120,7 @@ spec:
                 memory: 1Gi
       meilisearch:
         replicas: 1
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         pod:

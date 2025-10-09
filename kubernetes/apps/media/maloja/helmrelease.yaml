@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       maloja:
+        strategy: Recreate
         containers:
           app:
             image:

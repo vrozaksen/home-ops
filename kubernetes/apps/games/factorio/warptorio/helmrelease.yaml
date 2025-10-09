@@ -21,7 +21,7 @@ spec:
       warptorio:
         replicas: 1
         type: statefulset
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

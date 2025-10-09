@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       mosquitto:
+        strategy: Recreate
         containers:
           app:
             image:

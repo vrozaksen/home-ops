@@ -19,6 +19,7 @@ spec:
   values:
     controllers:
       qui:
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

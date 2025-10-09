@@ -5,3 +5,8 @@ kind: Component
 resources:
   - ./cluster.yaml
   - ./podmonitor.yaml
+patches:
+  - path: ./ks-patch.yaml
+    target:
+      kind: Kustomization
+      group: kustomize.toolkit.fluxcd.io

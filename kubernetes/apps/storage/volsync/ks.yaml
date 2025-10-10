@@ -31,7 +31,7 @@ spec:
   dependsOn:
     - name: volsync
   interval: 1h
-  path: ./kubernetes/apps/volsync-system/volsync/maintenance
+  path: ./kubernetes/apps/storage/volsync/maintenance
   prune: true
   sourceRef:
     kind: GitRepository

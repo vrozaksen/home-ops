@@ -15,8 +15,8 @@ resources:
   - ./keda/ks.yaml
   - ./kromgo/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
-  - ./loki/ks.yaml
   - ./silence-operator/ks.yaml
+  - ./victoria-logs/ks.yaml
   # Exporters
   - ./exporters
 configMapGenerator:

@@ -6,7 +6,6 @@ metadata:
   name: &app excalidraw
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   dependsOn:
     - name: rook-ceph-cluster
@@ -18,7 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: draw
   prune: true
   sourceRef:
     kind: GitRepository

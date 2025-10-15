@@ -6,7 +6,6 @@ metadata:
   name: &app miniflux
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/postgres
   interval: 1h
   dependsOn:

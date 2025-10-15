@@ -6,7 +6,6 @@ metadata:
   name: &app mirotalk
 spec:
   components:
-    - ../../../components/gatus/external
     # - ../../../components/volsync
   interval: 1h
   dependsOn:

@@ -3,20 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app tdarr
+  name: tdarr
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/nfs-scaler
   dependsOn:
     - name: keda
       namespace: observability
   interval: 1h
   path: ./kubernetes/apps/media/tdarr
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_GROUP: media-guarded
   prune: true
   sourceRef:
     kind: GitRepository

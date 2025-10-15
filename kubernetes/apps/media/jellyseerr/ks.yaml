@@ -6,7 +6,6 @@ metadata:
   name: &app jellyseerr
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
@@ -30,9 +29,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_PATH: /api/v1/status
-      GATUS_SUBDOMAIN: requests
-      GATUS_GROUP: home-media
   prune: true
   sourceRef:
     kind: GitRepository

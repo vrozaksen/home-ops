@@ -5,8 +5,6 @@ kind: Kustomization
 metadata:
   name: &app kube-prometheus-stack
 spec:
-  components:
-    - ../../../components/gatus/guarded
   dependsOn:
     - name: external-secrets-store
       namespace: external-secrets
@@ -14,11 +12,6 @@ spec:
       namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/observability/kube-prometheus-stack
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_SUBDOMAIN: prometheus
-      GATUS_GROUP: infrastructure
   prune: true
   sourceRef:
     kind: GitRepository

@@ -6,7 +6,6 @@ metadata:
   name: &app atuin
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/postgres
   interval: 1h
   dependsOn:
@@ -21,8 +20,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: sh
-      GATUS_GROUP: infrastructure
   prune: true
   sourceRef:
     kind: GitRepository

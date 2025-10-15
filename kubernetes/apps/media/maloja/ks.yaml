@@ -6,7 +6,6 @@ metadata:
   name: &app maloja
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
     - name: rook-ceph-cluster
@@ -18,7 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

@@ -6,7 +6,6 @@ metadata:
   name: &app radicale
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/home-tools/radicale
@@ -14,7 +13,6 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
-      GATUS_GROUP: home-tools
   prune: true
   sourceRef:
     kind: GitRepository

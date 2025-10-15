@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - ./dnsendpoint.yaml
   - ./externalsecret.yaml
-  - ./gatus.yaml
   - ./helmrelease.yaml

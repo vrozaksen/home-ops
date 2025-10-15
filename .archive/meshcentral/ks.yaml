@@ -6,14 +6,12 @@ metadata:
   name: &app meshcentral
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/management/meshcentral
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: management
   prune: true
   sourceRef:
     kind: GitRepository

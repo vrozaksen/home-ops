@@ -6,7 +6,6 @@ metadata:
   name: &app watchstate
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
@@ -17,7 +16,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

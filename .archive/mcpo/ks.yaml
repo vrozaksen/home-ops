@@ -6,14 +6,12 @@ metadata:
   name: &app mcpo
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/ai/mcpo
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: ai
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

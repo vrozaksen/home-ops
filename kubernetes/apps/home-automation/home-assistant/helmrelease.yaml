@@ -104,6 +104,9 @@ spec:
             port: *codeserverPort
     route:
       app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            conditions: ["[STATUS] == 200"]
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"
           - hass.vzkn.eu

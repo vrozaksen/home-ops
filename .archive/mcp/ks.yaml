@@ -6,14 +6,12 @@
 #   name: &app github-mcp
 # spec:
 #   components:
-#     - ../../../../components/gatus/guarded
 #     - ../../../../components/volsync
 #   interval: 1h
 #   path: ./kubernetes/apps/ai/mcp/github-mcp
 #   postBuild:
 #     substitute:
 #       APP: *app
-#       GATUS_GROUP: ai
 #       VOLSYNC_CAPACITY: 10Gi
 #   prune: true
 #   retryInterval: 2m

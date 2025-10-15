@@ -6,7 +6,6 @@ metadata:
   name: &app neko
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/self-hosted/neko

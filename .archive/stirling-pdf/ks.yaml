@@ -6,14 +6,12 @@ metadata:
   name: &app stirling-pdf
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/self-hosted/stirling-pdf
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: pdf
   prune: true
   sourceRef:
     kind: GitRepository

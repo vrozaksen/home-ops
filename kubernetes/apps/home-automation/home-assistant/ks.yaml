@@ -6,7 +6,6 @@ metadata:
   name: &app home-assistant
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   dependsOn:
     - name: external-secrets-store
@@ -20,8 +19,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: hass
-      GATUS_GROUP: home
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

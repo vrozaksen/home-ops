@@ -6,7 +6,6 @@ metadata:
   name: &app jellystat
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
@@ -28,7 +27,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: media-guarded
   prune: true
   sourceRef:
     kind: GitRepository

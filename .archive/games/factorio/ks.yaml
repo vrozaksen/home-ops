@@ -21,7 +21,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app warptorio
+  name: &app krastorio
 spec:
   components:
     - ../../../../components/volsync
@@ -31,7 +31,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
-  path: ./kubernetes/apps/games/factorio/warptorio
+  path: ./kubernetes/apps/games/factorio/krastorio
   postBuild:
     substitute:
       APP: *app

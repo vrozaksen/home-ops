@@ -19,8 +19,6 @@ kind: Kustomization
 metadata:
   name: rook-ceph-cluster
 spec:
-  components:
-    - ../../../../components/gatus/guarded
   dependsOn:
     - name: rook-ceph
       namespace: rook-ceph
@@ -42,11 +40,6 @@ spec:
       current: status.ceph.health in ['HEALTH_OK', 'HEALTH_WARN']
   interval: 1h
   path: ./kubernetes/apps/rook-ceph/rook-ceph/cluster
-  postBuild:
-    substitute:
-      APP: rook-ceph-cluster
-      GATUS_SUBDOMAIN: rook
-      GATUS_GROUP: infrastructure
   prune: true
   sourceRef:
     kind: GitRepository

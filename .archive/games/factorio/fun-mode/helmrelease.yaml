@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app krastorio
+  name: &app factorio-fun-mode
 spec:
   interval: 1h
   chartRef:
@@ -11,7 +11,7 @@ spec:
     name: app-template
   values:
     controllers:
-      krastorio:
+      factorio-fun-mode:
         replicas: 1
         type: statefulset
         strategy: RollingUpdate
@@ -29,7 +29,7 @@ spec:
               PORT: &port 34197
               BIND: 0.0.0.0
               RCON_PORT: &rconPort 27015
-              SAVE_NAME: krastorio
+              SAVE_NAME: fun-mode
               UPDATE_MODS_ON_START: true
               DLC_SPACE_AGE: false
               MODS: /factorio/mods
@@ -57,10 +57,10 @@ spec:
     service:
       app:
         type: LoadBalancer
-        externalTrafficPolicy: Cluster
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: 10.10.0.61
-          external-dns.alpha.kubernetes.io/hostname: krastorio.vzkn.eu
+          external-dns.alpha.kubernetes.io/hostname: factorio-fun-mode.vzkn.eu
         ports:
           gametcp:
             port: *rconPort
@@ -83,7 +83,7 @@ spec:
           unknownQueueItems: false
     route:
       filebrowser:
-        hostnames: ["krastorio-files.vzkn.eu"]
+        hostnames: ["factorio-fun-mode-files.vzkn.eu"]
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -97,7 +97,7 @@ spec:
         enabled: true
         existingClaim: "{{ .Release.Name }}"
         advancedMounts:
-          krastorio:
+          factorio-fun-mode:
             app:
               - path: /factorio
             filebrowser:

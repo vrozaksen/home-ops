@@ -6,7 +6,6 @@ metadata:
   name: &app mealie
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/postgres
     - ../../../components/volsync
   interval: 1h
@@ -25,7 +24,6 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 5Gi
-      GATUS_PATH: /api/app/about
   prune: true
   sourceRef:
     kind: GitRepository

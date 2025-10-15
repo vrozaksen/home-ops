@@ -19,19 +19,17 @@ kind: HelmRelease
 metadata:
   name: mc-router
 spec:
+  interval: 1h
   chartRef:
     kind: OCIRepository
     name: mc-router
-  dependsOn: []
-  interval: 15m
   values:
     image:
       repository: ghcr.io/itzg/mc-router
-      tag: 1.36.0@sha256:c864081f958b2df4182f85b357fcbc9b613749c3c4f23a0f2e4c3b0c5eb615a7
-      pullPolicy: IfNotPresent
+      tag: 1.34.0@sha256:06bab2b3e0d4aba409db230a3b42a0909a336ea6b0724ded126009dead2532af
     services:
       minecraft:
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: 10.10.0.60
-          external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu, create.vzkn.eu
+          external-dns.alpha.kubernetes.io/hostname: mc.vzkn.eu

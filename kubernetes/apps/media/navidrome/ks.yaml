@@ -6,7 +6,6 @@ metadata:
   name: &app navidrome
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
@@ -21,8 +20,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: music
-      GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

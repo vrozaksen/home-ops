@@ -7,7 +7,6 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/gatus/external
     - ../../../components/postgres
     - ../../../components/volsync
   dependsOn:
@@ -32,8 +31,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: ai
-      GATUS_SUBDOMAIN: chat
   prune: true
   sourceRef:
     kind: GitRepository

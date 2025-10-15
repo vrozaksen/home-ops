@@ -5,21 +5,27 @@ connectivity:
     interval: 1m
 
 endpoints:
-  - name: status
-    group: infrastructure
-    url: https://status.vzkn.eu
+  - name: Cloudflare
+    group: connectivity
+    url: icmp://1.1.1.1
     interval: 1m
-    client:
-      dns-resolver: tcp://1.1.1.1:53
-    conditions: ["[STATUS] == 200"]
-  - name: flux-webhook
-    group: infrastructure
-    url: https://flux-webhook.vzkn.eu
-    interval: 1m
-    client:
-      dns-resolver: tcp://1.1.1.1:53
     conditions:
-      - "[STATUS] == 404"
+      - "[CONNECTED] == true"
+
+  - name: Google
+    group: connectivity
+    url: icmp://8.8.8.8
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Quad9
+    group: connectivity
+    url: icmp://9.9.9.9
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
   - name: cert-expiration
     group: domain
     url: "https://status.vzkn.eu"
@@ -29,11 +35,15 @@ endpoints:
 
 metrics: true
 
+storage:
+  type: sqlite
+  caching: true
+  path: ${GATUS_CONFIG_PATH}/gatus.db
+
 ui:
   header: Status
   title: Status | Gatus
   default-sort-by: group
-  logo: https://avatars.githubusercontent.com/u/213795
   link: https://github.com/vrozaksen
   buttons:
     - name: Github

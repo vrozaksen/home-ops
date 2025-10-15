@@ -6,7 +6,6 @@ metadata:
   name: &app qdrant
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
     - name: external-secrets-store
@@ -16,7 +15,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: ai
       VOLSYNC_CAPACITY: 25Gi
   prune: true
   sourceRef:

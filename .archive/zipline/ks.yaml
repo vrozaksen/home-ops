@@ -6,7 +6,6 @@ metadata:
   name: &app zipline
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/postgres
   dependsOn:
     - name: crunchy-postgres-operator
@@ -23,7 +22,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: z
   prune: true
   sourceRef:
     kind: GitRepository

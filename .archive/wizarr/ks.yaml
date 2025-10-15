@@ -6,7 +6,6 @@ metadata:
   name: &app wizarr
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   dependsOn:
     - name: emby
@@ -18,8 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: join
-      GATUS_GROUP: home-media
   prune: true
   sourceRef:
     kind: GitRepository

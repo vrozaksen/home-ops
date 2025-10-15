@@ -7,7 +7,6 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/gatus/external
     - ../../../components/postgres
   interval: 1h
   dependsOn:
@@ -24,8 +23,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: docs
-      GATUS_GROUP: home-tools
   prune: true
   sourceRef:
     kind: GitRepository

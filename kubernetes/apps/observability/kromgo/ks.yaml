@@ -3,17 +3,10 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app kromgo
+  name: kromgo
 spec:
-  components:
-    - ../../../components/gatus/external
   interval: 1h
   path: ./kubernetes/apps/observability/kromgo
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_STATUS: "404"
-      GATUS_GROUP: infrastructure
   prune: true
   sourceRef:
     kind: GitRepository

@@ -6,7 +6,6 @@ metadata:
   name: &app zigbee
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
     - name: external-secrets-store
@@ -20,7 +19,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home
   prune: true
   sourceRef:
     kind: GitRepository

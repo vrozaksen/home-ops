@@ -6,7 +6,6 @@ metadata:
   name: &app bazarr
 spec:
   components:
-    - ../../../../components/gatus/guarded
     - ../../../../components/nfs-scaler
     - ../../../../components/postgres
     - ../../../../components/volsync
@@ -29,7 +28,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: media-guarded
   prune: true
   sourceRef:
     kind: GitRepository

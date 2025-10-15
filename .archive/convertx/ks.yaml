@@ -6,14 +6,12 @@ metadata:
   name: &app convertx
 spec:
   components:
-    - ../../../components/gatus/external
     - ../../../components/volsync
   interval: 1h
   path: ./kubernetes/apps/self-hosted/convertx
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: home
   prune: true
   sourceRef:
     kind: GitRepository

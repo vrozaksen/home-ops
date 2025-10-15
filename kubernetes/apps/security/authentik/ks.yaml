@@ -7,7 +7,6 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/gatus/external
     - ../../../components/postgres
   dependsOn:
     - name: crunchy-postgres-operator
@@ -28,7 +27,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: sso
       POOL_MODE: transaction
   prune: true
   sourceRef:

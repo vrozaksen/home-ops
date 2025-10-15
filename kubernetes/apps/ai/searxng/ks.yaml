@@ -7,7 +7,6 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/gatus/external
   dependsOn:
     - name: dragonfly-operator
       namespace: database
@@ -23,7 +22,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: ai
   prune: true
   sourceRef:
     kind: GitRepository

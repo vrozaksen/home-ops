@@ -7,7 +7,6 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/gatus/external
     - ../../../components/postgres
   dependsOn:
     - name: crunchy-postgres-operator

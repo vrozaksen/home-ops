@@ -6,7 +6,6 @@ metadata:
   name: &app threadfin
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/volsync
   dependsOn:
     - name: rook-ceph-cluster
@@ -18,8 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: iptv
-      GATUS_GROUP: home-media
       VOLSYNC_CAPACITY: 1Gi
   prune: true
   sourceRef:

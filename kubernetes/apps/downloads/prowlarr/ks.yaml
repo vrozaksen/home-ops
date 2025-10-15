@@ -6,7 +6,6 @@ metadata:
   name: &app prowlarr
 spec:
   components:
-    - ../../../components/gatus/guarded
     - ../../../components/postgres
   dependsOn:
     - name: crunchy-postgres-operator
@@ -23,7 +22,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_GROUP: media-guarded
   prune: true
   sourceRef:
     kind: GitRepository

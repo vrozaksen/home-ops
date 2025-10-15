@@ -42,6 +42,9 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: downloads
         enabled: false
     persistence:
       config:

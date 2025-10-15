@@ -106,6 +106,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
+            group: home-automation
             conditions: ["[STATUS] == 200"]
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"

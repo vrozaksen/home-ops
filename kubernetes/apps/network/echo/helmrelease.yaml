@@ -64,6 +64,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
+            group: domain
             conditions: ["[STATUS] == 200"]
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:

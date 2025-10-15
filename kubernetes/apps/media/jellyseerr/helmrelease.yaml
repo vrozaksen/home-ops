@@ -94,6 +94,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
+            group: media
             conditions: ["[STATUS] == 200"]
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"

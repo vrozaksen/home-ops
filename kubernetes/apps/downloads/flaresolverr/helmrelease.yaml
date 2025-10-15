@@ -44,6 +44,9 @@ spec:
                 memory: 512Mi
     service:
       app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: downloads
         type: ClusterIP
         ports:
           http:

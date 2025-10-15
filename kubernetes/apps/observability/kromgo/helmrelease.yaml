@@ -73,6 +73,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
+            group: observability
             conditions: ["[STATUS] == 404"]
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:

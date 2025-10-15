@@ -419,6 +419,9 @@ spec:
     route:
       main:
         enabled: true
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: observability
         hostnames: ["grafana.vzkn.eu"]
         parentRefs:
           - name: envoy-external

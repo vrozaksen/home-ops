@@ -64,6 +64,9 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: infrastructure
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:
           - name: envoy-internal

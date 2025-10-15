@@ -32,6 +32,9 @@ spec:
       enabled: true
     route:
       dashboard:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: infrastructure
         host:
           name: rook.vzkn.eu
           path: /
@@ -234,6 +237,9 @@ spec:
               interval: 60s
         route:
           enabled: true
+          annotations:
+            gatus.home-operations.com/endpoint: |-
+              group: infrastructure
           host:
             name: rgw.vzkn.eu
             path: /

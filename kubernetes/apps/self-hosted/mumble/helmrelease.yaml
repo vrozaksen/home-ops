@@ -66,6 +66,8 @@ spec:
         annotations:
           lbipam.cilium.io/ips: 10.10.0.50
           external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
         ports:
           control:
             port: *port

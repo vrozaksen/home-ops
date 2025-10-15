@@ -77,6 +77,9 @@ spec:
             scrapeTimeout: 10s
     route:
       app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: observability
         hostnames: ["{{ .Release.Name }}.vzkn.eu"]
         parentRefs:
           - name: envoy-external

@@ -120,6 +120,9 @@ spec:
               - name: *app
                 port: *port
       codeserver:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: home-automation
         hostnames: ["hass-code.vzkn.eu"]
         parentRefs:
           - name: envoy-internal

@@ -33,6 +33,9 @@ spec:
       route:
         main:
           enabled: true
+          annotations:
+            gatus.home-operations.com/endpoint: |-
+              group: observability
           hostnames: ["alertmanager.vzkn.eu"]
           parentRefs:
             - name: envoy-internal
@@ -128,6 +131,9 @@ spec:
       route:
         main:
           enabled: true
+          annotations:
+            gatus.home-operations.com/endpoint: |-
+              group: observability
           hostnames: ["prometheus.vzkn.eu"]
           parentRefs:
             - name: envoy-internal

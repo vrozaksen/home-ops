@@ -102,6 +102,6 @@ spec:
     dashboards:
       enabled: true
       annotations:
-        grafana_folder: observability
+        grafana_folder: Observability
     serviceMonitor:
       enabled: true

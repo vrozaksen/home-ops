@@ -36,6 +36,6 @@ spec:
     dashboards:
       enabled: true
       annotations:
-        grafana_folder: observability
+        grafana_folder: Observability
       labels:
         grafana_dashboard: "1"

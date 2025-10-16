@@ -121,9 +121,6 @@ kind: BackendTrafficPolicy
 metadata:
   name: envoy
 spec:
-  targetSelectors:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
   compression:
     - type: Brotli
     - type: Gzip

@@ -93,7 +93,7 @@ nodes:
     controlPlane: true
     nodeLabels: *intel
     installDiskSelector:
-      model: "SAMSUNG*"
+      model: "Samsung*"
     extraManifests:
       - ./manifests/i40e.yaml
       - ./manifests/e1000e.yaml

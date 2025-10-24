@@ -11,8 +11,8 @@ resources:
   - ./atuin/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
-  # - ./karakeep/ks.yaml
+  - ./karakeep/ks.yaml
   - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   # - ./reactive-resume/ks.yaml
-  # - ./vikunja/ks.yaml
+  - ./vikunja/ks.yaml

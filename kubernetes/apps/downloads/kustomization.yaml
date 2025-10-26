@@ -14,7 +14,7 @@ resources:
   # - ./metube/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
-  # - ./qui/ks.yaml
+  - ./qui/ks.yaml
   - ./radarr/ks.yaml
   # - ./recyclarr/ks.yaml
   # - ./slskd/ks.yaml

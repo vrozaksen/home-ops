@@ -5,14 +5,6 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./pvc.yaml
-configMapGenerator:
-  - name: radarr-loki-rules
-    files:
-      - radarr.yaml=./lokirule.yaml
-    options:
-      labels:
-        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

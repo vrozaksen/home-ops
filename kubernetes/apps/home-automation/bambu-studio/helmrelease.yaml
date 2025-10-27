@@ -127,3 +127,5 @@ spec:
           bambu-studio:
             app:
               - path: /tmp
+              - path: /run
+              - path: /var/log

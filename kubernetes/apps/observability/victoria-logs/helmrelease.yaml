@@ -31,6 +31,25 @@ spec:
         enabled: true
         storageClassName: ceph-block
         size: 20Gi
+      route:
+        enabled: true
+        hostnames:
+          - victoria-logs.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        extraRules:
+          - filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /select/vmui/
+                  statusCode: 302
+            matches:
+              - path:
+                  type: Exact
+                  value: /
       serviceMonitor:
         enabled: true
     dashboards:

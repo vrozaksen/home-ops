@@ -10,7 +10,6 @@ spec:
   parentRefs:
     - name: envoy-external
       namespace: network
-      sectionName: https
   rules:
     # API store and versioned API routes to relay (if relay is enabled)
     - matches:

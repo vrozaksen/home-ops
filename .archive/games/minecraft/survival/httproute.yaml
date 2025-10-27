@@ -9,7 +9,6 @@ spec:
   parentRefs:
     - name: external
       namespace: kube-system
-      sectionName: https
   rules:
     - backendRefs:
         - name: minecraft-survival-map

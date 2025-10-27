@@ -117,10 +117,7 @@ spec:
                 port: 8001
     persistence:
       config:
-        type: persistentVolumeClaim
-        storageClass: ceph-filesystem
-        accessMode: ReadWriteMany
-        size: 50Gi
+        existingClaim: bambu-studio
         advancedMounts:
           bambu-storage:
             app:

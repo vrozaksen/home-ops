@@ -33,15 +33,7 @@ spec:
               limits:
                 memory: 2Gi
                 gpu.intel.com/i915: 1
-        statefulset:
-          volumeClaimTemplates:
-            - name: config
-              storageClass: ceph-block
-              accessMode: ReadWriteOnce
-              size: 50Gi
-      bambu-storage:
-        containers:
-          app:
+          storage:
             image:
               repository: pldubouilh/gossa
               tag: v1.1.2
@@ -73,10 +65,7 @@ spec:
         ports:
           http:
             port: 3000
-      bambu-storage:
-        controller: bambu-storage
-        ports:
-          http:
+          storage:
             port: 8001
     configMaps:
       config:
@@ -103,7 +92,7 @@ spec:
           - backendRefs:
               - name: bambu-studio
                 port: 3000
-      bambu-storage:
+      storage:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: home-automation
@@ -113,21 +102,23 @@ spec:
             namespace: network
         rules:
           - backendRefs:
-              - name: bambu-storage
+              - name: bambu-studio
                 port: 8001
     persistence:
       config:
         existingClaim: bambu-studio
         advancedMounts:
-          bambu-storage:
+          bambu-studio:
             app:
+              - path: /config
+            storage:
               - path: /shared
       config-file:
         type: configMap
         identifier: config
         advancedMounts:
-          bambu-storage:
-            app:
+          bambu-studio:
+            storage:
               - path: /config/.filebrowser.json
                 subPath: .filebrowser.json
       tmpfs:

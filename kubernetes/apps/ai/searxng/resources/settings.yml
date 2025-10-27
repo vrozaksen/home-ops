@@ -7,9 +7,33 @@ server:
   method: GET # https://github.com/searxng/searxng/pull/3619
   public_instance: false
 
+redis:
+  url: redis://searxng-dragonfly:6379/0
+
+outgoing:
+  request_timeout: 1.5 # Global timeout for faster response
+  max_request_timeout: 3.0 # Maximum timeout for slower engines
+  pool_connections: 100
+  pool_maxsize: 20 # More keep-alive connections
+  keepalive_expiry: 5.0
+  enable_http2: true
+  retries: 1
+
 search:
-  autocomplete: brave
-  favicon_resolver: duckduckgo
+  safe_search: 0 # No filtering
+  autocomplete: brave # Primary autocomplete from Brave
+  favicon_resolver: brave # Get favicons from Brave
+  default_lang: "" # Auto-detect from browser
+  ban_time_on_fail: 5 # Quick recovery from engine failures
+  max_ban_time_on_fail: 60 # Lower max ban time for faster retry
+  max_page: 0 # Unlimited pages if engine supports it
+  suspended_times:
+    SearxEngineAccessDenied: 3600 # 1 hour instead of 24h
+    SearxEngineCaptcha: 3600 # 1 hour instead of 24h
+    SearxEngineTooManyRequests: 1800 # 30 min instead of 1h
+    cf_SearxEngineCaptcha: 7200 # 2 hours instead of 15 days
+    cf_SearxEngineAccessDenied: 3600 # 1 hour instead of 24h
+    recaptcha_SearxEngineCaptcha: 7200 # 2 hours instead of 7 days
   languages:
     - all
     - en
@@ -21,43 +45,121 @@ search:
     - json
 
 engines:
+  # Brave - primary search engine with highest priority
+  - name: brave
+    timeout: 1.0
+    weight: 2 # Double weight for Brave results
+
+  # Qwant with short timeout - skip if slow
+  - name: qwant
+    disabled: false
+    timeout: 1.5
+    retries: 0
+
+  # Google with minimal timeout
+  - name: google
+    disabled: false
+    timeout: 1.0
+    retries: 0
+
+  # Wolframalpha - shorter timeout
   - name: wolframalpha
     disabled: false
+    timeout: 1.5
+    retries: 0
+
+  # Other fast engines
+  - name: duckduckgo
+    timeout: 1.0
+  - name: startpage
+    timeout: 1.5
+  - name: wikipedia
+    timeout: 1.0
+  - name: wikidata
+    timeout: 1.0
 
 general:
   instance_name: Vzkn Search
 
 ui:
-  default_theme: simple
-  infinite_scroll: true
+  default_locale: ""
   query_in_title: true
-  results_on_new_tab: true
-  static_use_hash: true
+  infinite_scroll: true
+  center_alignment: false
+  cache_url: https://web.archive.org/web/
+  default_theme: simple
   theme_args:
     simple_style: auto
+  results_on_new_tab: true
+  static_use_hash: true
+  url_formatting: pretty
 
 categories_as_tabs:
   general:
   images:
   videos:
+  news:
   map:
+  music:
+  it:
+  science:
+  files:
+  social media:
 
-enabled_plugins:
-  - Basic Calculator
-  - Hash plugin
-  - Open Access DOI rewrite
-  - Self Informations
-  - Tracker URL remover
-  - Unit converter plugin
+# Full plugin configuration with explicit activation
+plugins:
+  searx.plugins.ahmia_filter.SXNGPlugin:
+    active: true
+  searx.plugins.calculator.SXNGPlugin:
+    active: true
+  searx.plugins.hash_plugin.SXNGPlugin:
+    active: true
+  searx.plugins.hostnames.SXNGPlugin:
+    active: true
+  searx.plugins.oa_doi_rewrite.SXNGPlugin:
+    active: true # Open access DOI rewrite for scientific papers
+  searx.plugins.self_info.SXNGPlugin:
+    active: true
+  searx.plugins.tor_check.SXNGPlugin:
+    active: false # Disable Tor check - not needed for private instance
+  searx.plugins.tracker_url_remover.SXNGPlugin:
+    active: true
+  searx.plugins.unit_converter.SXNGPlugin:
+    active: true
 
 hostnames:
   high_priority:
     - (.*)\/blog\/(.*)
     - (.*\.)?wikipedia.org$
     - (.*\.)?github.com$
+    - (.*\.)?gitlab.com$
     - (.*\.)?reddit.com$
     - (.*\.)?docker.com$
+    - (.*\.)?hub.docker.com$
     - (.*\.)?archlinux.org$
+    - (.*\.)?wiki.archlinux.org$
     - (.*\.)?stackoverflow.com$
     - (.*\.)?askubuntu.com$
     - (.*\.)?superuser.com$
+    - (.*\.)?kubernetes.io$
+    - (.*\.)?rust-lang.org$
+    - (.*\.)?docs.rs$
+    - (.*\.)?python.org$
+    - (.*\.)?pypi.org$
+    - (.*\.)?mozilla.org$
+    - (.*\.)?developer.mozilla.org$
+    - (.*\.)?nodejs.org$
+    - (.*\.)?npmjs.com$
+    - (.*\.)?pkg.go.dev$
+    - (.*\.)?terraform.io$
+    - (.*\.)?w3schools.com$
+    - (.*\.)?geeksforgeeks.org$
+    - (.*\.)?medium.com$
+    - (.*\.)?dev.to$
+    - (.*\.)?aws.amazon.com$
+    - (.*\.)?cloud.google.com$
+    - (.*\.)?learn.microsoft.com$
+    - (.*\.)?digitalocean.com$
+    - (.*\.)?man7.org$
+    - (.*\.)?owasp.org$
+    - (.*\.)?nvd.nist.gov$

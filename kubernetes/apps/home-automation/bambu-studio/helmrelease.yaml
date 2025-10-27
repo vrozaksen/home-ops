@@ -51,8 +51,8 @@ spec:
                 memory: 256Mi
     defaultPodOptions:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
+        runAsUser: 0
+        runAsGroup: 0
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:

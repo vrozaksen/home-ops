@@ -14,9 +14,8 @@ spec:
       type: "string"
     selectors:
     # Known crypto mining binaries
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "xmrig"
         - "minerd"
@@ -32,15 +31,11 @@ spec:
       matchActions:
       - action: Post
     # Curl/wget piping to shell (common crypto miner installation)
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "curl"
         - "wget"
-      matchBinaries:
-      - operator: "In"
-        values:
         - "/bin/bash"
         - "/bin/sh"
         - "/usr/bin/bash"

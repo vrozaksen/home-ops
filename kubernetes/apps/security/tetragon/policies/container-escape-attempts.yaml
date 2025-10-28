@@ -14,27 +14,24 @@ spec:
       type: "string"
     selectors:
     # nsenter - used to escape containers
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "/usr/bin/nsenter"
         - "/bin/nsenter"
       matchActions:
       - action: Post
     # Docker socket access
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "/usr/bin/docker"
         - "/usr/local/bin/docker"
       matchActions:
       - action: Post
     # crictl (container runtime CLI)
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "/usr/bin/crictl"
         - "/usr/local/bin/crictl"

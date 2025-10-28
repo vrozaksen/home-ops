@@ -1,14 +1,12 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: OCIRepository
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
 metadata:
-  name: tetragon
+  name: cilium
 spec:
   interval: 12h
-  url: oci://ghcr.io/cilium/charts/tetragon
-  ref:
-    tag: 1.6.0
+  url: https://helm.cilium.io
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -17,9 +15,14 @@ metadata:
   name: tetragon
 spec:
   interval: 30m
-  chartRef:
-    kind: OCIRepository
-    name: tetragon
+  chart:
+    spec:
+      chart: tetragon
+      version: 1.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+      interval: 12h
   driftDetection:
     mode: enabled
   maxHistory: 3
@@ -37,12 +40,12 @@ spec:
     # Tetragon MUST run on host network for proper process visibility
     hostNetwork: true
     dnsPolicy: Default  # Use node's DNS for external resolution
-    
+
     priorityClassName: system-node-critical
-    
+
     # Export directory for JSON logs
     exportDirectory: /var/run/cilium/tetragon
-    
+
     # Tolerate all taints (runs on all nodes including control-plane)
     tolerations:
       - operator: Exists
@@ -52,25 +55,25 @@ spec:
       image:
         repository: quay.io/cilium/tetragon
         tag: v1.6.0
-      
+
       # Enhanced observability
       debug: false
       enableK8sAPI: true          # Associate events with K8s pods
       enableCiliumAPI: true        # Associate events with Cilium endpoints
-      enableProcessCred: true      # Capabilities visibility  
+      enableProcessCred: true      # Capabilities visibility
       enableProcessNs: true        # Namespaces visibility
-      
+
       # Cluster identification
       clusterName: main
-      
+
       # Process cache for ancestor tracking
       processCacheSize: 65536
       processCacheGCInterval: 30s
-      
+
       # Event cache retry configuration
       eventCacheRetries: 15
       eventCacheRetryDelay: 2
-      
+
       # JSON export configuration
       exportFilename: tetragon.log
       exportFilePerm: "640"  # Allow read by log collectors
@@ -78,20 +81,20 @@ spec:
       exportFileMaxBackups: 5
       exportFileCompress: true
       exportRateLimit: -1  # No rate limit
-      
+
       # Export only relevant events (reduce noise)
       exportAllowList: |-
         {"event_set":["PROCESS_EXEC", "PROCESS_EXIT", "PROCESS_KPROBE", "PROCESS_TRACEPOINT"]}
-      
+
       # Exclude noise from system namespaces and health checks
       exportDenyList: |-
         {"health_check":true}
         {"namespace":["", "cilium", "kube-system"]}
-      
+
       # Field filters (empty = include all fields)
       fieldFilters: |-
         {}
-      
+
       # Redact sensitive data (passwords, tokens, API keys)
       redactionFilters: |-
         [
@@ -102,7 +105,7 @@ spec:
           {"redact": ["api[_-]?key(?:\\s+|=)(\\S*)"]},
           {"redact": ["secret(?:\\s+|=)(\\S*)"]}
         ]
-      
+
       # Prometheus metrics
       prometheus:
         enabled: true
@@ -114,34 +117,34 @@ spec:
           scrapeInterval: 60s
           extraLabels:
             prometheus.io/scrape: "true"
-      
+
       # gRPC API for tetra CLI
       grpc:
         enabled: true
         address: "localhost:54321"
-      
+
       # gops debugging interface
       gops:
         enabled: true
         address: "localhost"
         port: 8118
-      
+
       # Health checks via gRPC
       healthGrpc:
         enabled: true
         port: 6789
         interval: 10
-      
+
       # Policy filtering (required for namespace/pod label filtering)
       enablePolicyFilter: true
       enablePolicyFilterDebug: false
-      
+
       # Message handling latency monitoring
       enableMsgHandlingLatency: false
-      
+
       # Host proc filesystem path
       hostProcPath: /proc
-      
+
       # Resources
       resources:
         limits:
@@ -149,7 +152,7 @@ spec:
         requests:
           cpu: 100m
           memory: 512Mi
-      
+
       # Security context (privileged required for eBPF)
       securityContext:
         privileged: true
@@ -157,11 +160,11 @@ spec:
     tetragonOperator:
       enabled: true
       replicas: 1
-      
+
       image:
         repository: quay.io/cilium/tetragon-operator
         tag: v1.6.0
-      
+
       # Resources
       resources:
         limits:
@@ -170,7 +173,7 @@ spec:
         requests:
           cpu: 10m
           memory: 64Mi
-      
+
       # Security context (non-privileged)
       containerSecurityContext:
         runAsUser: 65532
@@ -180,14 +183,14 @@ spec:
         capabilities:
           drop:
             - ALL
-      
+
       # High availability strategy
       strategy:
         type: RollingUpdate
         rollingUpdate:
           maxSurge: 1
           maxUnavailable: 0
-      
+
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -197,16 +200,16 @@ spec:
                 labelSelector:
                   matchLabels:
                     app.kubernetes.io/name: tetragon-operator
-      
+
       # CRD management
       tracingPolicy:
         enabled: true
-      
+
       podInfo:
         enabled: false
-      
+
       forceUpdateCRDs: false
-      
+
       # Prometheus metrics
       prometheus:
         enabled: true
@@ -223,7 +226,7 @@ spec:
       mode: stdout
       filenames:
         - tetragon.log
-      
+
       stdout:
         enabledCommand: true
         enabledArgs: true
@@ -240,7 +243,7 @@ spec:
     # CRDs installation via operator
     crds:
       installMethod: operator
-    
+
     # Runtime hooks (disabled - not needed for most use cases)
     rthooks:
       enabled: false

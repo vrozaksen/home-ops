@@ -13,9 +13,8 @@ spec:
     - index: 0
       type: "string"
     selectors:
-    - matchArgs:
-      - index: 0
-        operator: "In"
+    - matchBinaries:
+      - operator: "In"
         values:
         - "/usr/bin/ssh"
         - "/usr/bin/scp"

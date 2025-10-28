@@ -7,9 +7,6 @@ metadata:
 spec:
   interval: 1h
   path: ./kubernetes/apps/security/trivy-operator
-  dependsOn:
-    - name: external-secrets-store
-      namespace: external-secrets
   prune: true
   sourceRef:
     kind: GitRepository

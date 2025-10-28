@@ -94,14 +94,12 @@ spec:
       # Prometheus metrics
       prometheus:
         enabled: true
-        address: ""  # All interfaces
+        address: ""
         port: 2112
         metricsLabelFilter: "namespace,workload,pod,binary"
         serviceMonitor:
           enabled: true
-          scrapeInterval: 60s
-          extraLabels:
-            release: kube-prometheus-stack
+          labelsOverride: {}
 
       # gRPC API for tetra CLI
       grpc:

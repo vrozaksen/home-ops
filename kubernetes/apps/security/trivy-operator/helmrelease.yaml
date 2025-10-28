@@ -1,0 +1,229 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: aqua
+spec:
+  interval: 1h
+  url: https://aquasecurity.github.io/helm-charts/
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: trivy-operator
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: trivy-operator
+      version: 0.31.0
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: aqua
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    # -- Target only specific workloads
+    targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
+
+    # -- Exclude system namespaces from scanning
+    excludeNamespaces: "kube-system,kube-public,kube-node-lease"
+
+    operator:
+      replicas: 1
+
+      # -- Scan job configuration
+      scanJobsConcurrentLimit: 3
+      scanJobTTL: ""
+      scanJobTimeout: 5m
+      scanJobsRetryDelay: 30s      # -- Built-in Trivy server mode
+      builtInTrivyServer: true
+
+      # -- Scanner feature flags
+      vulnerabilityScannerEnabled: true
+      vulnerabilityScannerScanOnlyCurrentRevisions: true
+      sbomGenerationEnabled: true
+      clusterSbomCacheEnabled: false
+
+      configAuditScannerEnabled: true
+      configAuditScannerScanOnlyCurrentRevisions: true
+
+      rbacAssessmentScannerEnabled: true
+
+      infraAssessmentScannerEnabled: true
+
+      clusterComplianceEnabled: false # Disable for homelab to save resources
+
+      exposedSecretScannerEnabled: true
+
+      # -- Report TTLs
+      scannerReportTTL: "24h"
+      cacheReportTTL: "120h"
+
+      # -- Batch delete settings
+      batchDeleteLimit: 10
+      batchDeleteDelay: 10s
+
+      # -- Metrics configuration
+      metricsFindingsEnabled: true
+      metricsVulnIdEnabled: false # Disable to reduce cardinality
+      metricsExposedSecretInfo: false # Disable to reduce cardinality
+      metricsConfigAuditInfo: false # Disable to reduce cardinality
+      metricsRbacAssessmentInfo: false # Disable to reduce cardinality
+      metricsInfraAssessmentInfo: false # Disable to reduce cardinality
+      metricsImageInfo: false # Disable to reduce cardinality
+
+      # -- Access global secrets for private registries
+      accessGlobalSecretsAndServiceAccount: true
+
+      # -- Reloader annotation
+      annotations:
+        reloader.stakater.com/auto: "true"
+
+      # -- Resource limits for operator
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+    trivy:
+      # -- Image configuration
+      image:
+        registry: ghcr.io
+        repository: aquasecurity/trivy
+        tag: 0.58.1
+
+      # -- Mode: ClientServer uses built-in server
+      mode: ClientServer
+
+      # -- Severity levels to report
+      severity: HIGH,CRITICAL
+
+      # -- Performance tuning
+      slow: true # Less CPU/memory, takes more time
+      ignoreUnfixed: true # Skip vulnerabilities without fixes
+      timeout: 5m0s
+
+      # -- Storage configuration
+      storageClassEnabled: false # Use ephemeral storage
+
+      # -- Resource limits for scan jobs
+      resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
+
+      # -- Database repositories
+      dbRegistry: ghcr.io
+      dbRepository: aquasecurity/trivy-db
+      javaDbRegistry: ghcr.io
+      javaDbRepository: aquasecurity/trivy-java-db
+
+      # -- Use embedded rego policies for air-gapped support
+      useEmbeddedRegoPolicies: "true"
+
+      # -- Command type for scanning
+      command: image
+
+      # -- Server configuration (for ClientServer mode)
+      server:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        replicas: 1
+
+    trivyOperator:
+      # -- Scanning configuration
+      scanJobCompressLogs: true
+      scanJobsInSameNamespace: false
+
+      # -- Report configuration
+      reportRecordFailedChecksOnly: true
+
+      # -- Exclusions
+      excludeImages: "quay.io/backube/*"
+      skipResourceByLabels: "app.kubernetes.io/created-by=volsync"
+
+      # -- Security context for scan jobs
+      scanJobPodTemplateContainerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        privileged: false
+        readOnlyRootFilesystem: true
+
+    # -- Node collector configuration (disabled for Talos Linux)
+    # https://github.com/aquasecurity/trivy-operator/issues/2566
+    # Talos doesn't use standard paths like /var/lib/etcd, /var/lib/kubelet
+    nodeCollector:
+      useNodeSelector: false
+      excludeNodes: "*"  # Disable node collector completely for Talos
+      registry: ghcr.io
+      repository: aquasecurity/node-collector
+      tag: 0.3.1
+
+    # -- Compliance scanning (runs daily at 2 AM)
+    compliance:
+      failEntriesLimit: 10
+      reportType: summary
+      cron: "0 2 * * *"  # Daily at 2 AM instead of every 6 hours
+      specs:
+        - k8s-cis-1.23
+        - k8s-nsa-1.0
+        - k8s-pss-baseline-0.1
+        - k8s-pss-restricted-0.1
+
+    # -- Service Monitor for Prometheus
+    serviceMonitor:
+      enabled: true
+      interval: 60s
+      honorLabels: true
+      # No custom labels - kube-prometheus-stack uses serviceMonitorSelectorNilUsesHelmValues: false
+
+    # -- Security context for operator pod
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+
+    # -- Security context for operator container
+    securityContext:
+      privileged: false
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Node selector (adjust for your cluster)
+    nodeSelector: {}
+
+    # -- Tolerations
+    tolerations: []
+
+    # -- Priority class
+    priorityClassName: ""

@@ -101,7 +101,7 @@ spec:
           enabled: true
           scrapeInterval: 60s
           extraLabels:
-            prometheus.io/scrape: "true"
+            release: kube-prometheus-stack
 
       # gRPC API for tetra CLI
       grpc:

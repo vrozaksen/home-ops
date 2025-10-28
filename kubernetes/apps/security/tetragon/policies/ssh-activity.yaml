@@ -6,7 +6,7 @@ metadata:
   name: ssh-activity
 spec:
   kprobes:
-  - call: "do_execve"
+  - call: "security_bprm_check"
     syscall: false
     return: false
     args:

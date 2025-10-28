@@ -288,11 +288,6 @@ spec:
           gnetId: 16337
           revision: 15
           datasource: Prometheus
-        trivy-operator-image-cve-data:
-          # renovate: depName="Trivy Operator - Image CVE Data"
-          gnetId: 22010
-          revision: 2
-          datasource: Prometheus
       network:
         blackbox-exporter:
           # renovate: depName="Prometheus Blackbox Exporter"

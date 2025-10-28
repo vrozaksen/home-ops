@@ -94,12 +94,10 @@ spec:
       # Prometheus metrics
       prometheus:
         enabled: true
-        address: ""
         port: 2112
         metricsLabelFilter: "namespace,workload,pod,binary"
         serviceMonitor:
           enabled: true
-          labelsOverride: {}
 
       # gRPC API for tetra CLI
       grpc:

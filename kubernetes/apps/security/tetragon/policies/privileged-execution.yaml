@@ -9,9 +9,6 @@ spec:
   - call: "security_bprm_check"
     syscall: false
     return: false
-    args:
-    - index: 0
-      type: "string"
     selectors:
     - matchBinaries:
       - operator: "In"

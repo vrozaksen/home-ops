@@ -28,113 +28,26 @@ spec:
 
         - alert: TetragonHighEventRate
           expr: |
-            rate(tetragon_events_total[5m]) > 1000
+            sum(increase(tetragon_events_total[5m])) / 300 > 1000
           for: 10m
           labels:
             severity: warning
             category: security
           annotations:
-            summary: "High Tetragon event rate on {{ $labels.instance }}"
+            summary: "High Tetragon event rate"
             description: |
-              Tetragon is processing more than 1000 events per second on {{ $labels.instance }}.
+              Tetragon is processing more than 1000 events per second.
               This might indicate:
               - Security incident in progress
               - Misconfigured TracingPolicy
               - Normal high activity workload
 
               Current rate: {{ $value | humanize }} events/sec
-              Event type: {{ $labels.event_type }}
-
-        - alert: TetragonSensitiveFileAccess
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="sensitive-files"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: critical
-            category: security
-          annotations:
-            summary: "URGENT: Sensitive file access detected"
-            description: |
-              Tetragon detected access to sensitive system files!
-
-              Policy: {{ $labels.policy_name }}
-              Binary: {{ $labels.binary }}
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-
-              This could indicate:
-              - Container escape attempt
-              - Privilege escalation
-              - Compromised pod
-
-              INVESTIGATE IMMEDIATELY!
-
-        - alert: TetragonPrivilegedShellExecution
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="privileged-execution"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: warning
-            category: security
-          annotations:
-            summary: "Privileged shell execution detected"
-            description: |
-              Tetragon detected shell execution with elevated capabilities.
-
-              Policy: {{ $labels.policy_name }}
-              Binary: {{ $labels.binary }}
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-
-              Review if this is expected behavior.
-
-        - alert: TetragonCryptoMiningDetected
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="crypto-mining-detection"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: critical
-            category: security
-          annotations:
-            summary: "URGENT: Crypto mining activity detected!"
-            description: |
-              Tetragon detected potential cryptocurrency mining activity!
-
-              Policy: {{ $labels.policy_name }}
-              Binary: {{ $labels.binary }}
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-
-              IMMEDIATE ACTION REQUIRED:
-              1. Isolate the affected pod
-              2. Check cluster resource usage
-              3. Review pod deployment source
-
-              This is likely a security incident!
-
-        - alert: TetragonSuspiciousNetworkConnection
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="suspicious-network"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: warning
-            category: security
-          annotations:
-            summary: "Suspicious network connection detected"
-            description: |
-              Tetragon detected connection to suspicious port.
-
-              Policy: {{ $labels.policy_name }}
-              Binary: {{ $labels.binary }}
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-
-              Potential C2 (Command & Control) communication detected.
-              Review network traffic immediately.
+              Event type: {{ $labels.type }}
 
         - alert: TetragonPolicyNotLoaded
           expr: |
-            tetragon_policy_loaded == 0
+            sum(tetragon_tracingpolicy_loaded{state="enabled"}) == 0
           for: 5m
           labels:
             severity: warning
@@ -150,20 +63,20 @@ spec:
               - Tetragon operator logs
               - Policy YAML syntax
 
-        - alert: TetragonEventDrops
+        - alert: TetragonEventLoss
           expr: |
-            rate(tetragon_events_dropped_total[5m]) > 10
+            sum(increase(tetragon_observer_ringbuf_events_lost_total[5m])) / 300 > 10
           for: 10m
           labels:
             severity: warning
             category: security
           annotations:
-            summary: "Tetragon is dropping events"
+            summary: "Tetragon is losing events"
             description: |
-              Tetragon is dropping events due to high load or backpressure.
+              Tetragon ringbuf is losing events due to high load or backpressure.
 
-              Drop rate: {{ $value | humanize }} events/sec
-              Node: {{ $labels.instance }}
+              Loss rate: {{ $value | humanize }} events/sec
+              Pod: {{ $labels.pod }}
 
               Security visibility may be compromised!
               Consider:
@@ -171,20 +84,20 @@ spec:
               - Reducing TracingPolicy scope
               - Checking export pipeline health
 
-        - alert: TetragonBPFMissedEvents
+        - alert: TetragonQueueEventLoss
           expr: |
-            rate(tetragon_bpf_missed_events_total[5m]) > 5
+            sum(increase(tetragon_observer_ringbuf_queue_events_lost_total[5m])) / 300 > 5
           for: 5m
           labels:
             severity: warning
             category: security
           annotations:
-            summary: "Tetragon eBPF missing events"
+            summary: "Tetragon queue losing events"
             description: |
-              eBPF ring buffer is full - events are being missed!
+              eBPF ring buffer queue is full - events are being missed!
 
               Missed rate: {{ $value | humanize }} events/sec
-              Instance: {{ $labels.instance }}
+              Pod: {{ $labels.pod }}
 
               Possible causes:
               - Insufficient kernel ring buffer size
@@ -203,130 +116,43 @@ spec:
             description: |
               Process cache is {{ $value | humanizePercentage }} full.
 
-              Instance: {{ $labels.instance }}
+              Pod: {{ $labels.pod }}
 
               Consider increasing processCacheSize in HelmRelease.
 
-        - alert: TetragonHighKernelMemoryUsage
+        - alert: TetragonHighErrorRate
           expr: |
-            sum(tetragon_tracingpolicy_kernel_memory_bytes) by (instance) > 100 * 1024 * 1024
+            sum(increase(tetragon_errors_total[5m])) / 300 > 1
           for: 10m
           labels:
             severity: warning
             category: security
           annotations:
-            summary: "High kernel memory usage by TracingPolicies"
+            summary: "High Tetragon error rate"
             description: |
-              TracingPolicies are consuming {{ $value | humanize1024 }}B of kernel memory.
+              Tetragon is experiencing elevated error rates.
 
-              Instance: {{ $labels.instance }}
-
-              This may impact system stability. Review policy complexity.
-
-        - alert: TetragonSSHActivityDetected
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="ssh-activity"}[10m]) > 10
-          for: 1m
-          labels:
-            severity: info
-            category: security
-          annotations:
-            summary: "Elevated SSH activity in cluster"
-            description: |
-              Unusual SSH/SCP/SFTP activity detected.
-
-              Events in last 10min: {{ $value }}
-              Namespace: {{ $labels.namespace }}
+              Error rate: {{ $value | humanize }} errors/sec
+              Error type: {{ $labels.type }}
               Pod: {{ $labels.pod }}
 
-              Review if this is expected maintenance activity.
+              Check Tetragon logs for details.
 
-        - alert: TetragonPackageInstallation
+        - alert: TetragonMapErrors
           expr: |
-            increase(tetragon_policy_events_total{policy_name="package-management"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: info
-            category: security
-          annotations:
-            summary: "Package installation detected in container"
-            description: |
-              Software installation detected (apt/yum/pip/npm).
-
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-              Binary: {{ $labels.binary }}
-
-              Containers should be immutable - investigate if unexpected.
-
-        - alert: TetragonContainerEscapeAttempt
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="container-escape-attempts"}[5m]) > 0
-          for: 1m
-          labels:
-            severity: critical
-            category: security
-          annotations:
-            summary: "URGENT: Container escape attempt detected!"
-            description: |
-              Potential container escape detected!
-
-              Policy: {{ $labels.policy_name }}
-              Namespace: {{ $labels.namespace }}
-              Pod: {{ $labels.pod }}
-              Binary: {{ $labels.binary }}
-
-              Actions detected:
-              - nsenter / docker socket access / crictl usage
-
-              IMMEDIATE INVESTIGATION REQUIRED!
-
-        - alert: TetragonKubectlExecUsage
-          expr: |
-            increase(tetragon_policy_events_total{policy_name="kubectl-exec"}[30m]) > 20
-          for: 5m
-          labels:
-            severity: info
-            category: security
-          annotations:
-            summary: "High kubectl usage detected"
-            description: |
-              Elevated kubectl command activity in last 30 minutes.
-
-              Count: {{ $value }}
-              Namespace: {{ $labels.namespace }}
-
-              Review if this is expected DevOps activity or potential unauthorized access.
-
-        - alert: TetragonOperatorDown
-          expr: |
-            up{job="tetragon-operator"} == 0
+            sum(increase(tetragon_map_errors_update_total[5m])) / 300 > 1 or
+            sum(increase(tetragon_map_errors_delete_total[5m])) / 300 > 1
           for: 5m
           labels:
             severity: warning
             category: security
           annotations:
-            summary: "Tetragon Operator is down"
+            summary: "Tetragon BPF map errors"
             description: |
-              Tetragon Operator pod is not responding.
+              Tetragon is experiencing BPF map operation errors.
 
-              TracingPolicy changes will not be applied until operator recovers.
-              Existing policies continue to function.
+              Error rate: {{ $value | humanize }} errors/sec
+              Map: {{ $labels.map }}
+              Pod: {{ $labels.pod }}
 
-        - alert: TetragonHighSyscallRate
-          expr: |
-            rate(tetragon_syscalls_total[5m]) > 5000
-          for: 10m
-          labels:
-            severity: info
-            category: security
-          annotations:
-            summary: "High syscall monitoring rate"
-            description: |
-              Tetragon is tracking {{ $value | humanize }} syscalls/sec.
-
-              Syscall: {{ $labels.syscall }}
-              Namespace: {{ $labels.namespace }}
-              Workload: {{ $labels.workload }}
-
-              This may indicate heavy system activity or noisy policy.
+              This may indicate kernel version incompatibility or resource limits.

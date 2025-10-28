@@ -37,6 +37,8 @@ endpoints:
     group: security
     url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=sum(trivy_image_vulnerabilities{severity='Critical'})"
     interval: 1h
+    ui:
+      hide-url: true
     conditions:
       - "[BODY].data.result[0].value[1] < 50"  # Alert if more than 50 critical CVEs
       - "[STATUS] == 200"
@@ -45,6 +47,8 @@ endpoints:
     group: security
     url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=sum(trivy_image_vulnerabilities{severity='High'})"
     interval: 6h
+    ui:
+      hide-url: true
     conditions:
       - "[BODY].data.result[0].value[1] < 200"  # Alert if more than 200 high CVEs
       - "[STATUS] == 200"
@@ -53,6 +57,8 @@ endpoints:
     group: security
     url: "http://tetragon.security.svc.cluster.local:6789"
     interval: 1m
+    ui:
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
 
@@ -60,6 +66,8 @@ endpoints:
     group: security
     url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=rate(tetragon_events_total{event_type='PROCESS_EXEC'}[5m])"
     interval: 5m
+    ui:
+      hide-url: true
     conditions:
       - "[BODY].data.result[0].value[1] > 0"  # Ensure events are being collected
       - "[STATUS] == 200"
@@ -68,6 +76,8 @@ endpoints:
     group: security
     url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=tetragon_policy_loaded"
     interval: 5m
+    ui:
+      hide-url: true
     conditions:
       - "[BODY].data.result[0].value[1] > 0"  # Ensure TracingPolicies are loaded
       - "[STATUS] == 200"

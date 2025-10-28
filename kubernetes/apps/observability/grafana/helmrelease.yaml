@@ -280,13 +280,18 @@ spec:
       security:
         trivy-operator-dashboard:
           # renovate: depName="Trivy Operator Dashboard"
-          gnetId: 16337
-          revision: 12
+          gnetId: 21398
+          revision: 1
           datasource: Prometheus
         trivy-operator-vulnerabilities:
-          # renovate: depName="Trivy Image Vulnerability Overview"
-          gnetId: 17813
-          revision: 3
+          # renovate: depName="Trivy Operator - Vulnerabilities"
+          gnetId: 16337
+          revision: 15
+          datasource: Prometheus
+        trivy-operator-image-cve-data:
+          # renovate: depName="Trivy Operator - Image CVE Data"
+          gnetId: 22010
+          revision: 2
           datasource: Prometheus
       network:
         blackbox-exporter:

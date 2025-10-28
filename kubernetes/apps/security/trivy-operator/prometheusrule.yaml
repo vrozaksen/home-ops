@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: trivy-operator-rules
+spec:
+  groups:
+    - name: trivy-operator
+      interval: 1h
+      rules:
+        - alert: TrivyCriticalVulnerabilities
+          annotations:
+            summary: "Critical vulnerabilities detected in cluster"
+            description: "{{ $value }} critical vulnerabilities found across the cluster. Review Grafana dashboard or run: kubectl get vulnerabilityreports -A"
+          expr: |
+            sum(trivy_image_vulnerabilities{severity="Critical"}) > 10
+          for: 5m
+          labels:
+            severity: critical
+            category: security
+
+        - alert: TrivyHighVulnerabilities
+          annotations:
+            summary: "High number of high-severity vulnerabilities detected"
+            description: "{{ $value }} high-severity vulnerabilities found across the cluster. Review Grafana dashboard or run: kubectl get vulnerabilityreports -A"
+          expr: |
+            sum(trivy_image_vulnerabilities{severity="High"}) > 50
+          for: 1h
+          labels:
+            severity: warning
+            category: security
+
+        - alert: TrivyConfigAuditFailures
+          annotations:
+            summary: "Configuration audit failures detected"
+            description: "{{ $value }} config audit failures found in namespace {{ $labels.exported_namespace }}. Review with: kubectl get configauditreports -n {{ $labels.exported_namespace }}"
+          expr: |
+            sum by (exported_namespace) (trivy_resource_configaudits{severity="CRITICAL"}) > 5
+          for: 30m
+          labels:
+            severity: warning
+            category: security
+
+        - alert: TrivyExposedSecrets
+          annotations:
+            summary: "Exposed secrets detected in images"
+            description: "{{ $value }} exposed secrets found in namespace {{ $labels.exported_namespace }}. URGENT: Review with: kubectl get exposedsecretreports -n {{ $labels.exported_namespace }}"
+          expr: |
+            sum by (exported_namespace) (trivy_image_exposedsecrets) > 0
+          for: 5m
+          labels:
+            severity: critical
+            category: security

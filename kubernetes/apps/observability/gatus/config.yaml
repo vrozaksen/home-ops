@@ -33,6 +33,22 @@ endpoints:
     conditions:
       - "[CERTIFICATE_EXPIRATION] > 240h"
 
+  - name: trivy-critical-vulnerabilities
+    group: security
+    url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=sum(trivy_image_vulnerabilities{severity='Critical'})"
+    interval: 1h
+    conditions:
+      - "[BODY].data.result[0].value[1] < 50"  # Alert if more than 50 critical CVEs
+      - "[STATUS] == 200"
+
+  - name: trivy-high-vulnerabilities
+    group: security
+    url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=sum(trivy_image_vulnerabilities{severity='High'})"
+    interval: 6h
+    conditions:
+      - "[BODY].data.result[0].value[1] < 200"  # Alert if more than 200 high CVEs
+      - "[STATUS] == 200"
+
 metrics: true
 
 storage:

@@ -179,9 +179,10 @@ spec:
     # -- Node collector configuration (disabled for Talos Linux)
     # https://github.com/aquasecurity/trivy-operator/issues/2566
     # Talos doesn't use standard paths like /var/lib/etcd, /var/lib/kubelet
+    # Disable by excluding all nodes with os=linux label
     nodeCollector:
       useNodeSelector: false
-      excludeNodes: "*"  # Disable node collector completely for Talos
+      excludeNodes: "kubernetes.io/os=linux"
       registry: ghcr.io
       repository: aquasecurity/node-collector
       tag: 0.3.1

@@ -1,0 +1,172 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tetragon-alerts
+spec:
+  groups:
+    - name: tetragon
+      interval: 1m
+      rules:
+        - alert: TetragonAgentDown
+          expr: |
+            up{job="tetragon"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            category: security
+          annotations:
+            summary: "Tetragon agent is down on {{ $labels.instance }}"
+            description: |
+              Tetragon security observability agent has been down for more than 5 minutes on node {{ $labels.instance }}.
+              Runtime security monitoring is not active!
+              
+              Current status: DOWN
+              Pod: {{ $labels.pod }}
+              Namespace: {{ $labels.namespace }}
+
+        - alert: TetragonHighEventRate
+          expr: |
+            rate(tetragon_events_total[5m]) > 1000
+          for: 10m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "High Tetragon event rate on {{ $labels.instance }}"
+            description: |
+              Tetragon is processing more than 1000 events per second on {{ $labels.instance }}.
+              This might indicate:
+              - Security incident in progress
+              - Misconfigured TracingPolicy
+              - Normal high activity workload
+              
+              Current rate: {{ $value | humanize }} events/sec
+              Event type: {{ $labels.event_type }}
+
+        - alert: TetragonSensitiveFileAccess
+          expr: |
+            increase(tetragon_policy_events_total{policy_name="sensitive-files"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+            category: security
+          annotations:
+            summary: "URGENT: Sensitive file access detected"
+            description: |
+              Tetragon detected access to sensitive system files!
+              
+              Policy: {{ $labels.policy_name }}
+              Binary: {{ $labels.binary }}
+              Namespace: {{ $labels.namespace }}
+              Pod: {{ $labels.pod }}
+              
+              This could indicate:
+              - Container escape attempt
+              - Privilege escalation
+              - Compromised pod
+              
+              INVESTIGATE IMMEDIATELY!
+
+        - alert: TetragonPrivilegedShellExecution
+          expr: |
+            increase(tetragon_policy_events_total{policy_name="privileged-execution"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "Privileged shell execution detected"
+            description: |
+              Tetragon detected shell execution with elevated capabilities.
+              
+              Policy: {{ $labels.policy_name }}
+              Binary: {{ $labels.binary }}
+              Namespace: {{ $labels.namespace }}
+              Pod: {{ $labels.pod }}
+              
+              Review if this is expected behavior.
+
+        - alert: TetragonCryptoMiningDetected
+          expr: |
+            increase(tetragon_policy_events_total{policy_name="crypto-mining-detection"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+            category: security
+          annotations:
+            summary: "URGENT: Crypto mining activity detected!"
+            description: |
+              Tetragon detected potential cryptocurrency mining activity!
+              
+              Policy: {{ $labels.policy_name }}
+              Binary: {{ $labels.binary }}
+              Namespace: {{ $labels.namespace }}
+              Pod: {{ $labels.pod }}
+              
+              IMMEDIATE ACTION REQUIRED:
+              1. Isolate the affected pod
+              2. Check cluster resource usage
+              3. Review pod deployment source
+              
+              This is likely a security incident!
+
+        - alert: TetragonSuspiciousNetworkConnection
+          expr: |
+            increase(tetragon_policy_events_total{policy_name="suspicious-network"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "Suspicious network connection detected"
+            description: |
+              Tetragon detected connection to suspicious port.
+              
+              Policy: {{ $labels.policy_name }}
+              Binary: {{ $labels.binary }}
+              Namespace: {{ $labels.namespace }}
+              Pod: {{ $labels.pod }}
+              
+              Potential C2 (Command & Control) communication detected.
+              Review network traffic immediately.
+
+        - alert: TetragonPolicyNotLoaded
+          expr: |
+            tetragon_policy_loaded == 0
+          for: 5m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "Tetragon TracingPolicies not loaded"
+            description: |
+              No TracingPolicies are loaded in Tetragon.
+              Security monitoring is ineffective without policies!
+              
+              Check:
+              - TracingPolicy CRD status
+              - Tetragon operator logs
+              - Policy YAML syntax
+
+        - alert: TetragonEventDrops
+          expr: |
+            rate(tetragon_events_dropped_total[5m]) > 10
+          for: 10m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "Tetragon is dropping events"
+            description: |
+              Tetragon is dropping events due to high load or backpressure.
+              
+              Drop rate: {{ $value | humanize }} events/sec
+              Node: {{ $labels.instance }}
+              
+              Security visibility may be compromised!
+              Consider:
+              - Increasing Tetragon resources
+              - Reducing TracingPolicy scope
+              - Checking export pipeline health

@@ -84,14 +84,12 @@ spec:
 
       # Redact sensitive data (passwords, tokens, API keys)
       redactionFilters: |-
-        [
-          {"redact": ["--password(?:\\s+|=)(\\S*)"]},
-          {"redact": ["--token(?:\\s+|=)(\\S*)"]},
-          {"redact": ["-p(?:\\s+|=)(\\S*)"]},
-          {"redact": ["Bearer\\s+(\\S+)"]},
-          {"redact": ["api[_-]?key(?:\\s+|=)(\\S*)"]},
-          {"redact": ["secret(?:\\s+|=)(\\S*)"]}
-        ]
+        {"redact": ["--password(?:\\s+|=)(\\S*)"]}
+        {"redact": ["--token(?:\\s+|=)(\\S*)"]}
+        {"redact": ["-p(?:\\s+|=)(\\S*)"]}
+        {"redact": ["Bearer\\s+(\\S+)"]}
+        {"redact": ["api[_-]?key(?:\\s+|=)(\\S*)"]}
+        {"redact": ["secret(?:\\s+|=)(\\S*)"]}
 
       # Prometheus metrics
       prometheus:

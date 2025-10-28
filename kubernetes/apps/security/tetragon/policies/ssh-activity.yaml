@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/tetragon/main/pkg/k8s/apis/cilium.io/client/crds/v1alpha1/cilium.io_tracingpolicies.yaml
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: ssh-activity
+spec:
+  kprobes:
+  - call: "do_execve"
+    syscall: false
+    return: false
+    args:
+    - index: 0
+      type: "string"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/usr/bin/ssh"
+        - "/usr/bin/scp"
+        - "/usr/bin/sftp"
+        - "/usr/sbin/sshd"
+      matchActions:
+      - action: Post

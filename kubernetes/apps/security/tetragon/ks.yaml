@@ -4,10 +4,27 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: tetragon
-  namespace: flux-system
 spec:
   interval: 1h
-  path: ./kubernetes/apps/security/tetragon
+  path: ./kubernetes/apps/security/tetragon/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  timeout: 10m
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tetragon-policies
+spec:
+  dependsOn:
+    - name: tetragon
+  interval: 1h
+  path: ./kubernetes/apps/security/tetragon/policies
   prune: true
   sourceRef:
     kind: GitRepository

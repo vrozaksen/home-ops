@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/tetragon/main/pkg/k8s/apis/cilium.io/client/crds/v1alpha1/cilium.io_tracingpolicies.yaml
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: package-management
+spec:
+  kprobes:
+  - call: "do_execve"
+    syscall: false
+    return: false
+    args:
+    - index: 0
+      type: "string"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/usr/bin/apt"
+        - "/usr/bin/apt-get"
+        - "/usr/bin/dpkg"
+        - "/usr/bin/yum"
+        - "/usr/bin/dnf"
+        - "/usr/bin/rpm"
+        - "/usr/bin/apk"
+        - "/usr/bin/pacman"
+        - "/usr/local/bin/pip"
+        - "/usr/bin/pip"
+        - "/usr/bin/npm"
+      matchActions:
+      - action: Post

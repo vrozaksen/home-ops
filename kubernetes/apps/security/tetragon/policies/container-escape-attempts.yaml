@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/tetragon/main/pkg/k8s/apis/cilium.io/client/crds/v1alpha1/cilium.io_tracingpolicies.yaml
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: container-escape-attempts
+spec:
+  kprobes:
+  - call: "do_execve"
+    syscall: false
+    return: false
+    args:
+    - index: 0
+      type: "string"
+    selectors:
+    # nsenter - used to escape containers
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/usr/bin/nsenter"
+        - "/bin/nsenter"
+      matchActions:
+      - action: Post
+    # Docker socket access
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/usr/bin/docker"
+        - "/usr/local/bin/docker"
+      matchActions:
+      - action: Post
+    # crictl (container runtime CLI)
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/usr/bin/crictl"
+        - "/usr/local/bin/crictl"
+      matchActions:
+      - action: Post

@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/tetragon/main/pkg/k8s/apis/cilium.io/client/crds/v1alpha1/cilium.io_tracingpolicies.yaml
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: sensitive-files
+spec:
+  kprobes:
+  - call: "security_file_open"
+    syscall: false
+    return: false
+    args:
+    - index: 0
+      type: "file"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "Prefix"
+        values:
+        - "/etc/shadow"
+        - "/etc/gshadow"
+        - "/etc/passwd"
+        - "/etc/sudoers"
+        - "/etc/sudoers.d"
+        - "/root/.ssh"
+        - "/var/lib/kubelet"
+        - "/etc/kubernetes"
+        - "/etc/cni"
+        - "/opt/cni"
+      matchActions:
+      - action: Post

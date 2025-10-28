@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/tetragon/main/pkg/k8s/apis/cilium.io/client/crds/v1alpha1/cilium.io_tracingpolicies.yaml
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: privileged-execution
+spec:
+  kprobes:
+  - call: "do_execve"
+    syscall: false
+    return: false
+    args:
+    - index: 0
+      type: "string"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/bin/bash"
+        - "/bin/sh"
+        - "/usr/bin/bash"
+        - "/usr/bin/sh"
+        - "/bin/dash"
+      matchCapabilities:
+      - type: Effective
+        operator: In
+        values:
+        - "CAP_SYS_ADMIN"
+        - "CAP_SYS_PTRACE"
+        - "CAP_SYS_MODULE"
+      matchActions:
+      - action: Post

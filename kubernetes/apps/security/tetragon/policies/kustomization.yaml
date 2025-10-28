@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./container-escape-attempts.yaml
+  - ./crypto-mining-detection.yaml
+  - ./kubectl-exec.yaml
+  - ./package-management.yaml
+  - ./privileged-execution.yaml
+  - ./sensitive-files.yaml
+  - ./ssh-activity.yaml
+  - ./suspicious-network.yaml

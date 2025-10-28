@@ -23,18 +23,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: aqua
-  driftDetection:
-    mode: enabled
-  maxHistory: 3
-  install:
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
   values:
     # -- Target only specific workloads
     targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"

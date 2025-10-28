@@ -23,19 +23,6 @@ spec:
         kind: HelmRepository
         name: cilium
       interval: 12h
-  driftDetection:
-    mode: enabled
-  maxHistory: 3
-  install:
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
-      strategy: rollback
   values:
     # Tetragon MUST run on host network for proper process visibility
     hostNetwork: true

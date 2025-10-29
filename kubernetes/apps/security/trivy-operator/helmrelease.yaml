@@ -95,7 +95,7 @@ spec:
       image:
         registry: ghcr.io
         repository: aquasecurity/trivy
-        tag: 0.58.1
+        tag: 0.67.2
 
       # -- Mode: ClientServer uses built-in server
       mode: ClientServer
@@ -107,6 +107,9 @@ spec:
       slow: true # Less CPU/memory, takes more time
       ignoreUnfixed: true # Skip vulnerabilities without fixes
       timeout: 5m0s
+
+      # -- Database timeout (new in v0.66.0)
+      dbRepositoryTimeout: 10m
 
       # -- Storage configuration
       storageClassEnabled: false # Use ephemeral storage

@@ -6,9 +6,7 @@ locals {
     "miniflux",
     "open-webui",
     "pgadmin",
-    "rresume",
-    "vikunja",
-    "zipline"
+    "rresume"
   ]
 }
 
@@ -231,36 +229,4 @@ module "oauth2-open-webui" {
   client_id          = local.parsed_secrets["open-webui"].client_id
   client_secret      = local.parsed_secrets["open-webui"].client_secret
   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
-}
-
-module "oauth2-vikunja" {
-  source             = "./oauth2_application"
-  name               = "Vikunja"
-  icon_url           = "https://raw.githubusercontent.com/go-vikunja/vikunja/refs/heads/main/frontend/public/images/icons/android-chrome-512x512.png"
-  launch_url         = "https://vikunja.${var.cluster_domain}/auth/openid/authentik"
-  description        = "Vikunja"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["vikunja"].client_id
-  client_secret      = local.parsed_secrets["vikunja"].client_secret
-  redirect_uris      = ["https://vikunja.${var.cluster_domain}/auth/openid/authentik"]
-}
-
-module "oauth2-zipline" {
-  source             = "./oauth2_application"
-  name               = "Zipline"
-  icon_url           = "https://raw.githubusercontent.com/diced/zipline/refs/heads/trunk/public/favicon-512x512.png"
-  launch_url         = "https://z.${var.cluster_domain}"
-  description        = "FileBin"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["zipline"].client_id
-  client_secret      = local.parsed_secrets["zipline"].client_secret
-  redirect_uris      = ["https://z.${var.cluster_domain}/api/auth/oauth/oidc"]
 }

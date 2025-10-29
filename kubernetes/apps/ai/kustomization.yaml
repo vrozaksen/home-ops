@@ -12,4 +12,5 @@ resources:
   # - ./open-webui/ks.yaml
   # - ./perplexica/ks.yaml
   # - ./qdrant/ks.yaml
+  # TODO Scira AI https://github.com/zaidmukaddam/scira
   - ./searxng/ks.yaml

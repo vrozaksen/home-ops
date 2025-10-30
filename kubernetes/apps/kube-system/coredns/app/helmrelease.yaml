@@ -51,6 +51,7 @@ spec:
             configBlock: |
               pods verified
               fallthrough in-addr.arpa ip6.arpa
+              ttl 30
           - name: autopath
             parameters: "@kubernetes"
           - name: forward

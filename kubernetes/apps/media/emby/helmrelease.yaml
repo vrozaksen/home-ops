@@ -102,12 +102,12 @@ spec:
         path: /mnt/user/data/media
         globalMounts:
           - path: /data
-      # music-videos:
-      #   type: nfs
-      #   server: aincrad.home.vzkn.eu
-      #   path: /mnt/user/z_media/music-videos
-      #   globalMounts:
-      #     - path: /music-videos
+      music-videos:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/cache/z_media/music-videos
+        globalMounts:
+          - path: /music-videos
       tmpfs:
         type: emptyDir
         advancedMounts:

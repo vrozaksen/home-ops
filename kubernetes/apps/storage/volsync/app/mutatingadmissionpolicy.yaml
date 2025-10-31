@@ -109,7 +109,7 @@ spec:
                 name: "repository",
                 nfs: Object.spec.template.spec.volumes.nfs{
                   server: "aincrad.home.vzkn.eu",
-                  path: "/mnt/user/volsync-kopia"
+                  path: "/mnt/blaze/volsync-kopia"
                 }
               }
             }

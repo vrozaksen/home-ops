@@ -112,7 +112,7 @@ spec:
       music:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/user/z_media
+        path: /mnt/cache/z_media
         globalMounts:
           - path: /music
             subPath: music

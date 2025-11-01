@@ -7,3 +7,15 @@ resources:
   - ./helmrelease.yaml
   - ./httproute.yaml
   - ./servicemonitor.yaml
+patches:
+  - patch: |-
+      apiVersion: postgres-operator.crunchydata.com/v1beta1
+      kind: PostgresCluster
+      metadata:
+        name: coder
+      spec:
+        dataSource:
+          $patch: delete
+    target:
+      kind: PostgresCluster
+      name: coder

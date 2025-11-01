@@ -38,14 +38,62 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 ---
 
-## Overview
 
-This is a monorepository is for my home kubernetes clusters.
-I try to adhere to Infrastructure as Code (IaC) and GitOps practices using tools like [Terraform](https://www.terraform.io/),
-[Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2), [Renovate](https://github.com/renovatebot/renovate),
-and [GitHub Actions](https://github.com/features/actions).
 
-The purpose here is to learn k8s, while practicing Gitops.
+<div style="margin-bottom: 24px;">
+  <h2>Overview</h2>
+  <p>
+    This is a monorepository is for my home kubernetes clusters.<br>
+    I try to adhere to Infrastructure as Code (IaC) and GitOps practices using tools like <a href="https://www.terraform.io/">Terraform</a>, <a href="https://kubernetes.io/">Kubernetes</a>, <a href="https://github.com/fluxcd/flux2">Flux</a>, <a href="https://github.com/renovatebot/renovate">Renovate</a>, and <a href="https://github.com/features/actions">GitHub Actions</a>.<br><br>
+    The purpose here is to learn k8s, while practicing Gitops.
+  </p>
+</div>
+
+<table>
+<tr>
+<td width="35%" align="center">
+
+## 🖥 Server Rack
+
+<img src="docs/assets/rack.png" alt="Home Server Rack" width="280" style="border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);" />
+
+</td>
+<td width="65%">
+
+## 🔧 Hardware
+
+### Main Kubernetes Cluster
+
+| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
+|---------|--------------|----------|-----------|------------|------|-------|-------------|
+| Alfheim | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 64GB | Talos | k8s control |
+| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
+| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
+
+**Totals:** 18 CPU threads, 128 GB RAM
+**Network:** Intel X710-DA2 (LACP 2x10Gbps 802.3ad)
+
+### NAS
+
+| Name    | CPU      | RAM  | OS     | Storage                                                               | Purpose              |
+|---------|----------|------|--------|-----------------------------------------------------------------------|----------------------|
+| Aincrad | i3-14100 | 32GB | Unraid | **Array:** 5x14TB + 5x4TB ZFS<br>**Cache:** 1TB M.2 SSD<br>**Blaze Pool:** 2x960GB SSD RAID1 | NAS/NFS/S3/Backup    |
+
+**Components:** AsRock B760M-H2/M.2, Corsair Vengeance DDR5 6000MHz, Inter-Tech 4U Case, 2x ASM1166 HBA
+**GPU:** ASUS GeForce RTX 3060 Phoenix V2 LHR 12GB GDDR6 (ML/LLM)
+
+### Networking/UPS Hardware
+
+| Device                             | Purpose          |
+|------------------------------------|------------------|
+| MikroTik RB5009UPr+S+IN            | Router           |
+| MikroTik CRS326-24S+2Q+RM          | 10G Switch       |
+| HORACO 2.5GbE 5-Port + 10G SFP+    | 2.5G Switch      |
+| APC SMC1500I-2UC                   | UPS              |
+
+</td>
+</tr>
+</table>
 
 ---
 
@@ -171,35 +219,6 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 private DNS records to my `AdGuard Home` using [ExternalDNS webhook provider for AdGuard](https://github.com/muhlba91/external-dns-provider-adguard),
 while another instance syncs public DNS to `Cloudflare`. This setup is managed by creating ingresses with two specific classes: `internal`
 for private DNS and `external` for public DNS. The `external-dns` instances then syncs the DNS records to their respective platforms accordingly.
-
----
-
-## 🔧 Hardware
-
-### Main Kubernetes Cluster
-
-| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
-|---------|--------------|----------|-----------|------------|------|-------|-------------|
-| Alfheim | Lenovo M920q | i5-8500T | 480GB SSD | 500GB NVME | 64GB | Talos | k8s control |
-| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
-| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
-
-Total CPU: 18 threads
-Total RAM: 128 GB
-
-### Supporting Hardware
-
-| Name    | Device | CPU     | OS Disk  | Data Disk        | RAM  | OS     | Purpose        |
-|---------|--------|---------|----------|------------------|------|--------|----------------|
-| Aincrad | DIY    | i5-9400 | 32GB USB | 2x14Tb 6x4Tb zfs | 16GB | Unraid | NAS/NFS/Backup |
-
-### Networking/UPS Hardware
-
-| Device                      | Purpose          |
-|-----------------------------|------------------|
-| MikroTik RB5009UPr+S+IN     | Network - Router |
-| MikroTik CRS326-24S+2Q+RM   | Network - Switch |
-| CyberPower VP1000ELCD-FR    | General - UPS    |
 
 ---
 

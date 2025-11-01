@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://schemas.bykaj.io/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: coder
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 2.27.3
+  url: oci://ghcr.io/coder/chart/coder
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app coder
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: coder
+  values:
+    # https://artifacthub.io/packages/helm/coder-v2/coder
+    # https://github.com/coder/coder/blob/main/helm/coder/values.yaml
+    podAnnotations:
+      reloader.stakater.com/auto: 'true'
+      secret.reloader.stakater.com/reload: coder-secret
+    coder:
+      podAnnotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2112"
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 71m
+      envFrom:
+        - secretRef:
+            name: coder-secret
+      env:
+        # Core configuration
+        - name: CODER_ACCESS_URL
+          value: "https://coder.vzkn.eu"
+        - name: CODER_WILDCARD_ACCESS_URL
+          value: "*.coder.vzkn.eu"
+        # Networking
+        - name: CODER_BLOCK_DIRECT
+          value: "true"
+        - name: CODER_DERP_SERVER_STUN_ADDRESSES
+          value: "disable"
+        # Email
+        - name: CODER_EMAIL_FROM
+          value: "Coder <admin@vzkn.eu>"
+        - name: CODER_EMAIL_TLS_STARTTLS
+          value: "true"
+        # Logging and monitoring
+        - name: CODER_LOGGING_HUMAN
+          value: "/dev/stderr"
+        - name: CODER_PROMETHEUS_ENABLE
+          value: "true"
+        - name: CODER_PROMETHEUS_COLLECT_AGENT_STATS
+          value: "true"
+        # Privacy
+        - name: CODER_TELEMETRY_ENABLE
+          value: "false"
+        - name: CODER_UPDATE_CHECK
+          value: "false"
+        # Database
+        - name: CODER_PG_CONNECTION_URL
+          valueFrom:
+            secretKeyRef:
+              name: coder-pguser-coder
+              key: pgbouncer-uri
+        # OIDC - Authentication
+        - name: CODER_DISABLE_PASSWORD_AUTH
+          value: "true"
+        - name: CODER_OIDC_ISSUER_URL
+          value: "https://sso.vzkn.eu/application/o/coder/"
+        - name: CODER_OIDC_SCOPES
+          value: "openid,profile,email,offline_access"
+        - name: CODER_OIDC_SIGN_IN_TEXT
+          value: "Sign in with Authentik"
+        - name: CODER_OIDC_ICON_URL
+          value: "https://sso.vzkn.eu/static/dist/assets/icons/icon.png"
+        - name: CODER_OIDC_AUTH_URL_PARAMS
+          value: '{"access_type":"offline"}'
+        # OIDC - Groups
+        - name: CODER_OIDC_GROUP_AUTO_CREATE
+          value: "true"
+        - name: CODER_OIDC_GROUP_FIELD
+          value: "groups"
+        - name: CODER_OIDC_GROUP_MAPPING
+          value: '{"authentik Admins": "owner", "infrastructure": "template-admin"}'
+        # OIDC - User roles (deprecated but kept for compatibility)
+        - name: CODER_OIDC_USER_ROLE_MAPPING
+          value: '{"authentik Admins": ["owner"], "infrastructure": ["template-admin"]}'
+      service:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        loadBalancerIP: 10.10.0.52
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.52
+          gatus.home-operations.com/endpoint: |-
+            group: development
+      ingress:
+        enable: false
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: *app
+            patch: |
+              - op: add
+                path: /spec/ports/-
+                value:
+                  name: prom-http
+                  port: 2112
+                  protocol: TCP
+                  targetPort: 2112

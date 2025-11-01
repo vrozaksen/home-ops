@@ -26,3 +26,9 @@ spec:
     name: flux-system
     namespace: flux-system
   wait: false
+  patches:
+  - patch: |
+      - op: remove
+        path: /spec/dataSource
+    target:
+      kind: PostgresCluster

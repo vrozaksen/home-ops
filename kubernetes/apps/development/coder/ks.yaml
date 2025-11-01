@@ -27,8 +27,14 @@ spec:
     namespace: flux-system
   wait: false
   patches:
-  - patch: |
-      - op: remove
-        path: /spec/dataSource
-    target:
-      kind: PostgresCluster
+    - patch: |-
+        apiVersion: postgres-operator.crunchydata.com/v1beta1
+        kind: PostgresCluster
+        metadata:
+          name: coder
+        spec:
+          dataSource:
+            $patch: delete
+      target:
+        kind: PostgresCluster
+        name: coder

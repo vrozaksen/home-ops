@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://schemas.tholinka.dev/barmancloud.cnpg.io/objectstore_v1.json
+# technically we only need one of these per namespace...
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: postgres-${APP}
+spec:
+  retentionPolicy: "7d"
+  configuration:
+    wal:
+      compression: bzip2
+      maxParallel: 8
+      encryption: AES256
+    data:
+      compression: bzip2
+      encryption: AES256
+    destinationPath: s3://cnpg/${APP}
+    endpointURL: https://s3.vzkn.eu
+    s3Credentials:
+      accessKeyId:
+        name: &secret ${APP}-cnpg-secret
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: *secret
+        key: AWS_SECRET_ACCESS_KEY

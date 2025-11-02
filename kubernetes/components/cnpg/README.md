@@ -1,0 +1,119 @@
+# cloudnative-pg
+
+## Postgres Clusters
+
+Available components:
+- `../../../../components/cnpg/backup` - Database with S3 backups (daily) + WAL archiving
+- `../../../../components/cnpg/restore` - Restore from backup (PITR support)
+- `../../../../components/cnpg/no-backup` - Database without backups (dev/test)
+
+### Variables to set:
+
+```yaml
+  dependsOn:
+    - name: cnpg-crds
+      namespace: *namespace
+    - name: openebs
+      namespace: storage
+  postBuild:
+    substitute:
+      APP: *app # required
+      CNPG_REPLICAS: '3' # default: 3 for proper HA quorum (same as CPGO)
+      CNPG_IMAGE: ghcr.io/cloudnative-pg/postgresql:17.6-standard-trixie@sha256:e185037ad4c926fece1d3cfd1ec99680a862d7d02b160354e263a04a2d46b5f5 # default, can override
+      CNPG_SIZE: 2Gi # default for small DBs (<500MB), use 5Gi for large (>2GB)
+      CNPG_STORAGECLASS: local-hostpath # default
+      CNPG_REQUESTS_CPU: 100m # default for small DBs, use 500m for large
+      CNPG_REQUESTS_MEMORY: 256Mi # default, scales with CNPG_LIMITS_MEMORY
+      CNPG_LIMITS_MEMORY: 512Mi # default for small DBs, use 1-2Gi for larger
+      CNPG_MAX_CONNECTIONS: '100' # default (reduced from 600 - overkill for most apps)
+      CNPG_SHARED_BUFFERS: 128MB # default (~25% of memory), use 256-512MB for larger
+      CNPG_DISABLED_SERVICES: "['ro', 'r']" # default: disable read-only services
+
+      # Backup settings (only with backup component)
+      CNPG_BACKUP_SCHEDULE: '@daily' # default, can use cron: '0 1 * * *'
+
+      # Optional PostgreSQL tuning (all have sensible defaults)
+      CNPG_WORK_MEM: 4MB # memory for sort operations
+      CNPG_MAINTENANCE_WORK_MEM: 64MB # memory for maintenance (VACUUM, CREATE INDEX)
+      CNPG_EFFECTIVE_CACHE_SIZE: 512MB # expected OS cache size (~75% of memory)
+      CNPG_RANDOM_PAGE_COST: '1.1' # SSD optimized (default 4.0 for HDD)
+      CNPG_WAL_BUFFERS: 16MB # WAL buffer size
+```
+
+**Resource sizing guide:**
+- **Small DBs (<500MB)**: CPU: 100m, Memory: 512Mi, Storage: 2Gi, Connections: 100
+- **Medium DBs (500MB-2GB)**: CPU: 200m, Memory: 1Gi, Storage: 2-3Gi, Connections: 200
+- **Large DBs (>2GB)**: CPU: 500m, Memory: 2Gi, Storage: 5Gi, Connections: 300
+
+**See also:** `/docs/cnpg-resource-configs.yaml` for per-cluster recommendations based on actual usage analysis.
+```
+
+---
+
+## Usage Examples
+
+### Basic setup with backups
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: miniflux-db
+spec:
+  path: ./kubernetes/apps/self-hosted/miniflux
+  dependsOn:
+    - name: cloudnative-pg
+  postBuild:
+    substitute:
+      APP: miniflux
+      CNPG_SIZE: 2Gi
+  components:
+    - ../../../components/cnpg/backup
+```
+
+### Large database with custom tuning
+
+```yaml
+postBuild:
+  substitute:
+    APP: authentik
+    CNPG_REPLICAS: '3'
+    CNPG_SIZE: 5Gi
+    CNPG_REQUESTS_CPU: 500m
+    CNPG_LIMITS_MEMORY: 2Gi
+    CNPG_MAX_CONNECTIONS: '300'
+    CNPG_SHARED_BUFFERS: 512MB
+    CNPG_EFFECTIVE_CACHE_SIZE: 1536MB
+    CNPG_WORK_MEM: 16MB
+components:
+  - ../../../components/cnpg/backup
+```
+
+### Restore from backup
+
+```yaml
+# 1. First, deploy with restore component
+components:
+  - ../../../components/cnpg/restore
+
+# 2. After restore completes, switch to backup for ongoing backups
+components:
+  - ../../../components/cnpg/backup
+```
+
+---
+
+## HealthChecks
+
+```yaml
+  healthChecks:
+    - apiVersion: &postgresVersion postgresql.cnpg.io/v1
+      kind: &postgresKind Cluster
+      name: postgres-APPNAME
+      namespace: *namespace
+  healthCheckExprs:
+    - apiVersion: *postgresVersion
+      kind: *postgresKind
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+```

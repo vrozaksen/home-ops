@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-${APP}
+spec:
+  instances: ${CNPG_REPLICAS:=3}
+  imageName: ${CNPG_IMAGE:=ghcr.io/cloudnative-pg/postgresql}:${CNPG_VERSION:=18.0-system-trixie}
+  primaryUpdateMethod: switchover
+  primaryUpdateStrategy: unsupervised
+  managed:
+    services:
+      disabledDefaultServices: ${CNPG_DISABLED_SERVICES:=['ro', 'r']}
+  storage:
+    size: ${CNPG_SIZE:=2Gi}
+    storageClass: ${CNPG_STORAGECLASS:=local-hostpath}
+  superuserSecret:
+    name: ${APP}-cnpg-secret
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: ${CNPG_REQUESTS_CPU:=100m}
+      memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
+    limits:
+      memory: ${CNPG_LIMITS_MEMORY:=512Mi}
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+    nodeSelector:
+      kubernetes.io/arch: amd64
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+  postgresql:
+    parameters:
+      max_connections: '${CNPG_MAX_CONNECTIONS:="100"}'
+      shared_buffers: ${CNPG_SHARED_BUFFERS:=128MB}
+      work_mem: ${CNPG_WORK_MEM:=4MB}
+      maintenance_work_mem: ${CNPG_MAINTENANCE_WORK_MEM:=64MB}
+      effective_cache_size: ${CNPG_EFFECTIVE_CACHE_SIZE:=512MB}
+      random_page_cost: '${CNPG_RANDOM_PAGE_COST:="1.1"}'
+      checkpoint_completion_target: '${CNPG_CHECKPOINT_COMPLETION_TARGET:="0.9"}'
+      wal_buffers: ${CNPG_WAL_BUFFERS:=16MB}
+      default_statistics_target: '${CNPG_DEFAULT_STATISTICS_TARGET:="100"}'
+      effective_io_concurrency: '${CNPG_EFFECTIVE_IO_CONCURRENCY:="200"}'
+  monitoring:
+    enablePodMonitor: true

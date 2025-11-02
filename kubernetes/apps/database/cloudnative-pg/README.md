@@ -67,7 +67,6 @@ spec:
     substitute:
       APP: miniflux
       CNPG_SIZE: 2Gi
-      CNPG_BACKUP_SCHEDULE: '@daily'
   components:
     - ../../../../components/cnpg/backup  # With backups
 ```
@@ -105,7 +104,6 @@ components:
 ```
 
 This enables:
-- **Daily full backups** (configurable via `CNPG_BACKUP_SCHEDULE`)
 - **Continuous WAL archiving** to S3
 - **Point-in-Time Recovery (PITR)** capability
 - **7-day retention** (configurable in ObjectStore)

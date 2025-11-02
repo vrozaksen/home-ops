@@ -77,9 +77,6 @@ env:
       CNPG_SHARED_BUFFERS: 128MB # default (~25% of memory), use 256-512MB for larger
       CNPG_DISABLED_SERVICES: "['ro', 'r']" # default: disable read-only services
 
-      # Backup settings (only with backup component)
-      CNPG_BACKUP_SCHEDULE: '@daily' # default, can use cron: '0 1 * * *'
-
       # Optional PostgreSQL tuning (all have sensible defaults)
       CNPG_WORK_MEM: 4MB # memory for sort operations
       CNPG_MAINTENANCE_WORK_MEM: 64MB # memory for maintenance (VACUUM, CREATE INDEX)

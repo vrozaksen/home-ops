@@ -78,3 +78,15 @@ return {
 }
 EOF
 }
+
+# Group membership scope for Unraid and other apps
+resource "authentik_property_mapping_provider_scope" "groups" {
+  name        = "OAuth Mapping: Groups"
+  scope_name  = "groups"
+  description = "Group membership - see which groups the user belongs to"
+  expression  = <<EOF
+return {
+    "groups": [group.name for group in user.ak_groups.all()]
+}
+EOF
+}

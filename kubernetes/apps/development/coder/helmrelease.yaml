@@ -77,7 +77,7 @@ spec:
               key: uri
         # OIDC - Authentication
         - name: CODER_DISABLE_PASSWORD_AUTH
-          value: "true"
+          value: "false"
         - name: CODER_OIDC_IGNORE_EMAIL_VERIFIED
           value: "true"
         - name: CODER_OIDC_ISSUER_URL

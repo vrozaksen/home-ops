@@ -169,7 +169,7 @@ module "oauth2-coder" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["coder"].client_id
   client_secret      = local.parsed_secrets["coder"].client_secret
-  redirect_uris      = ["https://coder.${var.cluster_domain}/oidc/callback"]
+  redirect_uris      = ["https://coder.${var.cluster_domain}/api/v2/users/oidc/callback"]
 }
 
 module "oauth2-pgadmin" {

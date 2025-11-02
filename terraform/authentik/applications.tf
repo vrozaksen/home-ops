@@ -39,7 +39,7 @@ module "oauth2-unraid" {
   source             = "./oauth2_application"
   name               = "UnRaid"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/unraid.png"
-  launch_url         = "https://aincrad.home.${var.cluster_domain}"
+  launch_url         = "https://aincrad.home.${var.cluster_domain}:4443"
   description        = "NAS"
   newtab             = true
   group              = "Infrastructure"
@@ -48,7 +48,7 @@ module "oauth2-unraid" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["unraid"].client_id
   client_secret      = local.parsed_secrets["unraid"].client_secret
-  redirect_uris      = ["https://aincrad.home.${var.cluster_domain}/graphql/api/auth/oidc/callback"]
+  redirect_uris      = ["https://aincrad.home.${var.cluster_domain}:4443/graphql/api/auth/oidc/callback"]
 }
 
 # Downloads
@@ -156,7 +156,7 @@ module "oauth2-headlamp" {
 module "oauth2-coder" {
   source             = "./oauth2_application"
   name               = "Coder"
-  icon_url           = "https://raw.githubusercontent.com/coder/coder/refs/heads/main/site/static/icon/favicon.svg"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/coder.png"
   launch_url         = "https://coder.${var.cluster_domain}"
   description        = "Cloud Development Environments"
   newtab             = true

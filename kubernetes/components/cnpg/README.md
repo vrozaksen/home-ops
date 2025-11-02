@@ -11,8 +11,10 @@ Available components:
 
 ```yaml
   dependsOn:
-    - name: cnpg-crds
-      namespace: *namespace
+    - name: cloudnative-pg
+      namespace: database
+    - name: plugin-barman-cloud
+      namespace: database
     - name: openebs
       namespace: storage
   postBuild:

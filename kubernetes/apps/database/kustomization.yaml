@@ -9,6 +9,7 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   # - ./clickhouse/ks.yaml
+  - ./cloudnative-pg/ks.yaml
   - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml

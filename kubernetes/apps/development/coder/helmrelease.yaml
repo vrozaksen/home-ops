@@ -78,6 +78,8 @@ spec:
         # OIDC - Authentication
         - name: CODER_DISABLE_PASSWORD_AUTH
           value: "true"
+        - name: CODER_OIDC_IGNORE_EMAIL_VERIFIED
+          value: "true"
         - name: CODER_OIDC_ISSUER_URL
           value: "https://sso.vzkn.eu/application/o/coder/"
         - name: CODER_OIDC_SCOPES

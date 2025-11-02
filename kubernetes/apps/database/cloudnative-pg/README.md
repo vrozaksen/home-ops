@@ -33,6 +33,15 @@ cloudnative-pg/
    - Enables S3-compatible backups with Barman
    - Adds `ObjectStore` CRD
 
+## Application Database Credentials
+
+**CNPG automatically generates secure passwords during bootstrap:**
+- Each cluster gets its own random password
+- Stored in secret: `postgres-${APP}-app` (e.g., `postgres-coder-app`)
+- Contains: `username`, `password`, `dbname`, `host`, `port`, `pgpass`, `jdbc-uri`, `uri`
+
+**No manual password management needed!**
+
 ## Creating PostgreSQL Clusters
 
 Clusters should be deployed in their respective app namespaces, not in the `database` namespace.

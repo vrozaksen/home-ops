@@ -18,6 +18,12 @@ spec:
   superuserSecret:
     name: ${APP}-cnpg-secret
   enableSuperuserAccess: true
+  bootstrap:
+    initdb:
+      database: ${CNPG_DATABASE:=${APP}}
+      owner: ${CNPG_USER:=${APP}}
+      # Let CNPG generate secure password automatically
+      # Password will be available in secret: postgres-${APP}-app
   resources:
     requests:
       cpu: ${CNPG_REQUESTS_CPU:=100m}

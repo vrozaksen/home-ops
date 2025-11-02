@@ -44,7 +44,7 @@ spec:
                 operator: Exists
   postgresql:
     parameters:
-      max_connections: '${CNPG_MAX_CONNECTIONS:="100"}'
+      max_connections: "${CNPG_MAX_CONNECTIONS:=100}"
       shared_buffers: ${CNPG_SHARED_BUFFERS:=128MB}
       work_mem: ${CNPG_WORK_MEM:=4MB}
       maintenance_work_mem: ${CNPG_MAINTENANCE_WORK_MEM:=64MB}

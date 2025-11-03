@@ -9,3 +9,4 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   - ./coder/ks.yaml
+  - ./gitea/ks.yaml

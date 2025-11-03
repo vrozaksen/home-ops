@@ -102,9 +102,6 @@ spec:
           value: '{"authentik Admins": ["owner"], "infrastructure": ["template-admin"]}'
       service:
         type: ClusterIP
-        annotations:
-          gatus.home-operations.com/endpoint: |-
-            group: development
       ingress:
         enable: false
   postRenderers:

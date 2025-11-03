@@ -39,6 +39,11 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 4Gi
+    
+    defaultPodOptions:
+      securityContext:
+        fsGroup: 1000
+    
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"

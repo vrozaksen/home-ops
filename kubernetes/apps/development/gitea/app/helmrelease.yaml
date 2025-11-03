@@ -53,12 +53,12 @@ spec:
         prometheus.io/probe: "true"
         prometheus.io/protocol: "tcp"
       http:
-        port: &port 3000
+        port: 3000
       ssh:
         type: LoadBalancer
         port: 2222
+        loadBalancerIP: 10.10.0.51
         externalTrafficPolicy: Local
-        externalIPs: ["10.10.0.51"]
 
     resources:
       requests:

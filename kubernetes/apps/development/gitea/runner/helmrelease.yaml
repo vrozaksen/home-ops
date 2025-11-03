@@ -22,17 +22,17 @@ spec:
               repository: docker.io/gitea/act_runner
               tag: 0.2.13-dind-rootless
             env:
-              DOCKER_HOST: unix:///run/user/1000/docker.sock
-              GITEA_INSTANCE_URL: https://gitea.vzkn.eu
+              DOCKER_HOST: tcp://localhost:2376
+              DOCKER_CERT_PATH: /certs/client
+              DOCKER_TLS_VERIFY: "1"
+              GITEA_INSTANCE_URL: http://gitea-http.development.svc.cluster.local:3000
               GITEA_RUNNER_LABELS: "ubuntu-latest:docker://catthehacker/ubuntu:act-latest,ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
               GITEA_RUNNER_NAME: gitea-runner-k8s
             envFrom:
               - secretRef:
                   name: gitea-runner-secret
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              privileged: true
             resources:
               requests:
                 cpu: 10m
@@ -60,3 +60,9 @@ spec:
           gitea-runner:
             app:
               - path: /tmp
+      cache:
+        type: emptyDir
+        advancedMounts:
+          gitea-runner:
+            app:
+              - path: /home/rootless/.cache

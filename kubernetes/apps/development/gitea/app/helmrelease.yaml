@@ -84,7 +84,7 @@ spec:
           DOMAIN: gitea.vzkn.eu
           ROOT_URL: https://gitea.vzkn.eu
           DISABLE_SSH: false
-          SSH_DOMAIN: gitea.vzkn.eu
+          SSH_DOMAIN: ssh.gitea.vzkn.eu
           SSH_PORT: 2222
           SSH_LISTEN_PORT: 2222
           ENABLE_GZIP: true

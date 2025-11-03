@@ -39,14 +39,6 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 4Gi
-    defaultPodOptions:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 100
-        fsGroup: 100
-        fsGroupChangePolicy: "OnRootMismatch"
-        supplementalGroups:
-          - 65536
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"
@@ -66,3 +58,9 @@ spec:
           gitea-runner:
             app:
               - path: /home/rootless/.cache
+      run:
+        type: emptyDir
+        advancedMounts:
+          gitea-runner:
+            app:
+              - path: /run

@@ -151,7 +151,7 @@ spec:
           STORAGE_TYPE: minio
           MINIO_ENDPOINT: s3.vzkn.eu
           MINIO_BUCKET: gitea
-          MINIO_LOCATION: main
+          MINIO_LOCATION: eu-central-1
           MINIO_USE_SSL: true
         actions:
           ENABLED: true

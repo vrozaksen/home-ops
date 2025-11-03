@@ -101,11 +101,8 @@ spec:
         - name: CODER_OIDC_USER_ROLE_MAPPING
           value: '{"authentik Admins": ["owner"], "infrastructure": ["template-admin"]}'
       service:
-        type: LoadBalancer
-        externalTrafficPolicy: Local
-        loadBalancerIP: 10.10.0.52
+        type: ClusterIP
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.52
           gatus.home-operations.com/endpoint: |-
             group: development
       ingress:

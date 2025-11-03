@@ -8,7 +8,9 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: development
 spec:
-  hostnames: ["coder.vzkn.eu"]
+  hostnames:
+    - "coder.vzkn.eu"
+    - "*.coder.vzkn.eu"
   parentRefs:
     - name: envoy-external
       namespace: network

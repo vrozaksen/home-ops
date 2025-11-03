@@ -38,7 +38,7 @@ spec:
               NEKO_WEBRTC_TCPMUX: &mux 5100
               NEKO_WEBRTC_UDPMUX: *mux
               NEKO_WEBRTC_ICELITE: true
-              NEKO_WEBRTC_NAT1TO1: 10.10.0.51
+              NEKO_WEBRTC_NAT1TO1: 10.10.0.5X
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
@@ -59,7 +59,7 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.51
+          lbipam.cilium.io/ips: 10.10.0.5X
         ports:
           web:
             port: 8080

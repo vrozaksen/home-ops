@@ -1,6 +1,7 @@
 locals {
   buckets = [
     "cnpg",
+    "gitea",
     "sentry",
     "tfstate-mikrotik-terraform",
     "postgresql",

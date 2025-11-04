@@ -59,17 +59,6 @@ spec:
         loadBalancerIP: 10.10.0.51
         externalTrafficPolicy: Local
 
-    httpRoute:
-      enabled: true
-      annotations:
-        gatus.home-operations.com/endpoint: |-
-          group: development
-      parentRefs:
-        - name: envoy-external
-          namespace: network
-      hostnames:
-        - forgejo.vzkn.eu
-
     resources:
       requests:
         cpu: 10m

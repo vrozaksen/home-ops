@@ -40,28 +40,28 @@ spec:
     name: flux-system
     namespace: flux-system
   wait: false
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app gitea-runner
-spec:
-  components:
-    - ../../../../components/volsync
-  dependsOn:
-    - name: gitea
-  interval: 1h
-  path: ./kubernetes/apps/development/gitea/runner
-  postBuild:
-    substitute:
-      APP: *app
-      VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_STORAGECLASS: ceph-block
-      VOLSYNC_ACCESSMODES: ReadWriteOnce
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  wait: false
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app gitea-runner
+# spec:
+#   components:
+#     - ../../../../components/volsync
+#   dependsOn:
+#     - name: gitea
+#   interval: 1h
+#   path: ./kubernetes/apps/development/gitea/runner
+#   postBuild:
+#     substitute:
+#       APP: *app
+#       VOLSYNC_CAPACITY: 10Gi
+#       VOLSYNC_STORAGECLASS: ceph-block
+#       VOLSYNC_ACCESSMODES: ReadWriteOnce
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#     namespace: flux-system
+#   wait: false

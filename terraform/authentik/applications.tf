@@ -3,6 +3,7 @@ locals {
     "unraid",
     "coder",
     "gitea",
+    "forgejo",
     "grafana",
     "headlamp",
     "karakeep",
@@ -186,7 +187,23 @@ module "oauth2-gitea" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["gitea"].client_id
   client_secret      = local.parsed_secrets["gitea"].client_secret
-  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/authentik/callback"]
+  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/Authentik/callback"]
+}
+
+module "oauth2-forgejo" {
+  source             = "./oauth2_application"
+  name               = "Forgejo"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/forgejo.png"
+  launch_url         = "https://forgejo.${var.cluster_domain}"
+  description        = "Git Forge"
+  newtab             = true
+  group              = "Development"
+  auth_groups        = [authentik_group.infrastructure.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["forgejo"].client_id
+  client_secret      = local.parsed_secrets["forgejo"].client_secret
+  redirect_uris      = ["https://forgejo.${var.cluster_domain}/user/oauth2/Authentik/callback"]
 }
 
 module "oauth2-pgadmin" {

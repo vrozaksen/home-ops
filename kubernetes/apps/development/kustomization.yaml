@@ -10,3 +10,4 @@ replacements:
 resources:
   - ./coder/ks.yaml
   - ./gitea/ks.yaml
+  - ./forgejo/ks.yaml

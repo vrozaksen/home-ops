@@ -1,0 +1,138 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app forgejo-runner
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      forgejo-runner:
+        replicas: 3
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          register:
+            image:
+              repository: code.forgejo.org/forgejo/runner
+              tag: 11.3.0@sha256:0ecefa4fcea33ab6bbf348a285530dd4aa842f218ef3cd090b6e5f2d66299ebc
+            command:
+              - "sh"
+              - "-c"
+              - >
+                if [ ! -f /data/.runner ]; then
+                  echo "Registering runner...";
+                  forgejo-runner register --no-interactive \
+                    --token $(RUNNER_TOKEN) \
+                    --name $(RUNNER_NAME) \
+                    --instance $(FORGEJO_INSTANCE_URL) \
+                    --labels "$(LABELS)";
+                else
+                  echo "Runner already registered, skipping.";
+                fi
+            env:
+              FORGEJO_INSTANCE_URL: http://forgejo-http.development.svc.cluster.local:3000
+              LABELS: "ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-latest"
+            envFrom:
+              - secretRef:
+                  name: forgejo-runner-secret
+        containers:
+          daemon:
+            image:
+              repository: docker
+              tag: 28.5.1-dind-rootless@sha256:87d03cfe51f2bf87eec6dda1922dc572da4d37a1d21c5ca8e8b22c8a1fa107cc
+            securityContext:
+              privileged: true
+            env:
+              - name: DOCKER_TLS_CERTDIR
+                value: /certs
+          app:
+            image:
+              repository: code.forgejo.org/forgejo/runner
+              tag: 11.3.0@sha256:0ecefa4fcea33ab6bbf348a285530dd4aa842f218ef3cd090b6e5f2d66299ebc
+            command:
+              - "sh"
+              - "-c"
+              - "while ! nc -z localhost 2376 </dev/null; do echo 'waiting for docker daemon...'; sleep 5; done; forgejo-runner --config /config/config.yaml daemon"
+            env:
+              - name: DOCKER_HOST
+                value: tcp://localhost:2376
+              - name: DOCKER_CERT_PATH
+                value: /certs/client
+              - name: DOCKER_TLS_VERIFY
+                value: "1"
+        statefulset:
+          volumeClaimTemplates:
+            - name: data
+              globalMounts:
+                - path: /data
+              accessMode: "ReadWriteOnce"
+              size: 1Gi
+    defaultPodOptions:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: 45315
+    configMaps:
+      config:
+        data:
+          config.yaml: |
+            log:
+              level: info
+
+            runner:
+              file: .runner
+              capacity: 1
+                envs:
+                  CLEEB: true
+                  DOCKER_HOST: tcp://127.0.0.1:2376
+                  DOCKER_TLS_VERIFY: 1
+                  DOCKER_CERT_PATH: /certs/client
+              env_file: .env
+              timeout: 3h
+              insecure: false
+              fetch_timeout: 5s
+              fetch_interval: 2s
+              labels: []
+
+            cache:
+              enabled: true
+              dir: "/cache"
+              host: ""
+              port: 0
+
+            container:
+              network: "host"
+              enable_ipv6: false
+              privileged: false
+              options: "-v /certs/client:/certs/client"
+              workdir_parent:
+              valid_volumes:
+                - /certs/client
+              docker_host: ""
+
+            host:
+              workdir_parent:
+
+    persistence:
+      config:
+        type: configMap
+        identifier: config
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      cache:
+        type: emptyDir
+      certs:
+        type: emptyDir

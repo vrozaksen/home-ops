@@ -31,6 +31,7 @@ spec:
       failed: status.phase != 'ready'
       current: status.phase == 'ready'
   interval: 1h
+  timeout: 10m  # Allow time for CNPG initial backup and startup
   path: ./kubernetes/apps/development/forgejo/app
   postBuild:
     substitute:

@@ -19,7 +19,7 @@ spec:
     - --cluster_mode=emulated
   resources:
     requests:
-      cpu: 100m
+      cpu: 25m
     limits:
       memory: 512Mi
   topologySpreadConstraints:

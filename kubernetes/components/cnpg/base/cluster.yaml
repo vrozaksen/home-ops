@@ -26,7 +26,7 @@ spec:
       # Password will be available in secret: postgres-${APP}-app
   resources:
     requests:
-      cpu: ${CNPG_REQUESTS_CPU:=100m}
+      cpu: ${CNPG_REQUESTS_CPU:=25m}
       memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
     limits:
       memory: ${CNPG_LIMITS_MEMORY:=512Mi}

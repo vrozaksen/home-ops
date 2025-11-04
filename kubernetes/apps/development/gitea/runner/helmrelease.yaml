@@ -12,8 +12,7 @@ spec:
   values:
     controllers:
       gitea-runner:
-        replicas: 1
-        strategy: RollingUpdate
+        replicas: 3
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -27,7 +26,7 @@ spec:
               DOCKER_TLS_VERIFY: "1"
               GITEA_INSTANCE_URL: http://gitea-http.development.svc.cluster.local:3000
               GITEA_RUNNER_LABELS: "ubuntu-latest:docker://catthehacker/ubuntu:act-latest,ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
-              GITEA_RUNNER_NAME: gitea-runner-k8s
+              GITEA_RUNNER_EPHEMERAL: "1"
             envFrom:
               - secretRef:
                   name: gitea-runner-secret
@@ -39,18 +38,12 @@ spec:
                 memory: 512Mi
               limits:
                 memory: 4Gi
-    
+
     defaultPodOptions:
       securityContext:
         fsGroup: 1000
-    
+
     persistence:
-      data:
-        existingClaim: "{{ .Release.Name }}"
-        advancedMounts:
-          gitea-runner:
-            app:
-              - path: /data
       tmp:
         type: emptyDir
         advancedMounts:

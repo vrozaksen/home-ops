@@ -36,6 +36,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      CNPG_REPLICAS: "2"
       CNPG_SIZE: 5Gi
       CNPG_REQUESTS_CPU: 100m
       CNPG_LIMITS_MEMORY: 1Gi

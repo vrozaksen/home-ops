@@ -44,6 +44,14 @@ spec:
         fsGroup: 1000
 
     persistence:
+      docker-config:
+        type: configMap
+        name: gitea-runner-dockerd
+        advancedMounts:
+          gitea-runner:
+            app:
+              - path: /etc/docker/daemon.json
+                subPath: daemon.json
       tmp:
         type: emptyDir
         advancedMounts:

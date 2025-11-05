@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-runner-dockerd
+data:
+  daemon.json: |
+    {
+      "registry-mirrors": ["http://registry-proxy.storage.svc.cluster.local:5000"]
+    }

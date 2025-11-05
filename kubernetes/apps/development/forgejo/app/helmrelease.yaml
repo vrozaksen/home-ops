@@ -196,6 +196,9 @@ spec:
           ALLOWED_HOST_LIST: external  # Allow webhooks to external hosts only
           SKIP_TLS_VERIFY: false
           DELIVER_TIMEOUT: 10  # 10 seconds webhook timeout
+        migrations:
+          ALLOW_LOCALNETWORKS: true  # Allow migrations from local network addresses
+          ALLOWED_DOMAINS: "*"  # Allow migrations from any domain
         api:
           ENABLE_SWAGGER: true
           MAX_RESPONSE_ITEMS: 50

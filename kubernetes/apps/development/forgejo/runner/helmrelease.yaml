@@ -93,11 +93,11 @@ spec:
             runner:
               file: .runner
               capacity: 1
-                envs:
-                  CLEEB: true
-                  DOCKER_HOST: tcp://127.0.0.1:2376
-                  DOCKER_TLS_VERIFY: 1
-                  DOCKER_CERT_PATH: /certs/client
+              envs:
+                CLEEB: true
+                DOCKER_HOST: tcp://127.0.0.1:2376
+                DOCKER_TLS_VERIFY: 1
+                DOCKER_CERT_PATH: /certs/client
               env_file: .env
               timeout: 3h
               insecure: false

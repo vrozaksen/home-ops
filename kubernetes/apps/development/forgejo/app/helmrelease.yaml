@@ -212,7 +212,7 @@ spec:
           VERBOSE_PUSH: true
         actions:
           ENABLED: true
-          DEFAULT_ACTIONS_URL: https://code.forgejo.org  # Forgejo actions marketplace
+          DEFAULT_ACTIONS_URL: https://github.com  # Use GitHub as primary source for actions
           ARTIFACT_RETENTION_DAYS: 90
           LOG_RETENTION_DAYS: 365
           LOG_COMPRESSION: zstd  # Compress action logs

@@ -1,0 +1,39 @@
+---
+# Registry cache - cache for layers
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-registry
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ceph-block
+---
+# Jobservice logs PVC (rotation, GC, etc)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-jobservice
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ceph-block
+---
+# Trivy cache - vulnerability database cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-trivy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ceph-block

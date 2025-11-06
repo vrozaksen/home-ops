@@ -1,0 +1,225 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: harbor-charts
+spec:
+  interval: 1h
+  url: https://helm.goharbor.io
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: harbor
+spec:
+  interval: 10m
+  chart:
+    spec:
+      # renovate: registryUrl=https://helm.goharbor.io
+      chart: harbor
+      version: 1.18.0
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: harbor-charts
+  values:
+    expose:
+      type: route
+      tls:
+        enabled: false # Gateway handles TLS termination
+      route:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: development
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        hosts:
+          - "harbor.vzkn.eu"
+
+    externalURL: https://harbor.vzkn.eu
+
+    # Admin credentials
+    existingSecretAdminPassword: "harbor-secret"
+    existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
+
+    # Security
+    existingSecretSecretKey: "harbor-secret"
+
+    # Persistence
+    persistence:
+      enabled: true
+      resourcePolicy: "keep"
+      persistentVolumeClaim:
+        registry:
+          existingClaim: "harbor-registry"
+        jobservice:
+          jobLog:
+            existingClaim: "harbor-jobservice"
+        trivy:
+          existingClaim: "harbor-trivy"
+      imageChartStorage:
+        disableredirect: false
+        type: s3
+        s3:
+          existingSecret: "harbor-secret"
+          region: eu-central-1
+          bucket: harbor
+          regionendpoint: "https://s3.vzkn.eu"
+
+    # IP Family configuration
+    ipFamily:
+      ipv6:
+        enabled: false
+      ipv4:
+        enabled: true
+
+    # Portal
+    portal:
+      image:
+        repository: docker.io/goharbor/harbor-portal
+        tag: dev
+      replicas: 1
+      revisionHistoryLimit: 3
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+
+    # Core
+    core:
+      image:
+        repository: docker.io/goharbor/harbor-core
+        tag: dev
+      replicas: 1
+      revisionHistoryLimit: 3
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+    # Job Service
+    jobservice:
+      image:
+        repository: docker.io/goharbor/harbor-jobservice
+        tag: dev
+      replicas: 1
+      revisionHistoryLimit: 3
+      maxJobWorkers: 10
+      jobLoggers:
+        - stdout
+      loggerSweeperDuration: 14 # days
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+    # Registry
+    registry:
+      replicas: 1
+      revisionHistoryLimit: 3
+      registry:
+        image:
+          repository: docker.io/goharbor/registry-photon
+          tag: dev
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+      controller:
+        image:
+          repository: docker.io/goharbor/harbor-registryctl
+          tag: dev
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+      credentials:
+        existingSecret: "harbor-secret"
+      middleware:
+        enabled: false
+
+    # Trivy scanner
+    trivy:
+      enabled: true
+      image:
+        repository: docker.io/goharbor/trivy-adapter-photon
+        tag: dev
+      replicas: 1
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      # Vulnerability scanning configuration
+      vulnType: "os,library"
+      severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+      ignoreUnfixed: false
+      insecure: false
+      skipUpdate: false
+      skipJavaDBUpdate: false
+      offlineScan: false
+      securityCheck: "vuln"
+      timeout: 5m0s
+
+    # External PostgreSQL via Crunchy
+    database:
+      type: external
+      external:
+        host: "postgres-harbor-rw.development.svc.cluster.local"
+        port: "5432"
+        username: "harbor"
+        coreDatabase: "harbor"
+        existingSecret: "postgres-harbor-app"
+        sslmode: "disable"
+      maxIdleConns: 100
+      maxOpenConns: 900
+
+    # External Redis via Dragonfly
+    redis:
+      type: external
+      external:
+        addr: "harbor-dragonfly:6379"
+
+    # Exporter for metrics
+    exporter:
+      image:
+        repository: docker.io/goharbor/harbor-exporter
+        tag: dev
+      replicas: 1
+      revisionHistoryLimit: 3
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+
+    # Metrics and monitoring
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+        interval: "30s"
+
+    # Cache layer
+    cache:
+      enabled: true
+      expireHours: 24

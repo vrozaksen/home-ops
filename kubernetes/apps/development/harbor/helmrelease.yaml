@@ -215,9 +215,6 @@ spec:
       enabled: true
       serviceMonitor:
         enabled: true
-        additionalLabels:
-          release: kube-prometheus-stack
-        interval: "30s"
 
     # Cache layer
     cache:

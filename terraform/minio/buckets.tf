@@ -3,6 +3,7 @@ locals {
     "cnpg",
     "gitea",
     "forgejo",
+    "harbor",
     "sentry",
     "tfstate-mikrotik-terraform",
     "postgresql",

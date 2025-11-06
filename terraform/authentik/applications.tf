@@ -4,6 +4,7 @@ locals {
     "coder",
     "forgejo",
     "grafana",
+    "harbor",
     "headlamp",
     "karakeep",
     "miniflux",
@@ -129,7 +130,7 @@ module "oauth2-grafana" {
   name               = "Grafana"
   icon_url           = "https://raw.githubusercontent.com/grafana/grafana/main/public/img/icons/mono/grafana.svg"
   launch_url         = "https://grafana.${var.cluster_domain}"
-  description        = "Infrastructure graphs"
+  description        = "Observability"
   newtab             = true
   group              = "Infrastructure"
   auth_groups        = [authentik_group.infrastructure.id]
@@ -138,6 +139,25 @@ module "oauth2-grafana" {
   client_id          = local.parsed_secrets["grafana"].client_id
   client_secret      = local.parsed_secrets["grafana"].client_secret
   redirect_uris      = ["https://grafana.${var.cluster_domain}/login/generic_oauth"]
+}
+
+module "oauth2-harbor" {
+  source                       = "./oauth2_application"
+  name                         = "Harbor"
+  icon_url                     = "https://raw.githubusercontent.com/goharbor/harbor/refs/heads/main/docs/img/harbor_logo.png"
+  launch_url                   = "https://harbor.${var.cluster_domain}"
+  description                  = "Container Registry"
+  newtab                       = true
+  group                        = "Development"
+  auth_groups                  = [authentik_group.infrastructure.id]
+  authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
+  client_id                    = local.parsed_secrets["harbor"].client_id
+  client_secret                = local.parsed_secrets["harbor"].client_secret
+  additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
+  redirect_uris = [
+    "https://harbor.${var.cluster_domain}/c/oidc/callback"
+  ]
 }
 
 module "oauth2-headlamp" {

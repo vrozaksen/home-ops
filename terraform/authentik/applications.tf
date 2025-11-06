@@ -2,7 +2,6 @@ locals {
   oauth_apps = [
     "unraid",
     "coder",
-    "gitea",
     "forgejo",
     "grafana",
     "headlamp",
@@ -172,22 +171,6 @@ module "oauth2-coder" {
   client_id          = local.parsed_secrets["coder"].client_id
   client_secret      = local.parsed_secrets["coder"].client_secret
   redirect_uris      = ["https://coder.${var.cluster_domain}/api/v2/users/oidc/callback"]
-}
-
-module "oauth2-gitea" {
-  source             = "./oauth2_application"
-  name               = "Gitea"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/gitea.png"
-  launch_url         = "https://gitea.${var.cluster_domain}"
-  description        = "Git Server"
-  newtab             = true
-  group              = "Development"
-  auth_groups        = [authentik_group.infrastructure.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["gitea"].client_id
-  client_secret      = local.parsed_secrets["gitea"].client_secret
-  redirect_uris      = ["https://gitea.${var.cluster_domain}/user/oauth2/Authentik/callback"]
 }
 
 module "oauth2-forgejo" {

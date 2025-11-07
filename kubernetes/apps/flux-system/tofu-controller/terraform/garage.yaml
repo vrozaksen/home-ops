@@ -1,33 +1,33 @@
 apiVersion: infra.contrib.fluxcd.io/v1alpha2
 kind: Terraform
 metadata:
-  name: minio
+  name: garage
 spec:
   interval: 12h
   approvePlan: auto
   backendConfig:
     customConfiguration: |
       backend "s3" {
-        bucket = "terraform-state"
-        key    = "minio/minio.tfstate"
+        bucket   = "terraform-state"
+        key      = "garage/garage.tfstate"
         region   = "eu-central-1"
         endpoints = {
-          s3 = "https://s3.vzkn.eu"
+          s3 = "https://api.s3.vzkn.eu"
         }
-
         skip_credentials_validation = true
         skip_requesting_account_id  = true
         skip_metadata_api_check     = true
         skip_region_validation      = true
         use_path_style              = true
+        use_lockfile                = true
       }
   backendConfigsFrom:
-    - kind: Secret
-      name: terraform-backend-secret
-  path: ./minio
+  - kind: Secret
+    name: terraform-backend-secret
+  path: ./garage
   sourceRef:
     kind: OCIRepository
     name: terraform
   varsFrom:
-    - kind: Secret
-      name: terraform-secret
+  - kind: Secret
+    name: terraform-secret

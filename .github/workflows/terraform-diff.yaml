@@ -1,8 +1,6 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: "Terraform Diff"
-permissions:
-  contents: read
 
 on:
   workflow_dispatch:
@@ -14,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   changed-terraform:
     name: Changed Terraform
@@ -22,7 +23,9 @@ jobs:
       matrix: ${{ steps.changed-terraform.outputs.all_changed_and_modified_files }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Get Changed Terraform
         id: changed-terraform
@@ -41,7 +44,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: [home-ops-runner] # Backend is stored on local minio with no external ingress
+    runs-on: [home-ops-runner] # Backend is stored on local Garage with no external ingress
     needs: ["changed-terraform"]
     strategy:
       matrix:
@@ -54,7 +57,7 @@ jobs:
         with:
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
           secrets: |
-            025d73df-57a8-4551-a5a6-b265016f4667 > MINIO
+            300c8e44-bef6-4820-bacf-b38e014bdf44 > GARAGE
             fef6b3b2-2e2b-498a-9882-b265016e9e1c > BW_PROJ_ID
 
       - name: Generate Token
@@ -67,6 +70,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
+          persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Install Opentofu
@@ -80,28 +84,26 @@ jobs:
         run: tofu fmt -check
         continue-on-error: true
 
-      - name: Extract MINIO Secrets
+      - name: Extract Garage Secrets
         run: |
-          while IFS= read -r line; do
-            # Check for matching patterns using a case statement
-            case "$line" in
-              MINIO_ENDPOINT:* | MINIO_ACCESS_KEY:* | MINIO_SECRET_KEY:*)
-                key=$(echo "$line" | awk -F: '{print $1}')
-                value=$(echo "$line" | awk -F: '{print $2}' | xargs)
-                # Mask the sensitive value
-                echo "::add-mask::$value"
-                # Use GITHUB_ENV to export the variables without echoing the value
-                echo "${key}=${value}" >> $GITHUB_ENV
-                ;;
-            esac
-          done <<< "$MINIO"
+          # Extract backend credentials
+          ACCESS_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_KEY_ID:' | cut -d' ' -f2)
+          SECRET_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_SECRET_KEY:' | cut -d' ' -f2)
+          
+          # Mask sensitive values before using them
+          echo "::add-mask::$ACCESS_KEY"
+          echo "::add-mask::$SECRET_KEY"
+          
+          # Export as AWS env vars for Terraform backend
+          echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_ENV
 
       - name: Tofu Init
         id: init
         working-directory: ${{ matrix.paths }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ env.MINIO_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.MINIO_SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
         run: |
           tofu init \
             -backend-config="access_key=$AWS_ACCESS_KEY_ID" \

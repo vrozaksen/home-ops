@@ -18,7 +18,7 @@ spec:
   healthChecks:
     - apiVersion: &postgresVersion postgresql.cnpg.io/v1
       kind: &postgresKind Cluster
-      name: postgres-coder
+      name: postgres-harbor
       namespace: development
   healthCheckExprs:
     - apiVersion: *postgresVersion

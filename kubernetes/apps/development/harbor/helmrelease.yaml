@@ -68,7 +68,7 @@ spec:
           existingSecret: "harbor-secret"
           region: eu-central-1
           bucket: harbor
-          regionendpoint: "https://s3.vzkn.eu"
+          regionendpoint: "https://api.s3.vzkn.eu"
 
     # IP Family configuration
     ipFamily:

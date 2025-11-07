@@ -10,4 +10,8 @@ spec:
     name: letsencrypt-production
     kind: ClusterIssuer
   commonName: vzkn.eu
-  dnsNames: ["vzkn.eu", "*.vzkn.eu"]
+  dnsNames:
+    - "vzkn.eu"
+    - "*.vzkn.eu"
+    - "s3.vzkn.eu"
+    - "*.s3.vzkn.eu"

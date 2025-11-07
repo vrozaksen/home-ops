@@ -178,7 +178,7 @@ spec:
           ENABLED: true
         storage:
           STORAGE_TYPE: minio
-          MINIO_ENDPOINT: s3.vzkn.eu
+          MINIO_ENDPOINT: api.s3.vzkn.eu
           MINIO_BUCKET: forgejo
           MINIO_LOCATION: eu-central-1
           MINIO_USE_SSL: true

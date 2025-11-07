@@ -5,7 +5,7 @@ terraform {
     region = "eu-central-1" # Region validation will be skipped
 
     endpoints = {
-      s3 = "https://s3.vzkn.eu" # Minio endpoint
+      s3 = "https://api.s3.vzkn.eu" # Garage endpoint
     }
 
     skip_credentials_validation = true

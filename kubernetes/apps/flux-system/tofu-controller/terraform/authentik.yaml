@@ -12,7 +12,7 @@ spec:
         key      = "authentik/authentik.tfstate"
         region   = "eu-central-1"
         endpoints = {
-          s3 = "https://s3.vzkn.eu"
+          s3 = "https://api.s3.vzkn.eu"
         }
 
         skip_credentials_validation = true

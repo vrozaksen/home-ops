@@ -14,7 +14,7 @@ spec:
     data:
       compression: bzip2
     destinationPath: s3://cnpg/${APP}
-    endpointURL: https://s3.vzkn.eu
+    endpointURL: https://api.s3.vzkn.eu
     s3Credentials:
       accessKeyId:
         name: &secret ${APP}-cnpg-secret

@@ -1,0 +1,25 @@
+locals {
+  buckets = [
+    "cnpg",
+    "forgejo",
+    "harbor",
+    "sentry",
+    "tfstate-mikrotik-terraform",
+    "rresume"
+  ]
+}
+
+resource "garage_key" "admin_key" {
+  name = "admin-user"
+}
+
+module "buckets" {
+  for_each    = toset(local.buckets)
+  source      = "./modules/garage"
+  bucket_name = each.key
+  admin_user  = garage_key.admin_key.id
+
+  providers = {
+    garage = garage
+  }
+}

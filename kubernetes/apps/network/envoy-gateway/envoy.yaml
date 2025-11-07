@@ -30,7 +30,7 @@ spec:
         compression:
           type: Gzip
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gatewayclass_v1.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gatewayclass_v1.json
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
@@ -43,7 +43,7 @@ spec:
     name: envoy
     namespace: network
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gateway_v1.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -78,7 +78,7 @@ spec:
           - kind: Secret
             name: vzkn-eu-tls
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gateway_v1.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -164,7 +164,7 @@ spec:
       - h2
       - http/1.1
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

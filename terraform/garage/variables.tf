@@ -6,6 +6,6 @@ variable "bw_access_token" {
 
 variable "garage_url" {
   type        = string
-  description = "Garage Server URL"
-  default     = "api.s3.vzkn.eu"
+  description = "Garage Admin API URL"
+  default     = "admin.s3.vzkn.eu"
 }

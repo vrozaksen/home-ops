@@ -9,10 +9,24 @@ spec:
   retentionPolicy: "30d"
   configuration:
     wal:
+      # Compression algorithms (CNPG plugin supported only):
+      # - bzip2:  5.9:1 ratio → 100MB→17MB, SLOW backup/restore → Homelab (storage limited)
+      # - gzip:   4.3:1 ratio → 100MB→23MB, SLOW backup, FAST restore → Production (balanced)
+      # - snappy: 2.4:1 ratio → 100MB→42MB, FAST backup/restore → Production (speed priority)
+      # - none:   1.0:1 ratio → 100MB→100MB, NO overhead → Production (unlimited storage, max speed)
+      # Note: zstd/lz4/xz not yet supported by barman-cloud CNPG plugin (only by barman CLI)
       compression: bzip2
       maxParallel: 8
+      archiveAdditionalCommandArgs:
+        # max-concurrency=1: Sequential WAL upload (required for LSN ordering)
+        - "--max-concurrency=1"
+        - "--read-timeout=120"
     data:
       compression: bzip2
+      jobs: 2
+      additionalCommandArgs:
+        - "--min-chunk-size=5MB"
+        - "--read-timeout=120"
     destinationPath: s3://cnpg/${APP}
     endpointURL: https://api.s3.vzkn.eu
     s3Credentials:

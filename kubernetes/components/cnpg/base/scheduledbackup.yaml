@@ -8,6 +8,9 @@ spec:
   immediate: true
   backupOwnerReference: self
   schedule: "@daily"
+  # target: prefer-standby runs backup on replica instead of primary (reduces load)
+  # For single-node deployments (CNPG_REPLICAS: '1'), comment out or set to 'primary'
+  target: prefer-standby
   cluster:
     name: "postgres-${APP}"
   method: plugin

@@ -6,7 +6,7 @@ metadata:
   name: &app coder
 spec:
   components:
-    - ../../../components/cnpg/backup
+    - ../../../components/cnpg/restore
   dependsOn:
     - name: cloudnative-pg
       namespace: database

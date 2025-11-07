@@ -6,7 +6,7 @@ metadata:
   name: &app forgejo
 spec:
   components:
-    - ../../../../components/cnpg/backup
+    - ../../../../components/cnpg/restore
     - ../../../../components/dragonfly
     - ../../../../components/volsync
   dependsOn:

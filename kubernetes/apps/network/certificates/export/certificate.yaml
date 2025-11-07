@@ -13,5 +13,4 @@ spec:
   dnsNames:
     - "vzkn.eu"
     - "*.vzkn.eu"
-    - "s3.vzkn.eu"
     - "*.s3.vzkn.eu"

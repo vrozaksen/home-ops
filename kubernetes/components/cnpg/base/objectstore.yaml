@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://schemas.tholinka.dev/barmancloud.cnpg.io/objectstore_v1.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/barmancloud.cnpg.io/objectstore_v1.json
 # technically we only need one of these per namespace...
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
@@ -15,6 +15,7 @@ spec:
       compression: bzip2
     destinationPath: s3://cnpg/${APP}
     endpointURL: https://api.s3.vzkn.eu
+    region: eu-central-1
     s3Credentials:
       accessKeyId:
         name: &secret ${APP}-cnpg-secret

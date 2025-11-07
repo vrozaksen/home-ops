@@ -57,4 +57,4 @@ jobs:
           apiToken: "${{ secrets.CLOUDFLARE_API_TOKEN }}"
           accountId: "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           workingDirectory: /home/runner/.datree/crdSchemas
-          command: pages deploy --project-name=kubernetes-schemas --branch main .
+          command: pages deploy --project-name=schemas-vzkn-eu --branch main .

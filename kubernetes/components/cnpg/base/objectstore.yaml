@@ -6,7 +6,7 @@ kind: ObjectStore
 metadata:
   name: postgres-${APP}
 spec:
-  retentionPolicy: "7d"
+  retentionPolicy: "30d"
   configuration:
     wal:
       compression: bzip2

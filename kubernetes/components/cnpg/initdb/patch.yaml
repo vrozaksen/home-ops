@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-${APP}
+  annotations:
+    # Skip WAL archive check for new clusters (no WAL in S3 yet)
+    cnpg.io/skipEmptyWalArchiveCheck: 'enabled'
+spec:
+  bootstrap:
+    initdb:
+      database: ${CNPG_DATABASE:=${APP}}
+      owner: ${CNPG_USER:=${APP}}
+      # Let CNPG generate secure password automatically
+      # Password will be available in secret: postgres-${APP}-app

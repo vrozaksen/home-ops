@@ -2,10 +2,32 @@
 
 ## Postgres Clusters
 
-Available components:
-- `../../../../components/cnpg/backup` - Database with S3 backups (daily) + WAL archiving
-- `../../../../components/cnpg/restore` - Restore from backup (PITR support)
-- `../../../../components/cnpg/no-backup` - Database without backups (dev/test)
+**Main components for applications:**
+
+### For production (choose workflow):
+
+**Option A: New database (no existing backup)**
+1. Start with: `../../../components/cnpg/initdb` - Creates empty database
+2. After first successful backup: Switch to `../../../components/cnpg/restore` ✅ **Keep permanently**
+
+**Option B: Restore existing database**
+1. Use: `../../../components/cnpg/restore` ✅ **Keep permanently**
+
+### Why use `restore` permanently?
+
+✅ **Disaster recovery:** If cluster is deleted/corrupted, it will automatically restore from latest backup
+✅ **Infrastructure as code:** Cluster recreate = automatic restore, no manual intervention
+✅ **Production safety:** Always recovers to known good state
+
+**Component structure (internal):**
+```
+base → initdb (one-time: create empty DB)
+     → restore (permanent: restore from backup)
+```
+
+- `base` - Core cluster + backup configuration (Cluster, ExternalSecret, ObjectStore, ScheduledBackup, WAL archiving via plugins)
+- `initdb` - Adds bootstrap.initdb patch ⚠️ **Temporary - switch to restore after first backup**
+- `restore` - Adds bootstrap.recovery patch + externalClusters ✅ **Permanent for production**
 
 ## Prerequisites
 
@@ -83,12 +105,74 @@ env:
       CNPG_EFFECTIVE_CACHE_SIZE: 512MB # expected OS cache size (~75% of memory)
       CNPG_RANDOM_PAGE_COST: '1.1' # SSD optimized (default 4.0 for HDD)
       CNPG_WAL_BUFFERS: 16MB # WAL buffer size
+
+      # Synchronous replication - DEFAULT RECOMMENDED for all HA clusters (3 replicas)
+      # Provides near-zero data loss with minimal performance impact
+      CNPG_SYNC_METHOD: any # 'any' = quorum (default), 'first' = priority, '' = async only
+      CNPG_SYNC_NUMBER: '1' # minimum standby replicas for sync (1 = wait for 1 standby)
+      CNPG_SYNC_DURABILITY: preferred # 'preferred' = self-healing (recommended), 'required' = strict RPO=0
 ```
 
+**Deployment profiles:**
+
+**Profile 1: HA with sync replication (RECOMMENDED for production):**
+```yaml
+CNPG_REPLICAS: '3'                    # 3 nodes for quorum
+CNPG_SYNC_METHOD: any                 # enable sync replication
+CNPG_SYNC_NUMBER: '1'                 # wait for 1 standby
+CNPG_SYNC_DURABILITY: preferred       # self-healing mode
+```
+✅ Near-zero data loss, automatic failover, self-healing
+🎯 Use for: authentik, grafana, *arr apps, any production data
+
+**Profile 2: HA async only (legacy/testing):**
+```yaml
+CNPG_REPLICAS: '3'                    # 3 nodes for HA
+CNPG_SYNC_METHOD: ''                  # disable sync (async only)
+```
+⚠️ Potential few seconds data loss on failover
+🎯 Use for: temporary/test clusters, truly idle DBs
+
+**Profile 3: Single-node (dev/testing only):**
+```yaml
+CNPG_REPLICAS: '1'                    # single node
+CNPG_SYNC_METHOD: ''                  # must be empty (no standbys)
+```
+❌ No HA, no replication, single point of failure
+🎯 Use for: development, testing, non-critical temporary data
+
 **Resource sizing guide:**
-- **Small DBs (<500MB)**: CPU: 100m, Memory: 512Mi, Storage: 2Gi, Connections: 100
-- **Medium DBs (500MB-2GB)**: CPU: 200m, Memory: 1Gi, Storage: 2-3Gi, Connections: 200
-- **Large DBs (>2GB)**: CPU: 500m, Memory: 2Gi, Storage: 5Gi, Connections: 300
+
+Default: **Burstable QoS** - low requests, can burst when needed (ideal for idle databases!)
+- Requests: CPU 25m, Memory 256Mi (minimal reservation)
+- Limits: Memory 512Mi (can burst 2x), CPU unlimited (can use more when available)
+
+**Custom sizing (override with variables):**
+- **Guaranteed QoS** (for critical workloads): Set `CNPG_CPU` + `CNPG_MEMORY` (both requests=limits)
+- **Small DBs**: `CNPG_REQUESTS_CPU: 50m, CNPG_LIMITS_MEMORY: 512Mi` (default)
+- **Medium DBs**: `CNPG_REQUESTS_CPU: 100m, CNPG_REQUESTS_MEMORY: 512Mi, CNPG_LIMITS_MEMORY: 1Gi`
+- **Large DBs**: `CNPG_REQUESTS_CPU: 200m, CNPG_REQUESTS_MEMORY: 1Gi, CNPG_LIMITS_MEMORY: 2Gi`
+
+💡 **Why Burstable?** Idle DBs mostly sit at low usage but need bursts for VACUUM, backups, indexing.
+
+**High Availability & Failover:**
+- ✅ Automatic failover built-in - operator promotes standby with lowest lag
+- ✅ Applications use `-rw` service - automatically updated to new primary
+- ✅ No PgBouncer pooler needed for idle databases with few connections
+- ✅ **Synchronous replication recommended by default** - minimal overhead, near-zero data loss
+- 📚 [Failure modes docs](https://cloudnative-pg.io/documentation/current/failure_modes/)
+
+**Why sync replication for ALL production apps?**
+- 💰 **Free protection**: You already have 3 replicas - use them!
+- ⚡ **Low overhead**: Write latency increase ~1-2ms (waiting for 1 standby ACK)
+- 🛡️ **Data safety**: Near RPO=0 - no data loss on failover
+- 🔄 **Self-healing**: `preferred` mode = cluster stays writable even if standbys down
+- 🎯 **Worth it**: For arr apps (library metadata), authentik (sessions), grafana (dashboards)
+
+**Fine-tuning options:**
+- **`dataDurability: preferred`** (default, recommended): Degrades to async if standbys unavailable → cluster stays writable
+- **`dataDurability: required`**: Strict RPO=0, but writes STOP if standbys down → only for critical financial/compliance data
+- **`CNPG_SYNC_METHOD: ''`** (empty): Disable sync completely → pure async replication (for truly idle test DBs)
 
 **See also:** `/docs/cnpg-resource-configs.yaml` for per-cluster recommendations based on actual usage analysis.
 ```
@@ -97,7 +181,53 @@ env:
 
 ## Usage Examples
 
-### Basic setup with backups
+### Workflow 1: New database from scratch
+
+```yaml
+# kubernetes/apps/<namespace>/<app>/ks.yaml
+# Step 1: Initial deployment with initdb
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: miniflux
+spec:
+  components:
+    - ../../../components/cnpg/initdb  # ⚠️ Temporary - creates empty DB
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: database
+    - name: plugin-barman-cloud
+      namespace: database
+  postBuild:
+    substitute:
+      APP: miniflux
+      CNPG_SIZE: 2Gi
+
+# Step 2: After ~24h (first backup completed), switch to restore
+spec:
+  components:
+    - ../../../components/cnpg/restore  # ✅ Keep this permanently!
+```
+
+### Workflow 2: Restore existing database
+
+```yaml
+# kubernetes/apps/<namespace>/<app>/ks.yaml
+# Use restore from the start if backup already exists
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: authentik
+spec:
+  components:
+    - ../../../components/cnpg/restore  # ✅ Keep permanently
+  postBuild:
+    substitute:
+      APP: authentik
+      CNPG_SIZE: 5Gi
+```
+
+**This is the permanent configuration for production!**
 
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -119,6 +249,9 @@ spec:
 ### Large database with custom tuning
 
 ```yaml
+# kubernetes/apps/security/authentik/ks.yaml
+components:
+  - ../../../components/cnpg/initdb
 postBuild:
   substitute:
     APP: authentik
@@ -130,21 +263,80 @@ postBuild:
     CNPG_SHARED_BUFFERS: 512MB
     CNPG_EFFECTIVE_CACHE_SIZE: 1536MB
     CNPG_WORK_MEM: 16MB
-components:
+```
+
+---
+
+## Component Details
+
+### `restore` ✅ **Main component for production**
+
+**Use for:** All production databases with backups
+
+**What it includes:**
+- `base` component (cluster + external secret + S3 backup config)
+- `restore` patch (adds `spec.bootstrap.recovery` + `externalClusters`)
+
+**Behavior:**
+- **First deploy:** Restores from latest S3 backup
+- **Normal operation:** Cluster runs normally, backups continue
+- **After cluster deletion:** Recreate automatically restores from latest backup
+
+**Keep permanently!** This provides disaster recovery protection.
+
+---
+
+### `initdb` ⚠️ **Temporary component for new databases**
+
+**Use for:** Brand new databases (no existing backup)
+
+**What it includes:**
+- `base` component (cluster + external secret + S3 backup config)
+- `initdb` patch (adds `spec.bootstrap.initdb`)
+
+**Generated resources:**
+- Cluster: `postgres-${APP}`
+- Secret: `postgres-${APP}-app` (auto-generated credentials)
+- Empty database owned by app user
+
+**⚠️ Switch to `restore` after first successful backup!** (typically after 24h)
+
+Why switch? If you ever need to recreate the cluster, you want it to restore from backup, not start empty.
+
+---
+
+## FAQ
+
+**Q: Should I keep `restore` or `initdb` permanently?**
+A: **Always use `restore` for production!** Use `initdb` only temporarily for brand new databases, then switch to `restore` after first backup.
+
+**Q: What if I keep `initdb` permanently?**
+A: Bad idea! If your cluster gets deleted, it will recreate with an EMPTY database instead of restoring from backup. You'll lose all data.
+
+**Q: Does `restore` component restore on every Flux reconcile?**
+A: No! `bootstrap.recovery` only runs when the cluster is first created. After that, it's ignored and cluster operates normally.
+
+**Q: What if backup doesn't exist yet when using `restore`?**
+A: The cluster will fail to start. That's why you use `initdb` first for new databases, wait for first backup, then switch to `restore`.
+
+**Q: Can I change from `initdb` to `restore` without downtime?**
+A: Yes! After the cluster is running and has backups, switching components is just a manifest change. The running cluster is unaffected - it only matters when cluster is recreated.
+
+**Q: How do I know when to switch from `initdb` to `restore`?**
+A: After 24 hours (one scheduled backup completed). Check: `kubectl get backup -n <namespace>` to see if backup exists.
   - ../../../components/cnpg/backup
 ```
 
 ### Restore from backup
 
-```yaml
-# 1. First, deploy with restore component
-components:
-  - ../../../components/cnpg/restore
+This is covered in Workflow 2 above - just use `restore` component from the start and keep it permanently.
 
-# 2. After restore completes, switch to backup for ongoing backups
-components:
-  - ../../../components/cnpg/backup
-```
+**What happens:**
+- First deploy: Restores from latest backup in S3
+- Subsequent deploys: Cluster already exists, no restore happens
+- Cluster deleted & redeployed: Automatically restores from latest backup again
+
+**This is the desired behavior for production!**
 
 ---
 

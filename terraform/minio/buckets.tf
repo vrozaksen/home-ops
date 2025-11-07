@@ -1,12 +1,6 @@
 locals {
   buckets = [
-    "cnpg",
-    "forgejo",
-    "harbor",
-    "sentry",
-    "tfstate-mikrotik-terraform",
-    "postgresql",
-    "rresume"
+    "postgresql"
   ]
 }
 

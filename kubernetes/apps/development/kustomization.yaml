@@ -10,4 +10,4 @@ replacements:
 resources:
   - ./coder/ks.yaml
   - ./forgejo/ks.yaml
-  - ./harbor/ks.yaml
+  # - ./harbor/ks.yaml

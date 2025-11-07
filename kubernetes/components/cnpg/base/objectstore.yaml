@@ -15,10 +15,12 @@ spec:
       compression: bzip2
     destinationPath: s3://cnpg/${APP}
     endpointURL: https://api.s3.vzkn.eu
-    region: eu-central-1
     s3Credentials:
-      accessKeyId:
+      region:
         name: &secret ${APP}-cnpg-secret
+        key: AWS_DEFAULT_REGION
+      accessKeyId:
+        name: *secret
         key: AWS_ACCESS_KEY_ID
       secretAccessKey:
         name: *secret

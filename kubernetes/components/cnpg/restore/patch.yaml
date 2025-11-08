@@ -9,6 +9,8 @@ metadata:
 spec:
   bootstrap:
     recovery:
+      database: ${CNPG_DATABASE:=${APP}}
+      owner: ${CNPG_USER:=${APP}}
       source: source
   externalClusters:
     - name: source

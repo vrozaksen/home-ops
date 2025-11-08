@@ -6,7 +6,7 @@ metadata:
   name: &app harbor
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     - ../../../components/dragonfly
   dependsOn:
     - name: cloudnative-pg

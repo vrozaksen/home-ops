@@ -6,6 +6,3 @@ components:
   - ../base
 patches:
   - path: patch.yaml
-    target:
-      kind: Cluster
-      group: postgresql.cnpg.io

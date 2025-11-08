@@ -10,6 +10,9 @@ spec:
   bootstrap:
     recovery:
       source: source
+      recoveryTarget:
+        # Force recovery of all available WAL files to the latest timeline
+        targetTLI: "latest"
   externalClusters:
     - name: source
       plugin:

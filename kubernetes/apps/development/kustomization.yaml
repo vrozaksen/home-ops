@@ -7,7 +7,7 @@ components:
   - ../../components/namespace
 replacements:
   - path: ../../components/replacements/ks.yaml
-resources: []
+resources:
   - ./coder/ks.yaml
   - ./forgejo/ks.yaml
   # - ./harbor/ks.yaml

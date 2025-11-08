@@ -11,7 +11,8 @@ spec:
     recovery:
       source: source
       recoveryTarget:
-        # Force recovery of all available WAL files to the latest timeline
+        # Use backup from 5.11 (before repos were added) and replay all WALs
+        backupID: backup-20251105000000
         targetTLI: "latest"
   externalClusters:
     - name: source

@@ -9,5 +9,5 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   # - ./coder/ks.yaml
-  # ./forgejo/ks.yaml
+  - ./forgejo/ks.yaml
   # - ./harbor/ks.yaml

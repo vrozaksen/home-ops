@@ -7,20 +7,20 @@ metadata:
 spec:
   trigger:
     manual: restore-once
-  restic:
-    accessModes: {{ ENV.ACCESS_MODES }}
-    cleanupCachePVC: true
-    cleanupTempPVC: true
+  kopia:
+    accessModes:
+      - {{ ENV.ACCESS_MODES }}
     copyMethod: Direct
     destinationPVC: {{ ENV.CLAIM }}
-    enableFileDeletion: true
     moverSecurityContext:
       runAsUser: {{ ENV.PUID }}
       runAsGroup: {{ ENV.PGID }}
       fsGroup: {{ ENV.PGID }}
-    #previous: {{ ENV.PREVIOUS }}
-    restoreAsOf: '2025-02-26T20:01:03-04:00'
+{% if ENV.PREVIOUS %}
+    previous: {{ ENV.PREVIOUS }}
+{% endif %}
+{% if ENV.ASOF %}
+    restoreAsOf: {{ ENV.ASOF }}
+{% endif %}
     repository: {{ ENV.APP }}-volsync-secret
-    sourceIdentity:
-      sourceName: {{ ENV.APP }}
     storageClassName: {{ ENV.STORAGE_CLASS_NAME }}

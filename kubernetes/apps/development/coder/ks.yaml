@@ -12,14 +12,9 @@ spec:
       namespace: database
     - name: plugin-barman-cloud
       namespace: database
-  healthChecks:
-    - apiVersion: &postgresVersion postgresql.cnpg.io/v1
-      kind: &postgresKind Cluster
-      name: postgres-coder
-      namespace: development
   healthCheckExprs:
-    - apiVersion: *postgresVersion
-      kind: *postgresKind
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
@@ -33,4 +28,4 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: true
+  wait: false

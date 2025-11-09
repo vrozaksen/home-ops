@@ -19,7 +19,7 @@ spec:
           app:
             image:
               repository: ghcr.io/autobrr/qui
-              tag: v1.6.0@sha256:d81e5fde8d1b38c4cfa5c4fef95e67e1ea8c97af22cda5f21339f27cad5db220
+              tag: v1.7.0@sha256:cea707c0254b3afbce24a91350d771123ad769b4e66b30b7e651c78f0b350951
             env:
               TZ: Europe/Warsaw
               QUI__HOST: 0.0.0.0

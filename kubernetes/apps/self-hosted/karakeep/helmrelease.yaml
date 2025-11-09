@@ -21,7 +21,7 @@ spec:
           app:
             image:
               repository: ghcr.io/karakeep-app/karakeep
-              tag: 0.25.0
+              tag: 0.28.0
             env:
               TZ: Europe/Warsaw
               ### Configuration

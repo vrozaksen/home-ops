@@ -13,5 +13,4 @@ resources:
   - ./jellystat/ks.yaml
   - ./maloja/ks.yaml
   - ./navidrome/ks.yaml
-  # - ./threadfin/ks.yaml
   - ./watchstate/ks.yaml

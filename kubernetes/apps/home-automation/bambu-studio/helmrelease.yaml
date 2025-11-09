@@ -17,7 +17,7 @@ spec:
           app:
             image:
               repository: lscr.io/linuxserver/bambustudio
-              tag: 02.03.00
+              tag: 02.03.01
             env:
               TZ: Europe/Warsaw
               PUID: "1000"

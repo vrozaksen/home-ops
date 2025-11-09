@@ -3,9 +3,10 @@ locals {
     "cnpg",
     "forgejo",
     "harbor",
+    "karakeep",
+    "rresume",
     "sentry",
-    "tfstate-mikrotik-terraform",
-    "rresume"
+    "tfstate-mikrotik-terraform"
   ]
 }
 

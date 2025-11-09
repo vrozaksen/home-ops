@@ -11,7 +11,7 @@ spec:
     operation: copy
   ref:
     tag: 0.20.0
-  url: oci://ghcr.io/home-operations/charts-mirror/silence-operator
+  url: oci://gsoci.azurecr.io/charts/giantswarm/silence-operator
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -25,7 +25,5 @@ spec:
     name: silence-operator
   values:
     alertmanagerAddress: http://kube-prometheus-stack-alertmanager:9093
-    image:
-      registry: quay.io
     networkPolicy:
       enabled: false

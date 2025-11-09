@@ -17,6 +17,11 @@ kubeconfig
 # Other
 *.psql
 node_modules/
+# Claude Code
+.claude/
+CLAUDE.md
+# One-time migration jobs
+**/migration-job.yaml
 # Private
 .private
 .bin

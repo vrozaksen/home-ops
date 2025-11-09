@@ -67,7 +67,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
-            group: ai
+            group: self-hosted
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"
           - search.vzkn.eu

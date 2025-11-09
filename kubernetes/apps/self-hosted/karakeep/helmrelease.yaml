@@ -21,25 +21,20 @@ spec:
           app:
             image:
               repository: ghcr.io/karakeep-app/karakeep
-              tag: 0.25.0
+              tag: 0.28.0
             env:
               TZ: Europe/Warsaw
               ### Configuration
               DATA_DIR: /data
               NEXTAUTH_URL: https://karakeep.vzkn.eu
-              NEXTAUTH_SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: "{{ .Release.Name }}-secret"
-                    key: ENCRYPTION_KEY
               MEILI_ADDR: http://karakeep-meilisearch.self-hosted.svc.cluster.local:7700
-              MEILI_MASTER_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: "{{ .Release.Name }}-secret"
-                    key: MEILI_MASTER_KEY
               MAX_ASSET_SIZE_MB: 50
               DISABLE_NEW_RELEASE_CHECK: true
+              ### S3 Storage
+              ASSET_STORE_S3_ENDPOINT: https://api.s3.vzkn.eu
+              ASSET_STORE_S3_REGION: eu-central-1
+              ASSET_STORE_S3_BUCKET: karakeep
+              ASSET_STORE_S3_FORCE_PATH_STYLE: true
               ### Authentication / Signup
               DISABLE_SIGNUPS: false
               DISABLE_PASSWORD_AUTH: true  # OAuth login only

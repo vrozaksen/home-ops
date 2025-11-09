@@ -6,20 +6,16 @@ metadata:
   name: &app atuin
 spec:
   components:
-    - ../../../components/postgres
+    - ../../../components/volsync
   interval: 1h
   dependsOn:
-    - name: crunchy-postgres-operator
-      namespace: database
-  healthCheckExprs:
-    - apiVersion: postgres-operator.crunchydata.com/v1beta1
-      kind: PostgresCluster
-      failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   path: ./kubernetes/apps/self-hosted/atuin
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

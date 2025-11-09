@@ -21,20 +21,16 @@ spec:
             image:
               repository: ghcr.io/atuinsh/atuin
               tag: v18.10.0@sha256:4a29feda6f352581ece849807445fe1f50f2074b4643b7bfe62b27e23705b068
-            args: ["server", "start"]
             env:
-              ATUIN_DB_URI:
-                valueFrom:
-                  secretKeyRef:
-                    name: atuin-pguser-atuin
-                    key: pgbouncer-uri
-              ATUIN_HOST: 0.0.0.0
+              ATUIN_HOST: "0.0.0.0"
               ATUIN_PORT: &port 80
               ATUIN_OPEN_REGISTRATION: "true"
-              ATUIN_METRICS__ENABLE: "true"
-              ATUIN_METRICS__HOST: 0.0.0.0
-              ATUIN_METRICS__PORT: &metricsPort 8080
-              ATUIN_TLS__ENABLE: "false"
+              ATUIN_DB_URI: sqlite:///config/atuin.db
+              TZ: Europe/Warsaw
+            command:
+              - atuin
+              - server
+              - start
             probes:
               liveness: &probes
                 enabled: true
@@ -51,11 +47,10 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
-                memory: 128Mi
               limits:
                 memory: 256Mi
     defaultPodOptions:
@@ -63,6 +58,8 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -74,18 +71,7 @@ spec:
       app:
         ports:
           http:
-            primary: true
             port: *port
-          metrics:
-            port: *metricsPort
-    serviceMonitor:
-      app:
-        endpoints:
-          - port: metrics
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
     route:
       app:
         annotations:
@@ -98,10 +84,5 @@ spec:
           - name: envoy-internal
             namespace: network
     persistence:
-      tmpfs:
-        type: emptyDir
-        advancedMounts:
-          atuin:
-            app:
-              - path: /config
-                subPath: config
+      config:
+        existingClaim: "{{ .Release.Name }}"

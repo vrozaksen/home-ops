@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: itzcrazykns1337/perplexica
-              tag: main@sha256:7e391084c1a423df4e4ae2ca44148ac7543e1311c4d680f59c48db4e0aa5d5b4
+              tag: main@sha256:08bd0ce56ff9e255a9700e7bb23ecd368b6eb670537fb0ca3b144c1fe1f7f371
             env:
               SEARXNG_API_URL: http://searxng:8080
               DATA_DIR: /home/perplexica

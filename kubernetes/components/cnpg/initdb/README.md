@@ -15,9 +15,8 @@ spec:
 
 ## Usage
 
-This component is automatically included by:
-- `cnpg/backup` - For new databases with backups
-- `cnpg/no-backup` - For new databases without backups
+This component automatically includes:
+- `cnpg/base` - Basic cluster configuration
 
 **Do NOT use with:**
 - `cnpg/restore` - Uses `recovery` bootstrap instead

@@ -9,13 +9,16 @@ spec:
   retentionPolicy: "30d"
   configuration:
     wal:
-      # Compression algorithms (CNPG plugin supported only):
-      # - bzip2:  5.9:1 ratio → 100MB→17MB, SLOW backup/restore → Homelab (storage limited)
-      # - gzip:   4.3:1 ratio → 100MB→23MB, SLOW backup, FAST restore → Production (balanced)
-      # - snappy: 2.4:1 ratio → 100MB→42MB, FAST backup/restore → Production (speed priority)
-      # - none:   1.0:1 ratio → 100MB→100MB, NO overhead → Production (unlimited storage, max speed)
-      # Note: zstd/lz4/xz not yet supported by barman-cloud CNPG plugin (only by barman CLI)
-      compression: bzip2
+      # Compression algorithms (plugin-barman-cloud v1.1.0+):
+      # - bzip2: 5.9:1 ratio → 100MB→17MB, VERY SLOW backup/restore → Max compression
+      # - xz:    5.5:1 ratio → 100MB→18MB, VERY SLOW backup/restore → High compression
+      # - zstd:  4.8:1 ratio → 100MB→21MB, FAST backup/restore → RECOMMENDED (best balance)
+      # - gzip:  4.3:1 ratio → 100MB→23MB, SLOW backup, FAST restore → Legacy default
+      # - lz4:   2.6:1 ratio → 100MB→38MB, VERY FAST backup/restore → Speed priority
+      # - snappy: 2.4:1 ratio → 100MB→42MB, FAST backup/restore → Speed priority (legacy)
+      # - none:  1.0:1 ratio → 100MB→100MB, NO overhead → Unlimited storage only
+      # Note: data compression still only supports gzip, bzip2, snappy
+      compression: zstd
       maxParallel: 8
       archiveAdditionalCommandArgs:
         # max-concurrency=1: Sequential WAL upload (required for LSN ordering)

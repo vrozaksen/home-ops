@@ -72,11 +72,6 @@ spec:
               globalMounts:
                 - path: /data
               accessMode: "ReadWriteOnce"
-              size: 1Gi
-            - name: cache
-              globalMounts:
-                - path: /cache
-              accessMode: "ReadWriteOnce"
               size: 10Gi
     defaultPodOptions:
       securityContext:
@@ -112,7 +107,7 @@ spec:
 
             cache:
               enabled: true
-              dir: "/cache"
+              dir: ""
               host: ""
               port: 0
 

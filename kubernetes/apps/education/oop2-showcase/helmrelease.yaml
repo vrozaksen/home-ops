@@ -11,7 +11,7 @@ spec:
     name: app-template
   values:
     controllers:
-      it-tools:
+      oop2-showcase:
         replicas: 1
         strategy: RollingUpdate
         annotations:

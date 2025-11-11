@@ -61,10 +61,11 @@ spec:
 
     resources:
       requests:
-        cpu: 10m
-        memory: 256Mi
+        cpu: 100m
+        memory: 512Mi
       limits:
-        memory: 1Gi
+        cpu: 2000m
+        memory: 2Gi
 
     persistence:
       enabled: true

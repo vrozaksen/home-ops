@@ -37,13 +37,3 @@ type: kubernetes.io/tls
 data:
   tls.crt: {{ ENV['INGRESS_NGINX_TLS_CRT'] }}
   tls.key: {{ ENV['INGRESS_NGINX_TLS_KEY'] }}
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master/secret-v1.json
-# external-secrets namespace needs cluster-secrets so it can bootstrap the ClusterSecretStore, which can then be used to get the cluster-secrets for the other namespaces
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cluster-secrets
-  namespace: external-secrets
-stringData:
-  {{ ENV['CLUSTER_SECRETS'] | indent(2) | safe }}

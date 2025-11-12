@@ -10,7 +10,8 @@ spec:
   postBuild:
     substituteFrom:
       - kind: Secret
-        name: cloudflare-tunnel-id-secret
+        name: cloudflare-tunnel
+        optional: false
   prune: true
   sourceRef:
     kind: GitRepository

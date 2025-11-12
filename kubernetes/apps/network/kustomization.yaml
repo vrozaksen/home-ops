@@ -10,6 +10,7 @@ replacements:
 resources:
   - ./certificates/ks.yaml
   - ./cloudflare-dns/ks.yaml
+  - ./cloudflare-tunnel/secret/ks.yaml
   - ./cloudflare-tunnel/ks.yaml
   - ./echo/ks.yaml
   - ./envoy-gateway/ks.yaml

@@ -34,6 +34,8 @@ releases:
     values: ['../values.yaml.gotmpl']
     hooks:
       - # Apply cluster secret store configuration
+        # We need this for bitwarden, which we need for the cluster-secrets to get populated
+        # without those, flux fails to install anything
         events: [postsync]
         command: kubectl
         args:

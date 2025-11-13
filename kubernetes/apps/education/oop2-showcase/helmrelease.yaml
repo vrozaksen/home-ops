@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-showcase
-              tag: 2025.11.26
+              tag: 2025.11.27
             env:
               TZ: Europe/Warsaw
             probes:
@@ -77,26 +77,7 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: education
-          # Gateway API timeout for WebSocket connections
-          gateway.envoyproxy.io/timeout: "300s"
         hostnames: ["oop2.vzkn.eu"]
         parentRefs:
           - name: envoy-external
             namespace: network
-    persistence:
-      # Python runtime needs /tmp for bytecode cache, temp files
-      tmpfs:
-        type: emptyDir
-        advancedMounts:
-          oop2-showcase:
-            app:
-              - path: /tmp
-                subPath: tmp
-      # FastAPI/uvicorn may need writable cache dirs
-      home:
-        type: emptyDir
-        advancedMounts:
-          oop2-showcase:
-            app:
-              - path: /home/appuser
-                subPath: home

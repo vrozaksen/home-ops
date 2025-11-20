@@ -213,7 +213,7 @@ spec:
         enabledArgs: true
         image:
           repository: quay.io/cilium/hubble-export-stdout
-          tag: v1.1.0
+          tag: v1.1.1
         resources:
           limits:
             memory: 256Mi

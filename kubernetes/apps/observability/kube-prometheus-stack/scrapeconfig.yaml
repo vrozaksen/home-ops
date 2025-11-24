@@ -45,18 +45,18 @@ spec:
 #     - action: replace
 #       targetLabel: job
 #       replacement: *name
----
-# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/scrapeconfig_v1alpha1.json
-apiVersion: monitoring.coreos.com/v1alpha1
-kind: ScrapeConfig
-metadata:
-  name: &name nvidia-smi-exporter
-spec:
-  staticConfigs:
-    - targets:
-        - aincrad.home.vzkn.eu:9202
-  metricsPath: /metrics
-  relabelings:
-    - action: replace
-      targetLabel: job
-      replacement: *name
+# ---
+# # yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+# apiVersion: monitoring.coreos.com/v1alpha1
+# kind: ScrapeConfig
+# metadata:
+#   name: &name nvidia-smi-exporter
+# spec:
+#   staticConfigs:
+#     - targets:
+#         - aincrad.home.vzkn.eu:9202
+#   metricsPath: /metrics
+#   relabelings:
+#     - action: replace
+#       targetLabel: job
+#       replacement: *name

@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: clickhouse/clickhouse-server
-              tag: 25.10.2-alpine@sha256:81ce9121febca7b12c75cf1aae448ccfaef0f68da25802ad805e81f8af610de9
+              tag: 25.10.3-alpine@sha256:7984342dc0235eeddf71018579ea11f100a890ac01806ef4fe4854e0880a0506
             env:
               CLICKHOUSE_HTTP_PORT: &httpPort 8123
               CLICKHOUSE_TCP_PORT: &tcpPort 9000

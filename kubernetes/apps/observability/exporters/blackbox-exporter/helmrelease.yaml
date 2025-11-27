@@ -19,24 +19,21 @@ kind: HelmRelease
 metadata:
   name: blackbox-exporter
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: blackbox-exporter
+  interval: 1h
   values:
     fullnameOverride: blackbox-exporter
-    securityContext:
-      readOnlyRootFilesystem: true
-      allowPrivilegeEscalation: false
-      capabilities:
-        add: ["NET_RAW"]
     config:
       modules:
         http_2xx:
           prober: http
           timeout: 5s
           http:
-            valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+            valid_http_versions:
+              - HTTP/1.1
+              - HTTP/2.0
             follow_redirects: true
             preferred_ip_protocol: ip4
         icmp:
@@ -51,17 +48,17 @@ spec:
             preferred_ip_protocol: ip4
     serviceMonitor:
       enabled: true
-      defaults:
-        interval: 1m
-        scrapeTimeout: 10s
+      selfMonitor:
+        enabled: true
     prometheusRule:
       enabled: true
       rules:
         - alert: BlackboxProbeFailed
-          expr: probe_success == 0
+          expr: |-
+            probe_success{service="blackbox-exporter"} == 0
           for: 15m
           labels:
             severity: critical
           annotations:
             summary: |-
-              The host {{ $labels.target }} is currently unreachable
+              The probe targeting {{ $labels.instance }} is currently having connectivity issues

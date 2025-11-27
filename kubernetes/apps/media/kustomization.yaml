@@ -12,4 +12,3 @@ resources:
   - ./jellystat/ks.yaml
   - ./navidrome/ks.yaml
   - ./seerr/ks.yaml
-  - ./watchstate/ks.yaml

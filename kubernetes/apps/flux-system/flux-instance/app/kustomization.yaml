@@ -6,6 +6,6 @@ resources:
   - ./externalsecret.yaml
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
-  # - ./httproute.yaml
+  - ./httproute.yaml
   - ./prometheusrule.yaml
   - ./receiver.yaml

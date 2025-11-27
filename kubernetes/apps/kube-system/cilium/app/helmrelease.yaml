@@ -19,10 +19,10 @@ kind: HelmRelease
 metadata:
   name: cilium
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: cilium
+  interval: 1h
   values:
     autoDirectNodeRoutes: true
     bandwidthManager:
@@ -44,8 +44,6 @@ spec:
       exclusive: false
     dashboards:
       enabled: true
-      annotations:
-        grafana_folder: Network
     devices: bond+
     enableIPv4BIGTCP: true
     endpointRoutes:
@@ -62,16 +60,15 @@ spec:
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
     l2announcements:
-      enabled: true
+      enabled: false
     loadBalancer:
       algorithm: maglev
       mode: dsr
-    localRedirectPolicy: true
+    localRedirectPolicies:
+      enabled: true
     operator:
       dashboards:
         enabled: true
-        annotations:
-          grafana_folder: Network
       prometheus:
         enabled: true
         serviceMonitor:
@@ -85,8 +82,6 @@ spec:
       serviceMonitor:
         enabled: true
         trustCRDsExist: true
-      annotations:
-        grafana_folder: Network
     rollOutCiliumPods: true
     routingMode: native
     securityContext:
@@ -109,3 +104,6 @@ spec:
           - NET_ADMIN
           - SYS_ADMIN
           - SYS_RESOURCE
+    socketLB:
+      enabled: true
+      hostNamespaceOnly: true

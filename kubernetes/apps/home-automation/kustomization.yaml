@@ -10,4 +10,4 @@ replacements:
 resources:
   # - ./bambu-studio/ks.yaml
   - ./home-assistant/ks.yaml
-  # - ./zigbee/ks.yaml
+  - ./zigbee/ks.yaml

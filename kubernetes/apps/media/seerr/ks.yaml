@@ -3,32 +3,35 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app jellyseerr
+  name: &app seerr
 spec:
   components:
-    - ../../../components/postgres
+    - ../../../components/cnpg/initdb
+    - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
+    - name: cloudnative-pg
+      namespace: database
+    - name: plugin-barman-cloud
+      namespace: database
     - name: radarr
       namespace: downloads
     - name: sonarr
       namespace: downloads
-    - name: crunchy-postgres-operator
-      namespace: database
-    - name: external-secrets-store
-      namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
   healthCheckExprs:
-    - apiVersion: postgres-operator.crunchydata.com/v1beta1
-      kind: PostgresCluster
-      failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
-  path: ./kubernetes/apps/media/jellyseerr
+  path: ./kubernetes/apps/media/seerr
   postBuild:
     substitute:
       APP: *app
+      CNPG_SIZE: 1Gi
+      VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

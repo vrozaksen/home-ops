@@ -1,6 +1,6 @@
 ---
-- id: jellyseerr-pushover
-  execute-command: /config/jellyseerr-pushover.sh
+- id: seerr-pushover
+  execute-command: /config/seerr-pushover.sh
   pass-arguments-to-command:
     - source: entire-payload
 

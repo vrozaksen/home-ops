@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: jellyseerr
+  name: seerr
 spec:
   interval: 1h
   chartRef:
@@ -11,7 +11,7 @@ spec:
     name: app-template
   values:
     controllers:
-      jellyseerr:
+      seerr:
         replicas: 1
         strategy: Recreate
         annotations:
@@ -19,29 +19,24 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/fallenbagel/jellyseerr
-              tag: 2.7.3@sha256:9cc9e9ee6cd5cf5a23feb45c37742ba34cfd6314d81d259cddb373a97ac92cdd
+              repository: ghcr.io/seerr-team/seerr
+              tag: develop@sha256:2c48a3d8b8a54c9935dc837fb6f279a7aaac41731a399b748b45d10abbf6956f
             env:
               TZ: Europe/Warsaw
               LOG_LEVEL: "info"
               PORT: &port 80
-              JELLYFIN_TYPE: emby
               DB_TYPE: "postgres"
               DB_HOST:
                 valueFrom:
                   secretKeyRef:
-                    name: &pg jellyseerr-pguser-jellyseerr
-                    key: pgbouncer-host
-              DB_PORT:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: pgbouncer-port
+                    name: &pg postgres-seerr-app
+                    key: host
+              DB_PORT: "5432"
               DB_USER:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
-                    key: user
+                    key: username
               DB_PASS:
                 valueFrom:
                   secretKeyRef:
@@ -74,8 +69,8 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 40m
-                memory: 1Gi
+                cpu: 10m
+                memory: 256Mi
               limits:
                 memory: 2Gi
     defaultPodOptions:
@@ -107,16 +102,5 @@ spec:
         existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /app/config
-      config-cache:
-        existingClaim: "{{ .Release.Name }}-cache"
-        globalMounts:
-          - path: /app/config/cache
-      tmpfs:
+      tmp:
         type: emptyDir
-        advancedMounts:
-          jellyseerr:
-            app:
-              - path: /config/logs
-                subPath: logs
-              - path: /tmp
-                subPath: tmp

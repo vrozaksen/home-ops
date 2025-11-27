@@ -10,7 +10,7 @@ spec:
   dependsOn:
     - name: emby
       namespace: media
-    - name: jellyseerr
+    - name: seerr
       namespace: media
   interval: 1h
   path: ./kubernetes/apps/media/wizarr

@@ -7,7 +7,7 @@ components:
   - ../../components/namespace
 replacements:
   - path: ../../components/replacements/ks.yaml
-resources:
-  - ./authentik/ks.yaml
-  - ./tetragon/ks.yaml
-  - ./trivy-operator/ks.yaml
+resources: []
+  # - ./authentik/ks.yaml
+  # - ./tetragon/ks.yaml
+  # - ./trivy-operator/ks.yaml

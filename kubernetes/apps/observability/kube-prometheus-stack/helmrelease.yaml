@@ -19,16 +19,12 @@ kind: HelmRelease
 metadata:
   name: kube-prometheus-stack
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: kube-prometheus-stack
+  interval: 1h
   values:
-    crds:
-      enabled: true
-      upgradeJob:
-        enabled: true
-        forceConflicts: true
+    cleanPrometheusOperatorObjectNames: true
     alertmanager:
       route:
         main:
@@ -43,8 +39,6 @@ spec:
       alertmanagerSpec:
         alertmanagerConfiguration:
           name: alertmanager
-          global:
-            resolveTimeout: 5m
         externalUrl: https://alertmanager.vzkn.eu
         storage:
           volumeClaimTemplate:
@@ -56,13 +50,11 @@ spec:
     grafana:
       enabled: false
       forceDeployDashboards: true
-      sidecar:
-        dashboards:
-          annotations:
-            grafana_folder: Kubernetes
-          multicluster:
-            etcd:
-              enabled: true
+      operator:
+        dashboardsConfigMapRefEnabled: true
+        folder: observability
+        matchLabels:
+          grafana.internal/instance: grafana
     kubeEtcd:
       service:
         selector:
@@ -71,30 +63,8 @@ spec:
       enabled: false
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
-      metricLabelsAllowlist:
-        - pods=[*]
-        - deployments=[*]
-        - persistentvolumeclaims=[*]
-      prometheus:
-        monitor:
-          enabled: true
-          relabelings:
-            - action: replace
-              regex: (.*)
-              replacement: $1
-              sourceLabels: ["__meta_kubernetes_pod_node_name"]
-              targetLabel: kubernetes_node
     prometheus-node-exporter:
       fullnameOverride: node-exporter
-      prometheus:
-        monitor:
-          enabled: true
-          relabelings:
-            - action: replace
-              regex: (.*)
-              replacement: $1
-              sourceLabels: ["__meta_kubernetes_pod_node_name"]
-              targetLabel: kubernetes_node
     additionalPrometheusRulesMap:
       dockerhub-rules:
         groups:
@@ -102,8 +72,8 @@ spec:
             rules:
               - alert: DockerhubRateLimitRisk
                 annotations:
-                  summary: Kubernetes cluster Dockerhub rate limit risk
-                expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 50
+                  summary: There are {{ $value }} containers pulling from Dockerhub. This may lead to rate limiting.
+                expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 100
                 labels:
                   severity: critical
       oom-rules:
@@ -139,17 +109,11 @@ spec:
               namespace: network
       prometheusSpec:
         externalUrl: https://prometheus.vzkn.eu
-        externalLabels:
-          cluster: main
-        resources:
-          requests:
-            cpu: 100m
-          limits:
-            memory: 3000Mi
+        version: v2.55.1 # override 'unsupported Prometheus version' error
         image:
           registry: docker.io
           repository: prompp/prompp
-          tag: 2.53.2-0.4.0
+          tag: 0.6.4
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
@@ -160,17 +124,17 @@ spec:
         ruleSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
-        enableAdminAPI: true
-        walCompression: true
-        enableFeatures:
-          - memory-snapshot-on-shutdown
-        retention: 30d
-        retentionSize: 70GB
+        retention: 14d
+        retentionSize: 50GB
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            memory: 2000Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
               storageClassName: ceph-block
               resources:
                 requests:
-                  storage: 75Gi
-    cleanPrometheusOperatorObjectNames: true
+                  storage: 50Gi

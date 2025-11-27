@@ -19,47 +19,26 @@ kind: HelmRelease
 metadata:
   name: external-secrets
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: external-secrets
-  driftDetection:
-    mode: enabled
+  interval: 1h
   values:
-    # yaml-language-server: $schema=https://raw.githubusercontent.com/external-secrets/external-secrets/refs/heads/main/deploy/charts/external-secrets/values.schema.json
-    installCRDs: true
-    replicaCount: 1
     leaderElect: true
-    image:
-      repository: ghcr.io/external-secrets/external-secrets
-    webhook:
-      image:
-        repository: ghcr.io/external-secrets/external-secrets
-      serviceMonitor:
-        enabled: true
-        interval: 1m
-    certController:
-      image:
-        repository: ghcr.io/external-secrets/external-secrets
-      serviceMonitor:
-        enabled: true
-        interval: 1m
     serviceMonitor:
       enabled: true
-      interval: 1m
     grafanaDashboard:
       enabled: true
-      annotations:
-        grafana_folder: Data
+    certController:
+      serviceMonitor:
+        enabled: true
+    webhook:
+      serviceMonitor:
+        enabled: true
     reportsController:
       serviceMonitor:
         enabled: true
-        interval: 1m
     bitwarden-sdk-server:
       enabled: true
       podAnnotations:
         secret.reloader.stakater.com/reload: "bitwarden,bitwarden-tls-certs"
-    resources:
-      requests:
-        cpu: 10m
-        memory: 128Mi

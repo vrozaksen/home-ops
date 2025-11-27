@@ -75,7 +75,7 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
-#    route:
+    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

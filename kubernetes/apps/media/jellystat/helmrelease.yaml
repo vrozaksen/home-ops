@@ -77,7 +77,7 @@ spec:
         ports:
           http:
             port: 3000
-#    route:
+    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

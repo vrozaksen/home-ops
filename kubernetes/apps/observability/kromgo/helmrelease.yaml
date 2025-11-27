@@ -58,7 +58,7 @@ spec:
             port: *port
           health:
             port: *healthPort
-#    route:
+    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

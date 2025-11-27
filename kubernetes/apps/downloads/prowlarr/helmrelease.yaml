@@ -95,7 +95,7 @@ spec:
         ports:
           http:
             port: *port
-#    route:
+    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

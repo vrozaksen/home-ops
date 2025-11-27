@@ -7,5 +7,5 @@ components:
   - ../../components/namespace
 replacements:
   - path: ../../components/replacements/ks.yaml
-resources: []
-  # - ./system-upgrade-controller/ks.yaml
+resources:
+  - ./tuppr/ks.yaml

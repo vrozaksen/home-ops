@@ -3,13 +3,17 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: gateway-api-crds
+  name: intel-gpu-resource-driver
 spec:
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: intel-gpu-resource-driver
+      namespace: kube-system
   interval: 1h
-  path: ./kubernetes/apps/kube-system/gateway-api-crds
+  path: ./kubernetes/apps/kube-system/intel-gpu-resource-driver
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false

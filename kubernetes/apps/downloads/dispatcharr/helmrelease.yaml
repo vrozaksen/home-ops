@@ -28,12 +28,17 @@ spec:
               DISPATCHARR_PORT: &port 9191
               REDIS_HOST: localhost
             resources:
+              claims:
+                - name: gpu
               requests:
                 cpu: 100m
               limits:
                 memory: 4Gi
                 gpu.intel.com/i915: 1
     defaultPodOptions:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: dispatcharr-gpu
       securityContext:
         supplementalGroups:
           - 44 # video

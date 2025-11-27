@@ -50,13 +50,17 @@ spec:
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
             resources:
+              claims:
+                - name: gpu
               requests:
                 cpu: 500m
                 memory: 4Gi
               limits:
                 memory: 8Gi
-                gpu.intel.com/i915: 1
     defaultPodOptions:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: emby-gpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

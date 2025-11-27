@@ -12,8 +12,7 @@ resources:
   - ./coredns/ks.yaml
   - ./metrics-server/ks.yaml
   - ./descheduler/ks.yaml
-  - ./gateway-api-crds/ks.yaml
-  - ./intel-device-plugin-operator/ks.yaml
+  - ./intel-gpu-resource-driver/ks.yaml
   - ./irqbalance/ks.yaml
   - ./reloader/ks.yaml
   - ./spegel/ks.yaml

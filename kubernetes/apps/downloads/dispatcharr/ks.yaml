@@ -6,6 +6,7 @@ metadata:
   name: &app dispatcharr
 spec:
   components:
+    - ../../../components/gpu
     - ../../../components/volsync
   dependsOn:
     - name: crunchy-postgres-operator

@@ -10,16 +10,16 @@ replacements:
 resources:
   # - ./bazarr/ks.yaml
   - ./dispatcharr/ks.yaml
-  # - ./flaresolverr/ks.yaml
-  # # - ./lidarr/ks.yaml
-  # # - ./metube/ks.yaml
-  # - ./prowlarr/ks.yaml
-  # - ./qbittorrent/ks.yaml
-  # - ./qui/ks.yaml
-  # - ./radarr/ks.yaml
-  # # - ./recyclarr/ks.yaml
-  # # - ./slskd/ks.yaml
-  # - ./sonarr/ks.yaml
-  # # - ./soularr/ks.yaml
-  # - ./tqm/ks.yaml
-  # - ./webhook/ks.yaml
+  - ./flaresolverr/ks.yaml
+  # - ./lidarr/ks.yaml
+  # - ./metube/ks.yaml
+  - ./prowlarr/ks.yaml
+  - ./qbittorrent/ks.yaml
+  - ./qui/ks.yaml
+  - ./radarr/ks.yaml
+  # - ./recyclarr/ks.yaml
+  # - ./slskd/ks.yaml
+  - ./sonarr/ks.yaml
+  # - ./soularr/ks.yaml
+  - ./tqm/ks.yaml
+  - ./webhook/ks.yaml

@@ -9,8 +9,8 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   - ./emby/ks.yaml
-  # - ./jellyseerr/ks.yaml
-  # - ./jellystat/ks.yaml
-  # - ./maloja/ks.yaml
-  # - ./navidrome/ks.yaml
-  # - ./watchstate/ks.yaml
+  - ./jellyseerr/ks.yaml
+  - ./jellystat/ks.yaml
+  - ./maloja/ks.yaml
+  - ./navidrome/ks.yaml
+  - ./watchstate/ks.yaml

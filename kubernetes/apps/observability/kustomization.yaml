@@ -8,12 +8,12 @@ components:
 replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
-  # - ./gatus/ks.yaml
+  - ./gatus/ks.yaml
   - ./fluent-bit/ks.yaml
   - ./grafana/ks.yaml
-  # - ./karma/ks.yaml
+  - ./karma/ks.yaml
   - ./keda/ks.yaml
-  # - ./kromgo/ks.yaml
+  - ./kromgo/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./silence-operator/ks.yaml
   - ./victoria-logs/ks.yaml

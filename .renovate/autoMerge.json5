@@ -2,21 +2,21 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
-      "description": ["Auto-merge container digests updates"],
+      "description": ["Auto-merge trusted container digests"],
       "matchDatasources": ["docker"],
       "automerge": true,
       "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
-      "matchPackageNames": ["/bjw-s/", "/bjw-s-labs/", "/home-operations/", "/joryirving/", "/vrozaksen/"],
+      "matchPackageNames": ["/home-operations/"],
       "ignoreTests": false
     },
     {
-      "description": "Auto-merge OCI Releases",
+      "description": "Auto-merge OCI Charts",
       "matchDatasources": ["docker"],
       "automerge": true,
       "automergeType": "pr",
       "matchUpdateTypes": ["minor", "patch"],
-      "matchPackageNames": ["/kube-prometheus-stack/", "/grafana/"],
+      "matchPackageNames": ["/kube-prometheus-stack/"],
       "ignoreTests": false
     },
     {

@@ -3,7 +3,7 @@
   "packageRules": [
     {
       "description": ["Actions Runner Controller Group"],
-      "groupName": "Actions Runner Controller",
+      "groupName": "actions-runner-controller",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
       "group": {
@@ -12,74 +12,14 @@
       "minimumGroupSize": 2
     },
     {
-      "description": ["Cert-Manager Group"],
-      "groupName": "Cert-Manager",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/cert-manager/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["Cilium Group"],
-      "groupName": "Cilium",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/cilium/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["CoreDNS Group"],
-      "groupName": "CoreDNS",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/coredns/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["Dragonfly Operator Group"],
-      "groupName": "Dragonfly Operator",
-      "matchDatasources": ["docker", "github-releases"],
-      "matchPackageNames": ["/dragonfly/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["External Secrets Operator Group"],
-      "groupName": "External Secrets Operator",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/external-secrets/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
       "description": ["Flux Operator Group"],
-      "groupName": "Flux Operator",
+      "groupName": "flux-operator",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["/flux-operator/", "/flux-instance/"],
+      "matchPackageNames": ["/flux-operator/", "/flux-instance/", "/flux-operator-manifests/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["Intel Device Plugins Group"],
-      "groupName": "Intel-Device-Plugins",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/intel-device-plugins-operator/", "/intel-device-plugins-gpu/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
+      "minimumGroupSize": 3
     },
     {
       "description": ["Kubernetes Group"],
@@ -99,7 +39,7 @@
     },
     {
       "description": ["Rook-Ceph Group"],
-      "groupName": "Rook-Ceph",
+      "groupName": "rook-ceph",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/rook-ceph/", "/rook-ceph-cluster/"],
       "group": {
@@ -108,28 +48,8 @@
       "minimumGroupSize": 2
     },
     {
-      "description": ["System Upgrade Controller Group"],
-      "groupName": "System Upgrade Controller",
-      "matchDatasources": ["docker", "github-releases"],
-      "matchPackageNames": ["/system-upgrade-controller/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
-      "description": ["Spegel Group"],
-      "groupName": "Spegel",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/spegel/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
-    },
-    {
       "description": ["Talos Group"],
-      "groupName": "Talos",
+      "groupName": "talos",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/installer/", "/talosctl/"],
       "group": {

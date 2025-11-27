@@ -5,10 +5,10 @@ kind: HelmRelease
 metadata:
   name: cloudflare-tunnel
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
+  interval: 1h
   values:
     controllers:
       cloudflare-tunnel:
@@ -19,18 +19,19 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/cloudflare/cloudflared
+              repository: mirror.gcr.io/cloudflare/cloudflared
               tag: 2025.11.1@sha256:89ee50efb1e9cb2ae30281a8a404fed95eb8f02f0a972617526f8c5b417acae2
-            args: ["tunnel", "run"]
             env:
               NO_AUTOUPDATE: true
               TUNNEL_METRICS: 0.0.0.0:8080
-              TUNNEL_ORIGIN_ENABLE_HTTP2: true
               TUNNEL_POST_QUANTUM: true # disable when using http2
               TUNNEL_TRANSPORT_PROTOCOL: quic # http2
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}"
+            args:
+              - tunnel
+              - run
             probes:
               liveness: &probes
                 enabled: true
@@ -51,7 +52,6 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 64Mi
               limits:
                 memory: 256Mi
     defaultPodOptions:
@@ -70,23 +70,19 @@ spec:
           - port: http
     configMaps:
       config:
-        forceRename: &configMapName "{{ .Release.Name }}-configmap"
         data:
           config.yaml: |-
             ingress:
-              - hostname: vzkn.eu
-                originRequest:
-                  originServerName: vzkn.eu
-                service: https://envoy-external.{{ .Release.Namespace }}.svc.cluster.local:443
               - hostname: "*.vzkn.eu"
                 originRequest:
+                  http2Origin: true
                   originServerName: external.vzkn.eu
                 service: https://envoy-external.{{ .Release.Namespace }}.svc.cluster.local:443
               - service: http_status:404
     persistence:
       config-file:
         type: configMap
-        name: *configMapName
+        identifier: config
         globalMounts:
           - path: /etc/cloudflared/config.yaml
             subPath: config.yaml

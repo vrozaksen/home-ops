@@ -8,11 +8,11 @@ components:
 replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
-  - ./atuin/ks.yaml
+  # - ./atuin/ks.yaml
   - ./free-game-notifier/ks.yaml
-  - ./it-tools/ks.yaml
-  - ./karakeep/ks.yaml
-  - ./miniflux/ks.yaml
-  - ./mumble/ks.yaml
-  # - ./reactive-resume/ks.yaml
-  - ./searxng/ks.yaml
+  # - ./it-tools/ks.yaml
+  # - ./karakeep/ks.yaml
+  # - ./miniflux/ks.yaml
+  # - ./mumble/ks.yaml
+  # # - ./reactive-resume/ks.yaml
+  # - ./searxng/ks.yaml

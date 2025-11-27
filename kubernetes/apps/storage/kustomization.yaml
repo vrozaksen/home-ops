@@ -9,7 +9,7 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   - ./csi-driver-nfs/ks.yaml
-  - ./kopia/ks.yaml
+  # - ./kopia/ks.yaml
   - ./openebs/ks.yaml
   - ./snapshot-controller/ks.yaml
   - ./volsync/ks.yaml

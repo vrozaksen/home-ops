@@ -9,5 +9,5 @@ replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
   # - ./bambu-studio/ks.yaml
-  - ./home-assistant/ks.yaml
+  # - ./home-assistant/ks.yaml
   - ./zigbee/ks.yaml

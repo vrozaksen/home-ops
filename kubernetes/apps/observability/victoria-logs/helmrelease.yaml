@@ -25,12 +25,12 @@ spec:
   interval: 1h
   values:
     fullnameOverride: victoria-logs
-    retentionPeriod: 14d
     server:
       persistentVolume:
         enabled: true
         storageClassName: ceph-block
-        size: 50Gi
+        size: 20Gi
+      retentionPeriod: 14d
       route:
         enabled: true
         hostnames:
@@ -54,7 +54,3 @@ spec:
         enabled: true
     dashboards:
       enabled: true
-      annotations:
-        grafana_folder: Observability
-      labels:
-        grafana_dashboard: "1"

@@ -93,7 +93,7 @@ spec:
           - port: http
             scheme: http
             path: *metrics
-    route:
+#    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

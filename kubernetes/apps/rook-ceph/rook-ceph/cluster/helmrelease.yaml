@@ -30,7 +30,7 @@ spec:
       createPrometheusRules: true
     toolbox:
       enabled: true
-    route:
+#    route:
       dashboard:
         annotations:
           gatus.home-operations.com/endpoint: |-
@@ -234,7 +234,7 @@ spec:
           healthCheck:
             bucket:
               interval: 60s
-        route:
+    #    route:
           enabled: true
           annotations:
             gatus.home-operations.com/endpoint: |-

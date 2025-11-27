@@ -102,7 +102,7 @@ spec:
             port: *port
           codeserver:
             port: *codeserverPort
-    route:
+#    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

@@ -78,7 +78,7 @@ spec:
               "database": "/config/database.db",
               "root": "/srv"
             }
-    route:
+#    route:
       bambu-studio:
         annotations:
           gatus.home-operations.com/endpoint: |-

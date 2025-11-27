@@ -61,7 +61,7 @@ spec:
           http:
             port: 80
             targetPort: *port
-    route:
+#    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

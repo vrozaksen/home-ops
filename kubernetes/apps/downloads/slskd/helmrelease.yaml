@@ -77,7 +77,7 @@ spec:
           soulseek-tcp:
             port: *soulseekPort
             protocol: TCP
-    route:
+#    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

@@ -93,7 +93,7 @@ spec:
             enabled: true
             port: *torrentPort
             protocol: TCP
-    route:
+#    route:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-

@@ -8,5 +8,5 @@ components:
 resources:
   - ./namespace.yaml
   # - ./bambu-studio/ks.yaml
-  # - ./home-assistant/ks.yaml
-  # - ./zigbee/ks.yaml
+  - ./home-assistant/ks.yaml
+  - ./zigbee/ks.yaml

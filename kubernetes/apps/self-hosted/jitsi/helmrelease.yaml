@@ -260,9 +260,11 @@ spec:
     persistence:
       web-config:
         type: emptyDir
-        globalMounts:
-          - path: /config
-            readOnly: false
+        advancedMounts:
+          web:
+            web:
+              - path: /config
+                readOnly: false
       prosody-config:
         type: emptyDir
         advancedMounts:

@@ -22,6 +22,15 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: rocketchat
+  valuesFrom:
+    - kind: Secret
+      name: rocketchat-secret
+      valuesKey: mongodb-root-password
+      targetPath: mongodb.auth.rootPassword
+    - kind: Secret
+      name: rocketchat-secret
+      valuesKey: mongodb-password
+      targetPath: mongodb.auth.passwords[0]
   values:
     # https://github.com/RocketChat/helm-charts/blob/master/rocketchat/values.yaml
 
@@ -36,12 +45,10 @@ spec:
       enabled: true
       auth:
         enabled: true
-        existingSecret: rocketchat-secret
         rootUser: root
-        rootPassword: ""  # from existingSecret
+        # rootPassword and passwords injected via valuesFrom
         usernames:
           - rocketchat
-        passwords: []  # from existingSecret
         databases:
           - rocketchat
       architecture: replicaset

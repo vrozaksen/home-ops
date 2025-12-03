@@ -10,6 +10,7 @@ locals {
     "miniflux",
     "open-webui",
     "pgadmin",
+    "rocketchat",
     "rresume"
   ]
 }
@@ -288,6 +289,22 @@ module "oauth2-rresume" {
   client_id          = local.parsed_secrets["rresume"].client_id
   client_secret      = local.parsed_secrets["rresume"].client_secret
   redirect_uris      = ["https://rr.${var.cluster_domain}/api/auth/openid/callback"]
+}
+
+module "oauth2-rocketchat" {
+  source             = "./oauth2_application"
+  name               = "RocketChat"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/rocket-chat.png"
+  launch_url         = "https://rc.${var.cluster_domain}"
+  description        = "Team Chat"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.home.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["rocketchat"].client_id
+  client_secret      = local.parsed_secrets["rocketchat"].client_secret
+  redirect_uris      = ["https://rc.${var.cluster_domain}/_oauth/authentik"]
 }
 
 ## Users

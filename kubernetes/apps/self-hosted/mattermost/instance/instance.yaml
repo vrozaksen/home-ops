@@ -1,0 +1,98 @@
+apiVersion: installation.mattermost.com/v1beta1
+kind: Mattermost
+metadata:
+  name: mattermost
+spec:
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  version: "10.10"
+  size: 10users
+  useServiceLoadBalancer: false
+  ingress:
+    enabled: false
+  database:
+    external:
+      secret: postgres-mattermost-app
+  fileStore:
+    external:
+      url: api.s3.vzkn.eu
+      bucket: mattermost
+      secret: mattermost-s3-secret
+  mattermostEnv:
+    - name: MM_FILESETTINGS_AMAZONS3SSL
+      value: "true"
+    - name: MM_LOGSETTINGS_ENABLECOLOR
+      value: "true"
+    - name: MM_EMAILSETTINGS_SENDPUSHNOTIFICATIONS
+      value: "true"
+    - name: MM_EMAILSETTINGS_REQUIREEMAILVERIFICATION
+      value: "true"
+    - name: "MM_PLUGINSETTINGS_ENABLEUPLOADS"
+      value: "true"
+    # Mail
+    - name: MM_NOTIFICATIONSSETTINGS_CONNECTIONSECURITY
+      value: "STARTTLS"
+    - name: MM_NOTIFICATIONSSETTINGS_SMTPSERVER
+      valueFrom:
+        secretKeyRef:
+          name: &secret mattermost-secret
+          key: MM_NOTIFICATIONSSETTINGS_SMTPSERVER
+    - name: MM_NOTIFICATIONSSETTINGS_SMTPPORT
+      valueFrom:
+        secretKeyRef:
+          name: *secret
+          key: MM_NOTIFICATIONSSETTINGS_SMTPPORT
+    - name: MM_NOTIFICATIONSSETTINGS_SMTPUSERNAME
+      valueFrom:
+        secretKeyRef:
+          name: *secret
+          key: MM_NOTIFICATIONSSETTINGS_SMTPUSERNAME
+    - name: MM_NOTIFICATIONSSETTINGS_SMTPPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: *secret
+          key: MM_NOTIFICATIONSSETTINGS_SMTPPASSWORD
+    - name: MM_NOTIFICATIONSSETTINGS_ENABLESMTPAUTH
+      valueFrom:
+        secretKeyRef:
+          name: *secret
+          key: MM_NOTIFICATIONSSETTINGS_ENABLESMTPAUTH
+    # Postgres
+    - name: MM_SQLSETTINGS_DRIVERNAME
+      value: postgres
+    - name: DB_CONNECTION_CHECK_URL
+      valueFrom:
+        secretKeyRef:
+          name: postgres-mattermost-app
+          key: uri
+    - name: DB_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: postgres-mattermost-app
+          key: uri
+    - name: MM_SQLSETTINGS_DATASOURCEREPLICAS
+      valueFrom:
+        secretKeyRef:
+          name: postgres-mattermost-app
+          key: uri
+        DB_CONNECTION_STRING: "{{ .uri }}?sslmode=disable"
+        MM_SQLSETTINGS_DATASOURCEREPLICAS: "{{ .uri }}?sslmode=disable"
+      # Only available in professional in enterprise plans ....
+      # - name: MM_OPENIDSETTINGS_ENABLE
+      #   value: "true"
+      # - name: MM_OPENIDSETTINGS_BUTTONTEXT
+      #   value: "Authentik"
+      # - name: MM_OPENIDSETTINGS_BUTTONCOLOR
+      #   value: "#145DBF"
+      # - name: MM_OPENIDSETTINGS_DISCOVERYENDPOINT
+      #   value: "https://auth.${SECRET_DOMAIN}/application/o/Mattermost/.well-known/openid-configuration"
+      # - name: MM_OPENIDSETTINGS_ID
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: mattermost-oauth
+      #       key: MM_OPENIDSETTINGS_ID
+      # - name: MM_OPENIDSETTINGS_SECRET
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: mattermost-oauth
+      #       key: MM_OPENIDSETTINGS_SECRET

@@ -28,7 +28,7 @@ spec:
               JICOFO_AUTH_USER: focus
               XMPP_DOMAIN: meet.jitsi
               XMPP_AUTH_DOMAIN: auth.meet.jitsi
-              XMPP_BOSH_URL_BASE: http://prosody.self-hosted.svc.cluster.local:5280
+              XMPP_BOSH_URL_BASE: http://jitsi-prosody.self-hosted.svc.cluster.local:5280
               XMPP_MUC_DOMAIN: muc.meet.jitsi
               XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
               XMPP_GUEST_DOMAIN: guest.meet.jitsi
@@ -117,7 +117,7 @@ spec:
               XMPP_AUTH_DOMAIN: auth.meet.jitsi
               XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
               XMPP_MUC_DOMAIN: muc.meet.jitsi
-              XMPP_SERVER: prosody.self-hosted.svc.cluster.local
+              XMPP_SERVER: jitsi-prosody.self-hosted.svc.cluster.local
               JICOFO_COMPONENT_SECRET: jicofo-secret
               JICOFO_AUTH_USER: focus
               JVB_BREWERY_MUC: jvbbrewery
@@ -157,7 +157,7 @@ spec:
               TZ: Europe/Warsaw
               XMPP_AUTH_DOMAIN: auth.meet.jitsi
               XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
-              XMPP_SERVER: prosody.self-hosted.svc.cluster.local
+              XMPP_SERVER: jitsi-prosody.self-hosted.svc.cluster.local
               JVB_AUTH_USER: jvb
               JVB_BREWERY_MUC: jvbbrewery
               JVB_PORT: "10000"

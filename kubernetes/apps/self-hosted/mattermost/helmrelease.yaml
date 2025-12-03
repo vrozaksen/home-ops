@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mattermost
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      mattermost:
+        type: statefulset
+        replicas: 2
+        containers:
+          mattermost:
+            image:
+              repository: mattermost/mattermost-team-edition
+              tag: 11.1.1@sha256:08fdd41225790a9592a4d3fcf40869363f611cd06fbdfb1c923eb23db9d6e4aa
+              pullPolicy: IfNotPresent
+            env:
+              TZ: Europe/Warsaw
+              CALLS_PORT: &callsPort "40000"
+
+              MM_SERVICESETTINGS_SITEURL: https://mm.vzkn.eu
+              MM_SERVICESETTINGS_ENABLELOCALMODE: "true"
+              MM_SERVICESETTINGS_ENABLEAPICHANNELDELETION: "true"
+
+              # Database
+              MM_SQLSETTINGS_DRIVERNAME: postgres
+              MM_SQLSETTINGS_DATASOURCE:
+                valueFrom:
+                  secretKeyRef:
+                    name: &pg postgres-mattermost-app
+                    key: uri
+              MM_CONFIG: $(MM_SQLSETTINGS_DATASOURCE)
+              MM_SQLSETTINGS_DATASOURCEREPLICAS:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: uri
+
+              # Tracking
+              MM_LOGSETTINGS_ENABLEDIAGNOSTICS: "false"
+              MM_SERVICESETTINGS_ENABLESECURITYFIXALERT: "false"
+              MM_CLOUDSETTINGS_DISABLE: "true"
+
+              # Storage
+              MM_FILESETTINGS_DRIVERNAME: amazons3
+              MM_FILESETTINGS_AMAZONS3ENDPOINT: api.s3.vzkn.eu
+              MM_FILESETTINGS_AMAZONS3BUCKET: mattermost
+              MM_FILESETTINGS_AMAZONS3REQUESTTIMEOUTMILLISECONDS: "300000"
+              MM_FILESETTINGS_AMAZONS3UPLOADPARTSIZEBYTES: "5242880"
+              MM_FILESETTINGS_AMAZONS3SSL: "true"
+
+              # Logging
+              MM_LOGSETTINGS_ENABLECONSOLE: "true"
+              MM_LOGSETTINGS_CONSOLEJSON: "false"
+              MM_LOGSETTINGS_ENABLEFILE: "false"
+
+              # Plugins
+              MM_PLUGINSETTINGS_ENABLEUPLOADS: "true"
+
+              # Connected Workspace
+              MM_CONNECTEDWORKSPACESSETTINGS_ENABLEREMOTECLUSTERSERVICE: "true"
+              MM_CONNECTEDWORKSPACESSETTINGS_ENABLESHAREDCHANNELS: "true"
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            probes:
+              liveness: &probe
+                enabled: true
+                type: HTTP
+                path: /api/v4/system/ping
+              readiness: *probe
+              startup:
+                <<: *probe
+                spec:
+                  failureThreshold: 300
+                  periodSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      mattermost:
+        controller: mattermost
+        primary: true
+        ports:
+          http:
+            port: 8065
+      rtc:
+        controller: mattermost
+        type: LoadBalancer
+        loadBalancerIP: 10.10.0.52
+        ports:
+          rtc-tcp:
+            port: *callsPort
+            protocol: TCP
+          rtc-udp:
+            port: *callsPort
+            protocol: UDP
+    route:
+      mattermost:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - "mm.vzkn.eu"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: mattermost
+                port: 8065
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+            subPath: tmp
+          - path: /var/tmp
+            subPath: var/tmp
+          - path: /mattermost/logs
+            subPath: logs
+          - path: /mattermost/plugins
+            subPath: plugins
+          - path: /mattermost/client/plugins
+            subPath: client/plugins

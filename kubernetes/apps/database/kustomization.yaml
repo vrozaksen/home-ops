@@ -12,5 +12,6 @@ resources:
   - ./cloudnative-pg/ks.yaml
   - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
+  - ./ferretdb/ks.yaml
   - ./pgadmin/ks.yaml
   - ./mosquitto/ks.yaml

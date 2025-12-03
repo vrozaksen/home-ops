@@ -68,17 +68,14 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
+              capabilities: { drop: ['ALL'] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
-        fsGroup: 65534
-        seccompProfile:
-          type: RuntimeDefault
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         controller: ferretdb
@@ -98,3 +95,8 @@ spec:
             path: /debug/metrics
             interval: 1m
             scrapeTimeout: 10s
+    persistence:
+      state:
+        type: emptyDir
+        globalMounts:
+          - path: /state

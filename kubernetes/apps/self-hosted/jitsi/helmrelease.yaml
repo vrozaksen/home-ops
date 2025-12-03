@@ -122,6 +122,7 @@ spec:
               JICOFO_AUTH_USER: focus
               JVB_BREWERY_MUC: jvbbrewery
               JICOFO_ENABLE_HEALTH_CHECKS: "true"
+              JICOFO_REST_HOST: "0.0.0.0"
             envFrom:
               - secretRef:
                   name: jitsi-secret

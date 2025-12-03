@@ -36,6 +36,8 @@ spec:
       enabled: true
       auth:
         enabled: false
+        passwords:
+          - "notused"  # Required by chart even when auth is disabled
       persistence:
         enabled: true
         size: 10Gi

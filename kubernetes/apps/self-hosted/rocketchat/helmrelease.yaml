@@ -138,6 +138,12 @@ spec:
           secretKeyRef:
             name: rocketchat-secret
             key: SMTP_FROM
+      - name: OVERWRITE_SETTING_SMTP_Protocol
+        value: "smtp"
+      - name: OVERWRITE_SETTING_SMTP_IgnoreTLS
+        value: "false"
+      - name: OVERWRITE_SETTING_SMTP_Pool
+        value: "true"
       # S3 Credentials
       - name: AWS_ACCESS_KEY_ID
         valueFrom:
@@ -149,55 +155,6 @@ spec:
           secretKeyRef:
             name: rocketchat-secret
             key: AWS_SECRET_ACCESS_KEY
-      # OAuth Authentik
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik
-        value: "true"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-url
-        value: "https://sso.vzkn.eu/application/o"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-token_path
-        value: "/token/"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-token_sent_via
-        value: "payload"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-identity_token_sent_via
-        value: "payload"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-identity_path
-        value: "/userinfo/"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-authorize_path
-        value: "/authorize/"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-scope
-        value: "email profile openid"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-access_token_param
-        value: "access_token"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-id
-        valueFrom:
-          secretKeyRef:
-            name: rocketchat-secret
-            key: AUTHENTIK_CLIENT_ID
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-secret
-        valueFrom:
-          secretKeyRef:
-            name: rocketchat-secret
-            key: AUTHENTIK_CLIENT_SECRET
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-login_style
-        value: "redirect"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_label_text
-        value: "Login with Authentik"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_label_color
-        value: "#FFFFFF"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_color
-        value: "#FD4B2D"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-username_field
-        value: "preferred_username"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-email_field
-        value: "email"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-name_field
-        value: "name"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-roles_claim
-        value: "groups"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-merge_users
-        value: "true"
-      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-show_button
-        value: "true"
 
     # Probes
     livenessProbe:

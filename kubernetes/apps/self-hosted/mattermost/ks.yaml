@@ -39,7 +39,6 @@ metadata:
 spec:
   dependsOn:
     - name: mattermost-operator
-      namespace: flux-system
   interval: 1h
   path: ./kubernetes/apps/self-hosted/mattermost/instance
   postBuild:

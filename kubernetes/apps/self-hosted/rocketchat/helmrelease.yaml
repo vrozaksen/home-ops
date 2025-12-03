@@ -36,6 +36,7 @@ spec:
       enabled: true
       auth:
         enabled: false
+        rootPassword: "notused"  # Required by chart even when auth is disabled
         passwords:
           - "notused"  # Required by chart even when auth is disabled
       persistence:

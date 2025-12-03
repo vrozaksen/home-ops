@@ -14,4 +14,5 @@ resources:
   - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   # - ./reactive-resume/ks.yaml
+  - ./rocketchat/ks.yaml
   - ./searxng/ks.yaml

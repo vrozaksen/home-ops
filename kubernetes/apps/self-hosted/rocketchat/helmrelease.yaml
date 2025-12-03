@@ -1,0 +1,202 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: rocketchat
+spec:
+  interval: 1h
+  url: https://rocketchat.github.io/helm-charts
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rocketchat
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: rocketchat
+      version: 6.15.11
+      sourceRef:
+        kind: HelmRepository
+        name: rocketchat
+  values:
+    # https://github.com/RocketChat/helm-charts/blob/master/rocketchat/values.yaml
+
+    image:
+      repository: registry.rocket.chat/rocketchat/rocket.chat
+      tag: "7.0.0"
+
+    replicaCount: 1
+
+    # MongoDB configuration - using bundled MongoDB
+    mongodb:
+      enabled: true
+      auth:
+        enabled: false
+      persistence:
+        enabled: true
+        size: 10Gi
+        storageClass: ceph-block
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+
+    # Disable microservices (not needed for small deployment)
+    microservices:
+      enabled: false
+
+    # Persistence for uploads (optional, we'll use S3)
+    persistence:
+      enabled: false
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 3000
+
+    # Ingress disabled (we'll use Gateway API HTTPRoute)
+    ingress:
+      enabled: false
+
+    # Resources
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+
+    # Security context
+    securityContext:
+      runAsUser: 999
+      fsGroup: 999
+
+    # Environment variables
+    extraEnv: |
+      - name: OVERWRITE_SETTING_Site_Url
+        value: "https://rc.vzkn.eu"
+      - name: OVERWRITE_SETTING_Show_Setup_Wizard
+        value: "completed"
+      # S3 File Upload
+      - name: OVERWRITE_SETTING_FileUpload_Storage_Type
+        value: "AmazonS3"
+      - name: OVERWRITE_SETTING_FileUpload_S3_Bucket
+        value: "rocketchat"
+      - name: OVERWRITE_SETTING_FileUpload_S3_Region
+        value: "eu-central-1"
+      - name: OVERWRITE_SETTING_FileUpload_S3_BucketURL
+        value: "https://api.s3.vzkn.eu"
+      - name: OVERWRITE_SETTING_FileUpload_S3_ForcePathStyle
+        value: "true"
+      # SMTP Email
+      - name: OVERWRITE_SETTING_SMTP_Host
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: SMTP_HOST
+      - name: OVERWRITE_SETTING_SMTP_Port
+        value: "587"
+      - name: OVERWRITE_SETTING_SMTP_Username
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: SMTP_USERNAME
+      - name: OVERWRITE_SETTING_SMTP_Password
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: SMTP_PASSWORD
+      - name: OVERWRITE_SETTING_From_Email
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: SMTP_FROM
+      # S3 Credentials
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: AWS_ACCESS_KEY_ID
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: AWS_SECRET_ACCESS_KEY
+      # OAuth Authentik
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik
+        value: "true"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-url
+        value: "https://sso.vzkn.eu/application/o"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-token_path
+        value: "/token/"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-token_sent_via
+        value: "payload"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-identity_token_sent_via
+        value: "payload"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-identity_path
+        value: "/userinfo/"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-authorize_path
+        value: "/authorize/"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-scope
+        value: "email profile openid"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-access_token_param
+        value: "access_token"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-id
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: AUTHENTIK_CLIENT_ID
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-secret
+        valueFrom:
+          secretKeyRef:
+            name: rocketchat-secret
+            key: AUTHENTIK_CLIENT_SECRET
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-login_style
+        value: "redirect"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_label_text
+        value: "Login with Authentik"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_label_color
+        value: "#FFFFFF"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-button_color
+        value: "#FD4B2D"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-username_field
+        value: "preferred_username"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-email_field
+        value: "email"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-name_field
+        value: "name"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-roles_claim
+        value: "groups"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-merge_users
+        value: "true"
+      - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-show_button
+        value: "true"
+
+    # Probes
+    livenessProbe:
+      enabled: true
+      path: /api/info
+      initialDelaySeconds: 60
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    readinessProbe:
+      enabled: true
+      path: /api/info
+      initialDelaySeconds: 10
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    # Pod annotations for reloader
+    podAnnotations:
+      reloader.stakater.com/auto: "true"

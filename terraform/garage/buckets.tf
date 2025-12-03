@@ -6,6 +6,7 @@ locals {
     "rresume",
     "sentry",
     "mattermost",
+    "rocketchat",
     "tfstate-mikrotik-terraform"
   ]
 }

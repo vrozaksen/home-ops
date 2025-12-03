@@ -204,9 +204,6 @@ spec:
 
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 999
-        runAsGroup: 999
         fsGroup: 999
         fsGroupChangePolicy: OnRootMismatch
 
@@ -258,10 +255,6 @@ spec:
                 port: 80
 
     persistence:
-      var-run:
-        type: emptyDir
-        globalMounts:
-          - path: /var/run
       web-config:
         type: emptyDir
         advancedMounts:

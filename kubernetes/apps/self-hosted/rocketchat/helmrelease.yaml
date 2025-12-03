@@ -35,10 +35,17 @@ spec:
     mongodb:
       enabled: true
       auth:
-        enabled: false
-        rootPassword: "notused"  # Required by chart even when auth is disabled
-        passwords:
-          - "notused"  # Required by chart even when auth is disabled
+        enabled: true
+        existingSecret: rocketchat-secret
+        rootUser: root
+        rootPassword: ""  # from existingSecret
+        usernames:
+          - rocketchat
+        passwords: []  # from existingSecret
+        databases:
+          - rocketchat
+      architecture: replicaset
+      replicaCount: 1
       persistence:
         enabled: true
         size: 10Gi

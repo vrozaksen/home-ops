@@ -5,6 +5,7 @@ locals {
     "harbor",
     "rresume",
     "sentry",
+    "mattermost",
     "tfstate-mikrotik-terraform"
   ]
 }

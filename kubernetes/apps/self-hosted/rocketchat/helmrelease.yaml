@@ -204,6 +204,21 @@ spec:
         value: "true"
       - name: OVERWRITE_SETTING_Accounts_OAuth_Custom-Authentik-show_button
         value: "true"
+      # Jitsi Video Conference
+      - name: OVERWRITE_SETTING_Jitsi_Enabled
+        value: "true"
+      - name: OVERWRITE_SETTING_Jitsi_Domain
+        value: "meet.jit.si"
+      - name: OVERWRITE_SETTING_Jitsi_URL_Room_Prefix
+        value: "RocketChat"
+      - name: OVERWRITE_SETTING_Jitsi_Open_New_Window
+        value: "false"
+      - name: OVERWRITE_SETTING_Jitsi_Enable_Channels
+        value: "true"
+      - name: OVERWRITE_SETTING_Jitsi_Chrome_Extension
+        value: ""
+      - name: OVERWRITE_SETTING_Jitsi_SSL
+        value: "true"
 
     # Probes
     livenessProbe:

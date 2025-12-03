@@ -258,6 +258,10 @@ spec:
                 port: 80
 
     persistence:
+      var-run:
+        type: emptyDir
+        globalMounts:
+          - path: /var/run
       web-config:
         type: emptyDir
         advancedMounts:

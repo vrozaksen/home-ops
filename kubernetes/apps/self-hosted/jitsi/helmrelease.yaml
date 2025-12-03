@@ -128,17 +128,9 @@ spec:
                   name: jitsi-secret
             probes:
               liveness:
-                enabled: true
-                type: HTTP
-                path: /about/health
-                spec:
-                  port: 8888
+                enabled: false
               readiness:
-                enabled: true
-                type: HTTP
-                path: /about/health
-                spec:
-                  port: 8888
+                enabled: false
             resources:
               requests:
                 cpu: 10m

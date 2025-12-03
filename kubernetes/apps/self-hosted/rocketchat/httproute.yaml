@@ -15,5 +15,5 @@ spec:
       namespace: network
   rules:
     - backendRefs:
-        - name: rocketchat
+        - name: rocketchat-rocketchat
           port: 3000

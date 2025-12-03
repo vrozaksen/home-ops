@@ -1,0 +1,286 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jitsi
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      web:
+        containers:
+          web:
+            image:
+              repository: jitsi/web
+              tag: stable-10655
+            env:
+              TZ: Europe/Warsaw
+              ENABLE_AUTH: "0"
+              ENABLE_GUESTS: "1"
+              ENABLE_LETSENCRYPT: "0"
+              ENABLE_HTTP_REDIRECT: "0"
+              ENABLE_TRANSCRIPTIONS: "0"
+              DISABLE_HTTPS: "1"
+              JICOFO_AUTH_USER: focus
+              XMPP_DOMAIN: meet.jitsi
+              XMPP_AUTH_DOMAIN: auth.meet.jitsi
+              XMPP_BOSH_URL_BASE: http://prosody.self-hosted.svc.cluster.local:5280
+              XMPP_MUC_DOMAIN: muc.meet.jitsi
+              XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+              XMPP_GUEST_DOMAIN: guest.meet.jitsi
+              XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+              JVB_TCP_HARVESTER_DISABLED: "true"
+              PUBLIC_URL: https://jitsi.vzkn.eu
+              # High quality screen share settings
+              RESOLUTION: "1080"
+              RESOLUTION_WIDTH: "1920"
+              RESOLUTION_HEIGHT: "1080"
+              START_WITH_VIDEO_MUTED: "false"
+              START_WITH_AUDIO_MUTED: "false"
+              DESKTOP_SHARING_FRAMERATE_MIN: "30"
+              DESKTOP_SHARING_FRAMERATE_MAX: "60"
+            probes:
+              liveness:
+                enabled: true
+                type: HTTP
+                path: /
+              readiness:
+                enabled: true
+                type: HTTP
+                path: /
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+      prosody:
+        containers:
+          prosody:
+            image:
+              repository: jitsi/prosody
+              tag: stable-10655
+            env:
+              TZ: Europe/Warsaw
+              ENABLE_AUTH: "0"
+              ENABLE_GUESTS: "1"
+              XMPP_DOMAIN: meet.jitsi
+              XMPP_AUTH_DOMAIN: auth.meet.jitsi
+              XMPP_MUC_DOMAIN: muc.meet.jitsi
+              XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+              XMPP_GUEST_DOMAIN: guest.meet.jitsi
+              XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+              JICOFO_COMPONENT_SECRET: jicofo-secret
+              JICOFO_AUTH_USER: focus
+              JVB_AUTH_USER: jvb
+              JIGASI_XMPP_USER: jigasi
+              JIBRI_RECORDER_USER: recorder
+              JIBRI_XMPP_USER: jibri
+              GLOBAL_MODULES: "statistics,alert"
+              GLOBAL_CONFIG: "statistics_interval = 60;"
+              LOG_LEVEL: info
+            envFrom:
+              - secretRef:
+                  name: jitsi-secret
+            probes:
+              liveness:
+                enabled: true
+                type: TCP
+                spec:
+                  port: 5222
+              readiness:
+                enabled: true
+                type: TCP
+                spec:
+                  port: 5222
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+      jicofo:
+        containers:
+          jicofo:
+            image:
+              repository: jitsi/jicofo
+              tag: stable-10655
+            env:
+              TZ: Europe/Warsaw
+              XMPP_DOMAIN: meet.jitsi
+              XMPP_AUTH_DOMAIN: auth.meet.jitsi
+              XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+              XMPP_MUC_DOMAIN: muc.meet.jitsi
+              XMPP_SERVER: prosody.self-hosted.svc.cluster.local
+              JICOFO_COMPONENT_SECRET: jicofo-secret
+              JICOFO_AUTH_USER: focus
+              JVB_BREWERY_MUC: jvbbrewery
+              JICOFO_ENABLE_HEALTH_CHECKS: "true"
+            envFrom:
+              - secretRef:
+                  name: jitsi-secret
+            probes:
+              liveness:
+                enabled: true
+                type: HTTP
+                path: /about/health
+                spec:
+                  port: 8888
+              readiness:
+                enabled: true
+                type: HTTP
+                path: /about/health
+                spec:
+                  port: 8888
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+
+      jvb:
+        type: statefulset
+        replicas: 1
+        containers:
+          jvb:
+            image:
+              repository: jitsi/jvb
+              tag: stable-10655
+            env:
+              TZ: Europe/Warsaw
+              XMPP_AUTH_DOMAIN: auth.meet.jitsi
+              XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+              XMPP_SERVER: prosody.self-hosted.svc.cluster.local
+              JVB_AUTH_USER: jvb
+              JVB_BREWERY_MUC: jvbbrewery
+              JVB_PORT: "10000"
+              JVB_ADVERTISE_IPS: "10.10.0.52#40000"
+              JVB_ADVERTISE_PRIVATE_CANDIDATES: "false"
+              JVB_STUN_SERVERS: "stun.l.google.com:19302"
+              JVB_ENABLE_APIS: "rest"
+              COLIBRI_REST_ENABLED: "true"
+              # High quality video settings
+              VIDEO_QUALITY_CONFIG: |
+                {
+                  "constraints": {
+                    "video": {
+                      "height": {
+                        "ideal": 1080,
+                        "max": 1080,
+                        "min": 180
+                      }
+                    }
+                  }
+                }
+            envFrom:
+              - secretRef:
+                  name: jitsi-secret
+            probes:
+              liveness:
+                enabled: true
+                type: HTTP
+                path: /about/health
+                spec:
+                  port: 8080
+              readiness:
+                enabled: true
+                type: HTTP
+                path: /about/health
+                spec:
+                  port: 8080
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+
+    service:
+      web:
+        controller: web
+        ports:
+          http:
+            port: 80
+      prosody:
+        controller: prosody
+        ports:
+          xmpp-client:
+            port: 5222
+          xmpp-component:
+            port: 5347
+          bosh:
+            port: 5280
+      jicofo:
+        controller: jicofo
+        ports:
+          http:
+            port: 8888
+      jvb:
+        controller: jvb
+        type: LoadBalancer
+        loadBalancerIP: 10.10.0.52
+        ports:
+          jvb-udp:
+            port: 40000
+            protocol: UDP
+            targetPort: 10000
+          colibri:
+            port: 8080
+
+    route:
+      jitsi:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - "jitsi.vzkn.eu"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: web
+                port: 80
+
+    persistence:
+      web-config:
+        type: emptyDir
+        globalMounts:
+          - path: /config
+            readOnly: false
+      prosody-config:
+        type: emptyDir
+        advancedMounts:
+          prosody:
+            prosody:
+              - path: /config
+                readOnly: false
+      jicofo-config:
+        type: emptyDir
+        advancedMounts:
+          jicofo:
+            jicofo:
+              - path: /config
+                readOnly: false
+      jvb-config:
+        type: emptyDir
+        advancedMounts:
+          jvb:
+            jvb:
+              - path: /config
+                readOnly: false

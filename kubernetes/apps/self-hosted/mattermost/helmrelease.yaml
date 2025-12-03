@@ -27,23 +27,37 @@ spec:
               MM_SERVICESETTINGS_ENABLELOCALMODE: "true"
               MM_SERVICESETTINGS_ENABLEAPICHANNELDELETION: "true"
 
-              # Database
+              # Database - build connection string from CNPG secret fields
+              # CNPG generates URI with "postgresql://" but Mattermost needs "postgres://"
               MM_SQLSETTINGS_DRIVERNAME: postgres
-              MM_SQLSETTINGS_DATASOURCE:
+              DB_HOST:
                 valueFrom:
                   secretKeyRef:
                     name: &pg postgres-mattermost-app
-                    key: uri
-              MM_CONFIG:
+                    key: host
+              DB_PORT:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
-                    key: uri
-              MM_SQLSETTINGS_DATASOURCEREPLICAS:
+                    key: port
+              DB_USER:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
-                    key: uri
+                    key: username
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: password
+              DB_NAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: dbname
+              MM_SQLSETTINGS_DATASOURCE: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable&connect_timeout=10"
+              MM_CONFIG: "$(MM_SQLSETTINGS_DATASOURCE)"
+              MM_SQLSETTINGS_DATASOURCEREPLICAS: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable&connect_timeout=10"
 
               # Tracking
               MM_LOGSETTINGS_ENABLEDIAGNOSTICS: "false"

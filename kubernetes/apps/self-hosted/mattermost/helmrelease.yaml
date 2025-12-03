@@ -34,7 +34,11 @@ spec:
                   secretKeyRef:
                     name: &pg postgres-mattermost-app
                     key: uri
-              MM_CONFIG: $(MM_SQLSETTINGS_DATASOURCE)
+              MM_CONFIG:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: uri
               MM_SQLSETTINGS_DATASOURCEREPLICAS:
                 valueFrom:
                   secretKeyRef:
@@ -92,9 +96,9 @@ spec:
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 100
-        fsGroup: 100
+        runAsUser: 2000
+        runAsGroup: 2000
+        fsGroup: 2000
         fsGroupChangePolicy: OnRootMismatch
     service:
       mattermost:

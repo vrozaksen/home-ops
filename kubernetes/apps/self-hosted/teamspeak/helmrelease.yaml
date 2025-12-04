@@ -32,6 +32,7 @@ spec:
               TSSERVER_QUERY_HTTP_ENABLED: "true"
               TSSERVER_QUERY_HTTP_PORT: "40003"
               TSSERVER_QUERY_HTTP_IP: 0.0.0.0
+              TSSERVER_QUERY_IP_ALLOWLIST: 0.0.0.0/0
               TSSERVER_VOICE_UDP_THREADS: "5"
               TSSERVER_DATABASE_CLIENT_KEEP_DAYS: "90"
               TSSERVER_LOG_PATH: /var/tsserver/logs

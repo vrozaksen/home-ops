@@ -72,7 +72,7 @@ spec:
           - "{{ .Release.Name }}.vzkn.eu"
           - search.vzkn.eu
         parentRefs:
-          - name: envoy-external
+          - name: envoy-internal
             namespace: network
     persistence:
       config:

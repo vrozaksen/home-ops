@@ -23,7 +23,7 @@ search:
   safe_search: 0 # No filtering
   autocomplete: brave # Primary autocomplete from Brave
   favicon_resolver: duckduckgo # Get favicons from DuckDuckGo
-  default_lang: "" # Auto-detect from browser
+  default_lang: "all" # Auto-detect from browser
   ban_time_on_fail: 5 # Quick recovery from engine failures
   max_ban_time_on_fail: 60 # Lower max ban time for faster retry
   max_page: 0 # Unlimited pages if engine supports it

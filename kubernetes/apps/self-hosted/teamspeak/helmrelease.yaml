@@ -28,8 +28,10 @@ spec:
               TSSERVER_FILE_TRANSFER_IP: 0.0.0.0
               TSSERVER_QUERY_SSH_ENABLED: "true"
               TSSERVER_QUERY_SSH_PORT: "40002"
+              TSSERVER_QUERY_SSH_IP: 0.0.0.0
               TSSERVER_QUERY_HTTP_ENABLED: "true"
               TSSERVER_QUERY_HTTP_PORT: "40003"
+              TSSERVER_QUERY_HTTP_IP: 0.0.0.0
               TSSERVER_VOICE_UDP_THREADS: "5"
               TSSERVER_DATABASE_CLIENT_KEEP_DAYS: "90"
               TSSERVER_LOG_PATH: /var/tsserver/logs

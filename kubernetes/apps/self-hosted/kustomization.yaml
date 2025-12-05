@@ -12,7 +12,7 @@ resources:
   - ./it-tools/ks.yaml
   # - ./jitsi/ks.yaml
   # - ./mattermost/ks.yaml
-  - ./miniflux/ks.yaml
+  # - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   # - ./reactive-resume/ks.yaml
   # - ./rocketchat/ks.yaml

@@ -3,6 +3,7 @@ locals {
     "cnpg",
     "forgejo",
     "harbor",
+    "palmr",
     "rresume",
     "sentry",
     "mattermost",

@@ -1,16 +1,17 @@
 locals {
   oauth_apps = [
     "unraid",
-    "coder",
+    #  "coder",
     "forgejo",
     "grafana",
-    "harbor",
+    # "harbor",
     "headlamp",
-    "karakeep",
-    "miniflux",
-    "open-webui",
+    # "karakeep",
+    # "miniflux",
+    # "open-webui",
+    "palmr",
     "pgadmin",
-    "rocketchat",
+    # "rocketchat",
     "rresume"
   ]
 }
@@ -142,24 +143,24 @@ module "oauth2-grafana" {
   redirect_uris      = ["https://grafana.${var.cluster_domain}/login/generic_oauth"]
 }
 
-module "oauth2-harbor" {
-  source                       = "./oauth2_application"
-  name                         = "Harbor"
-  icon_url                     = "https://raw.githubusercontent.com/goharbor/harbor/refs/heads/main/docs/img/harbor_logo.png"
-  launch_url                   = "https://harbor.${var.cluster_domain}"
-  description                  = "Container Registry"
-  newtab                       = true
-  group                        = "Development"
-  auth_groups                  = [authentik_group.infrastructure.id]
-  authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
-  client_id                    = local.parsed_secrets["harbor"].client_id
-  client_secret                = local.parsed_secrets["harbor"].client_secret
-  additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
-  redirect_uris = [
-    "https://harbor.${var.cluster_domain}/c/oidc/callback"
-  ]
-}
+# module "oauth2-harbor" {
+#   source                       = "./oauth2_application"
+#   name                         = "Harbor"
+#   icon_url                     = "https://raw.githubusercontent.com/goharbor/harbor/refs/heads/main/docs/img/harbor_logo.png"
+#   launch_url                   = "https://harbor.${var.cluster_domain}"
+#   description                  = "Container Registry"
+#   newtab                       = true
+#   group                        = "Development"
+#   auth_groups                  = [authentik_group.infrastructure.id]
+#   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
+#   client_id                    = local.parsed_secrets["harbor"].client_id
+#   client_secret                = local.parsed_secrets["harbor"].client_secret
+#   additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
+#   redirect_uris = [
+#     "https://harbor.${var.cluster_domain}/c/oidc/callback"
+#   ]
+# }
 
 module "oauth2-headlamp" {
   source             = "./oauth2_application"
@@ -178,21 +179,21 @@ module "oauth2-headlamp" {
 }
 
 ## Development
-module "oauth2-coder" {
-  source             = "./oauth2_application"
-  name               = "Coder"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/coder.png"
-  launch_url         = "https://coder.${var.cluster_domain}"
-  description        = "Cloud Development Environments"
-  newtab             = true
-  group              = "Development"
-  auth_groups        = [authentik_group.infrastructure.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["coder"].client_id
-  client_secret      = local.parsed_secrets["coder"].client_secret
-  redirect_uris      = ["https://coder.${var.cluster_domain}/api/v2/users/oidc/callback"]
-}
+# module "oauth2-coder" {
+#   source             = "./oauth2_application"
+#   name               = "Coder"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/coder.png"
+#   launch_url         = "https://coder.${var.cluster_domain}"
+#   description        = "Cloud Development Environments"
+#   newtab             = true
+#   group              = "Development"
+#   auth_groups        = [authentik_group.infrastructure.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["coder"].client_id
+#   client_secret      = local.parsed_secrets["coder"].client_secret
+#   redirect_uris      = ["https://coder.${var.cluster_domain}/api/v2/users/oidc/callback"]
+# }
 
 module "oauth2-forgejo" {
   source             = "./oauth2_application"
@@ -227,37 +228,37 @@ module "oauth2-pgadmin" {
 }
 
 ## Home
-module "oauth2-karakeep" {
-  source             = "./oauth2_application"
-  name               = "Karakeep"
-  icon_url           = "https://raw.githubusercontent.com/karakeep-app/karakeep/refs/heads/main/docs/static/img/logo.png"
-  launch_url         = "https://karakeep.${var.cluster_domain}"
-  description        = "Karakeep"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["karakeep"].client_id
-  client_secret      = local.parsed_secrets["karakeep"].client_secret
-  redirect_uris      = ["https://karakeep.${var.cluster_domain}/api/auth/callback/custom"]
-}
+# module "oauth2-karakeep" {
+#   source             = "./oauth2_application"
+#   name               = "Karakeep"
+#   icon_url           = "https://raw.githubusercontent.com/karakeep-app/karakeep/refs/heads/main/docs/static/img/logo.png"
+#   launch_url         = "https://karakeep.${var.cluster_domain}"
+#   description        = "Karakeep"
+#   newtab             = true
+#   group              = "Home"
+#   auth_groups        = [authentik_group.users.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["karakeep"].client_id
+#   client_secret      = local.parsed_secrets["karakeep"].client_secret
+#   redirect_uris      = ["https://karakeep.${var.cluster_domain}/api/auth/callback/custom"]
+# }
 
-module "oauth2-miniflux" {
-  source             = "./oauth2_application"
-  name               = "Miniflux"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/miniflux.png"
-  launch_url         = "https://miniflux.${var.cluster_domain}"
-  description        = "RSS"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.home.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["miniflux"].client_id
-  client_secret      = local.parsed_secrets["miniflux"].client_secret
-  redirect_uris      = ["https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"]
-}
+# module "oauth2-miniflux" {
+#   source             = "./oauth2_application"
+#   name               = "Miniflux"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/miniflux.png"
+#   launch_url         = "https://miniflux.${var.cluster_domain}"
+#   description        = "RSS"
+#   newtab             = true
+#   group              = "Home"
+#   auth_groups        = [authentik_group.home.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["miniflux"].client_id
+#   client_secret      = local.parsed_secrets["miniflux"].client_secret
+#   redirect_uris      = ["https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"]
+# }
 
 # module "oauth2-paperless" {
 #   source             = "./oauth2_application"
@@ -291,35 +292,51 @@ module "oauth2-rresume" {
   redirect_uris      = ["https://rr.${var.cluster_domain}/api/auth/openid/callback"]
 }
 
-module "oauth2-rocketchat" {
-  source             = "./oauth2_application"
-  name               = "RocketChat"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/rocket-chat.png"
-  launch_url         = "https://rc.${var.cluster_domain}"
-  description        = "Team Chat"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.home.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["rocketchat"].client_id
-  client_secret      = local.parsed_secrets["rocketchat"].client_secret
-  redirect_uris      = ["https://rc.${var.cluster_domain}/_oauth/authentik"]
-}
+# module "oauth2-rocketchat" {
+#   source             = "./oauth2_application"
+#   name               = "RocketChat"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/rocket-chat.png"
+#   launch_url         = "https://rc.${var.cluster_domain}"
+#   description        = "Team Chat"
+#   newtab             = true
+#   group              = "Home"
+#   auth_groups        = [authentik_group.home.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["rocketchat"].client_id
+#   client_secret      = local.parsed_secrets["rocketchat"].client_secret
+#   redirect_uris      = ["https://rc.${var.cluster_domain}/_oauth/authentik"]
+# }
 
 ## Users
-module "oauth2-open-webui" {
+# module "oauth2-open-webui" {
+#   source             = "./oauth2_application"
+#   name               = "Open-WebUI"
+#   icon_url           = "https://raw.githubusercontent.com/open-webui/open-webui/refs/heads/main/static/favicon.png"
+#   launch_url         = "https://chat.${var.cluster_domain}/auth"
+#   description        = "Chat"
+#   newtab             = true
+#   group              = "Home"
+#   auth_groups        = [authentik_group.home.id]
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   client_id          = local.parsed_secrets["open-webui"].client_id
+#   client_secret      = local.parsed_secrets["open-webui"].client_secret
+#   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
+# }
+
+module "oauth2-palmr" {
   source             = "./oauth2_application"
-  name               = "Open-WebUI"
-  icon_url           = "https://raw.githubusercontent.com/open-webui/open-webui/refs/heads/main/static/favicon.png"
-  launch_url         = "https://chat.${var.cluster_domain}/auth"
-  description        = "Chat"
+  name               = "Palmr"
+  icon_url           = "https://raw.githubusercontent.com/kyantech/palmr/refs/heads/main/docs/static/img/logo.svg"
+  launch_url         = "https://palmr.${var.cluster_domain}"
+  description        = "File Sharing"
   newtab             = true
   group              = "Home"
   auth_groups        = [authentik_group.home.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["open-webui"].client_id
-  client_secret      = local.parsed_secrets["open-webui"].client_secret
-  redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
+  client_id          = local.parsed_secrets["palmr"].client_id
+  client_secret      = local.parsed_secrets["palmr"].client_secret
+  redirect_uris      = ["https://palmr.${var.cluster_domain}/api/auth/providers/authentik/callback"]
 }

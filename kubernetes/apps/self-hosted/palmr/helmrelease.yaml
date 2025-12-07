@@ -12,7 +12,7 @@ spec:
   values:
     controllers:
       palmr:
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

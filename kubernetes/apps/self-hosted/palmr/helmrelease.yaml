@@ -26,28 +26,29 @@ spec:
               PALMR_UID: 1000
               PALMR_GID: &gid 100
               # S3
-              ENABLE_S3: "true"
+              ENABLE_S3: true
               S3_BUCKET_NAME: "palmr"
-              S3_ENDPOINT: "api.s3.vzkn.eu"
+              S3_ENDPOINT: "https://api.s3.vzkn.eu"
               S3_REGION: "eu-central-1"
-              S3_FORCE_PATH_STYLE: "true"
-              PRESIGNED_URL_EXPIRATION: "21600"
+              S3_FORCE_PATH_STYLE: true
+              S3_REJECT_UNAUTHORIZED: false
+              PRESIGNED_URL_EXPIRATION: 21600
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
-            # probes:
-            #   liveness: &probes
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /healthcheck
-            #         port: *port
-            #       initialDelaySeconds: 0
-            #       periodSeconds: 10
-            #       timeoutSeconds: 1
-            #       failureThreshold: 3
-            #   readiness: *probes
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthcheck
+                    port: 5487
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false

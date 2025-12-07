@@ -34,6 +34,9 @@ spec:
               S3_FORCE_PATH_STYLE: true
               S3_REJECT_UNAUTHORIZED: false
               PRESIGNED_URL_EXPIRATION: 21600
+              # AWS SDK checksum configuration (disable for Garage compatibility)
+              AWS_REQUEST_CHECKSUM_CALCULATION: "WHEN_REQUIRED"
+              AWS_RESPONSE_CHECKSUM_VALIDATION: "WHEN_REQUIRED"
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

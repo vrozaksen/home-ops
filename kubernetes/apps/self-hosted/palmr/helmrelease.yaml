@@ -30,6 +30,7 @@ spec:
               S3_BUCKET_NAME: "palmr"
               S3_ENDPOINT: "api.s3.vzkn.eu"
               S3_REGION: "eu-central-1"
+              S3_USE_SSL: true
               S3_FORCE_PATH_STYLE: true
               S3_REJECT_UNAUTHORIZED: false
               PRESIGNED_URL_EXPIRATION: 21600

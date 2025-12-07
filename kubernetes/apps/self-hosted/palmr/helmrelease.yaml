@@ -23,7 +23,7 @@ spec:
             env:
               TZ: Europe/Warsaw
               SECURE_SITE: true
-              PALMR_UID: &uid 1000
+              PALMR_UID: 1000
               PALMR_GID: &gid 100
               # S3
               ENABLE_S3: "true"
@@ -60,9 +60,6 @@ spec:
                 memory: 2Gi
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: *uid
-        runAsGroup: *gid
         fsGroup: *gid
         fsGroupChangePolicy: OnRootMismatch
     service:

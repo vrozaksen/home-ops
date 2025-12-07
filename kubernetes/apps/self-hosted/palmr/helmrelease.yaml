@@ -44,11 +44,22 @@ spec:
                   httpGet:
                     path: /healthcheck
                     port: 5487
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 90
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 3
               readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthcheck
+                    port: 5487
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 12
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false

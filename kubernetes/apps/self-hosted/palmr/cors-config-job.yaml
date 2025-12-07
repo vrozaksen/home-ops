@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: palmr-cors-config
+data:
+  cors.json: |
+    {
+      "CORSRules": [
+        {
+          "AllowedOrigins": ["https://palmr.vzkn.eu"],
+          "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+          "AllowedHeaders": ["*"],
+          "ExposeHeaders": ["ETag"],
+          "MaxAgeSeconds": 3600
+        }
+      ]
+    }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: palmr-cors-setup
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: aws-cli
+          image: amazon/aws-cli:2.22.11
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Configuring CORS for palmr bucket..."
+              aws --endpoint-url https://api.s3.vzkn.eu \
+                  --no-verify-ssl \
+                  s3api put-bucket-cors \
+                  --bucket palmr \
+                  --cors-configuration file:///cors/cors.json
+              echo "CORS configuration applied successfully!"
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: garage-admin-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: garage-admin-secret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_DEFAULT_REGION
+              value: "eu-central-1"
+          volumeMounts:
+            - name: cors-config
+              mountPath: /cors
+              readOnly: true
+      volumes:
+        - name: cors-config
+          configMap:
+            name: palmr-cors-config

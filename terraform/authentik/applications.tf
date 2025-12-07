@@ -328,7 +328,7 @@ module "oauth2-rresume" {
 module "oauth2-palmr" {
   source             = "./oauth2_application"
   name               = "Palmr"
-  icon_url           = "https://raw.githubusercontent.com/kyantech/palmr/refs/heads/main/docs/static/img/logo.svg"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/palmr.png"
   launch_url         = "https://palmr.${var.cluster_domain}"
   description        = "File Sharing"
   newtab             = true

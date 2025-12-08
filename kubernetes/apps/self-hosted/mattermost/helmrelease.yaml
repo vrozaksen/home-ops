@@ -17,7 +17,7 @@ spec:
           mattermost:
             image:
               repository: mattermost/mattermost-team-edition
-              tag: 11.1.1@sha256:08fdd41225790a9592a4d3fcf40869363f611cd06fbdfb1c923eb23db9d6e4aa
+              tag: 11.2.0@sha256:526712e2ac09bda25b81090a7bee196f88399352d85e3997bc42fee3b03c59b6
               pullPolicy: IfNotPresent
             env:
               TZ: Europe/Warsaw

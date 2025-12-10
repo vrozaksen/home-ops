@@ -7,6 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./coder/ks.yaml
   - ./forgejo/ks.yaml
-  # - ./harbor/ks.yaml

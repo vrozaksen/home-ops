@@ -17,6 +17,8 @@ spec:
       karma:
         replicas: 2
         strategy: RollingUpdate
+        podDisruptionBudget:
+          minAvailable: 1
         annotations:
           configmap.reloader.stakater.com/reload: "{{ .Release.Name }}-configmap"
         containers:

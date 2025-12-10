@@ -8,8 +8,15 @@ spec:
   immediate: true
   backupOwnerReference: self
   schedule: "@daily"
-  # target: prefer-standby runs backup on replica instead of primary (reduces load)
-  # For single-node deployments (CNPG_REPLICAS: '1'), comment out or set to 'primary'
+  # BACKUP TARGET configuration:
+  # - prefer-standby: Runs backup on replica (recommended for multi-replica setups)
+  #   * Multi-node (3+ instances): Reduces primary load ✅
+  #   * Single-node (2 instances): Still works, reduces primary load ✅
+  # - primary: Runs backup on primary (use for single instance only)
+  #   * Single instance (1): Required - no replicas available
+  #
+  # For CNPG_REPLICAS >= 2: Use prefer-standby (default)
+  # For CNPG_REPLICAS = 1: Change to 'primary' or use variable: CNPG_BACKUP_TARGET: primary
   target: prefer-standby
   cluster:
     name: "postgres-${APP}"

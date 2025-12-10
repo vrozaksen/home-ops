@@ -12,6 +12,14 @@ spec:
       database: ${CNPG_DATABASE:=${APP}}
       owner: ${CNPG_USER:=${APP}}
       source: source
+      # CNPG 1.28+: Stage-specific pg_restore options for fine-grained control
+      # Uncomment and customize if needed:
+      # recoveryTarget:
+      #   targetTime: "2025-01-01 00:00:00.00000+00"
+      # pgRestoreOptions:
+      #   preRestore: []   # Options before data restore
+      #   dataRestore: []  # Options during data restore
+      #   postRestore: []  # Options after data restore
   externalClusters:
     - name: source
       plugin:

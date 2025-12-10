@@ -5,8 +5,15 @@ kind: Cluster
 metadata:
   name: &name postgres-${APP}
 spec:
+  # INSTANCES configuration:
+  # - Multi-node cluster: 3+ (HA with zero-downtime updates)
+  # - Single-node cluster: 2 recommended (zero-downtime updates, read scaling)
+  # - Single-node minimal: 1 (expect 5-15s downtime on updates)
   instances: ${CNPG_REPLICAS:=3}
-  imageName: ${CNPG_IMAGE:=ghcr.io/cloudnative-pg/postgresql}:${CNPG_VERSION:=18.0-system-trixie}
+  imageName: ${CNPG_IMAGE:=ghcr.io/cloudnative-pg/postgresql}:${CNPG_VERSION:=18.1-system-trixie}
+  # primaryUpdateMethod:
+  # - switchover: Zero-downtime (requires instances >= 2)
+  # - restart: Fast but 5-15s downtime (works with instances = 1)
   primaryUpdateMethod: switchover
   primaryUpdateStrategy: unsupervised
   plugins:
@@ -31,9 +38,16 @@ spec:
       memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
     limits:
       memory: ${CNPG_LIMITS_MEMORY:=512Mi}
+  # AFFINITY configuration - controls pod placement across nodes
+  # For SINGLE-NODE clusters with 2+ instances:
+  #   Option 1: Remove entire 'affinity:' section (simplest)
+  #   Option 2: Change podAntiAffinityType to 'preferred' (allows same-node placement)
+  #   Option 3: Use CNPG_ANTI_AFFINITY variable in ks.yaml: CNPG_ANTI_AFFINITY: preferred
   affinity:
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
+    # required: Hard constraint - instances MUST be on different nodes (blocks single-node with 2+ instances)
+    # preferred: Soft constraint - prefers different nodes but allows same-node if needed
     podAntiAffinityType: required
     nodeSelector:
       kubernetes.io/arch: amd64
@@ -44,9 +58,13 @@ spec:
               - key: node-role.kubernetes.io/control-plane
                 operator: Exists
   postgresql:
-    # Synchronous replication - DEFAULT for HA clusters (3 replicas)
-    # Provides near-zero data loss with ~1-2ms write latency overhead
-    # For single-node: set CNPG_REPLICAS: '1' and comment out entire 'synchronous:' section
+    # SYNCHRONOUS REPLICATION configuration:
+    # - Multi-node (3+ replicas): Provides HA + near-zero data loss (~1-2ms write latency)
+    # - Single-node (2 instances): Provides data durability + zero-downtime updates (~0.5-1ms latency)
+    # - Single instance (1): Remove entire 'synchronous:' section (no replicas to sync)
+    #
+    # CNPG 1.28+ adds 'failoverQuorum' field for quorum-based failover (opt-in)
+    # Example: failoverQuorum: true (under synchronous:)
     synchronous:
       method: ${CNPG_SYNC_METHOD:=any}
       number: ${CNPG_SYNC_NUMBER:=1}

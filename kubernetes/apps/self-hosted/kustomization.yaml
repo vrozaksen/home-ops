@@ -10,12 +10,8 @@ resources:
   - ./atuin/ks.yaml
   - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
-  # - ./jitsi/ks.yaml
-  # - ./mattermost/ks.yaml
-  # - ./miniflux/ks.yaml
   - ./mumble/ks.yaml
   - ./palmr/ks.yaml
   # - ./reactive-resume/ks.yaml
-  # - ./rocketchat/ks.yaml
   - ./searxng/ks.yaml
   - ./teamspeak/ks.yaml

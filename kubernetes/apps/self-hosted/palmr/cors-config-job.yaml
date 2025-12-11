@@ -31,7 +31,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: aws-cli
-          image: amazon/aws-cli:2.32.14
+          image: amazon/aws-cli:2.32.15
           command:
             - /bin/sh
             - -c

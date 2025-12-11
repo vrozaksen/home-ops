@@ -8,7 +8,7 @@ components:
 resources:
   - ./namespace.yaml
   # - ./bazarr/ks.yaml
-  # - ./dispatcharr/ks.yaml
+  - ./dispatcharr/ks.yaml
   - ./flaresolverr/ks.yaml
   # - ./lidarr/ks.yaml
   # - ./metube/ks.yaml

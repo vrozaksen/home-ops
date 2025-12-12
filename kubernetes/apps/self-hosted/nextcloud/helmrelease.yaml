@@ -86,6 +86,12 @@ spec:
         proxy.config.php: |-
           <?php
           $CONFIG = array (
+            'trusted_domains' =>
+              [
+                'nextcloud',
+                'cloud.vzkn.eu',
+                'collabora.vzkn.eu'
+              ],
             'trusted_proxies' => array(
               0 => '127.0.0.1',
               1 => '10.69.0.0/16',
@@ -103,6 +109,10 @@ spec:
             'allow_local_remote_servers' => true,
             'overwriteprotocol' => 'https',
             'overwrite.cli.url' => 'https://cloud.vzkn.eu',
+            'filelocking.enabled' => 'true',
+            'loglevel' => '2',
+            'enable_previews' => true,
+            'bulkupload.enabled' => true,
           );
 
         # OIDC - Authentik integration

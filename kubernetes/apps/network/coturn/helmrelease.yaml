@@ -33,7 +33,7 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.42
+          lbipam.cilium.io/ips: 10.10.0.53
           external-dns.alpha.kubernetes.io/hostname: turn.vzkn.eu
         ports:
           turn-udp:

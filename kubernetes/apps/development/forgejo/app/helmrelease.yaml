@@ -224,10 +224,7 @@ spec:
       additionalConfigFromEnvs:
         # Database - CNPG auto-generated connection string
         - name: GITEA__DATABASE__HOST
-          valueFrom:
-            secretKeyRef:
-              name: postgres-forgejo-app
-              key: host
+          value: pooler-forgejo-rw
         - name: GITEA__DATABASE__NAME
           valueFrom:
             secretKeyRef:

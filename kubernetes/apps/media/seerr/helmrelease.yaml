@@ -26,16 +26,12 @@ spec:
               LOG_LEVEL: "info"
               PORT: &port 80
               DB_TYPE: "postgres"
-              DB_HOST:
-                valueFrom:
-                  secretKeyRef:
-                    name: &pg postgres-seerr-app
-                    key: host
+              DB_HOST: "pooler-forgejo-rw"
               DB_PORT: "5432"
               DB_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: *pg
+                    name: &pg postgres-seerr-app
                     key: username
               DB_PASS:
                 valueFrom:

@@ -90,7 +90,8 @@ spec:
               [
                 'nextcloud',
                 'cloud.vzkn.eu',
-                'collabora.vzkn.eu'
+                'collabora.vzkn.eu',
+                'talk.vzkn.eu'
               ],
             'trusted_proxies' => array(
               0 => '127.0.0.1',
@@ -164,6 +165,32 @@ spec:
           $CONFIG = array (
             'notify_push' => array(
               'base_endpoint' => 'https://cloud.vzkn.eu/push',
+            ),
+          );
+
+        # Nextcloud Talk - signaling server and TURN
+        talk.config.php: |-
+          <?php
+          $CONFIG = array (
+            'spreed' => array(
+              'external_signaling' => array(
+                'signaling_servers' => array(
+                  array(
+                    'url' => 'https://talk.vzkn.eu/',
+                    'verify' => true,
+                  ),
+                ),
+              ),
+              'stun_servers' => array(
+                'stun.nextcloud.com:443',
+              ),
+              'turn_servers' => array(
+                array(
+                  'server' => 'turn.vzkn.eu',
+                  'secret' => '',  # Managed by signaling server
+                  'protocols' => 'udp,tcp',
+                ),
+              ),
             ),
           );
 

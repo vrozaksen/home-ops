@@ -26,7 +26,7 @@ spec:
               LOG_LEVEL: "info"
               PORT: &port 80
               DB_TYPE: "postgres"
-              DB_HOST: "pooler-forgejo-rw"
+              DB_HOST: "pooler-seerr-rw"
               DB_PORT: "5432"
               DB_USER:
                 valueFrom:

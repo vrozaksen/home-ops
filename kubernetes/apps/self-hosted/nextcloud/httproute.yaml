@@ -8,12 +8,14 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: self-hosted
 spec:
-  hostnames:
-    - cloud.vzkn.eu
+  hostnames: ["cloud.vzkn.eu"]
   parentRefs:
     - name: envoy-external
       namespace: network
   rules:
+    - backendRefs: &backendRef
+        - name: nextcloud
+          port: 8080
     # CalDAV/CardDAV redirects
     - matches:
         - path:
@@ -43,9 +45,7 @@ spec:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /index.php/.well-known/webfinger
-      backendRefs: &backendRef
-        - name: nextcloud
-          port: 8080
+      backendRefs: *backendRef
     - matches:
         - path:
             type: PathPrefix

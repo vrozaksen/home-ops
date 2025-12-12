@@ -5,8 +5,8 @@ metadata:
   name: collabora-session-affinity
 spec:
   targetRefs:
-    - group: ""
-      kind: Service
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
       name: nextcloud-collabora
   loadBalancer:
     type: ConsistentHash

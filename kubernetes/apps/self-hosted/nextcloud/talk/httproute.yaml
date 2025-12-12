@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nextcloud-talk-signaling
+  annotations:
+    gatus.home-operations.com/endpoint: |-
+      group: self-hosted
+spec:
+  hostnames: ["talk.vzkn.eu"]
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: nextcloud-talk-signaling
+          namespace: self-hosted
+          port: 8080

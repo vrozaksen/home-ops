@@ -1,0 +1,73 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/postgresql.cnpg.io/pooler_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: pooler-${APP}-rw
+spec:
+  cluster:
+    name: postgres-${APP}
+  instances: ${CNPG_POOLER_INSTANCES:=2}
+  type: rw
+  pgbouncer:
+    # POOL_MODE options:
+    # - session (default): Connection returned to pool after client disconnects
+    #   * Best for most applications
+    #   * All PostgreSQL features available
+    #   * Lower overhead than transaction mode
+    #
+    # - transaction: Connection returned to pool after each transaction
+    #   * Required by some applications (e.g., Authentik)
+    #   * Slightly higher overhead but better connection reuse
+    #   * Cannot use: SET, LISTEN/NOTIFY, PREPARE, session-level features
+    #
+    # - statement: Connection returned after each statement
+    #   * Highest connection reuse but most restrictive
+    #   * Cannot use: transactions, prepared statements, temp tables
+    poolMode: ${CNPG_POOLER_MODE:=session}
+    parameters:
+      # Connection limits
+      max_client_conn: "${CNPG_POOLER_MAX_CLIENT_CONN:=1000}"
+      default_pool_size: "${CNPG_POOLER_DEFAULT_POOL_SIZE:=25}"
+      min_pool_size: "${CNPG_POOLER_MIN_POOL_SIZE:=0}"
+      reserve_pool_size: "${CNPG_POOLER_RESERVE_POOL_SIZE:=5}"
+      # Timeouts (in seconds)
+      server_idle_timeout: "${CNPG_POOLER_SERVER_IDLE_TIMEOUT:=600}"
+      server_lifetime: "${CNPG_POOLER_SERVER_LIFETIME:=3600}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${APP}
+        app.kubernetes.io/component: database-pooler
+    spec:
+      containers:
+        - name: pgbouncer
+          resources:
+            requests:
+              cpu: ${CNPG_POOLER_REQUESTS_CPU:=10m}
+              memory: ${CNPG_POOLER_REQUESTS_MEMORY:=32Mi}
+            limits:
+              memory: ${CNPG_POOLER_LIMITS_MEMORY:=64Mi}
+      # AFFINITY configuration - ensures pooler pods are on different nodes
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - ${APP}
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                      - database-pooler
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+      nodeSelector:
+        kubernetes.io/arch: amd64

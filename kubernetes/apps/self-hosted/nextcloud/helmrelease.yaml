@@ -54,7 +54,7 @@ spec:
       # SMTP configuration
       mail:
         enabled: true
-        fromAddress: cloud
+        fromAddress: admin
         domain: vzkn.eu
         smtp:
           port: 587

@@ -6,7 +6,7 @@ metadata:
   name: coturn
 spec:
   dependsOn:
-    - name: certificates
+    - name: certificates-import
       namespace: network
   interval: 1h
   path: ./kubernetes/apps/network/coturn
@@ -16,3 +16,4 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: network
+  wait: false

@@ -38,18 +38,23 @@ spec:
         ports:
           turn-udp:
             port: 3478
+            targetPort: 3478
             protocol: UDP
           turn-udp-alt:
             port: 3479
+            targetPort: 3479
             protocol: UDP
           turn-tcp:
             port: 3478
+            targetPort: 3478
             protocol: TCP
           turn-tcp-alt:
             port: 3479
+            targetPort: 3479
             protocol: TCP
           turn-tls:
             port: 5349
+            targetPort: 5349
             protocol: TCP
 
     configMaps:

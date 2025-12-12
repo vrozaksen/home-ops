@@ -31,6 +31,7 @@ spec:
       app:
         controller: coturn
         type: LoadBalancer
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: 10.10.0.42
           external-dns.alpha.kubernetes.io/hostname: turn.vzkn.eu

@@ -6,7 +6,7 @@ metadata:
   name: coturn
 spec:
   endpoints:
-    - dnsName: "turn.vzkn.eu"
+    - dnsName: turn.vzkn.eu
       recordType: CNAME
       targets: ["ipv4.vzkn.eu"]
       providerSpecific:

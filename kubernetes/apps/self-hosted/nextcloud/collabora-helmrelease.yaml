@@ -55,10 +55,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-        rules:
-          - filters:
-              - type: RequestHeaderModifier
-                requestHeaderModifier:
-                  set:
-                    - name: X-WOPISrc-Hash
-                      value: "$(query_params.WOPISrc)"
+        # rules:
+        #   - filters:
+        #       - type: RequestHeaderModifier
+        #         requestHeaderModifier:
+        #           set:
+        #             - name: X-WOPISrc-Hash
+        #               value: "$(query_params.WOPISrc)"

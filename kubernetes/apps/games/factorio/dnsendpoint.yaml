@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/externaldns.k8s.io/dnsendpoint_v1alpha1.json
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: factorio
+spec:
+  endpoints:
+    - dnsName: "factorio.vzkn.eu"
+      recordType: CNAME
+      targets: ["ipv4.vzkn.eu"]
+      providerSpecific:
+        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
+          value: 'false'

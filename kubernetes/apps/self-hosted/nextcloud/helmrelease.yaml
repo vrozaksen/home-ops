@@ -1,0 +1,236 @@
+---
+# ============================================
+# CLEAN CONFIG (based on Forgejo/Authentik patterns)
+# ============================================
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: nextcloud
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 8.6.0
+  url: oci://ghcr.io/nextcloud/helm/nextcloud
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: nextcloud
+  values:
+    podAnnotations:
+      reloader.stakater.com/search: "true"
+
+    image:
+      flavor: fpm-alpine
+
+    nginx:
+      enabled: true
+
+    nextcloud:
+      host: cloud.vzkn.eu
+      datadir: /var/www/data
+
+      # Security context (UID/GID from Volsync component)
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 100
+        runAsNonRoot: true
+
+      # Admin credentials and SMTP from ExternalSecret
+      existingSecret:
+        enabled: true
+        secretName: &secret nextcloud-secret
+        smtpHostKey: smtp_host
+        smtpUsernameKey: smtp_username
+        smtpPasswordKey: smtp_password
+
+      # SMTP configuration
+      mail:
+        enabled: true
+        fromAddress: cloud
+        domain: vzkn.eu
+        smtp:
+          port: 587
+          secure: starttls
+          authtype: LOGIN
+
+      # Environment variables
+      extraEnv:
+        # Redis connection (Dragonfly)
+        - name: REDIS_HOST
+          value: nextcloud-dragonfly
+        - name: REDIS_HOST_PORT
+          value: "6379"
+        # OIDC credentials (for PHP config below)
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: *secret
+              key: OIDC_CLIENT_ID
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: *secret
+              key: OIDC_CLIENT_SECRET
+
+      # PHP configuration files
+      configs:
+        # Proxy and trusted domains
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' => array(
+              0 => '127.0.0.1',
+              1 => '10.69.0.0/16',
+              2 => '10.96.0.0/16',
+            ),
+            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+          );
+
+        # General settings
+        misc.config.php: |-
+          <?php
+          $CONFIG = array (
+            'default_phone_region' => 'PL',
+            'maintenance_window_start' => 2,
+            'overwriteprotocol' => 'https',
+            'overwrite.cli.url' => 'https://cloud.vzkn.eu',
+          );
+
+        # Redis cache and session
+        redis.config.php: |-
+          <?php
+          $CONFIG = array(
+            'memcache.distributed' => '\OC\Memcache\Redis',
+            'memcache.locking' => '\OC\Memcache\Redis',
+            'redis' => array(
+              'host' => getenv('REDIS_HOST') ?: 'nextcloud-dragonfly',
+              'port' => getenv('REDIS_HOST_PORT') ?: 6379,
+            ),
+          );
+
+        # OIDC - Authentik integration
+        oidc.config.php: |-
+          <?php
+          $CONFIG = array (
+            'allow_user_to_change_display_name' => false,
+            'lost_password_link' => 'disabled',
+            'oidc_login_provider_url' => 'https://sso.vzkn.eu/application/o/nextcloud/',
+            'oidc_login_client_id' => getenv('OIDC_CLIENT_ID'),
+            'oidc_login_client_secret' => getenv('OIDC_CLIENT_SECRET'),
+            'oidc_login_auto_redirect' => false,
+            'oidc_login_end_session_redirect' => true,
+            'oidc_login_button_text' => 'Log in with Authentik',
+            'oidc_login_hide_password_form' => false,
+            'oidc_login_use_id_token' => false,
+            'oidc_login_attributes' => array(
+              'id' => 'preferred_username',
+              'name' => 'name',
+              'mail' => 'email',
+              'groups' => 'groups',
+            ),
+            'oidc_login_scope' => 'openid profile email groups',
+            'oidc_login_default_group' => 'oidc',
+            'oidc_login_use_external_storage' => false,
+            'oidc_login_proxy_ldap' => false,
+            'oidc_login_disable_registration' => false,
+            'oidc_login_redir_fallback' => false,
+            'oidc_login_tls_verify' => true,
+            'oidc_create_groups' => false,
+            'oidc_login_webdav_enabled' => true,
+            'oidc_login_password_authentication' => false,
+            'oidc_login_public_key_caching_time' => 86400,
+            'oidc_login_update_avatar' => false,
+          );
+
+      # PHP settings
+      phpConfigs:
+        uploadLimit.ini: |
+          upload_max_filesize = 16G
+          post_max_size = 16G
+          max_input_time = 3600
+          max_execution_time = 3600
+          memory_limit = 512M
+
+    # Database - CloudNative-PG (auto-generated secret)
+    internalDatabase:
+      enabled: false
+
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: pooler-nextcloud-rw  # Use PgBouncer pooler instead of direct connection
+      database: nextcloud
+      existingSecret:
+        enabled: true
+        secretName: postgres-nextcloud-app
+        # hostKey: host  # Commented out - using explicit host above
+        databaseKey: dbname
+        usernameKey: username
+        passwordKey: password
+
+    # Storage
+    persistence:
+      enabled: true
+      existingClaim: nextcloud
+      nextcloudData:
+        enabled: true
+        existingClaim: nextcloud-data  # NFS (user files)
+        accessMode: ReadWriteMany
+
+    # Ingress - disabled (using Gateway API HTTPRoute)
+    ingress:
+      enabled: false
+
+    # Probes - Nextcloud initialization takes long time
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 60
+      successThreshold: 1
+
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    # Resources
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        memory: 4Gi
+
+    # Cronjob for background tasks
+    cronjob:
+      enabled: true
+
+    # Disable unused components
+    redis:
+      enabled: false
+    postgresql:
+      enabled: false

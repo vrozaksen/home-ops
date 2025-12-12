@@ -1,0 +1,149 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nextcloud
+  annotations:
+    gatus.home-operations.com/endpoint: |-
+      group: self-hosted
+spec:
+  hostnames:
+    - cloud.vzkn.eu
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+  rules:
+    # CalDAV/CardDAV redirects
+    - matches:
+        - path:
+            type: RegularExpression
+            value: /.well-known/(?:card|cal)dav
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /remote.php/dav/
+            statusCode: 301
+    # .well-known rewrites
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/webfinger
+      filters:
+        - &hsts
+          type: ResponseHeaderModifier
+          responseHeaderModifier:
+            add:
+              - name: strict-transport-security
+                value: max-age=31536000
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /index.php/.well-known/webfinger
+      backendRefs: &backendRef
+        - name: nextcloud
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/nodeinfo
+      filters:
+        - *hsts
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /index.php/.well-known/nodeinfo
+      backendRefs: *backendRef
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/host-meta
+      filters:
+        - *hsts
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /public.php?service=host-meta
+      backendRefs: *backendRef
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/host-meta.json
+      filters:
+        - *hsts
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /public.php?service=host-meta-json
+      backendRefs: *backendRef
+    # Extended timeout for setup checks
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /settings/ajax/checksetup
+      filters:
+        - *hsts
+      backendRefs: *backendRef
+      timeouts:
+        request: 300s
+    # Block restricted paths
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /build
+        - path:
+            type: PathPrefix
+            value: /tests
+        - path:
+            type: PathPrefix
+            value: /config
+        - path:
+            type: PathPrefix
+            value: /lib
+        - path:
+            type: PathPrefix
+            value: /3rdparty
+        - path:
+            type: PathPrefix
+            value: /templates
+        - path:
+            type: PathPrefix
+            value: /data
+        - path:
+            type: PathPrefix
+            value: /autotest
+        - path:
+            type: PathPrefix
+            value: /occ
+        - path:
+            type: PathPrefix
+            value: /issue
+        - path:
+            type: PathPrefix
+            value: /indie
+        - path:
+            type: PathPrefix
+            value: /db_
+        - path:
+            type: PathPrefix
+            value: /console
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: not-found
+    # Default route with HSTS
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - *hsts
+      backendRefs: *backendRef

@@ -6,7 +6,7 @@ metadata:
   name: &app seerr
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:

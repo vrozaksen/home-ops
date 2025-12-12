@@ -17,8 +17,8 @@ spec:
         containers:
           app:
             image:
-              repository: coturn/coturn
-              tag: 4.6.4-alpine
+              repository: ghcr.io/coturn/coturn
+              tag: 4.7.0@sha256:df20dc8d80a9410b85baa257594d8f41d1ecd3134f185bdcf21db64824c59d31
             args:
               - -c
               - /config/turnserver.conf

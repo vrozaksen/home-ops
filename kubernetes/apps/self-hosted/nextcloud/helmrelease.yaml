@@ -66,11 +66,6 @@ spec:
 
       # Environment variables
       extraEnv:
-        # Redis connection (Dragonfly)
-        - name: REDIS_HOST
-          value: nextcloud-dragonfly
-        - name: REDIS_HOST_PORT
-          value: "6379"
         # OIDC credentials (for PHP config below)
         - name: OIDC_CLIENT_ID
           valueFrom:
@@ -114,8 +109,8 @@ spec:
             'memcache.distributed' => '\OC\Memcache\Redis',
             'memcache.locking' => '\OC\Memcache\Redis',
             'redis' => array(
-              'host' => getenv('REDIS_HOST') ?: 'nextcloud-dragonfly',
-              'port' => getenv('REDIS_HOST_PORT') ?: 6379,
+              'host' => 'nextcloud-dragonfly',
+              'port' => 6379,
             ),
           );
 

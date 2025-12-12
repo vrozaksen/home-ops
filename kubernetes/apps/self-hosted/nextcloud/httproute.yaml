@@ -15,7 +15,7 @@ spec:
   rules:
     - backendRefs: &backendRef
         - name: nextcloud
-          namespace: development
+          namespace: self-hosted
           port: 8080
     # CalDAV/CardDAV redirects
     - matches:

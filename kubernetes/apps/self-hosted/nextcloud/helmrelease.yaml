@@ -63,6 +63,11 @@ spec:
 
       # Environment variables
       extraEnv:
+        # Redis connection (Dragonfly)
+        - name: REDIS_HOST
+          value: nextcloud-dragonfly
+        - name: REDIS_HOST_PORT
+          value: "6379"
         # OIDC credentials (for PHP config below)
         - name: OIDC_CLIENT_ID
           valueFrom:
@@ -97,18 +102,6 @@ spec:
             'maintenance_window_start' => 2,
             'overwriteprotocol' => 'https',
             'overwrite.cli.url' => 'https://cloud.vzkn.eu',
-          );
-
-        # Redis cache and session
-        redis.config.php: |-
-          <?php
-          $CONFIG = array(
-            'memcache.distributed' => '\OC\Memcache\Redis',
-            'memcache.locking' => '\OC\Memcache\Redis',
-            'redis' => array(
-              'host' => 'nextcloud-dragonfly',
-              'port' => 6379,
-            ),
           );
 
         # OIDC - Authentik integration

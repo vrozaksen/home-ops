@@ -25,15 +25,6 @@ spec:
     #   * Highest connection reuse but most restrictive
     #   * Cannot use: transactions, prepared statements, temp tables
     poolMode: ${CNPG_POOLER_MODE:=session}
-    parameters:
-      # Connection limits
-      max_client_conn: "${CNPG_POOLER_MAX_CLIENT_CONN:=1000}"
-      default_pool_size: "${CNPG_POOLER_DEFAULT_POOL_SIZE:=25}"
-      min_pool_size: "${CNPG_POOLER_MIN_POOL_SIZE:=0}"
-      reserve_pool_size: "${CNPG_POOLER_RESERVE_POOL_SIZE:=5}"
-      # Timeouts (in seconds)
-      server_idle_timeout: "${CNPG_POOLER_SERVER_IDLE_TIMEOUT:=600}"
-      server_lifetime: "${CNPG_POOLER_SERVER_LIFETIME:=3600}"
   template:
     metadata:
       labels:

@@ -179,8 +179,6 @@ CNPG_SYNC_DURABILITY: preferred   # 'preferred' = self-healing (recommended)
 ```yaml
 CNPG_POOLER_MODE: session              # session, transaction, statement
 CNPG_POOLER_INSTANCES: '2'             # Number of pooler pods
-CNPG_POOLER_MAX_CLIENT_CONN: '1000'    # Max client connections
-CNPG_POOLER_DEFAULT_POOL_SIZE: '25'    # Pool size per user/db
 ```
 
 ### Advanced

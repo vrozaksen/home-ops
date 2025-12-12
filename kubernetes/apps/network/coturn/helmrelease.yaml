@@ -12,7 +12,7 @@ spec:
   values:
     controllers:
       coturn:
-        replicas: 2
+        replicas: 1
         strategy: RollingUpdate
         containers:
           app:
@@ -32,11 +32,8 @@ spec:
         controller: coturn
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: 10.10.0.42
-        sessionAffinity: ClientIP
-        sessionAffinityConfig:
-          clientIP:
-            timeoutSeconds: 10800
+          lbipam.cilium.io/ips: 10.10.0.42
+          external-dns.alpha.kubernetes.io/hostname: turn.vzkn.eu
         ports:
           turn-udp:
             port: 3478

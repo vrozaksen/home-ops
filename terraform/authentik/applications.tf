@@ -8,6 +8,7 @@ locals {
     "headlamp",
     # "karakeep",
     # "miniflux",
+    "nextcloud",
     # "open-webui",
     "palmr",
     "pgadmin",
@@ -259,6 +260,24 @@ module "oauth2-pgadmin" {
 #   client_secret      = local.parsed_secrets["miniflux"].client_secret
 #   redirect_uris      = ["https://miniflux.${var.cluster_domain}/oauth2/oidc/callback"]
 # }
+
+module "oauth2-nextcloud" {
+  source             = "./oauth2_application"
+  name               = "Nextcloud"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/nextcloud.png"
+  launch_url         = "https://cloud.${var.cluster_domain}"
+  description        = "Cloud Storage & Collaboration"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.home.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["nextcloud"].client_id
+  client_secret      = local.parsed_secrets["nextcloud"].client_secret
+  redirect_uris = [
+    "https://cloud.${var.cluster_domain}/apps/user_oidc/code"
+  ]
+}
 
 # module "oauth2-paperless" {
 #   source             = "./oauth2_application"

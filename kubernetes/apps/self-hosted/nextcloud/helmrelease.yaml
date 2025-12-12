@@ -149,6 +149,24 @@ spec:
             'oidc_login_update_avatar' => false,
           );
 
+        # Collabora Online (Richdocuments)
+        collabora.config.php: |-
+          <?php
+          $CONFIG = array (
+            'richdocuments' => array(
+              'wopi_url' => 'https://collabora.vzkn.eu',
+            ),
+          );
+
+        # Notify Push - high performance notifications
+        notify_push.config.php: |-
+          <?php
+          $CONFIG = array (
+            'notify_push' => array(
+              'base_endpoint' => 'https://cloud.vzkn.eu/push',
+            ),
+          );
+
       # PHP settings
       phpConfigs:
         uploadLimit.ini: |
@@ -216,10 +234,10 @@ spec:
     # Resources
     resources:
       requests:
-        cpu: 200m
+        cpu: 100m
         memory: 512Mi
       limits:
-        memory: 4Gi
+        memory: 8Gi
 
     # Cronjob for background tasks
     cronjob:

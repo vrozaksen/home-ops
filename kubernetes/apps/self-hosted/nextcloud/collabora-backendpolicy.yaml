@@ -1,0 +1,17 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: collabora-session-affinity
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: nextcloud-collabora
+  loadBalancer:
+    type: ConsistentHash
+    consistentHash:
+      type: Cookie
+      cookie:
+        name: SERVERID
+        ttl: 3600s

@@ -19,6 +19,8 @@ spec:
               tag: 25.04.7.3.1@sha256:9a6eb1042fa38f80127ae4b0e9c6f0ac549b267ecc8433bc7bb906eeee0ae176
             env:
               extra_params: --o:ssl.termination=true --o:ssl.enable=false
+              aliasgroup1: https://cloud.vzkn.eu:443
+              domain: cloud\\.vzkn\\.eu
     rawResources:
       autoscaling:
         enabled: true
@@ -47,7 +49,6 @@ spec:
     route:
       app:
         annotations:
-          # nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_WOPISrc"
           gatus.home-operations.com/endpoint: |-
             group: self-hosted
         hostnames:
@@ -55,10 +56,3 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-        # rules:
-        #   - filters:
-        #       - type: RequestHeaderModifier
-        #         requestHeaderModifier:
-        #           set:
-        #             - name: X-WOPISrc-Hash
-        #               value: "$(query_params.WOPISrc)"

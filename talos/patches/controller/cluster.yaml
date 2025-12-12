@@ -14,6 +14,7 @@ cluster:
     advertisedSubnets: ["10.10.0.0/24"]
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
+      quota-backend-bytes: 4294967296 # 4 GiB
   proxy:
     disabled: true
   scheduler:

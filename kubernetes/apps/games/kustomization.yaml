@@ -7,4 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./factorio/ks.yaml
+  - ./factorio/ks.yaml

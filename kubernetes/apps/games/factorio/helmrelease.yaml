@@ -18,30 +18,30 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          # app:
-          #   image:
-          #     repository: factoriotools/factorio
-          #     tag: 2.0.72
-          #   env:
-          #     TZ: Europe/Warsaw
-          #     GENERATE_NEW_SAVE: false
-          #     LOAD_LATEST_SAVE: true
-          #     PORT: &port 34197
-          #     BIND: 0.0.0.0
-          #     RCON_PORT: &rconPort 27015
-          #     SAVE_NAME: factorio
-          #     UPDATE_MODS_ON_START: true
-          #     DLC_SPACE_AGE: false
-          #     MODS: /factorio/mods
-          #   envFrom:
-          #     - secretRef:
-          #         name: "{{ .Release.Name }}-secret"
-          #   resources:
-          #     requests:
-          #       cpu: 100m
-          #       memory: 2Gi
-          #     limits:
-          #       memory: 8Gi
+          app:
+            image:
+              repository: factoriotools/factorio
+              tag: 2.0.72
+            env:
+              TZ: Europe/Warsaw
+              GENERATE_NEW_SAVE: false
+              LOAD_LATEST_SAVE: true
+              PORT: &port 34197
+              BIND: 0.0.0.0
+              RCON_PORT: &rconPort 27015
+              SAVE_NAME: factorio
+              UPDATE_MODS_ON_START: true
+              DLC_SPACE_AGE: false
+              MODS: /factorio/mods
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
           filebrowser:
             image:
               repository: filebrowser/filebrowser
@@ -53,8 +53,8 @@ spec:
               PGID: 1000
             resources:
               requests:
-                cpu: 25m
-                memory: 64Mi
+                cpu: 10m
+                memory: 32Mi
               limits:
                 memory: 512Mi
     service:
@@ -65,11 +65,11 @@ spec:
           lbipam.cilium.io/ips: 10.10.0.61
           external-dns.alpha.kubernetes.io/hostname: factorio.vzkn.eu
         ports:
-          # gametcp:
-          #   port: *rconPort
-          # gameudp:
-          #   port: *port
-          #   protocol: UDP
+          gametcp:
+            port: *rconPort
+          gameudp:
+            port: *port
+            protocol: UDP
           filebrowser:
             port: 80
     metrics:

@@ -84,7 +84,6 @@ spec:
 
             # Performance and security
             fingerprint
-            lt-cred-mech
             no-multicast-peers
             no-cli
             no-loopback-peers

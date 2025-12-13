@@ -48,52 +48,11 @@ spec:
           http:
             port: 8080
 
-    configMaps:
-      config:
-        data:
-          server.conf: |
-            [http]
-            listen = 0.0.0.0:8080
-
-            [app]
-            debug = false
-
-            [sessions]
-            hashkey = file:///secrets/SIGNALING_SECRET
-            blockkey = file:///secrets/SIGNALING_SECRET
-
-            [clients]
-            internalsecret = file:///secrets/INTERNAL_SECRET
-
-            [backend]
-            backends = nextcloud
-            allowall = false
-            timeout = 10
-            connectionsperhost = 8
-
-            [nextcloud]
-            url = https://cloud.vzkn.eu
-            secret = file:///secrets/INTERNAL_SECRET
-
-            [nats]
-            url = nats://nextcloud-talk-nats:4222
-
-            [turn]
-            apikey = file:///secrets/TURN_SECRET
-            secret = file:///secrets/TURN_SECRET
-            servers = turn:${COTURN_PUBLIC_HOST}:3478?transport=udp,turn:${COTURN_PUBLIC_HOST}:3478?transport=tcp,turns:${COTURN_PUBLIC_HOST}:5349?transport=tcp
-
     persistence:
-      config-file:
-        type: configMap
-        identifier: config
-        globalMounts:
-          - path: /config/server.conf
-            subPath: server.conf
-            readOnly: true
-      secrets:
+      config:
         type: secret
         name: nextcloud-talk-secret
         globalMounts:
-          - path: /secrets
+          - path: /config/server.conf
+            subPath: server.conf
             readOnly: true

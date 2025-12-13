@@ -182,7 +182,8 @@ spec:
                 ),
               ),
               'stun_servers' => array(
-                'stun.nextcloud.com:443',
+                'turn.vzkn.eu:3478',
+                'turn.vzkn.eu:5349',
               ),
               'turn_servers' => array(
                 array(
@@ -269,6 +270,54 @@ spec:
     # Cronjob for background tasks
     cronjob:
       enabled: true
+
+    # Sidecar: Notify Push (high-performance notifications)
+    extraSidecarContainers:
+      - name: notify-push
+        image: nextcloud:32.0.3-fpm-alpine
+        command:
+          - /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push
+          - /var/www/html/config/config.php
+        args:
+          - --port
+          - "7867"
+        env:
+          - name: NEXTCLOUD_URL
+            value: http://localhost:8080
+          - name: PORT
+            value: "7867"
+        ports:
+          - name: push
+            containerPort: 7867
+            protocol: TCP
+        volumeMounts:
+          - name: nextcloud-main
+            mountPath: /var/www/html
+            readOnly: true
+          - name: nextcloud-data
+            mountPath: /var/www/data
+            readOnly: true
+
+    # Extra manifests: Service for notify_push sidecar
+    extraManifests:
+      - |
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: nextcloud-push
+          labels:
+            app.kubernetes.io/name: {{ include "nextcloud.name" . }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
+        spec:
+          type: ClusterIP
+          ports:
+            - name: push
+              port: 7867
+              targetPort: 7867
+              protocol: TCP
+          selector:
+            app.kubernetes.io/name: {{ include "nextcloud.name" . }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
 
     # Disable unused components
     redis:

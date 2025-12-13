@@ -52,7 +52,7 @@ spec:
     persistence:
       config:
         type: secret
-        name: screego-secret
+        name: "{{ .Release.Name }}-secret"
         globalMounts:
           - path: /etc/screego/server.config
             subPath: server.config

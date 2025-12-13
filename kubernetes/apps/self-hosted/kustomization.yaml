@@ -14,6 +14,6 @@ resources:
   - ./nextcloud/ks.yaml
   - ./palmr/ks.yaml
   # - ./reactive-resume/ks.yaml
-  - ./screego/ks.yaml
+  # - ./screego/ks.yaml
   - ./searxng/ks.yaml
   - ./teamspeak/ks.yaml

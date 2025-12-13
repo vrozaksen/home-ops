@@ -79,9 +79,6 @@ spec:
       namespace: network
   interval: 1h
   path: ./kubernetes/apps/self-hosted/nextcloud/talk
-  postBuild:
-    substitute:
-      COTURN_PUBLIC_HOST: turn.vzkn.eu
   prune: true
   sourceRef:
     kind: GitRepository

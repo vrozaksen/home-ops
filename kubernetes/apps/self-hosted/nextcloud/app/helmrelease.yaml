@@ -204,6 +204,33 @@ spec:
           max_execution_time = 3600
           memory_limit = 512M
 
+      # Sidecar: Notify Push (high-performance notifications)
+      extraSidecarContainers:
+        - name: notify-push
+          image: nextcloud:32.0.3-fpm-alpine
+          command:
+            - /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push
+            - /var/www/html/config/config.php
+          args:
+            - --port
+            - "7867"
+          env:
+            - name: NEXTCLOUD_URL
+              value: http://localhost:8080
+            - name: PORT
+              value: "7867"
+          ports:
+            - name: push
+              containerPort: 7867
+              protocol: TCP
+          volumeMounts:
+            - name: nextcloud-main
+              mountPath: /var/www/html
+              readOnly: true
+            - name: nextcloud-data
+              mountPath: /var/www/data
+              readOnly: true
+
     # Database - CloudNative-PG (auto-generated secret)
     internalDatabase:
       enabled: false
@@ -270,33 +297,6 @@ spec:
     # Cronjob for background tasks
     cronjob:
       enabled: true
-
-    # Sidecar: Notify Push (high-performance notifications)
-    extraSidecarContainers:
-      - name: notify-push
-        image: nextcloud:32.0.3-fpm-alpine
-        command:
-          - /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push
-          - /var/www/html/config/config.php
-        args:
-          - --port
-          - "7867"
-        env:
-          - name: NEXTCLOUD_URL
-            value: http://localhost:8080
-          - name: PORT
-            value: "7867"
-        ports:
-          - name: push
-            containerPort: 7867
-            protocol: TCP
-        volumeMounts:
-          - name: nextcloud-main
-            mountPath: /var/www/html
-            readOnly: true
-          - name: nextcloud-data
-            mountPath: /var/www/data
-            readOnly: true
 
     # Extra manifests: Service for notify_push sidecar
     extraManifests:

@@ -204,7 +204,7 @@ module "oauth2-forgejo" {
   description        = "Git Forge"
   newtab             = true
   group              = "Development"
-  auth_groups        = [authentik_group.infrastructure.id]
+  auth_groups        = [authentik_group.users.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["forgejo"].client_id
@@ -269,7 +269,7 @@ module "oauth2-nextcloud" {
   description        = "Cloud Storage & Collaboration"
   newtab             = true
   group              = "Home"
-  auth_groups        = [authentik_group.home.id]
+  auth_groups        = [authentik_group.users.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["nextcloud"].client_id
@@ -352,7 +352,7 @@ module "oauth2-palmr" {
   description        = "File Sharing"
   newtab             = true
   group              = "Home"
-  auth_groups        = [authentik_group.home.id]
+  auth_groups        = [authentik_group.users.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["palmr"].client_id

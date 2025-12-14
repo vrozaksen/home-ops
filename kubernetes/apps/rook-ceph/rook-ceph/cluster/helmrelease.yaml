@@ -112,6 +112,8 @@ spec:
             deviceFilter: nvme0n1
           - name: "ainias"
             deviceFilter: nvme0n1
+          - name: "granzam"
+            deviceFilter: nvme0n1
         useAllDevices: false
         deviceFilter: nvme0n1
         config:

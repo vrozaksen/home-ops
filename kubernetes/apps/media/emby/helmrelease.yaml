@@ -21,6 +21,7 @@ spec:
               tag: 4.9.1.90@sha256:31448f230530fbeac1164fa3bee775cdc3fb8434cfdda3ce9edcb5e4ee523033 # BETA
             env:
               TZ: Europe/Warsaw
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
             probes:
               liveness: &probes
                 enabled: true
@@ -53,8 +54,8 @@ spec:
               claims:
                 - name: gpu
               requests:
-                cpu: 500m
-                memory: 4Gi
+                cpu: 100m
+                memory: 2Gi
               limits:
                 memory: 8Gi
     defaultPodOptions:
@@ -96,8 +97,10 @@ spec:
         existingClaim: "{{ .Release.Name }}-cache"
         globalMounts:
           - path: /config/cache
-      emby-metadata:
-        existingClaim: "{{ .Release.Name }}-metadata"
+      metadata:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/cache/emby-meta
         globalMounts:
           - path: /metadata
       media:

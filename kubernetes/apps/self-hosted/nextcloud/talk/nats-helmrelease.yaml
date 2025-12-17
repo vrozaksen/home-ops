@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: nats
-              tag: 2.12.2-alpine
+              tag: 2.12.3-alpine
             args:
               - --cluster_name
               - nextcloud-talk

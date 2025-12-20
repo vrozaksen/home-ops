@@ -38,10 +38,11 @@ spec:
                   name: "{{ .Release.Name }}-secret"
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
+                cpu: 1
+                memory: 1Gi
               limits:
-                memory: 2Gi
+                cpu: 8
+                memory: 8Gi
           filebrowser:
             image:
               repository: filebrowser/filebrowser

@@ -37,8 +37,8 @@ spec:
             env:
               TZ: Europe/Warsaw
               FB_NOAUTH: true
-              # PUID: 1000
-              # PGID: 1000
+              PUID: 0
+              PGID: 0
             resources:
               requests:
                 cpu: 10m
@@ -79,4 +79,4 @@ spec:
             filebrowser:
               - path: /db
                 subPath: filebrowser
-              - path: /Data
+              - path: /srv/Data

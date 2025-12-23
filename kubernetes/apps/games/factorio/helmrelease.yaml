@@ -46,7 +46,7 @@ spec:
           filebrowser:
             image:
               repository: filebrowser/filebrowser
-              tag: v2.42.1
+              tag: v2.52.0
             env:
               TZ: Europe/Warsaw
               FB_NOAUTH: true

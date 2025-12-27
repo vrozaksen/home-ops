@@ -88,11 +88,15 @@ spec:
         gatus.home-operations.com/endpoint: |-
           group: observability
     spec:
+      hostnames:
+        - grafana.vzkn.eu
       parentRefs:
         - name: envoy-internal
           namespace: network
-      hostnames:
-        - grafana.vzkn.eu
+      rules:
+        - backendRefs:
+            - name: grafana-service
+              port: 3000
   persistentVolumeClaim:
     spec:
       accessModes:

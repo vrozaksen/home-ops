@@ -2,6 +2,7 @@ locals {
   oauth_apps = [
     "unraid",
     #  "coder",
+    "flux",
     "forgejo",
     "grafana",
     # "harbor",
@@ -128,6 +129,22 @@ module "proxy-bazarr" {
 ## Media
 
 ## Infrastructure
+module "oauth2-flux" {
+  source             = "./oauth2_application"
+  name               = "Flux"
+  icon_url           = "https://raw.githubusercontent.com/fluxcd/flux2/main/docs/dev-guides/flux.png"
+  launch_url         = "https://flux.${var.cluster_domain}"
+  description        = "GitOps Status Page"
+  newtab             = true
+  group              = "Infrastructure"
+  auth_groups        = [authentik_group.infrastructure.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["flux"].client_id
+  client_secret      = local.parsed_secrets["flux"].client_secret
+  redirect_uris      = ["https://flux.${var.cluster_domain}/oauth2/callback"]
+}
+
 module "oauth2-grafana" {
   source             = "./oauth2_application"
   name               = "Grafana"

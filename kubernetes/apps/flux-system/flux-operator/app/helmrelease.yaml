@@ -26,3 +26,22 @@ spec:
   values:
     serviceMonitor:
       create: true
+    web:
+      baseURL: https://flux.vzkn.eu
+      auth:
+        type: oidc
+        oidc:
+          clientIDFrom:
+            secretKeyRef:
+              name: flux-webui-oidc
+              key: clientID
+          clientSecretFrom:
+            secretKeyRef:
+              name: flux-webui-oidc
+              key: clientSecret
+          issuerURL: https://sso.vzkn.eu/application/o/flux/
+          scopes:
+            - openid
+            - profile
+            - email
+            - groups

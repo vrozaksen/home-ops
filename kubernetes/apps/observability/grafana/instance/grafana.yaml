@@ -82,6 +82,17 @@ spec:
             - name: grafana-data
               persistentVolumeClaim:
                 claimName: grafana-pvc
+  httpRoute:
+    metadata:
+      annotations:
+        gatus.home-operations.com/endpoint: |-
+          group: observability
+    spec:
+      parentRefs:
+        - name: envoy-internal
+          namespace: network
+      hostnames:
+        - grafana.vzkn.eu
   persistentVolumeClaim:
     spec:
       accessModes:

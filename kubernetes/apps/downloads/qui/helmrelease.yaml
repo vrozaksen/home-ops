@@ -19,7 +19,7 @@ spec:
           app:
             image:
               repository: ghcr.io/autobrr/qui
-              tag: v1.11.0@sha256:5c7c08d5e8d4c4fe966106b58d3705f19921a69606b3dc4f237009a6c25a0ac7
+              tag: develop@sha256:8b53386b40f2ef6003551a01f70d8e8b958c40e051f80a63c1fc41d0565a066b
             env:
               TZ: Europe/Warsaw
               QUI__HOST: 0.0.0.0
@@ -74,3 +74,9 @@ spec:
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
+      data:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents
+        globalMounts:
+          - path: /downloads

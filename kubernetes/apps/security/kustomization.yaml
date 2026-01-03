@@ -4,10 +4,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: security
 components:
-  - ../../components/namespace
-replacements:
-  - path: ../../components/replacements/ks.yaml
+  - ../../components/common
 resources:
+  - ./namespace.yaml
   - ./authentik/ks.yaml
   # - ./tetragon/ks.yaml
   # - ./trivy-operator/ks.yaml

@@ -34,5 +34,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  targetNamespace: sentry
   timeout: 10m
   wait: false

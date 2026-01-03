@@ -12,10 +12,8 @@ spec:
   values:
     controllers:
       cloudflare-tunnel:
-        replicas: 2
+        type: daemonset
         strategy: RollingUpdate
-        podDisruptionBudget:
-          minAvailable: 1
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

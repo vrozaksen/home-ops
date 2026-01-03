@@ -12,7 +12,15 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
-        replicas: 2
+        replicas: 4
+        pod:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  gateway.envoyproxy.io/owning-gateway-namespace: network
         container:
           imageRepository: mirror.gcr.io/envoyproxy/envoy
           resources:

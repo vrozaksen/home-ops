@@ -151,6 +151,7 @@ patches:
   - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
   # - "@./patches/global/machine-sysfs.yaml"   # CPU Power
   - "@./patches/global/machine-time.yaml"    # NTP
+  - "@./patches/global/oom-config.yaml"      # Disable OOM killer
 
 # Controller patches
 controlPlane:

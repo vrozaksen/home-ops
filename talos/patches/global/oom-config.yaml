@@ -1,0 +1,4 @@
+---
+apiVersion: v1alpha1
+kind: OOMConfig
+triggerExpression: "false"

@@ -19,8 +19,8 @@ spec:
         containers:
           app:
             image:
-              repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-3
-              tag: 2026.1.2@sha256:8018c26158403c7056520db2c733eb9cb6702b6156452ac2f8f8df0811cdd689
+              repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-4
+              tag: 2026.1.3@sha256:d32c82d380c7cc9ad671b1beaf76aa64221352338c654d8901217b4b07edcd0b
             env:
               TZ: "Europe/Warsaw"
               BASE_URL: "https://checkers.vzkn.eu"

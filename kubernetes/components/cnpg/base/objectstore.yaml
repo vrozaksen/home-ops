@@ -21,8 +21,6 @@ spec:
       compression: zstd
       maxParallel: 8
       archiveAdditionalCommandArgs:
-        # max-concurrency=1: Sequential WAL upload (required for LSN ordering)
-        - "--max-concurrency=1"
         - "--read-timeout=120"
     data:
       compression: bzip2

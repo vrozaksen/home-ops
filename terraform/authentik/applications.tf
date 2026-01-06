@@ -11,9 +11,7 @@ locals {
     # "miniflux",
     "nextcloud",
     # "open-webui",
-    "palmr",
     "pgadmin",
-    # "rocketchat",
     "rresume"
   ]
 }
@@ -328,22 +326,6 @@ module "oauth2-rresume" {
   redirect_uris      = ["https://rr.${var.cluster_domain}/api/auth/openid/callback"]
 }
 
-# module "oauth2-rocketchat" {
-#   source             = "./oauth2_application"
-#   name               = "RocketChat"
-#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/rocket-chat.png"
-#   launch_url         = "https://rc.${var.cluster_domain}"
-#   description        = "Team Chat"
-#   newtab             = true
-#   group              = "Home"
-#   auth_groups        = [authentik_group.home.id]
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   client_id          = local.parsed_secrets["rocketchat"].client_id
-#   client_secret      = local.parsed_secrets["rocketchat"].client_secret
-#   redirect_uris      = ["https://rc.${var.cluster_domain}/_oauth/authentik"]
-# }
-
 ## Users
 # module "oauth2-open-webui" {
 #   source             = "./oauth2_application"
@@ -360,19 +342,3 @@ module "oauth2-rresume" {
 #   client_secret      = local.parsed_secrets["open-webui"].client_secret
 #   redirect_uris      = ["https://chat.${var.cluster_domain}/oauth/oidc/callback"]
 # }
-
-module "oauth2-palmr" {
-  source             = "./oauth2_application"
-  name               = "Palmr"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/palmr.png"
-  launch_url         = "https://palmr.${var.cluster_domain}"
-  description        = "File Sharing"
-  newtab             = true
-  group              = "Home"
-  auth_groups        = [authentik_group.users.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["palmr"].client_id
-  client_secret      = local.parsed_secrets["palmr"].client_secret
-  redirect_uris      = ["https://palmr.${var.cluster_domain}/api/auth/providers/authentik/callback"]
-}

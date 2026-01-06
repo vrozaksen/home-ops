@@ -12,7 +12,6 @@ resources:
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
   - ./nextcloud/ks.yaml
-  - ./palmr/ks.yaml
   # - ./reactive-resume/ks.yaml
   # - ./screego/ks.yaml
   - ./searxng/ks.yaml

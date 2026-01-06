@@ -3,11 +3,8 @@ locals {
     "cnpg",
     "forgejo",
     "harbor",
-    "palmr",
     "rresume",
     "sentry",
-    "mattermost",
-    "rocketchat",
     "tfstate-mikrotik-terraform"
   ]
 }

@@ -39,4 +39,4 @@ spec:
       initialDelaySeconds: 10
       periodSeconds: 30
     dashboards:
-      enabled: true
+      enabled: false

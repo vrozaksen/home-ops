@@ -80,8 +80,6 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: education
-          # Gateway API timeout for WebSocket connections
-          gateway.envoyproxy.io/timeout: "300s"
         hostnames: ["checkers.vzkn.eu"]
         parentRefs:
           - name: envoy-external

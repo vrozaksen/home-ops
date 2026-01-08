@@ -153,6 +153,31 @@ spec:
             memory: 1Gi
           limits:
             memory: 4Gi
+        probes:
+          startupProbe:
+            httpGet:
+              path: /_health/
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /_health/
+              port: 9000
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /_health/
+              port: 9000
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
 
       worker:
         replicas: 1

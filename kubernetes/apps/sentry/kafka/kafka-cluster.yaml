@@ -33,8 +33,6 @@ metadata:
     strimzi.io/node-pools: enabled
 spec:
   kafka:
-    version: 3.9.0
-    metadataVersion: 3.9-IV0
     listeners:
       - name: plain
         port: 9092
@@ -46,7 +44,6 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
-      inter.broker.protocol.version: "3.9"
       auto.create.topics.enable: false
       compression.type: lz4
       log.retention.hours: 24

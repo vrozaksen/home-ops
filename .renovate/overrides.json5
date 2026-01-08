@@ -2,6 +2,12 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
     {
+      description: "Pin ClickHouse to 24.8.x LTS for Sentry 28.x compatibility",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["clickhouse/clickhouse-server"],
+      allowedVersions: "/^24\\.8\\..*/",
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],

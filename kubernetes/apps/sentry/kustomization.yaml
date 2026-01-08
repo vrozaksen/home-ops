@@ -7,4 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./kafka/ks.yaml
   # - ./sentry/ks.yaml

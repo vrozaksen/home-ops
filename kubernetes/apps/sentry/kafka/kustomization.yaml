@@ -1,0 +1,10 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.config.k8s.io/kustomization_v1beta1.json
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./configmap.yaml
+  - ./grafanadashboard.yaml
+  - ./kafka-cluster.yaml
+  - ./kafka-topics.yaml
+  - ./podmonitor.yaml

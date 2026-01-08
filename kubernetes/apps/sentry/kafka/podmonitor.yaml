@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: sentry-kafka-brokers
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/cluster: sentry-kafka
+      strimzi.io/kind: Kafka
+  podMetricsEndpoints:
+    - port: tcp-prometheus
+      path: /metrics
+      interval: 30s
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: sentry-kafka-exporter
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/cluster: sentry-kafka
+      strimzi.io/kind: KafkaExporter
+  podMetricsEndpoints:
+    - port: tcp-prometheus
+      path: /metrics
+      interval: 30s

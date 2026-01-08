@@ -6,11 +6,11 @@ metadata:
   name: kafka-metrics
 data:
   kafka-metrics-config.yml: |
-    # Strimzi Kafka JMX Exporter configuration
+    # Official Strimzi JMX Exporter configuration
+    # Source: https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/metrics/kafka-metrics.yaml
     lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
     rules:
-      # Kafka broker metrics
+      # Special cases and very specific rules
       - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value
         name: kafka_server_$1_$2
         type: GAUGE
@@ -40,9 +40,21 @@ data:
           clientSoftwareVersion: "$3"
           listener: "$4"
           networkProcessor: "$5"
-      - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):
+      - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+-total):"
+        name: kafka_server_$1_$4
+        type: COUNTER
+        labels:
+          listener: "$2"
+          networkProcessor: "$3"
+      - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
         name: kafka_server_$1_$4
         type: GAUGE
+        labels:
+          listener: "$2"
+          networkProcessor: "$3"
+      - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+-total)
+        name: kafka_server_$1_$4
+        type: COUNTER
         labels:
           listener: "$2"
           networkProcessor: "$3"
@@ -52,102 +64,99 @@ data:
         labels:
           listener: "$2"
           networkProcessor: "$3"
-      - pattern: kafka.server<type=ReplicaManager, name=(.+)><>(Value|OneMinuteRate)
-        name: kafka_server_replicamanager_$1
+      # Generic per-second counters with tags
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>MeanRate
+        name: kafka_$1_$2_$3_percent
         type: GAUGE
-      - pattern: kafka.server<type=BrokerTopicMetrics, name=(.+), topic=(.+)><>OneMinuteRate
-        name: kafka_server_brokertopicmetrics_$1
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>Value
+        name: kafka_$1_$2_$3_percent
         type: GAUGE
-        labels:
-          topic: "$2"
-      - pattern: kafka.server<type=BrokerTopicMetrics, name=(.+)><>OneMinuteRate
-        name: kafka_server_brokertopicmetrics_$1
-        type: GAUGE
-      - pattern: kafka.server<type=KafkaRequestHandlerPool, name=(.+)><>(.+)
-        name: kafka_server_kafkarequesthandlerpool_$1_$2
-        type: GAUGE
-      - pattern: kafka.server<type=SessionExpireListener, name=(.+)><>OneMinuteRate
-        name: kafka_server_sessionexpirelistener_$1
-        type: GAUGE
-      - pattern: kafka.server<type=DelayedOperationPurgatory, name=(.+), delayedOperation=(.+)><>Value
-        name: kafka_server_delayedoperationpurgatory_$1
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*, (.+)=(.+)><>Value
+        name: kafka_$1_$2_$3_percent
         type: GAUGE
         labels:
-          delayedOperation: "$2"
-      - pattern: kafka.server<type=socket-server-metrics, clientSoftwareName=(.+), clientSoftwareVersion=(.+), listener=(.+), networkProcessor=(.+)><>(.+):
-        name: kafka_server_socketservermetrics_$5
-        type: GAUGE
-        labels:
-          clientSoftwareName: "$1"
-          clientSoftwareVersion: "$2"
-          listener: "$3"
-          networkProcessor: "$4"
-      - pattern: kafka.server<type=(.+)><>(.+):
-        name: kafka_server_$1_$2
-        type: GAUGE
-      - pattern: kafka.server<type=(.+)><>(.+)
-        name: kafka_server_$1_$2
-        type: GAUGE
-      # Kafka network metrics
-      - pattern: kafka.network<type=(.+), name=(.+), request=(.+), error=(.+)><>Count
-        name: kafka_network_$1_$2_errors_total
+          "$4": "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+), (.+)=(.+)><>Count
+        name: kafka_$1_$2_$3_total
         type: COUNTER
         labels:
-          request: "$3"
-          error: "$4"
-      - pattern: kafka.network<type=(.+), name=(.+), request=(.+), version=(.+)><>(Count|OneMinuteRate|Mean)
-        name: kafka_network_$1_$2
-        type: GAUGE
-        labels:
-          request: "$3"
-          version: "$4"
-      - pattern: kafka.network<type=(.+), name=(.+), request=(.+)><>(.+)
-        name: kafka_network_$1_$2
-        type: GAUGE
-        labels:
-          request: "$3"
-      - pattern: kafka.network<type=(.+), name=(.+)><>(.+)
-        name: kafka_network_$1_$2
-        type: GAUGE
-      # Kafka controller metrics
-      - pattern: kafka.controller<type=(.+), name=(.+)><>(Value|OneMinuteRate)
-        name: kafka_controller_$1_$2
-        type: GAUGE
-      - pattern: kafka.controller<type=(.+), name=(.+), state=(.+)><>Value
-        name: kafka_controller_$1_$2
-        type: GAUGE
-        labels:
-          state: "$3"
-      # Kafka log metrics
-      - pattern: kafka.log<type=LogFlushStats, name=(.+)><>(.+)
-        name: kafka_log_logflushstats_$1
-        type: GAUGE
-      - pattern: kafka.log<type=Log, name=(.+), topic=(.+), partition=(.+)><>Value
-        name: kafka_log_$1
-        type: GAUGE
-        labels:
-          topic: "$2"
-          partition: "$3"
-      # JVM metrics
-      - pattern: java.lang<type=Memory><HeapMemoryUsage>(\w+)
-        name: java_lang_memory_heapmemoryusage_$1
-        type: GAUGE
-      - pattern: java.lang<type=Memory><NonHeapMemoryUsage>(\w+)
-        name: java_lang_memory_nonheapmemoryusage_$1
-        type: GAUGE
-      - pattern: java.lang<type=GarbageCollector, name=(.+)><>CollectionCount
-        name: java_lang_garbagecollector_collectioncount
+          "$4": "$5"
+          "$6": "$7"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+)><>Count
+        name: kafka_$1_$2_$3_total
         type: COUNTER
         labels:
-          name: "$1"
-      - pattern: java.lang<type=GarbageCollector, name=(.+)><>CollectionTime
-        name: java_lang_garbagecollector_collectiontime
+          "$4": "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*><>Count
+        name: kafka_$1_$2_$3_total
+        type: COUNTER
+      # Generic gauges with tags
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          "$4": "$5"
+          "$6": "$7"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          "$4": "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+      # Counters
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Count
+        name: kafka_$1_$2_$3_count
         type: COUNTER
         labels:
-          name: "$1"
-      - pattern: java.lang<type=Threading><>(\w+)
-        name: java_lang_threading_$1
+          "$4": "$5"
+          "$6": "$7"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*), (.+)=(.+)><>(\d+)thPercentile
+        name: kafka_$1_$2_$3
         type: GAUGE
-      - pattern: java.lang<type=OperatingSystem><>(\w+)
-        name: java_lang_operatingsystem_$1
+        labels:
+          "$4": "$5"
+          "$6": "$7"
+          quantile: "0.$8"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Count
+        name: kafka_$1_$2_$3_count
+        type: COUNTER
+        labels:
+          "$4": "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*)><>(\d+)thPercentile
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          "$4": "$5"
+          quantile: "0.$6"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Count
+        name: kafka_$1_$2_$3_count
+        type: COUNTER
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>(\d+)thPercentile
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          quantile: "0.$4"
+      # KRaft metrics
+      - pattern: "kafka.server<type=raft-metrics><>(.+-total|.+-max):"
+        name: kafka_server_raftmetrics_$1
+        type: COUNTER
+      - pattern: "kafka.server<type=raft-metrics><>(current-state): (.+)"
+        name: kafka_server_raftmetrics_$1
+        value: 1
+        type: UNTYPED
+        labels:
+          $1: "$2"
+      - pattern: "kafka.server<type=raft-metrics><>(.+):"
+        name: kafka_server_raftmetrics_$1
+        type: GAUGE
+      - pattern: "kafka.server<type=raft-channel-metrics><>(.+-total|.+-max):"
+        name: kafka_server_raftchannelmetrics_$1
+        type: COUNTER
+      - pattern: "kafka.server<type=raft-channel-metrics><>(.+):"
+        name: kafka_server_raftchannelmetrics_$1
+        type: GAUGE
+      - pattern: "kafka.server<type=broker-metadata-metrics><>(.+):"
+        name: kafka_server_brokermetadatametrics_$1
         type: GAUGE

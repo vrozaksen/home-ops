@@ -30,13 +30,13 @@ spec:
       create: true
       name: sentry
 
-    # TODO: Disable hooks after successful initial deployment
-    # hooks:
-    #   enabled: false
-    #   dbCheck:
-    #     enabled: true
-    #   dbInit:
-    #     enabled: false
+    # Disable hooks after successful initial deployment
+    hooks:
+      enabled: false
+      dbCheck:
+        enabled: true
+      dbInit:
+        enabled: false
 
     # Disable bundled services
     postgresql:
@@ -117,6 +117,13 @@ spec:
     auth:
       register: false
 
+    # Python/Django configuration for proxy support
+    config:
+      sentryConfPy: |
+        CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
+        USE_X_FORWARDED_HOST = True
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
     # Sentry configuration
     sentry:
       features:
@@ -132,9 +139,9 @@ spec:
         resources:
           requests:
             cpu: 50m
-            memory: 512Mi
+            memory: 1Gi
           limits:
-            memory: 2Gi
+            memory: 4Gi
 
       worker:
         replicas: 1

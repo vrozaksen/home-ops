@@ -6,7 +6,7 @@ metadata:
   name: &app nextcloud
 spec:
   components:
-    - ../../../../components/cnpg/initdb  # PostgreSQL cluster (TODO: change to restore after first install)
+    - ../../../../components/cnpg/restore  # PostgreSQL cluster
     - ../../../../components/dragonfly    # Redis cache (nextcloud-dragonfly)
     - ../../../../components/nfs-scaler   # Scale down on NFS mount issues
     - ../../../../components/volsync      # Backup config/apps volume

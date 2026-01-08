@@ -148,10 +148,10 @@ spec:
       web:
         replicas: 1
         # Probe settings - give web time to start (loads plugins, connects to DBs)
-        probeInitialDelaySeconds: 60
+        probeInitialDelaySeconds: 90
         probeFailureThreshold: 10
-        probePeriodSeconds: 15
-        probeTimeoutSeconds: 5
+        probePeriodSeconds: 30
+        probeTimeoutSeconds: 30
         resources:
           requests:
             cpu: 50m

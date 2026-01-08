@@ -19,5 +19,11 @@
       matchPackageNames: ["schwitzd/garage"],
       registryUrls: ["https://github.com/Schwitzd/terraform-provider-garage"],
     },
+    {
+      description: "Sentry Helm Chart registry",
+      matchDatasources: ["helm"],
+      matchPackageNames: ["sentry"],
+      registryUrls: ["https://sentry-kubernetes.github.io/charts"],
+    },
   ],
 }

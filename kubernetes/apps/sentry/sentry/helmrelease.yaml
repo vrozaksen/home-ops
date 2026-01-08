@@ -1,30 +1,30 @@
 ---
-# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1beta2.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1.json
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: sentry
-  namespace: sentry
 spec:
   interval: 1h
   url: https://sentry-kubernetes.github.io/charts
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app sentry
+  name: sentry
 spec:
   interval: 1h
   chart:
     spec:
       # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
       chart: sentry
-      version: 27.3.0
+      version: 28.0.0
       sourceRef:
         kind: HelmRepository
         name: sentry
   values:
+    # Disable bundled services
     postgresql:
       enabled: false
     redis:
@@ -35,37 +35,51 @@ spec:
       enabled: false
     rabbitmq:
       enabled: false
+    kafka:
+      enabled: false
+    nginx:
+      enabled: false
 
+    # External PostgreSQL (CNPG)
     externalPostgresql:
-      host: sentry-pgbouncer.sentry.svc.cluster.local
+      host: pooler-sentry-rw.sentry.svc.cluster.local
       port: 5432
       username: sentry
       database: sentry
-      existingSecret: sentry-pguser-sentry
+      existingSecret: postgres-sentry-app
       existingSecretKeys:
         password: password
 
+    # External Redis (Dragonfly)
     externalRedis:
       host: sentry-dragonfly.sentry.svc.cluster.local
       port: 6379
       db: 0
 
+    # External ClickHouse
     externalClickhouse:
       host: clickhouse.database.svc.cluster.local
       tcpPort: 9000
       httpPort: 8123
       username: clickhouse
-      password: clickhouse
       database: default
       singleNode: true
+      existingSecret: sentry-secret
+      existingSecretKey: clickhouse-password
 
+    # External Kafka (Strimzi)
+    externalKafka:
+      host: sentry-kafka-kafka-bootstrap.sentry.svc.cluster.local
+      port: 9092
 
+    # System configuration
     system:
       adminEmail: admin@sentry.vzkn.eu
       url: https://sentry.vzkn.eu
       public: false
       existingSecret: sentry-secret
 
+    # Mail configuration
     mail:
       backend: smtp
       useTls: true
@@ -78,15 +92,18 @@ spec:
       host: "smtp.protonmail.ch"
       from: "admin@vzkn.eu"
 
+    # Admin user
     user:
       create: true
       email: admin@sentry.vzkn.eu
       existingSecret: sentry-secret
       existingSecretKey: ADMIN_PASSWORD
 
+    # Auth
     auth:
       register: false
 
+    # Sentry configuration
     sentry:
       features:
         orgSubdomains: false
@@ -122,6 +139,33 @@ spec:
           limits:
             memory: 512Mi
 
+      # Task Broker (replaces RabbitMQ in 28.0.0)
+      taskBroker:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        persistence:
+          enabled: true
+          size: 1Gi
+
+      # Task Worker (replaces RabbitMQ in 28.0.0)
+      taskWorker:
+        enabled: true
+        replicas: 1
+        concurrency: 4
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+    # Relay
     relay:
       replicas: 1
       resources:
@@ -131,178 +175,7 @@ spec:
         limits:
           memory: 256Mi
 
-    kafka:
-      enabled: true
-      image:
-        repository: bitnamilegacy/kafka
-      provisioning:
-        replicationFactor: 1
-        enabled: true
-        topics:
-          - name: events
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: event-replacements
-          - name: snuba-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: cdc
-          - name: transactions
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: snuba-transactions-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: snuba-metrics
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: outcomes
-          - name: outcomes-dlq
-          - name: outcomes-billing
-          - name: outcomes-billing-dlq
-          - name: ingest-spans
-          - name: ingest-sessions
-          - name: snuba-metrics-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: scheduled-subscriptions-events
-          - name: scheduled-subscriptions-transactions
-          - name: scheduled-subscriptions-metrics
-          - name: scheduled-subscriptions-generic-metrics-sets
-          - name: scheduled-subscriptions-generic-metrics-distributions
-          - name: scheduled-subscriptions-generic-metrics-counters
-          - name: scheduled-subscriptions-generic-metrics-gauges
-          - name: events-subscription-results
-          - name: transactions-subscription-results
-          - name: metrics-subscription-results
-          - name: generic-metrics-subscription-results
-          - name: snuba-queries
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: processed-profiles
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: profiles-call-tree
-          - name: ingest-replay-events
-            config:
-              "message.timestamp.type": LogAppendTime
-              "max.message.bytes": "15000000"
-          - name: snuba-generic-metrics
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: snuba-generic-metrics-sets-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: snuba-generic-metrics-distributions-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: snuba-generic-metrics-counters-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: snuba-generic-metrics-gauges-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: generic-events
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: snuba-generic-events-commit-log
-            config:
-              "cleanup.policy": "compact,delete"
-              "min.compaction.lag.ms": "3600000"
-          - name: group-attributes
-            config:
-              "message.timestamp.type": LogAppendTime
-          - name: snuba-dead-letter-metrics
-          - name: snuba-dead-letter-generic-metrics
-          - name: snuba-dead-letter-replays
-          - name: snuba-dead-letter-generic-events
-          - name: snuba-dead-letter-querylog
-          - name: snuba-dead-letter-group-attributes
-          - name: ingest-attachments
-          - name: ingest-attachments-dlq
-          - name: ingest-transactions
-          - name: ingest-transactions-dlq
-          - name: ingest-transactions-backlog
-          - name: ingest-events-dlq
-          - name: ingest-events
-          - name: ingest-replay-recordings
-          - name: ingest-metrics
-          - name: ingest-metrics-dlq
-          - name: ingest-performance-metrics
-          - name: ingest-feedback-events
-          - name: ingest-feedback-events-dlq
-          - name: ingest-monitors
-          - name: monitors-clock-tasks
-          - name: monitors-clock-tick
-          - name: monitors-incident-occurrences
-          - name: profiles
-          - name: ingest-occurrences
-          - name: snuba-spans
-          - name: snuba-eap-spans-commit-log
-          - name: scheduled-subscriptions-eap-spans
-          - name: eap-spans-subscription-results
-          - name: snuba-eap-mutations
-          - name: snuba-lw-deletions-generic-events
-          - name: shared-resources-usage
-          - name: snuba-profile-chunks
-          - name: buffered-segments
-          - name: buffered-segments-dlq
-          - name: uptime-configs
-          - name: uptime-results
-          - name: snuba-uptime-results
-          - name: task-worker
-          - name: snuba-ourlogs
-          - name: snuba-items
-          - name: taskworker
-          - name: taskworker-dlq
-          - name: taskworker-billing
-          - name: taskworker-billing-dlq
-          - name: taskworker-control
-          - name: taskworker-control-dlq
-          - name: taskworker-ingest
-          - name: taskworker-ingest-dlq
-          - name: taskworker-ingest-errors
-          - name: taskworker-ingest-errors-dlq
-          - name: taskworker-ingest-transactions
-          - name: taskworker-ingest-transactions-dlq
-          - name: taskworker-internal
-          - name: taskworker-internal-dlq
-          - name: taskworker-limited
-          - name: taskworker-limited-dlq
-          - name: taskworker-long
-          - name: taskworker-long-dlq
-          - name: taskworker-products
-          - name: taskworker-products-dlq
-          - name: taskworker-sentryapp
-          - name: taskworker-sentryapp-dlq
-          - name: taskworker-symbolication
-          - name: taskworker-symbolication-dlq
-          - name: taskworker-usage
-          - name: taskworker-usage-dlq
-      listeners:
-        client:
-          protocol: "PLAINTEXT"
-        controller:
-          protocol: "PLAINTEXT"
-        interbroker:
-          protocol: "PLAINTEXT"
-        external:
-          protocol: "PLAINTEXT"
-      zookeeper:
-        enabled: false
-      kraft:
-        enabled: true
-      controller:
-        replicaCount: 1
-        resourcesPreset: "medium"
-
+    # Snuba
     snuba:
       api:
         replicas: 1
@@ -322,6 +195,7 @@ spec:
           limits:
             memory: 1Gi
 
+    # Symbolicator
     symbolicator:
       enabled: true
       api:
@@ -335,9 +209,11 @@ spec:
         persistence:
           enabled: false
 
+    # Sourcemaps
     sourcemaps:
       enabled: true
 
+    # Vroom (profiling)
     vroom:
       enabled: true
       replicas: 1
@@ -348,15 +224,36 @@ spec:
         limits:
           memory: 256Mi
 
+    # Nodestore S3 (new in 28.0.0)
+    nodestore:
+      backend: s3
+      s3:
+        bucketName: sentry
+        bucketPath: nodestore
+        endpointUrl: https://api.s3.vzkn.eu
+        regionName: eu-central-1
+        existingSecret: sentry-secret
+        accessKeyIdRef: s3-access-key-id
+        secretAccessKeyRef: s3-secret-access-key
+
+    # Filestore S3
     filestore:
       backend: s3
       s3:
         bucketName: sentry
-        endpointUrl: https://s3.vzkn.eu
+        endpointUrl: https://api.s3.vzkn.eu
         region: eu-central-1
         existingSecret: sentry-secret
         accessKeyIDKey: s3-access-key-id
         secretAccessKeyKey: s3-secret-access-key
-
-    nginx:
-      enabled: false
+      # Profiles storage (new in 28.0.0)
+      profiles:
+        backend: s3
+        s3:
+          bucketName: sentry
+          bucketPath: profiles
+          endpointUrl: https://api.s3.vzkn.eu
+          regionName: eu-central-1
+          existingSecret: sentry-secret
+          accessKeyIdRef: s3-access-key-id
+          secretAccessKeyRef: s3-secret-access-key

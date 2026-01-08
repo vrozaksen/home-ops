@@ -66,6 +66,13 @@ spec:
             port: *httpPort
           tcp:
             port: *tcpPort
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 30s
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"

@@ -1,3 +1,4 @@
+---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -28,8 +29,10 @@ spec:
               CLICKHOUSE_LOGGER_CONSOLE: "true"
               CLICKHOUSE_DB: default
               CLICKHOUSE_USER: clickhouse
-              CLICKHOUSE_PASSWORD: clickhouse
               CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+            envFrom:
+              - secretRef:
+                  name: clickhouse-secret
             probes:
               liveness: &probe
                 enabled: true
@@ -50,6 +53,7 @@ spec:
                 cpu: 100m
                 memory: 256Mi
               limits:
+                cpu: 500m
                 memory: 2Gi
     defaultPodOptions:
       securityContext:

@@ -89,6 +89,14 @@ spec:
                     <status_info>true</status_info>
                 </prometheus>
             </clickhouse>
+          sentry.xml: |-
+            <clickhouse>
+                <profiles>
+                    <default>
+                        <allow_experimental_json_type>1</allow_experimental_json_type>
+                    </default>
+                </profiles>
+            </clickhouse>
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"
@@ -100,6 +108,8 @@ spec:
         globalMounts:
           - path: /etc/clickhouse-server/config.d/prometheus.xml
             subPath: prometheus.xml
+          - path: /etc/clickhouse-server/users.d/sentry.xml
+            subPath: sentry.xml
       tmpfs:
         type: emptyDir
         advancedMounts:

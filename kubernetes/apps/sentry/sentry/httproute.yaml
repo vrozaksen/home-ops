@@ -36,6 +36,15 @@ spec:
         - name: sentry-relay
           namespace: sentry
           port: 3000
+    # API 0 routes to web (except relays handled above)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/0/
+      backendRefs:
+        - name: sentry-web
+          namespace: sentry
+          port: 9000
     # Assets routing with path rewriting
     - matches:
         - path:

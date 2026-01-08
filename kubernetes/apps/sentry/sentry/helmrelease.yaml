@@ -24,6 +24,20 @@ spec:
         kind: HelmRepository
         name: sentry
   values:
+    # Service Account
+    serviceAccount:
+      enabled: true
+      create: true
+      name: sentry
+
+    # TODO: Disable hooks after successful initial deployment
+    # hooks:
+    #   enabled: false
+    #   dbCheck:
+    #     enabled: true
+    #   dbInit:
+    #     enabled: false
+
     # Disable bundled services
     postgresql:
       enabled: false
@@ -111,7 +125,7 @@ spec:
         enableSessionReplay: true
         enableFeedback: true
         enableSpan: true
-        enableUptime: true
+        enableUptime: false
 
       web:
         replicas: 1
@@ -165,6 +179,110 @@ spec:
           limits:
             memory: 1Gi
 
+      # Cleanup old data
+      cleanup:
+        enabled: true
+        days: 90
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+
+      # Ingest Consumers
+      ingestConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      ingestMonitors:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      ingestProfiles:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      ingestReplayRecordings:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      ingestOccurrences:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Post-process Forwarders
+      postProcessForwardErrors:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      postProcessForwardTransactions:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      postProcessForwardIssuePlatform:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Subscription Consumers (alerts)
+      subscriptionConsumerEvents:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerTransactions:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
     # Relay
     relay:
       replicas: 1
@@ -195,6 +313,51 @@ spec:
           limits:
             memory: 1Gi
 
+      transactionsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      metricsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      profilesConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      replaysConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      outcomesConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
     # Symbolicator
     symbolicator:
       enabled: true
@@ -207,7 +370,8 @@ spec:
           limits:
             memory: 1Gi
         persistence:
-          enabled: false
+          enabled: true
+          size: 10Gi
 
     # Sourcemaps
     sourcemaps:

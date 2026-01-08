@@ -13,6 +13,8 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 50Gi
+      VOLSYNC_PGID: "101"
+      VOLSYNC_PUID: "101"
   prune: true
   sourceRef:
     kind: GitRepository

@@ -52,7 +52,7 @@ spec:
     kafka:
       enabled: false
     nginx:
-      enabled: false
+      enabled: true
 
     # External PostgreSQL (CNPG)
     externalPostgresql:
@@ -143,7 +143,7 @@ spec:
 
       # Disable uptime consumer (feature is off)
       uptimeResultsConsumer:
-        enabled: false
+        replicas: 0
 
       web:
         replicas: 1

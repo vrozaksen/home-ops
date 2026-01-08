@@ -66,18 +66,40 @@ spec:
             port: *httpPort
           tcp:
             port: *tcpPort
+          metrics:
+            port: 9363
     serviceMonitor:
       app:
         endpoints:
-          - port: http
+          - port: metrics
             scheme: http
             path: /metrics
             interval: 30s
+    configMaps:
+      config:
+        data:
+          prometheus.xml: |-
+            <clickhouse>
+                <prometheus>
+                    <endpoint>/metrics</endpoint>
+                    <port>9363</port>
+                    <metrics>true</metrics>
+                    <events>true</events>
+                    <asynchronous_metrics>true</asynchronous_metrics>
+                    <status_info>true</status_info>
+                </prometheus>
+            </clickhouse>
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /var/lib/clickhouse
+      config:
+        type: configMap
+        identifier: config
+        globalMounts:
+          - path: /etc/clickhouse-server/config.d/prometheus.xml
+            subPath: prometheus.xml
       tmpfs:
         type: emptyDir
         advancedMounts:

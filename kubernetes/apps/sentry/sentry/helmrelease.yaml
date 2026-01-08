@@ -174,10 +174,10 @@ spec:
         concurrency: 4
         resources:
           requests:
-            cpu: 50m
-            memory: 256Mi
+            cpu: 100m
+            memory: 512Mi
           limits:
-            memory: 1Gi
+            memory: 4Gi
 
       # Cleanup old data
       cleanup:
@@ -370,8 +370,7 @@ spec:
           limits:
             memory: 1Gi
         persistence:
-          enabled: true
-          size: 10Gi
+          enabled: false
 
     # Sourcemaps
     sourcemaps:

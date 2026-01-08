@@ -36,6 +36,7 @@ spec:
     substitute:
       APP: *app
       CNPG_SIZE: 10Gi
+      CNPG_POOLER_MODE: transaction
   prune: true
   sourceRef:
     kind: GitRepository

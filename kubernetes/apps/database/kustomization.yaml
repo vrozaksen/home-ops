@@ -13,3 +13,4 @@ resources:
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml
   - ./mosquitto/ks.yaml
+  - ./kafka/ks.yaml

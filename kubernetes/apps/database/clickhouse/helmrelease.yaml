@@ -12,9 +12,6 @@ spec:
   values:
     controllers:
       clickhouse:
-        type: statefulset
-        replicas: 1
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

@@ -32,6 +32,26 @@ spec:
       current: status.phase == 'ready'
   interval: 1h
   path: ./kubernetes/apps/sentry/sentry
+  patches:
+    - target:
+        kind: Dragonfly
+        name: sentry-dragonfly
+      patch: |
+        - op: replace
+          path: /spec/args
+          value:
+            - --maxmemory=$(MAX_MEMORY)Mi
+            - --proactor_threads=2
+            - --cluster_mode=emulated
+            - --default_lua_flags=allow-undeclared-keys
+        - op: replace
+          path: /spec/resources
+          value:
+            requests:
+              cpu: 25m
+              memory: 512Mi
+            limits:
+              memory: 8Gi
   postBuild:
     substitute:
       APP: *app

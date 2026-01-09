@@ -254,7 +254,37 @@ spec:
             cpu: 25m
             memory: 128Mi
           limits:
+            memory: 1Gi
+
+      # Process Spans (high memory usage)
+      processSpans:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
             memory: 512Mi
+          limits:
+            memory: 2Gi
+
+      # Billing Metrics Consumer
+      billingMetricsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      # Generic Metrics Consumer
+      genericMetricsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
 
       ingestProfiles:
         replicas: 1

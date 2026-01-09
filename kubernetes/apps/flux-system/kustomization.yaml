@@ -7,6 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./priority-classes/ks.yaml
   - ./flux-instance/ks.yaml
   - ./flux-operator/ks.yaml
   - ./headlamp/ks.yaml

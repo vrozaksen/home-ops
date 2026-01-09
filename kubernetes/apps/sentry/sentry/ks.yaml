@@ -8,6 +8,8 @@ spec:
   components:
     - ../../../components/cnpg/initdb
   dependsOn:
+    - name: priority-classes
+      namespace: flux-system
     - name: cloudnative-pg
       namespace: database
     - name: plugin-barman-cloud

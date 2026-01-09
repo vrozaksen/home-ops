@@ -30,6 +30,9 @@ spec:
       create: true
       name: sentry
 
+    # Low priority - can be preempted by critical workloads
+    priorityClassName: cluster-low
+
     # Disable hooks after successful initial deployment
     hooks:
       enabled: false

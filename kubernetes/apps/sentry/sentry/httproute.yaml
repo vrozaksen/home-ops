@@ -23,7 +23,7 @@ spec:
     - matches:
         - path:
             type: RegularExpression
-            value: "^/api/[1-9][0-9]*/"
+            value: "^/api/[1-9][0-9]*/.*"
       backendRefs:
         - name: sentry-relay
           namespace: sentry

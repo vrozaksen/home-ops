@@ -45,7 +45,7 @@ spec:
       dbInit:
         enabled: false
 
-    # Disable bundled services
+    # Disable bundled services (using external)
     postgresql:
       enabled: false
     redis:
@@ -139,7 +139,7 @@ spec:
     auth:
       register: false
 
-    # Python/Django configuration for proxy support
+    # Python/Django configuration
     config:
       sentryConfPy: |
         CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
@@ -161,7 +161,6 @@ spec:
             profiles_sample_rate=0,
             send_default_pii=False,
         )
-      # Web worker configuration
       web:
         httpKeepalive: 15
         httpChunkedInput: true
@@ -180,23 +179,21 @@ spec:
         ignoreWriteErrors: true
         disableWriteException: true
 
-    # Sentry configuration
+    # ==========================================
+    # Sentry Components
+    # ==========================================
     sentry:
       singleOrganization: true
 
       features:
         orgSubdomains: false
-        enableProfiling: true
+        enableProfiling: false
         enableSessionReplay: true
         enableFeedback: true
         enableSpan: true
         enableUptime: false
 
-      # Disable uptime consumer (feature is off)
-      uptimeResults:
-        enabled: false
-
-      # Task Scheduler (new in 28.0.0)
+      # Core components
       taskScheduler:
         enabled: true
         replicas: 1
@@ -209,7 +206,6 @@ spec:
 
       web:
         replicas: 1
-        # Probe settings - give web time to start (loads plugins, connects to DBs)
         probeInitialDelaySeconds: 90
         probeFailureThreshold: 10
         probePeriodSeconds: 30
@@ -238,7 +234,6 @@ spec:
           limits:
             memory: 512Mi
 
-      # Task Broker (replaces RabbitMQ in 28.0.0)
       taskBroker:
         enabled: true
         replicas: 1
@@ -252,7 +247,6 @@ spec:
           enabled: true
           size: 1Gi
 
-      # Task Worker (replaces RabbitMQ in 28.0.0)
       taskWorker:
         enabled: true
         replicas: 1
@@ -264,7 +258,6 @@ spec:
           limits:
             memory: 4Gi
 
-      # Cleanup old data
       cleanup:
         enabled: true
         days: 90
@@ -275,7 +268,7 @@ spec:
           limits:
             memory: 2Gi
 
-      # Ingest Consumers
+      # Ingest consumers
       ingestConsumerEvents:
         replicas: 1
         resources:
@@ -312,45 +305,6 @@ spec:
           limits:
             memory: 1Gi
 
-      # Process Spans (high memory usage)
-      processSpans:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
-
-      # Billing Metrics Consumer
-      billingMetricsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      # Generic Metrics Consumer
-      genericMetricsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      ingestProfiles:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
       ingestReplayRecordings:
         replicas: 1
         resources:
@@ -369,7 +323,46 @@ spec:
           limits:
             memory: 512Mi
 
-      # Post-process Forwarders
+      ingestFeedback:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Processing
+      processSpans:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+
+      processSegments:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      genericMetricsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      # Post-process forwarders (alerts)
       postProcessForwardErrors:
         replicas: 1
         resources:
@@ -397,7 +390,7 @@ spec:
           limits:
             memory: 512Mi
 
-      # Subscription Consumers (alerts)
+      # Subscription consumers (alerts)
       subscriptionConsumerEvents:
         replicas: 1
         resources:
@@ -416,71 +409,27 @@ spec:
           limits:
             memory: 512Mi
 
-      # Additional Subscription Consumers
-      subscriptionConsumerResultsEapItems:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerGenericMetrics:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerMetrics:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # Ingest Feedback (for enableFeedback feature)
-      ingestFeedback:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # Process Segments (for span processing)
-      processSegments:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      # Metrics Consumer (sentry section)
+      # ------------------------------------------
+      # Disabled sentry components
+      # ------------------------------------------
+      uptimeResults:
+        enabled: false
+      billingMetricsConsumer:
+        enabled: false
+      ingestProfiles:
+        enabled: false
       metricsConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
+        enabled: false
+      subscriptionConsumerResultsEapItems:
+        enabled: false
+      subscriptionConsumerGenericMetrics:
+        enabled: false
+      subscriptionConsumerMetrics:
+        enabled: false
 
+    # ==========================================
     # Relay
+    # ==========================================
     relay:
       replicas: 1
       resources:
@@ -490,7 +439,9 @@ spec:
         limits:
           memory: 256Mi
 
-    # Snuba
+    # ==========================================
+    # Snuba Components
+    # ==========================================
     snuba:
       api:
         replicas: 1
@@ -528,15 +479,6 @@ spec:
           limits:
             memory: 1Gi
 
-      profilesConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
       replaysConsumer:
         replicas: 1
         resources:
@@ -555,27 +497,6 @@ spec:
           limits:
             memory: 512Mi
 
-      # Additional Snuba Consumers
-      eapItemsConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      outcomesBillingConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
       replacer:
         enabled: true
         replicas: 1
@@ -586,127 +507,6 @@ spec:
           limits:
             memory: 512Mi
 
-      # Generic Metrics Consumers
-      genericMetricsGaugesConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      genericMetricsCountersConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      genericMetricsDistributionConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      genericMetricsSetsConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      # Subscription Consumers
-      subscriptionConsumerEapItems:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerGenericMetricsDistributions:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerGenericMetricsSets:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerGenericMetricsCounters:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerGenericMetricsGauges:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # Profiling Consumers
-      profilingProfilesConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      profilingFunctionsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      profilingChunksConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      # Issue/Group Consumers
       issueOccurrenceConsumer:
         enabled: true
         replicas: 1
@@ -727,7 +527,50 @@ spec:
           limits:
             memory: 512Mi
 
-    # Symbolicator
+      # ------------------------------------------
+      # Disabled snuba components
+      # ------------------------------------------
+      # Profiling (enableProfiling: false)
+      profilesConsumer:
+        enabled: false
+      profilingProfilesConsumer:
+        enabled: false
+      profilingFunctionsConsumer:
+        enabled: false
+      profilingChunksConsumer:
+        enabled: false
+
+      # EAP (experimental)
+      eapItemsConsumer:
+        enabled: false
+      subscriptionConsumerEapItems:
+        enabled: false
+
+      # Billing (internal Sentry SaaS)
+      outcomesBillingConsumer:
+        enabled: false
+
+      # Generic metrics (not using custom SDK metrics)
+      genericMetricsGaugesConsumer:
+        enabled: false
+      genericMetricsCountersConsumer:
+        enabled: false
+      genericMetricsDistributionConsumer:
+        enabled: false
+      genericMetricsSetsConsumer:
+        enabled: false
+      subscriptionConsumerGenericMetricsDistributions:
+        enabled: false
+      subscriptionConsumerGenericMetricsSets:
+        enabled: false
+      subscriptionConsumerGenericMetricsCounters:
+        enabled: false
+      subscriptionConsumerGenericMetricsGauges:
+        enabled: false
+
+    # ==========================================
+    # Other Components
+    # ==========================================
     symbolicator:
       enabled: true
       api:
@@ -741,11 +584,9 @@ spec:
         persistence:
           enabled: false
 
-    # Sourcemaps
     sourcemaps:
       enabled: true
 
-    # Vroom (profiling)
     vroom:
       enabled: true
       replicas: 1
@@ -758,7 +599,9 @@ spec:
       persistence:
         enabled: false
 
-    # Nodestore S3 (new in 28.0.0)
+    # ==========================================
+    # Storage (S3)
+    # ==========================================
     nodestore:
       backend: s3
       s3:
@@ -770,7 +613,6 @@ spec:
         accessKeyIdRef: s3-access-key-id
         secretAccessKeyRef: s3-secret-access-key
 
-    # Filestore S3
     filestore:
       backend: s3
       s3:
@@ -780,7 +622,6 @@ spec:
         existingSecret: sentry-secret
         accessKeyIDKey: s3-access-key-id
         secretAccessKeyKey: s3-secret-access-key
-      # Profiles storage (new in 28.0.0)
       profiles:
         backend: s3
         s3:

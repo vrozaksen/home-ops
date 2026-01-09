@@ -13,7 +13,7 @@ spec:
     controllers:
       checkers:
         replicas: 1
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

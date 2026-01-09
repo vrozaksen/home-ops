@@ -23,7 +23,7 @@ spec:
     - matches:
         - path:
             type: RegularExpression
-            value: "^/api/[1-9]\\d*/"
+            value: "^/api/[1-9][0-9]*/"
       backendRefs:
         - name: sentry-relay
           namespace: sentry
@@ -32,6 +32,15 @@ spec:
         - path:
             type: PathPrefix
             value: /api/0/relays/
+      backendRefs:
+        - name: sentry-relay
+          namespace: sentry
+          port: 3000
+    # Feedback/embed endpoint to relay
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/embed/
       backendRefs:
         - name: sentry-relay
           namespace: sentry

@@ -142,6 +142,8 @@ spec:
         SESSION_COOKIE_SECURE = True
         SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
         SENTRY_BEACON = False
+        # Exempt SDK API endpoints from CSRF (they don't have Referer headers)
+        CSRF_TRUSTED_ORIGINS += ["null"]  # For SDK requests without origin
         # Disable internal monitoring completely (causes timeout loops)
         import sentry_sdk
         sentry_sdk.init(

@@ -23,6 +23,8 @@ spec:
     kind: OCIRepository
     name: forgejo
   values:
+    global:
+      priorityClassName: cluster-low
     replicaCount: 1
     strategy:
       type: "Recreate"

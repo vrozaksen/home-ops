@@ -10,6 +10,8 @@ spec:
     - ../../../../components/dragonfly
     - ../../../../components/volsync
   dependsOn:
+    - name: priority-classes
+      namespace: flux-system
     - name: cloudnative-pg
       namespace: database
     - name: plugin-barman-cloud

@@ -86,6 +86,21 @@ spec:
       host: sentry-kafka-kafka-bootstrap.sentry.svc.cluster.local
       port: 9092
 
+    # Disable internal monitoring completely
+    extraEnv:
+      - name: SENTRY_DSN
+        value: ""
+      - name: SENTRY_ENVIRONMENT
+        value: ""
+      - name: SENTRY_RELEASE
+        value: ""
+      - name: SENTRY_TRACES_SAMPLE_RATE
+        value: "0"
+      - name: SENTRY_PROFILES_SAMPLE_RATE
+        value: "0"
+      - name: SENTRY_SEND_DEFAULT_PII
+        value: "false"
+
     # System configuration
     system:
       adminEmail: admin@sentry.vzkn.eu
@@ -127,9 +142,17 @@ spec:
         SESSION_COOKIE_SECURE = True
         SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
         SENTRY_BEACON = False
-        # Disable internal monitoring (causes timeout loops)
+        # Disable internal monitoring completely (causes timeout loops)
         import sentry_sdk
-        sentry_sdk.init(dsn=None)
+        sentry_sdk.init(
+            dsn=None,
+            default_integrations=False,
+            auto_session_tracking=False,
+            traces_sample_rate=0,
+            profiles_sample_rate=0,
+            send_default_pii=False,
+            enable_tracing=False,
+        )
 
     # Sentry configuration
     sentry:

@@ -20,12 +20,17 @@ spec:
           app:
             image:
               repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-4
-              tag: 2026.1.6@sha256:cbeaca0091fb69a4384546d241a14aba0b11b025fdf8a7410d3f43e9afcb3971
+              tag: &version 2026.1.7
             env:
               TZ: "Europe/Warsaw"
               BASE_URL: "https://checkers.vzkn.eu"
               PYTHONUNBUFFERED: "1"
               PERSISTENCE_DIR: "/app/data"
+              SENTRY_ENVIRONMENT: "production"
+              SENTRY_RELEASE: *version
+            envFrom:
+              - secretRef:
+                  name: checkers-secret
             probes:
               liveness: &probes
                 enabled: true

@@ -24,6 +24,10 @@ spec:
         kind: HelmRepository
         name: sentry
   values:
+    # Deployment profile
+    profiles:
+      - feature-complete
+
     # Service Account
     serviceAccount:
       enabled: true
@@ -157,9 +161,29 @@ spec:
             profiles_sample_rate=0,
             send_default_pii=False,
         )
+      # Web worker configuration
+      web:
+        httpKeepalive: 15
+        httpChunkedInput: true
+        workers: 3
+        memoryReport: false
+        maxRequests: 100000
+        maxRequestsDelta: 500
+        maxWorkerLifetime: 86400
+        thunderLock: true
+        logXForwardedFor: false
+        bufferSize: 32768
+        limitPost: 209715200
+        disableLogging: true
+        reloadOnRss: 600
+        ignoreSignpipe: true
+        ignoreWriteErrors: true
+        disableWriteException: true
 
     # Sentry configuration
     sentry:
+      singleOrganization: true
+
       features:
         orgSubdomains: false
         enableProfiling: true
@@ -171,6 +195,17 @@ spec:
       # Disable uptime consumer (feature is off)
       uptimeResults:
         enabled: false
+
+      # Task Scheduler (new in 28.0.0)
+      taskScheduler:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
 
       web:
         replicas: 1
@@ -241,7 +276,25 @@ spec:
             memory: 2Gi
 
       # Ingest Consumers
-      ingestConsumer:
+      ingestConsumerEvents:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+
+      ingestConsumerTransactions:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+
+      ingestConsumerAttachments:
         replicas: 1
         resources:
           requests:
@@ -363,6 +416,70 @@ spec:
           limits:
             memory: 512Mi
 
+      # Additional Subscription Consumers
+      subscriptionConsumerResultsEapItems:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerGenericMetrics:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerMetrics:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Ingest Feedback (for enableFeedback feature)
+      ingestFeedback:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Process Segments (for span processing)
+      processSegments:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+      # Metrics Consumer (sentry section)
+      metricsConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
     # Relay
     relay:
       replicas: 1
@@ -430,6 +547,178 @@ spec:
             memory: 1Gi
 
       outcomesConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Additional Snuba Consumers
+      eapItemsConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      outcomesBillingConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      replacer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Generic Metrics Consumers
+      genericMetricsGaugesConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      genericMetricsCountersConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      genericMetricsDistributionConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      genericMetricsSetsConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      # Subscription Consumers
+      subscriptionConsumerEapItems:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerGenericMetricsDistributions:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerGenericMetricsSets:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerGenericMetricsCounters:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      subscriptionConsumerGenericMetricsGauges:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      # Profiling Consumers
+      profilingProfilesConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      profilingFunctionsConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      profilingChunksConsumer:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+      # Issue/Group Consumers
+      issueOccurrenceConsumer:
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+      groupAttributesConsumer:
+        enabled: true
         replicas: 1
         resources:
           requests:

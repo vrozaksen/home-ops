@@ -127,6 +127,9 @@ spec:
         SESSION_COOKIE_SECURE = True
         SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
         SENTRY_BEACON = False
+        # Disable internal monitoring (causes timeout loops)
+        import sentry_sdk
+        sentry_sdk.init(dsn=None)
 
     # Sentry configuration
     sentry:

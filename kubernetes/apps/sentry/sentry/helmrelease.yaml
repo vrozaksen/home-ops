@@ -52,7 +52,7 @@ spec:
     kafka:
       enabled: false
     nginx:
-      enabled: true
+      enabled: false
 
     # External PostgreSQL (CNPG)
     externalPostgresql:
@@ -151,7 +151,6 @@ spec:
             traces_sample_rate=0,
             profiles_sample_rate=0,
             send_default_pii=False,
-            enable_tracing=False,
         )
 
     # Sentry configuration

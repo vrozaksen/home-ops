@@ -206,10 +206,10 @@ spec:
 
       web:
         replicas: 1
-        probeInitialDelaySeconds: 90
-        probeFailureThreshold: 10
+        probeInitialDelaySeconds: 120
+        probeFailureThreshold: 15
         probePeriodSeconds: 30
-        probeTimeoutSeconds: 30
+        probeTimeoutSeconds: 60
         resources:
           requests:
             cpu: 50m

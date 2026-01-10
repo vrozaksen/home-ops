@@ -61,9 +61,9 @@ spec:
             resources:
               requests:
                 cpu: 100m
-                memory: 4Gi
+                memory: 2Gi
               limits:
-                memory: 12Gi
+                memory: 8Gi
           vuetorrent:
             dependsOn: app
             image:

@@ -32,12 +32,6 @@ spec:
     name: ${APP}-cnpg-secret
   enableSuperuserAccess: true
   # Bootstrap method must be provided by a component (initdb or restore)
-  resources:
-    requests:
-      cpu: ${CNPG_REQUESTS_CPU:=25m}
-      memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
-    limits:
-      memory: ${CNPG_LIMITS_MEMORY:=512Mi}
   # AFFINITY configuration - controls pod placement across nodes
   # For SINGLE-NODE clusters with 2+ instances:
   #   Option 1: Remove entire 'affinity:' section (simplest)

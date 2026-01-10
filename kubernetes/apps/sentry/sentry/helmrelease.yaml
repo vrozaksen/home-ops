@@ -38,12 +38,12 @@ spec:
     priorityClassName: cluster-low
 
     # Disable hooks after successful initial deployment
-    hooks:
-      enabled: false
-      dbCheck:
-        enabled: true
-      dbInit:
-        enabled: false
+    # hooks:
+      # enabled: false
+      # dbCheck:
+      #   enabled: true
+      # dbInit:
+      #   enabled: false
 
     # Disable bundled services (using external)
     postgresql:

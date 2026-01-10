@@ -47,12 +47,19 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 100m
-                memory: 256Mi
+                cpu: 200m
+                memory: 1Gi
               limits:
-                cpu: 500m
-                memory: 2Gi
+                cpu: 2000m
+                memory: 6Gi
     defaultPodOptions:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: clickhouse
       securityContext:
         runAsNonRoot: true
         runAsUser: 101

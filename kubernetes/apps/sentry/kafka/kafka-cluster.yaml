@@ -18,10 +18,10 @@ spec:
     deleteClaim: false
   resources:
     requests:
-      cpu: 200m
-      memory: 1Gi
+      cpu: 500m
+      memory: 2Gi
     limits:
-      memory: 4Gi
+      memory: 6Gi
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/kafka.strimzi.io/kafka_v1beta2.json
 apiVersion: kafka.strimzi.io/v1beta2

@@ -24,28 +24,75 @@ spec:
         kind: HelmRepository
         name: sentry
   values:
-    # Deployment profile
+    # ============================================================================
+    # YAML Anchors - Reusable Resource Definitions
+    # ============================================================================
+    # Tiny: background workers, schedulers
+    x-resources-tiny: &resources-tiny
+      requests:
+        cpu: 25m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
+    # Small: lightweight consumers
+    x-resources-small: &resources-small
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+
+    # Medium: standard consumers
+    x-resources-medium: &resources-medium
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+
+    # Large: web, main workers
+    x-resources-large: &resources-large
+      requests:
+        cpu: 100m
+        memory: 1Gi
+      limits:
+        memory: 4Gi
+
+    # Web-specific (high memory)
+    x-resources-web: &resources-web
+      requests:
+        cpu: 100m
+        memory: 1536Mi
+      limits:
+        memory: 4Gi
+
+    # Topology spread constraint template
+    x-topology-spread: &topology-spread
+      maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+
+    # ============================================================================
+    # Global Configuration
+    # ============================================================================
     profiles:
       - feature-complete
 
-    # Service Account
     serviceAccount:
       enabled: true
       create: true
       name: sentry
 
-    # Low priority - can be preempted by critical workloads
     priorityClassName: cluster-low
 
-    # Disable hooks after successful initial deployment
-    hooks:
-      enabled: false
-      dbCheck:
-        enabled: true
-      dbInit:
-        enabled: false
+    global:
+      nodeSelector: {}
+      tolerations: []
 
-    # Disable bundled services (using external)
+    # ============================================================================
+    # Bundled Services - All Disabled (using external)
+    # ============================================================================
     postgresql:
       enabled: false
     redis:
@@ -60,8 +107,15 @@ spec:
       enabled: false
     nginx:
       enabled: false
+    ingress:
+      enabled: false
+    pgbouncer:
+      enabled: false
 
-    # External PostgreSQL (CNPG)
+    # ============================================================================
+    # External Services
+    # ============================================================================
+    # PostgreSQL via CloudNative-PG with PgBouncer pooler
     externalPostgresql:
       host: pooler-sentry-rw.sentry.svc.cluster.local
       port: 5432
@@ -71,13 +125,13 @@ spec:
       existingSecretKeys:
         password: password
 
-    # External Redis (Dragonfly)
+    # Redis via Dragonfly
     externalRedis:
       host: sentry-dragonfly.sentry.svc.cluster.local
       port: 6379
       db: 0
 
-    # External ClickHouse
+    # ClickHouse (single node)
     externalClickhouse:
       host: clickhouse.database.svc.cluster.local
       tcpPort: 9000
@@ -88,34 +142,39 @@ spec:
       existingSecret: sentry-secret
       existingSecretKey: clickhouse-password
 
-    # External Kafka (Strimzi)
+    # Kafka via Strimzi
     externalKafka:
       host: sentry-kafka-kafka-bootstrap.sentry.svc.cluster.local
       port: 9092
 
-    # Disable internal monitoring completely
-    extraEnv:
-      - name: SENTRY_DSN
-        value: ""
-      - name: SENTRY_ENVIRONMENT
-        value: ""
-      - name: SENTRY_RELEASE
-        value: ""
-      - name: SENTRY_TRACES_SAMPLE_RATE
-        value: "0"
-      - name: SENTRY_PROFILES_SAMPLE_RATE
-        value: "0"
-      - name: SENTRY_SEND_DEFAULT_PII
-        value: "false"
+    # ============================================================================
+    # Hooks & Initialization
+    # ============================================================================
+    hooks:
+      enabled: false
+      dbCheck:
+        enabled: true
+      dbInit:
+        enabled: false
 
-    # System configuration
+    # ============================================================================
+    # System & Auth Configuration
+    # ============================================================================
     system:
       adminEmail: admin@sentry.vzkn.eu
       url: https://sentry.vzkn.eu
       public: false
       existingSecret: sentry-secret
 
-    # Mail configuration
+    user:
+      create: true
+      email: admin@sentry.vzkn.eu
+      existingSecret: sentry-secret
+      existingSecretKey: ADMIN_PASSWORD
+
+    auth:
+      register: false
+
     # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990) before setting up SMTP
     # After wizard completion, change back to smtp
     # mail:
@@ -141,19 +200,9 @@ spec:
       host: "smtp.protonmail.ch"
       from: "admin@vzkn.eu"
 
-
-    # Admin user
-    user:
-      create: true
-      email: admin@sentry.vzkn.eu
-      existingSecret: sentry-secret
-      existingSecretKey: ADMIN_PASSWORD
-
-    # Auth
-    auth:
-      register: false
-
-    # Python/Django configuration
+    # ============================================================================
+    # Application Configuration
+    # ============================================================================
     config:
       sentryConfPy: |
         CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
@@ -193,437 +242,24 @@ spec:
         ignoreWriteErrors: true
         disableWriteException: true
 
-    # ==========================================
-    # Sentry Components
-    # ==========================================
-    sentry:
-      singleOrganization: true
+    # Disable internal self-monitoring
+    extraEnv:
+      - name: SENTRY_DSN
+        value: ""
+      - name: SENTRY_ENVIRONMENT
+        value: ""
+      - name: SENTRY_RELEASE
+        value: ""
+      - name: SENTRY_TRACES_SAMPLE_RATE
+        value: "0"
+      - name: SENTRY_PROFILES_SAMPLE_RATE
+        value: "0"
+      - name: SENTRY_SEND_DEFAULT_PII
+        value: "false"
 
-      features:
-        orgSubdomains: false
-        enableProfiling: false
-        enableSessionReplay: true
-        enableFeedback: true
-        enableSpan: true
-        enableUptime: false
-
-      # Core components
-      taskScheduler:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      web:
-        replicas: 1
-        probeInitialDelaySeconds: 120
-        probeFailureThreshold: 15
-        probePeriodSeconds: 30
-        probeTimeoutSeconds: 60
-        resources:
-          requests:
-            cpu: 50m
-            memory: 1Gi
-          limits:
-            memory: 4Gi
-
-      worker:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            memory: 4Gi
-
-      cron:
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      taskBroker:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-        persistence:
-          enabled: true
-          size: 1Gi
-
-      taskWorker:
-        enabled: true
-        replicas: 1
-        concurrency: 4
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            memory: 4Gi
-
-      cleanup:
-        enabled: true
-        days: 90
-        resources:
-          requests:
-            cpu: 25m
-            memory: 256Mi
-          limits:
-            memory: 2Gi
-
-      # Ingest consumers
-      ingestConsumerEvents:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
-
-      ingestConsumerTransactions:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
-
-      ingestConsumerAttachments:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      ingestMonitors:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      ingestReplayRecordings:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      ingestOccurrences:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      ingestFeedback:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # Processing
-      processSpans:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
-
-      processSegments:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      genericMetricsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      # Post-process forwarders (alerts)
-      postProcessForwardErrors:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      postProcessForwardTransactions:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-
-      postProcessForwardIssuePlatform:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # Subscription consumers (alerts)
-      subscriptionConsumerEvents:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      subscriptionConsumerTransactions:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # ------------------------------------------
-      # Disabled sentry components
-      # ------------------------------------------
-      uptimeResults:
-        enabled: false
-      billingMetricsConsumer:
-        enabled: false
-      ingestProfiles:
-        enabled: false
-      # metricsConsumer needed for release health
-      metricsConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-      subscriptionConsumerResultsEapItems:
-        enabled: false
-      subscriptionConsumerGenericMetrics:
-        enabled: false
-      subscriptionConsumerMetrics:
-        enabled: false
-
-    # ==========================================
-    # Relay
-    # ==========================================
-    relay:
-      replicas: 1
-      resources:
-        requests:
-          cpu: 25m
-          memory: 64Mi
-        limits:
-          memory: 256Mi
-
-    # ==========================================
-    # Snuba Components
-    # ==========================================
-    snuba:
-      api:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      consumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      transactionsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      metricsConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      replaysConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-      outcomesConsumer:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      replacer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      issueOccurrenceConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      groupAttributesConsumer:
-        enabled: true
-        replicas: 1
-        resources:
-          requests:
-            cpu: 25m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-
-      # ------------------------------------------
-      # Disabled snuba components
-      # ------------------------------------------
-      # Profiling (enableProfiling: false)
-      profilesConsumer:
-        enabled: false
-      profilingProfilesConsumer:
-        enabled: false
-      profilingFunctionsConsumer:
-        enabled: false
-      profilingChunksConsumer:
-        enabled: false
-
-      # EAP (experimental)
-      eapItemsConsumer:
-        enabled: false
-      subscriptionConsumerEapItems:
-        enabled: false
-
-      # Billing (internal Sentry SaaS)
-      outcomesBillingConsumer:
-        enabled: false
-
-      # Generic metrics (not using custom SDK metrics)
-      genericMetricsGaugesConsumer:
-        enabled: false
-      genericMetricsCountersConsumer:
-        enabled: false
-      genericMetricsDistributionConsumer:
-        enabled: false
-      genericMetricsSetsConsumer:
-        enabled: false
-      subscriptionConsumerGenericMetricsDistributions:
-        enabled: false
-      subscriptionConsumerGenericMetricsSets:
-        enabled: false
-      subscriptionConsumerGenericMetricsCounters:
-        enabled: false
-      subscriptionConsumerGenericMetricsGauges:
-        enabled: false
-
-    # ==========================================
-    # Other Components
-    # ==========================================
-    symbolicator:
-      enabled: true
-      api:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 256Mi
-          limits:
-            memory: 1Gi
-        persistence:
-          enabled: false
-
-    sourcemaps:
-      enabled: true
-
-    vroom:
-      enabled: true
-      replicas: 1
-      resources:
-        requests:
-          cpu: 25m
-          memory: 64Mi
-        limits:
-          memory: 256Mi
-      persistence:
-        enabled: false
-
-    # ==========================================
-    # Storage (S3)
-    # ==========================================
+    # ============================================================================
+    # Storage (S3-compatible - Garage)
+    # ============================================================================
     nodestore:
       backend: s3
       s3:
@@ -644,13 +280,382 @@ spec:
         existingSecret: sentry-secret
         accessKeyIDKey: s3-access-key-id
         secretAccessKeyKey: s3-secret-access-key
-      profiles:
-        backend: s3
-        s3:
-          bucketName: sentry
-          bucketPath: profiles
-          endpointUrl: https://api.s3.vzkn.eu
-          regionName: eu-central-1
-          existingSecret: sentry-secret
-          accessKeyIdRef: s3-access-key-id
-          secretAccessKeyRef: s3-secret-access-key
+
+    # ============================================================================
+    # Sentry Core Components
+    # ============================================================================
+    sentry:
+      singleOrganization: true
+
+      features:
+        orgSubdomains: false
+        enableProfiling: false      # Disabled - no vroom, no profile consumers
+        enableSessionReplay: true   # Enabled - replay recordings
+        enableFeedback: true        # Enabled - user feedback
+        enableSpan: true            # Enabled - distributed tracing
+        enableUptime: false         # Disabled - no uptime checker
+
+      # ------------------------------------------
+      # Web & API
+      # ------------------------------------------
+      web:
+        replicas: 1
+        resources: *resources-web
+        probeInitialDelaySeconds: 180
+        probeFailureThreshold: 20
+        probePeriodSeconds: 30
+        probeTimeoutSeconds: 60
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: web
+
+      # ------------------------------------------
+      # Task System (Celery replacement)
+      # ------------------------------------------
+      taskScheduler:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+
+      taskBroker:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+        persistence:
+          enabled: true
+          size: 1Gi
+
+      taskWorker:
+        enabled: true
+        replicas: 1
+        concurrency: 4
+        resources: *resources-large
+
+      # ------------------------------------------
+      # Ingest Consumers (Kafka -> Processing)
+      # ------------------------------------------
+      ingestConsumerEvents:
+        replicas: 1
+        resources: *resources-medium
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: ingest-consumer-events
+
+      ingestConsumerTransactions:
+        replicas: 1
+        resources: *resources-medium
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: ingest-consumer-transactions
+
+      ingestConsumerAttachments:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: ingest-consumer-attachments
+
+      ingestMonitors:
+        replicas: 1
+        resources: *resources-small
+
+      ingestReplayRecordings:
+        replicas: 1
+        resources: *resources-small
+
+      ingestOccurrences:
+        replicas: 1
+        resources: *resources-tiny
+
+      ingestFeedback:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Processing
+      # ------------------------------------------
+      processSpans:
+        replicas: 1
+        resources: *resources-medium
+
+      processSegments:
+        enabled: true
+        replicas: 1
+        resources: *resources-small
+
+      # ------------------------------------------
+      # Post-Process Forwarders (Alerts)
+      # ------------------------------------------
+      postProcessForwardErrors:
+        replicas: 1
+        resources: *resources-small
+
+      postProcessForwardTransactions:
+        replicas: 1
+        resources: *resources-small
+
+      postProcessForwardIssuePlatform:
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Subscription Consumers (Alert Queries)
+      # ------------------------------------------
+      subscriptionConsumerEvents:
+        replicas: 1
+        resources: *resources-tiny
+
+      subscriptionConsumerTransactions:
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Metrics Consumers
+      # ------------------------------------------
+      metricsConsumer:
+        enabled: true  # Required for release health
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Cleanup
+      # ------------------------------------------
+      cleanup:
+        enabled: true
+        days: 90
+        resources:
+          requests:
+            cpu: 25m
+            memory: 256Mi
+          limits:
+            memory: 2Gi
+
+      # ------------------------------------------
+      # Disabled Sentry Components
+      # ------------------------------------------
+      # Profiling - disabled via features.enableProfiling
+      ingestProfiles:
+        enabled: false
+
+      # Uptime - disabled via features.enableUptime
+      uptimeResults:
+        enabled: false
+
+      # Billing - internal Sentry SaaS only
+      billingMetricsConsumer:
+        enabled: false
+
+      # Generic metrics - not using custom SDK metrics
+      genericMetricsConsumer:
+        enabled: false
+
+      # EAP subscription results
+      subscriptionConsumerResultsEapItems:
+        enabled: false
+
+      # Generic metrics subscriptions
+      subscriptionConsumerGenericMetrics:
+        enabled: false
+      subscriptionConsumerMetrics:
+        enabled: false
+
+      # Cron monitors (clock-based scheduling)
+      monitorsClockTasks:
+        enabled: false
+      monitorsClockTick:
+        enabled: false
+
+    # ============================================================================
+    # Relay (SDK ingestion proxy)
+    # ============================================================================
+    relay:
+      replicas: 1
+      resources: *resources-tiny
+      topologySpreadConstraints:
+        - <<: *topology-spread
+          labelSelector:
+            matchLabels:
+              app: sentry
+              role: relay
+
+    # ============================================================================
+    # Snuba (ClickHouse query layer)
+    # ============================================================================
+    snuba:
+      # ------------------------------------------
+      # API
+      # ------------------------------------------
+      api:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-api
+
+      # ------------------------------------------
+      # Main Consumers (Kafka -> ClickHouse)
+      # ------------------------------------------
+      consumer:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-consumer
+
+      transactionsConsumer:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-transactions-consumer
+
+      metricsConsumer:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-metrics-consumer
+
+      replaysConsumer:
+        replicas: 1
+        resources: *resources-small
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-replays-consumer
+
+      outcomesConsumer:
+        replicas: 1
+        resources: *resources-tiny
+        topologySpreadConstraints:
+          - <<: *topology-spread
+            labelSelector:
+              matchLabels:
+                app: sentry
+                role: snuba-outcomes-consumer
+
+      # ------------------------------------------
+      # Supporting Consumers
+      # ------------------------------------------
+      replacer:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+
+      issueOccurrenceConsumer:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+
+      groupAttributesConsumer:
+        enabled: true
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Subscription Consumers (Alert Queries)
+      # ------------------------------------------
+      subscriptionConsumerEvents:
+        replicas: 1
+        resources: *resources-tiny
+
+      subscriptionConsumerMetrics:
+        replicas: 1
+        resources: *resources-tiny
+
+      subscriptionConsumerTransactions:
+        replicas: 1
+        resources: *resources-tiny
+
+      # ------------------------------------------
+      # Disabled Snuba Components
+      # ------------------------------------------
+      # Profiling consumers (enableProfiling: false)
+      profilesConsumer:
+        enabled: false
+      profilingProfilesConsumer:
+        enabled: false
+      profilingFunctionsConsumer:
+        enabled: false
+      profilingChunksConsumer:
+        enabled: false
+
+      # EAP (experimental features)
+      eapItemsConsumer:
+        enabled: false
+      subscriptionConsumerEapItems:
+        enabled: false
+
+      # Billing (Sentry SaaS internal)
+      outcomesBillingConsumer:
+        enabled: false
+
+      # Generic metrics consumers (not using custom SDK metrics)
+      genericMetricsGaugesConsumer:
+        enabled: false
+      genericMetricsCountersConsumer:
+        enabled: false
+      genericMetricsDistributionConsumer:
+        enabled: false
+      genericMetricsSetsConsumer:
+        enabled: false
+
+      # Generic metrics subscription consumers
+      subscriptionConsumerGenericMetricsDistributions:
+        enabled: false
+      subscriptionConsumerGenericMetricsSets:
+        enabled: false
+      subscriptionConsumerGenericMetricsCounters:
+        enabled: false
+      subscriptionConsumerGenericMetricsGauges:
+        enabled: false
+
+    # ============================================================================
+    # Symbolicator (Native crash symbolication)
+    # ============================================================================
+    symbolicator:
+      enabled: true
+      api:
+        replicas: 1
+        resources: *resources-small
+        persistence:
+          enabled: false
+
+    # ============================================================================
+    # Sourcemaps (JS error stack traces)
+    # ============================================================================
+    sourcemaps:
+      enabled: true
+
+    # ============================================================================
+    # Disabled Components (via features)
+    # ============================================================================
+    # vroom - controlled by sentry.features.enableProfiling: false
+    # uptimeChecker - controlled by sentry.features.enableUptime: false

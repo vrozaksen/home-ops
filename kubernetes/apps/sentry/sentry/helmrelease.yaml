@@ -38,12 +38,12 @@ spec:
     priorityClassName: cluster-low
 
     # Disable hooks after successful initial deployment
-    # hooks:
-      # enabled: false
-      # dbCheck:
-      #   enabled: true
-      # dbInit:
-      #   enabled: false
+    hooks:
+      enabled: false
+      dbCheck:
+        enabled: true
+      dbInit:
+        enabled: false
 
     # Disable bundled services (using external)
     postgresql:
@@ -116,17 +116,19 @@ spec:
       existingSecret: sentry-secret
 
     # Mail configuration
+    # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990)
+    # After wizard completion, change back to smtp
     mail:
-      backend: smtp
-      useTls: true
+      backend: dummy  # TODO: Change to smtp after Welcome wizard
+      useTls: false
       useSsl: false
-      username: "admin@vzkn.eu"
+      username: ""
       password: ""
-      existingSecret: sentry-secret
-      existingSecretKey: mail-password
+      # existingSecret: sentry-secret
+      # existingSecretKey: mail-password
       port: 587
-      host: "smtp.protonmail.ch"
-      from: "admin@vzkn.eu"
+      host: ""
+      from: ""
 
     # Admin user
     user:

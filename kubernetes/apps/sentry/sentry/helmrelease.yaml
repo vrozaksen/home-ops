@@ -116,8 +116,8 @@ spec:
     # GeoIP (MaxMind GeoLite2)
     # ============================================================================
     geodata:
-      accountID: "${MAXMIND_ACCOUNT_ID}"
-      licenseKey: "${MAXMIND_LICENSE_KEY}"
+      accountID: ${MAXMIND_ACCOUNT_ID}  # substituted, then quoted by Flux
+      licenseKey: ${MAXMIND_LICENSE_KEY}
       editionIDs: GeoLite2-City
       volumeName: geoip-data
       mountPath: /usr/share/GeoIP

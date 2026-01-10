@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/v1/persistentvolumeclaim.json
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-sentry-geoip
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ceph-block
+  resources:
+    requests:
+      storage: 1Gi

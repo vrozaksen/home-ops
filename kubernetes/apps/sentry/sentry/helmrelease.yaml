@@ -115,8 +115,9 @@ spec:
     # ============================================================================
     # GeoIP (MaxMind GeoLite2)
     # ============================================================================
+    # PVC created separately in pvc.yaml (Helm uses existing via lookupVolumeName)
     geodata:
-      accountID: ${MAXMIND_ACCOUNT_ID}  # substituted, then quoted by Flux
+      accountID: ${MAXMIND_ACCOUNT_ID}
       licenseKey: ${MAXMIND_LICENSE_KEY}
       editionIDs: GeoLite2-City
       volumeName: geoip-data
@@ -127,6 +128,7 @@ spec:
         size: 1Gi
         accessModes:
           - ReadWriteOnce
+        lookupVolumeName: true
 
     # ============================================================================
     # External Services

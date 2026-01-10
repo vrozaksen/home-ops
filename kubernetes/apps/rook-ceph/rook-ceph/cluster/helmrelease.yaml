@@ -88,15 +88,15 @@ spec:
         mon:
           requests:
             cpu: 50m
-            memory: 1Gi
+            memory: 768Mi
           limits:
-            memory: 2Gi
+            memory: 1536Mi
         osd:
           requests:
             cpu: 500m
-            memory: 4Gi
+            memory: 2560Mi
           limits:
-            memory: 8Gi
+            memory: 6Gi
         mgr-sidecar:
           requests:
             cpu: 50m

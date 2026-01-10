@@ -12,7 +12,7 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
-        replicas: 4
+        replicas: 2
         pod:
           topologySpreadConstraints:
             - maxSkew: 1

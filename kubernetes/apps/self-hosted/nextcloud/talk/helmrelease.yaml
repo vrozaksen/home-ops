@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       signaling:
-        replicas: 2
         strategy: RollingUpdate
         containers:
           app:

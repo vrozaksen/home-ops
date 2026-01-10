@@ -12,10 +12,9 @@ spec:
   values:
     controllers:
       forgejo-runner:
-        replicas: 3
         type: statefulset
         podDisruptionBudget:
-          minAvailable: 2
+          minAvailable: 1
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:

@@ -47,9 +47,9 @@ spec:
     x-resources-medium: &resources-medium
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 768Mi
       limits:
-        memory: 2Gi
+        memory: 3Gi
 
     # Large: web, main workers
     x-resources-large: &resources-large

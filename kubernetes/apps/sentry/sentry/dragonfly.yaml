@@ -21,9 +21,9 @@ spec:
   resources:
     requests:
       cpu: 25m
-      memory: 512Mi
+      memory: 2Gi
     limits:
-      memory: 8Gi
+      memory: 16Gi
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: "kubernetes.io/hostname"

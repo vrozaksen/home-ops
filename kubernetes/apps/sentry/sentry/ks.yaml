@@ -6,7 +6,7 @@ metadata:
   name: &app sentry
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
   dependsOn:
     - name: priority-classes
       namespace: flux-system

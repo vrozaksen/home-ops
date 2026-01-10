@@ -31,14 +31,6 @@ spec:
         app.kubernetes.io/name: ${APP}
         app.kubernetes.io/component: database-pooler
     spec:
-      containers:
-        - name: pgbouncer
-          resources:
-            requests:
-              cpu: ${CNPG_POOLER_REQUESTS_CPU:=10m}
-              memory: ${CNPG_POOLER_REQUESTS_MEMORY:=32Mi}
-            limits:
-              memory: ${CNPG_POOLER_LIMITS_MEMORY:=64Mi}
       # AFFINITY configuration - ensures pooler pods are on different nodes
       affinity:
         podAntiAffinity:

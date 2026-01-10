@@ -113,6 +113,22 @@ spec:
       enabled: false
 
     # ============================================================================
+    # GeoIP (MaxMind GeoLite2)
+    # ============================================================================
+    geodata:
+      accountID: "${MAXMIND_ACCOUNT_ID}"
+      licenseKey: "${MAXMIND_LICENSE_KEY}"
+      editionIDs: GeoLite2-City
+      volumeName: geoip-data
+      mountPath: /usr/share/GeoIP
+      path: /usr/share/GeoIP/GeoLite2-City.mmdb
+      persistence:
+        storageClass: ceph-block
+        size: 1Gi
+        accessModes:
+          - ReadWriteOnce
+
+    # ============================================================================
     # External Services
     # ============================================================================
     # PostgreSQL via CloudNative-PG with PgBouncer pooler

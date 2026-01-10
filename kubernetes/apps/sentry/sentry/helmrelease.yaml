@@ -432,8 +432,16 @@ spec:
         enabled: false
       ingestProfiles:
         enabled: false
+      # metricsConsumer needed for release health
       metricsConsumer:
-        enabled: false
+        enabled: true
+        replicas: 1
+        resources:
+          requests:
+            cpu: 25m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
       subscriptionConsumerResultsEapItems:
         enabled: false
       subscriptionConsumerGenericMetrics:

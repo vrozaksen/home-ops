@@ -116,19 +116,31 @@ spec:
       existingSecret: sentry-secret
 
     # Mail configuration
-    # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990)
+    # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990) before setting up SMTP
     # After wizard completion, change back to smtp
+    # mail:
+    #   backend: dummy
+    #   useTls: false
+    #   useSsl: false
+    #   username: ""
+    #   password: ""
+    #   # existingSecret: sentry-secret
+    #   # existingSecretKey: mail-password
+    #   port: 587
+    #   host: ""
+    #   from: ""
     mail:
-      backend: dummy  # TODO: Change to smtp after Welcome wizard
-      useTls: false
+      backend: smtp
+      useTls: true
       useSsl: false
-      username: ""
+      username: "admin@vzkn.eu"
       password: ""
-      # existingSecret: sentry-secret
-      # existingSecretKey: mail-password
+      existingSecret: sentry-secret
+      existingSecretKey: mail-password
       port: 587
-      host: ""
-      from: ""
+      host: "smtp.protonmail.ch"
+      from: "admin@vzkn.eu"
+
 
     # Admin user
     user:

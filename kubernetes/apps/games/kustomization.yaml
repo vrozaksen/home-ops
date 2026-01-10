@@ -8,4 +8,4 @@ components:
 resources:
   - ./namespace.yaml
   # - ./factorio/ks.yaml
-  - ./rimworld/ks.yaml
+  # - ./rimworld/ks.yaml

@@ -27,45 +27,47 @@ spec:
     # ============================================================================
     # YAML Anchors - Reusable Resource Definitions
     # ============================================================================
+    # NOTE: Requests lowered to reduce scheduling pressure, limits stay high for bursts
+
     # Tiny: background workers, schedulers
     x-resources-tiny: &resources-tiny
       requests:
-        cpu: 25m
-        memory: 128Mi
+        cpu: 10m
+        memory: 64Mi
       limits:
         memory: 512Mi
 
     # Small: lightweight consumers
     x-resources-small: &resources-small
       requests:
-        cpu: 50m
-        memory: 256Mi
+        cpu: 10m
+        memory: 128Mi
       limits:
         memory: 1Gi
 
     # Medium: standard consumers
     x-resources-medium: &resources-medium
       requests:
-        cpu: 100m
-        memory: 768Mi
+        cpu: 25m
+        memory: 256Mi
       limits:
-        memory: 3Gi
+        memory: 2Gi
 
     # Large: web, main workers
     x-resources-large: &resources-large
       requests:
-        cpu: 100m
-        memory: 1Gi
+        cpu: 50m
+        memory: 512Mi
       limits:
-        memory: 4Gi
+        memory: 3Gi
 
     # Web-specific (high memory)
     x-resources-web: &resources-web
       requests:
-        cpu: 100m
-        memory: 1536Mi
+        cpu: 50m
+        memory: 512Mi
       limits:
-        memory: 4Gi
+        memory: 3Gi
 
     # Topology spread constraint template
     x-topology-spread: &topology-spread

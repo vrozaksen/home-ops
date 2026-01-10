@@ -23,6 +23,12 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: sentry
+  # Inject MaxMind GeoIP credentials from ExternalSecret
+  valuesFrom:
+    - kind: Secret
+      name: sentry-maxmind
+      valuesKey: values.yaml
+      optional: true
   values:
     # ============================================================================
     # YAML Anchors - Reusable Resource Definitions

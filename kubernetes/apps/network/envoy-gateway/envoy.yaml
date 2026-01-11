@@ -154,6 +154,10 @@ spec:
   http2:
     onInvalidMessage: TerminateStream
   http3: {}
+  # Required for Collabora WebSocket paths with encoded URLs
+  path:
+    escapedSlashesAction: KeepUnchanged
+    disableMergeSlashes: true
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway

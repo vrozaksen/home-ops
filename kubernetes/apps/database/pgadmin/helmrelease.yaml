@@ -18,7 +18,7 @@ spec:
           init-pgpass:
             image: &image
               repository: docker.io/dpage/pgadmin4
-              tag: 9.2@sha256:4dc426e13e808c4e60faf8c89a1c00e950c1835bf407e7f0ea862b49b1a0b286
+              tag: 9.11.0@sha256:50700ac17936d0227f9e3e4bb086a91efb67064debc4b4737c35545bf1564088
             command:
               - /bin/sh
               - -c

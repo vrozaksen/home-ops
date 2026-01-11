@@ -167,18 +167,7 @@ spec:
         SESSION_COOKIE_SECURE = True
         SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
         SENTRY_BEACON = False
-        # Exempt SDK API endpoints from CSRF (they don't have Referer headers)
         CSRF_TRUSTED_ORIGINS += ["null"]  # For SDK requests without origin
-        # Disable internal monitoring completely (causes timeout loops)
-        import sentry_sdk
-        sentry_sdk.init(
-            dsn=None,
-            default_integrations=False,
-            auto_session_tracking=False,
-            traces_sample_rate=0,
-            profiles_sample_rate=0,
-            send_default_pii=False,
-        )
       web:
         httpKeepalive: 15
         httpChunkedInput: true
@@ -196,21 +185,6 @@ spec:
         ignoreSignpipe: true
         ignoreWriteErrors: true
         disableWriteException: true
-
-    # Disable internal self-monitoring
-    extraEnv:
-      - name: SENTRY_DSN
-        value: ""
-      - name: SENTRY_ENVIRONMENT
-        value: ""
-      - name: SENTRY_RELEASE
-        value: ""
-      - name: SENTRY_TRACES_SAMPLE_RATE
-        value: "0"
-      - name: SENTRY_PROFILES_SAMPLE_RATE
-        value: "0"
-      - name: SENTRY_SEND_DEFAULT_PII
-        value: "false"
 
     # ============================================================================
     # Storage (S3-compatible - Garage)
@@ -283,54 +257,11 @@ spec:
       ingestFeedback:
         enabled: true
 
-      # ------------------------------------------
-      # Disabled Components (SaaS-only / unused)
-      # ------------------------------------------
-      billingMetricsConsumer:
-        enabled: false
-      genericMetricsConsumer:
-        enabled: false
-      subscriptionConsumerResultsEapItems:
-        enabled: false
-      subscriptionConsumerGenericMetrics:
-        enabled: false
-      subscriptionConsumerMetrics:
-        enabled: false
-      monitorsClockTasks:
-        enabled: false
-      monitorsClockTick:
-        enabled: false
-
     # ============================================================================
     # Snuba (ClickHouse query layer)
     # ============================================================================
     snuba:
       rustConsumer: true
-      # ------------------------------------------
-      # Disabled Components (SaaS-only / unused)
-      # ------------------------------------------
-      eapItemsConsumer:
-        enabled: false
-      subscriptionConsumerEapItems:
-        enabled: false
-      outcomesBillingConsumer:
-        enabled: false
-      genericMetricsGaugesConsumer:
-        enabled: false
-      genericMetricsCountersConsumer:
-        enabled: false
-      genericMetricsDistributionConsumer:
-        enabled: false
-      genericMetricsSetsConsumer:
-        enabled: false
-      subscriptionConsumerGenericMetricsDistributions:
-        enabled: false
-      subscriptionConsumerGenericMetricsSets:
-        enabled: false
-      subscriptionConsumerGenericMetricsCounters:
-        enabled: false
-      subscriptionConsumerGenericMetricsGauges:
-        enabled: false
 
     # ============================================================================
     # Symbolicator (Native crash symbolication)

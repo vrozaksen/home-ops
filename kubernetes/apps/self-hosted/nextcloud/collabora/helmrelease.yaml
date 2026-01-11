@@ -19,10 +19,10 @@ spec:
               tag: 25.04.8.1.1@sha256:3c58d0e9bae75e4647467d0c7d91cb66f261d3e814709aed590b5c334a04db26
             resources:
               requests:
-                cpu: 100m
-                memory: 512Mi
+                cpu: 150m
+                memory: 768Mi
               limits:
-                memory: 2Gi
+                memory: 3Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
@@ -33,6 +33,14 @@ spec:
               extra_params: --o:ssl.termination=true --o:ssl.enable=false --o:security.capabilities=false --o:logging.level=error
               aliasgroup1: https://cloud.vzkn.eu:443
               domain: cloud\\.vzkn\\.eu
+    defaultPodOptions:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: nextcloud-collabora
     rawResources:
       autoscaling:
         enabled: true
@@ -45,7 +53,7 @@ spec:
               kind: Deployment
               name: nextcloud-collabora
             minReplicas: 1
-            maxReplicas: 3
+            maxReplicas: 4
             metrics:
             - type: Resource
               resource:

@@ -16,12 +16,10 @@ spec:
       namespace: database
     - name: dragonfly-operator
       namespace: database
-    - name: kafka-operator
-      namespace: database
-    - name: sentry-kafka-cluster
+    - name: kafka
       namespace: sentry
     - name: clickhouse
-      namespace: database
+      namespace: sentry
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

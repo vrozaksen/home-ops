@@ -1,0 +1,127 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kafka
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      kafka:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: confluentinc/cp-kafka
+              tag: 7.6.6@sha256:83dbca3efd2a11f0d16b1fd30ced4d91625312b5e8053c90c7441eac1f0bb34a
+            env:
+              # KRaft mode (no Zookeeper)
+              KAFKA_PROCESS_ROLES: "broker,controller"
+              KAFKA_NODE_ID: "1001"
+              CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+              KAFKA_CONTROLLER_QUORUM_VOTERS: "1001@localhost:29093"
+              KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+              # Listeners
+              KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093"
+              KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka.sentry.svc.cluster.local:9092"
+              KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+              KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+              # Topic settings (single node)
+              KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+              KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: "1"
+              KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+              KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+              KAFKA_DEFAULT_REPLICATION_FACTOR: "1"
+              KAFKA_MIN_INSYNC_REPLICAS: "1"
+              # Auto-create topics (Sentry creates many topics)
+              KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+              # Performance
+              KAFKA_LOG_RETENTION_HOURS: "24"
+              KAFKA_COMPRESSION_TYPE: "lz4"
+              # Message size (50MB for large replay recordings)
+              KAFKA_MESSAGE_MAX_BYTES: "50000000"
+              KAFKA_MAX_REQUEST_SIZE: "50000000"
+              KAFKA_REPLICA_FETCH_MAX_BYTES: "50000000"
+              # Disable telemetry
+              CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+              # Logging
+              KAFKA_LOG4J_LOGGERS: "kafka.cluster=WARN,kafka.controller=WARN,kafka.coordinator=WARN,kafka.log=WARN,kafka.server=WARN,state.change.logger=WARN"
+              KAFKA_LOG4J_ROOT_LOGLEVEL: "WARN"
+              KAFKA_TOOLS_LOG4J_LOGLEVEL: "WARN"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - sh
+                      - -c
+                      - nc -z localhost 9092
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - sh
+                      - -c
+                      - nc -z localhost 9092
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - sh
+                      - -c
+                      - nc -z localhost 9092
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+    defaultPodOptions:
+      priorityClassName: cluster-low
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          kafka:
+            port: 9092
+    persistence:
+      data:
+        existingClaim: kafka
+        globalMounts:
+          - path: /var/lib/kafka/data
+      log:
+        type: emptyDir
+        globalMounts:
+          - path: /var/lib/kafka/log
+      secrets:
+        type: emptyDir
+        globalMounts:
+          - path: /etc/kafka/secrets

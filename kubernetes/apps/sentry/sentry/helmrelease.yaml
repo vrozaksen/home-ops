@@ -19,62 +19,11 @@ spec:
     spec:
       # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
       chart: sentry
-      version: 28.0.0
+      version: 28.0.1
       sourceRef:
         kind: HelmRepository
         name: sentry
   values:
-    # ============================================================================
-    # YAML Anchors - Reusable Resource Definitions
-    # ============================================================================
-    # NOTE: Requests lowered to reduce scheduling pressure, limits stay high for bursts
-
-    # Tiny: background workers, schedulers
-    x-resources-tiny: &resources-tiny
-      requests:
-        cpu: 10m
-        memory: 64Mi
-      limits:
-        memory: 512Mi
-
-    # Small: lightweight consumers
-    x-resources-small: &resources-small
-      requests:
-        cpu: 10m
-        memory: 128Mi
-      limits:
-        memory: 1Gi
-
-    # Medium: standard consumers
-    x-resources-medium: &resources-medium
-      requests:
-        cpu: 25m
-        memory: 256Mi
-      limits:
-        memory: 2Gi
-
-    # Large: web, main workers
-    x-resources-large: &resources-large
-      requests:
-        cpu: 50m
-        memory: 512Mi
-      limits:
-        memory: 3Gi
-
-    # Web-specific (high memory)
-    x-resources-web: &resources-web
-      requests:
-        cpu: 50m
-        memory: 512Mi
-      limits:
-        memory: 3Gi
-
-    # Topology spread constraint template
-    x-topology-spread: &topology-spread
-      maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: ScheduleAnyway
-
     # ============================================================================
     # Global Configuration
     # ============================================================================
@@ -87,10 +36,6 @@ spec:
       name: sentry
 
     priorityClassName: cluster-low
-
-    global:
-      nodeSelector: {}
-      tolerations: []
 
     # ============================================================================
     # Bundled Services - All Disabled (using external)
@@ -122,9 +67,9 @@ spec:
       accountID: ${MAXMIND_ACCOUNT_ID}
       licenseKey: ${MAXMIND_LICENSE_KEY}
       editionIDs: GeoLite2-City
-      volumeName: geoip-data
-      mountPath: /usr/share/GeoIP
-      path: /usr/share/GeoIP/GeoLite2-City.mmdb
+      volumeName: data-sentry-geoip
+      mountPath: /geoip
+      path: /geoip/GeoLite2-City.mmdb
       persistence:
         storageClass: ceph-block
         size: 1Gi
@@ -153,7 +98,7 @@ spec:
 
     # ClickHouse (single node)
     externalClickhouse:
-      host: clickhouse.database.svc.cluster.local
+      host: clickhouse.sentry.svc.cluster.local
       tcpPort: 9000
       httpPort: 8123
       username: clickhouse
@@ -162,9 +107,9 @@ spec:
       existingSecret: sentry-secret
       existingSecretKey: clickhouse-password
 
-    # Kafka via Strimzi
+    # Kafka (Confluent KRaft, in sentry namespace)
     externalKafka:
-      host: sentry-kafka-kafka-bootstrap.sentry.svc.cluster.local
+      host: kafka.sentry.svc.cluster.local
       port: 9092
 
     # ============================================================================
@@ -225,6 +170,7 @@ spec:
     # ============================================================================
     config:
       sentryConfPy: |
+        GEOIP_PATH_MMDB = '/geoip/GeoLite2-City.mmdb'
         CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
         USE_X_FORWARDED_HOST = True
         SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -307,337 +253,72 @@ spec:
     sentry:
       singleOrganization: true
 
+      # Features control component auto-enablement
       features:
         orgSubdomains: false
-        enableProfiling: false      # Disabled - no vroom, no profile consumers
-        enableSessionReplay: true   # Enabled - replay recordings
-        enableFeedback: true        # Enabled - user feedback
-        enableSpan: true            # Enabled - distributed tracing
-        enableUptime: false         # Disabled - no uptime checker
+        enableProfiling: false      # Auto-disables: vroom, ingestProfiles, profilesConsumer, profiling*Consumer
+        enableSessionReplay: true   # Auto-enables: replaysConsumer, ingestReplayRecordings
+        enableFeedback: true        # Auto-enables: ingestFeedback
+        enableSpan: true            # Auto-enables: processSpans, processSegments
+        enableUptime: false         # Auto-disables: uptimeChecker, uptimeResults
 
       # ------------------------------------------
       # Web & API
       # ------------------------------------------
       web:
-        replicas: 1
-        resources: *resources-web
         probeInitialDelaySeconds: 180
         probeFailureThreshold: 20
         probePeriodSeconds: 30
         probeTimeoutSeconds: 60
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: web
 
       # ------------------------------------------
-      # Task System (Celery replacement)
+      # Task System (replaces Celery)
       # ------------------------------------------
-      taskScheduler:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
+      taskWorker:
+        concurrency: 4
 
       taskBroker:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
         persistence:
           enabled: true
           size: 1Gi
-
-      taskWorker:
-        enabled: true
-        replicas: 1
-        concurrency: 4
-        resources: *resources-large
-
-      # ------------------------------------------
-      # Ingest Consumers (Kafka -> Processing)
-      # ------------------------------------------
-      ingestConsumerEvents:
-        replicas: 1
-        resources: *resources-medium
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: ingest-consumer-events
-
-      ingestConsumerTransactions:
-        replicas: 1
-        resources: *resources-medium
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: ingest-consumer-transactions
-
-      ingestConsumerAttachments:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: ingest-consumer-attachments
-
-      ingestMonitors:
-        replicas: 1
-        resources: *resources-small
-
-      ingestReplayRecordings:
-        replicas: 1
-        resources: *resources-small
-
-      ingestOccurrences:
-        replicas: 1
-        resources: *resources-tiny
-
-      ingestFeedback:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
-
-      # ------------------------------------------
-      # Processing
-      # ------------------------------------------
-      processSpans:
-        replicas: 1
-        resources: *resources-medium
-
-      processSegments:
-        enabled: true
-        replicas: 1
-        resources: *resources-small
-
-      # ------------------------------------------
-      # Post-Process Forwarders (Alerts)
-      # ------------------------------------------
-      postProcessForwardErrors:
-        replicas: 1
-        resources: *resources-small
-
-      postProcessForwardTransactions:
-        replicas: 1
-        resources: *resources-small
-
-      postProcessForwardIssuePlatform:
-        replicas: 1
-        resources: *resources-tiny
-
-      # ------------------------------------------
-      # Subscription Consumers (Alert Queries)
-      # ------------------------------------------
-      subscriptionConsumerEvents:
-        replicas: 1
-        resources: *resources-tiny
-
-      subscriptionConsumerTransactions:
-        replicas: 1
-        resources: *resources-tiny
-
-      # ------------------------------------------
-      # Metrics Consumers
-      # ------------------------------------------
-      metricsConsumer:
-        enabled: true  # Required for release health
-        replicas: 1
-        resources: *resources-tiny
 
       # ------------------------------------------
       # Cleanup
       # ------------------------------------------
       cleanup:
-        enabled: true
         days: 90
-        resources:
-          requests:
-            cpu: 25m
-            memory: 256Mi
-          limits:
-            memory: 2Gi
 
       # ------------------------------------------
-      # Disabled Sentry Components
+      # Disabled Components (SaaS-only / unused)
       # ------------------------------------------
-      # Profiling - disabled via features.enableProfiling
-      ingestProfiles:
-        enabled: false
-
-      # Uptime - disabled via features.enableUptime
-      uptimeResults:
-        enabled: false
-
-      # Billing - internal Sentry SaaS only
       billingMetricsConsumer:
         enabled: false
-
-      # Generic metrics - not using custom SDK metrics
       genericMetricsConsumer:
         enabled: false
-
-      # EAP subscription results
       subscriptionConsumerResultsEapItems:
         enabled: false
-
-      # Generic metrics subscriptions
       subscriptionConsumerGenericMetrics:
         enabled: false
       subscriptionConsumerMetrics:
         enabled: false
-
-      # Cron monitors (clock-based scheduling)
       monitorsClockTasks:
         enabled: false
       monitorsClockTick:
         enabled: false
 
     # ============================================================================
-    # Relay (SDK ingestion proxy)
-    # ============================================================================
-    relay:
-      replicas: 1
-      resources: *resources-tiny
-      topologySpreadConstraints:
-        - <<: *topology-spread
-          labelSelector:
-            matchLabels:
-              app: sentry
-              role: relay
-
-    # ============================================================================
     # Snuba (ClickHouse query layer)
     # ============================================================================
     snuba:
       # ------------------------------------------
-      # API
+      # Disabled Components (SaaS-only / unused)
       # ------------------------------------------
-      api:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-api
-
-      # ------------------------------------------
-      # Main Consumers (Kafka -> ClickHouse)
-      # ------------------------------------------
-      consumer:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-consumer
-
-      transactionsConsumer:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-transactions-consumer
-
-      metricsConsumer:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-metrics-consumer
-
-      replaysConsumer:
-        replicas: 1
-        resources: *resources-small
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-replays-consumer
-
-      outcomesConsumer:
-        replicas: 1
-        resources: *resources-tiny
-        topologySpreadConstraints:
-          - <<: *topology-spread
-            labelSelector:
-              matchLabels:
-                app: sentry
-                role: snuba-outcomes-consumer
-
-      # ------------------------------------------
-      # Supporting Consumers
-      # ------------------------------------------
-      replacer:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
-
-      issueOccurrenceConsumer:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
-
-      groupAttributesConsumer:
-        enabled: true
-        replicas: 1
-        resources: *resources-tiny
-
-      # ------------------------------------------
-      # Subscription Consumers (Alert Queries)
-      # ------------------------------------------
-      subscriptionConsumerEvents:
-        replicas: 1
-        resources: *resources-tiny
-
-      subscriptionConsumerMetrics:
-        replicas: 1
-        resources: *resources-tiny
-
-      subscriptionConsumerTransactions:
-        replicas: 1
-        resources: *resources-tiny
-
-      # ------------------------------------------
-      # Disabled Snuba Components
-      # ------------------------------------------
-      # Profiling consumers (enableProfiling: false)
-      profilesConsumer:
-        enabled: false
-      profilingProfilesConsumer:
-        enabled: false
-      profilingFunctionsConsumer:
-        enabled: false
-      profilingChunksConsumer:
-        enabled: false
-
-      # EAP (experimental features)
       eapItemsConsumer:
         enabled: false
       subscriptionConsumerEapItems:
         enabled: false
-
-      # Billing (Sentry SaaS internal)
       outcomesBillingConsumer:
         enabled: false
-
-      # Generic metrics consumers (not using custom SDK metrics)
       genericMetricsGaugesConsumer:
         enabled: false
       genericMetricsCountersConsumer:
@@ -646,8 +327,6 @@ spec:
         enabled: false
       genericMetricsSetsConsumer:
         enabled: false
-
-      # Generic metrics subscription consumers
       subscriptionConsumerGenericMetricsDistributions:
         enabled: false
       subscriptionConsumerGenericMetricsSets:
@@ -661,21 +340,6 @@ spec:
     # Symbolicator (Native crash symbolication)
     # ============================================================================
     symbolicator:
-      enabled: true
       api:
-        replicas: 1
-        resources: *resources-small
         persistence:
           enabled: false
-
-    # ============================================================================
-    # Sourcemaps (JS error stack traces)
-    # ============================================================================
-    sourcemaps:
-      enabled: true
-
-    # ============================================================================
-    # Disabled Components (via features)
-    # ============================================================================
-    # vroom - controlled by sentry.features.enableProfiling: false
-    # uptimeChecker - controlled by sentry.features.enableUptime: false

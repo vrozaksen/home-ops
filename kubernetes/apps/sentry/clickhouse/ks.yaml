@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app kafka
+  name: &app clickhouse
 spec:
   components:
     - ../../../components/volsync
@@ -11,18 +11,17 @@ spec:
     - name: priority-classes
       namespace: flux-system
   interval: 1h
-  path: ./kubernetes/apps/sentry/kafka
+  path: ./kubernetes/apps/sentry/clickhouse
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 20Gi
-      VOLSYNC_PUID: "1000"
-      VOLSYNC_PGID: "100"
+      VOLSYNC_CAPACITY: 50Gi
+      VOLSYNC_PUID: "101"
+      VOLSYNC_PGID: "101"
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: sentry
-  timeout: 5m
   wait: false

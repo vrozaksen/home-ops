@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: sentry-cors
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: sentry
+  cors:
+    allowOrigins:
+      - type: RegularExpression
+        value: ".*"
+    allowMethods:
+      - GET
+      - POST
+      - PUT
+      - OPTIONS
+    allowHeaders:
+      - sentry-trace
+      - baggage
+      - content-type
+      - authorization
+      - x-sentry-auth
+      - x-requested-with
+    exposeHeaders:
+      - sentry-trace
+      - baggage
+    allowCredentials: false
+    maxAge: 86400s

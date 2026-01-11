@@ -25,26 +25,18 @@ spec:
               TZ: "Europe/Warsaw"
               MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK: "30"
               IS_EMBY_API: "true"
-              POSTGRES_IP:
-                valueFrom:
-                  secretKeyRef:
-                    name: &pg jellystat-pguser-jellystat
-                    key: pgbouncer-host
-              POSTGRES_PORT:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: pgbouncer-port
+              POSTGRES_IP: pooler-jellystat-rw
+              POSTGRES_PORT: "5432"
               POSTGRES_DB:
                 valueFrom:
                   secretKeyRef:
-                    name: *pg
+                    name: &pg postgres-jellystat-app
                     key: dbname
               POSTGRES_USER:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
-                    key: user
+                    key: username
               POSTGRES_PASSWORD:
                 valueFrom:
                   secretKeyRef:

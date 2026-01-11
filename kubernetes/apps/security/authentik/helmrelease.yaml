@@ -37,20 +37,17 @@ spec:
         - name: AUTHENTIK_POSTGRESQL__SSLMODE
           value: require
         - name: AUTHENTIK_POSTGRESQL__HOST
-          valueFrom:
-            secretKeyRef:
-              name: &pg authentik-pguser-authentik
-              key: pgbouncer-host # Authentik requires transaction for pgBouncer
+          value: pooler-authentik-rw
         - name: AUTHENTIK_POSTGRESQL__NAME
           valueFrom:
             secretKeyRef:
-              name: *pg
+              name: &pg postgres-authentik-app
               key: dbname
         - name: AUTHENTIK_POSTGRESQL__USER
           valueFrom:
             secretKeyRef:
               name: *pg
-              key: user
+              key: username
         - name: AUTHENTIK_POSTGRESQL__PASSWORD
           valueFrom:
             secretKeyRef:

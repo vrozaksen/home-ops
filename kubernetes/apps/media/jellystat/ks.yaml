@@ -6,7 +6,7 @@ metadata:
   name: &app jellystat
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     - ../../../components/volsync
   dependsOn:
     - name: emby

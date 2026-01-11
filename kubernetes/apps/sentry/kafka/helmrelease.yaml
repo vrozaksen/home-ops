@@ -290,7 +290,7 @@ spec:
                 create_topic "taskworker-usage-dlq"
 
                 echo "All topics created successfully!"
-                kafka-topics --bootstrap-server $$BOOTSTRAP --list | wc -l | xargs echo "Total topics:"
+                echo "Total topics: $$(kafka-topics --bootstrap-server $$BOOTSTRAP --list | wc -l)"
             resources:
               requests:
                 cpu: 50m

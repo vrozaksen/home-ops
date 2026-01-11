@@ -278,6 +278,12 @@ spec:
         days: 90
 
       # ------------------------------------------
+      # Feedback
+      # ------------------------------------------
+      ingestFeedback:
+        enabled: true
+
+      # ------------------------------------------
       # Disabled Components (SaaS-only / unused)
       # ------------------------------------------
       billingMetricsConsumer:

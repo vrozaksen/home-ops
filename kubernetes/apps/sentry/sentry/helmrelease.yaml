@@ -188,19 +188,6 @@ spec:
     # ============================================================================
     # Storage (S3-compatible - Garage)
     # ============================================================================
-    nodestore:
-      backend: s3
-      s3:
-        bucketName: sentry
-        bucketPath: nodestore
-        endpointUrl: https://api.s3.vzkn.eu
-        regionName: eu-central-1
-        existingSecret: sentry-secret
-        accessKeyIdRef: s3-access-key-id
-        secretAccessKeyRef: s3-secret-access-key
-        # Disable AWS checksum calculation for non-AWS S3 (Garage)
-        setAwsChecksumCalculationVar: false
-
     filestore:
       backend: s3
       s3:

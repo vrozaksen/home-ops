@@ -1,0 +1,136 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pgadmin
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      pgadmin:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-pgpass:
+            image: &image
+              repository: docker.io/dpage/pgadmin4
+              tag: 9.2@sha256:4dc426e13e808c4e60faf8c89a1c00e950c1835bf407e7f0ea862b49b1a0b286
+            command:
+              - /bin/sh
+              - -c
+              - |
+                for i in "/var/lib/pgadmin/storage"/*/; do
+                  if [ -d "$i" ]; then
+                    cp /pgadmin4/pgpass "$i/.pgpass"
+                    chown 5050:5050 "$i/.pgpass"
+                    chmod 600 "$i/.pgpass"
+                  fi
+                done
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+        containers:
+          app:
+            image: *image
+            env:
+              TZ: Europe/Warsaw
+              PGADMIN_DISABLE_POSTFIX: "true"
+              PGADMIN_LISTEN_PORT: &port 80
+              PGADMIN_REPLACE_SERVERS_ON_STARTUP: "true"
+              PGADMIN_CONFIG_SERVER_MODE: "True"
+              PGPASS_FILE: &pgpass /pgadmin4/pgpass
+              PGADMIN_DEFAULT_EMAIL:
+                valueFrom:
+                  secretKeyRef:
+                    name: &secret pgadmin-secret
+                    key: PGADMIN_DEFAULT_EMAIL
+              PGADMIN_DEFAULT_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: *secret
+                    key: PGADMIN_DEFAULT_PASSWORD
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /misc/ping
+                    port: *port
+                  initialDelaySeconds: 15
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /misc/ping
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
+                  timeoutSeconds: 3
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 5050
+        runAsGroup: 5050
+        fsGroup: 5050
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: pgadmin
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: infrastructure
+        hostnames:
+          - pgadmin.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      config:
+        existingClaim: pgadmin
+        globalMounts:
+          - path: /var/lib/pgadmin
+      secret:
+        type: secret
+        name: *secret
+        globalMounts:
+          - path: /pgadmin4/config_local.py
+            subPath: config_local.py
+            readOnly: true
+          - path: *pgpass
+            subPath: pgpass
+            readOnly: true
+          - path: /pgadmin4/servers.json
+            subPath: servers.json
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

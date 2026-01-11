@@ -9,8 +9,7 @@ resources:
   - ./namespace.yaml
   - ./clickhouse/ks.yaml
   - ./cloudnative-pg/ks.yaml
-  - ./crunchy-postgres/ks.yaml
   - ./dragonfly/ks.yaml
-  - ./pgadmin/ks.yaml
-  - ./mosquitto/ks.yaml
   - ./kafka/ks.yaml
+  - ./mosquitto/ks.yaml
+  - ./pgadmin/ks.yaml

@@ -32,6 +32,8 @@ spec:
                 add:
                   - FOWNER
                   - CHOWN
+                  - SYS_CHROOT
+                  - MKNOD
             env:
               extra_params: --o:ssl.termination=true --o:ssl.enable=false
               aliasgroup1: https://cloud.vzkn.eu:443

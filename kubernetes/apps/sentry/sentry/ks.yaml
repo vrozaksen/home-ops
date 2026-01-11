@@ -36,10 +36,6 @@ spec:
       APP: *app
       CNPG_SIZE: 10Gi
       CNPG_POOLER_MODE: transaction
-    substituteFrom:
-      - kind: Secret
-        name: sentry-maxmind
-        optional: true
   prune: true
   sourceRef:
     kind: GitRepository

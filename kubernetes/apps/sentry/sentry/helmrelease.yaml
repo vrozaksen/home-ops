@@ -60,24 +60,6 @@ spec:
       enabled: false
 
     # ============================================================================
-    # GeoIP (MaxMind GeoLite2)
-    # ============================================================================
-    # PVC created separately in pvc.yaml (Helm uses existing via lookupVolumeName)
-    geodata:
-      accountID: ${MAXMIND_ACCOUNT_ID}
-      licenseKey: ${MAXMIND_LICENSE_KEY}
-      editionIDs: GeoLite2-City
-      volumeName: data-sentry-geoip
-      mountPath: /geoip
-      path: /geoip/GeoLite2-City.mmdb
-      persistence:
-        storageClass: ceph-block
-        size: 1Gi
-        accessModes:
-          - ReadWriteOnce
-        lookupVolumeName: true
-
-    # ============================================================================
     # External Services
     # ============================================================================
     # PostgreSQL via CloudNative-PG with PgBouncer pooler
@@ -170,7 +152,6 @@ spec:
     # ============================================================================
     config:
       sentryConfPy: |
-        GEOIP_PATH_MMDB = '/geoip/GeoLite2-City.mmdb'
         CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
         USE_X_FORWARDED_HOST = True
         SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

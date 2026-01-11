@@ -150,6 +150,28 @@ spec:
         SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
         SENTRY_BEACON = False
         CSRF_TRUSTED_ORIGINS += ["null"]  # For SDK requests without origin
+
+        # S3-compatible storage settings for Garage
+        import os
+        os.environ.setdefault("AWS_REQUEST_CHECKSUM_CALCULATION", "when_required")
+        os.environ.setdefault("AWS_RESPONSE_CHECKSUM_VALIDATION", "when_required")
+
+        # Override filestore options for Garage compatibility
+        SENTRY_OPTIONS["filestore.options"] = {
+            "access_key": os.environ.get("FILESTORE_S3_ACCESS_KEY_ID", ""),
+            "secret_key": os.environ.get("FILESTORE_S3_SECRET_ACCESS_KEY", ""),
+            "bucket_name": "sentry",
+            "endpoint_url": "https://api.s3.vzkn.eu",
+            "region_name": "eu-central-1",
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+        }
+
+        # Override nodestore options for Garage compatibility
+        SENTRY_NODESTORE_OPTIONS.update({
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+        })
       web:
         httpKeepalive: 15
         httpChunkedInput: true
@@ -181,6 +203,8 @@ spec:
         existingSecret: sentry-secret
         accessKeyIdRef: s3-access-key-id
         secretAccessKeyRef: s3-secret-access-key
+        # Disable AWS checksum calculation for non-AWS S3 (Garage)
+        setAwsChecksumCalculationVar: false
 
     filestore:
       backend: s3

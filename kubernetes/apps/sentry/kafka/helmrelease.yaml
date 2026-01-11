@@ -110,6 +110,193 @@ spec:
                 memory: 1Gi
               limits:
                 memory: 4Gi
+      # One-time job to create all Sentry topics with proper configs
+      topics-init:
+        type: job
+        annotations:
+          helm.sh/hook: post-install,post-upgrade
+          helm.sh/hook-weight: "1"
+          helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+        containers:
+          init:
+            image:
+              repository: confluentinc/cp-kafka
+              tag: 7.6.6@sha256:83dbca3efd2a11f0d16b1fd30ced4d91625312b5e8053c90c7441eac1f0bb34a
+            command:
+              - /bin/bash
+              - -c
+              - |
+                set -e
+                BOOTSTRAP="kafka.sentry.svc.cluster.local:9092"
+
+                # Wait for Kafka to be ready
+                echo "Waiting for Kafka to be ready..."
+                until kafka-topics --bootstrap-server $BOOTSTRAP --list >/dev/null 2>&1; do
+                  echo "Kafka not ready, waiting..."
+                  sleep 5
+                done
+                echo "Kafka is ready!"
+
+                create_topic() {
+                  local name=$1
+                  shift
+                  local config_args=()
+                  while [[ $# -gt 0 ]]; do
+                    config_args+=("--config" "$1")
+                    shift
+                  done
+
+                  if kafka-topics --bootstrap-server $BOOTSTRAP --describe --topic "$name" >/dev/null 2>&1; then
+                    echo "Topic $name already exists, skipping"
+                  else
+                    echo "Creating topic: $name"
+                    kafka-topics --bootstrap-server $BOOTSTRAP --create --topic "$name" \
+                      --partitions 1 --replication-factor 1 "${config_args[@]}" 2>/dev/null || true
+                  fi
+                }
+
+                # Core events topics
+                create_topic "events" "message.timestamp.type=LogAppendTime"
+                create_topic "event-replacements"
+                create_topic "snuba-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "cdc"
+                create_topic "transactions" "message.timestamp.type=LogAppendTime"
+                create_topic "snuba-transactions-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+
+                # Metrics topics
+                create_topic "snuba-metrics" "message.timestamp.type=LogAppendTime"
+                create_topic "snuba-metrics-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "snuba-generic-metrics" "message.timestamp.type=LogAppendTime"
+                create_topic "snuba-generic-metrics-sets-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "snuba-generic-metrics-distributions-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "snuba-generic-metrics-counters-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "snuba-generic-metrics-gauges-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+
+                # Generic events
+                create_topic "generic-events" "message.timestamp.type=LogAppendTime"
+                create_topic "snuba-generic-events-commit-log" "cleanup.policy=compact,delete" "min.compaction.lag.ms=3600000"
+                create_topic "group-attributes" "message.timestamp.type=LogAppendTime"
+
+                # Outcomes
+                create_topic "outcomes"
+                create_topic "outcomes-dlq"
+                create_topic "outcomes-billing"
+                create_topic "outcomes-billing-dlq"
+
+                # Ingest topics
+                create_topic "ingest-events"
+                create_topic "ingest-events-dlq"
+                create_topic "ingest-spans"
+                create_topic "ingest-sessions"
+                create_topic "ingest-attachments"
+                create_topic "ingest-attachments-dlq"
+                create_topic "ingest-transactions"
+                create_topic "ingest-transactions-dlq"
+                create_topic "ingest-transactions-backlog"
+                create_topic "ingest-replay-events" "message.timestamp.type=LogAppendTime" "max.message.bytes=15000000"
+                create_topic "ingest-replay-recordings"
+                create_topic "ingest-metrics"
+                create_topic "ingest-metrics-dlq"
+                create_topic "ingest-performance-metrics"
+                create_topic "ingest-feedback-events"
+                create_topic "ingest-feedback-events-dlq"
+                create_topic "ingest-monitors"
+                create_topic "ingest-occurrences"
+
+                # Subscriptions
+                create_topic "scheduled-subscriptions-events"
+                create_topic "scheduled-subscriptions-transactions"
+                create_topic "scheduled-subscriptions-metrics"
+                create_topic "scheduled-subscriptions-generic-metrics-sets"
+                create_topic "scheduled-subscriptions-generic-metrics-distributions"
+                create_topic "scheduled-subscriptions-generic-metrics-counters"
+                create_topic "scheduled-subscriptions-generic-metrics-gauges"
+                create_topic "scheduled-subscriptions-eap-spans"
+                create_topic "events-subscription-results"
+                create_topic "transactions-subscription-results"
+                create_topic "metrics-subscription-results"
+                create_topic "generic-metrics-subscription-results"
+                create_topic "eap-spans-subscription-results"
+                create_topic "subscription-results-eap-items"
+
+                # Snuba misc
+                create_topic "snuba-queries" "message.timestamp.type=LogAppendTime"
+                create_topic "snuba-spans"
+                create_topic "snuba-eap-spans-commit-log"
+                create_topic "snuba-items-commit-log"
+                create_topic "snuba-eap-mutations"
+                create_topic "snuba-lw-deletions-generic-events"
+                create_topic "snuba-profile-chunks"
+                create_topic "snuba-uptime-results"
+                create_topic "snuba-ourlogs"
+                create_topic "snuba-items"
+
+                # Dead letter queues
+                create_topic "snuba-dead-letter-metrics"
+                create_topic "snuba-dead-letter-generic-metrics"
+                create_topic "snuba-dead-letter-replays"
+                create_topic "snuba-dead-letter-generic-events"
+                create_topic "snuba-dead-letter-querylog"
+                create_topic "snuba-dead-letter-group-attributes"
+
+                # Profiles
+                create_topic "processed-profiles" "message.timestamp.type=LogAppendTime"
+                create_topic "profiles-call-tree"
+                create_topic "profiles"
+
+                # Monitors
+                create_topic "monitors-clock-tasks"
+                create_topic "monitors-clock-tick"
+                create_topic "monitors-incident-occurrences"
+
+                # Uptime
+                create_topic "uptime-configs"
+                create_topic "uptime-results"
+
+                # Buffered segments
+                create_topic "buffered-segments"
+                create_topic "buffered-segments-dlq"
+
+                # Shared resources
+                create_topic "shared-resources-usage"
+
+                # Task worker topics
+                create_topic "task-worker"
+                create_topic "taskworker"
+                create_topic "taskworker-dlq"
+                create_topic "taskworker-billing"
+                create_topic "taskworker-billing-dlq"
+                create_topic "taskworker-control"
+                create_topic "taskworker-control-dlq"
+                create_topic "taskworker-ingest"
+                create_topic "taskworker-ingest-dlq"
+                create_topic "taskworker-ingest-errors"
+                create_topic "taskworker-ingest-errors-dlq"
+                create_topic "taskworker-ingest-transactions"
+                create_topic "taskworker-ingest-transactions-dlq"
+                create_topic "taskworker-internal"
+                create_topic "taskworker-internal-dlq"
+                create_topic "taskworker-limited"
+                create_topic "taskworker-limited-dlq"
+                create_topic "taskworker-long"
+                create_topic "taskworker-long-dlq"
+                create_topic "taskworker-products"
+                create_topic "taskworker-products-dlq"
+                create_topic "taskworker-sentryapp"
+                create_topic "taskworker-sentryapp-dlq"
+                create_topic "taskworker-symbolication"
+                create_topic "taskworker-symbolication-dlq"
+                create_topic "taskworker-usage"
+                create_topic "taskworker-usage-dlq"
+
+                echo "All topics created successfully!"
+                kafka-topics --bootstrap-server $BOOTSTRAP --list | wc -l | xargs echo "Total topics:"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
     defaultPodOptions:
       priorityClassName: cluster-low
       securityContext:
@@ -126,13 +313,19 @@ spec:
     persistence:
       data:
         existingClaim: kafka
-        globalMounts:
-          - path: /var/lib/kafka/data
+        advancedMounts:
+          kafka:
+            app:
+              - path: /var/lib/kafka/data
       log:
         type: emptyDir
-        globalMounts:
-          - path: /var/lib/kafka/log
+        advancedMounts:
+          kafka:
+            app:
+              - path: /var/lib/kafka/log
       secrets:
         type: emptyDir
-        globalMounts:
-          - path: /etc/kafka/secrets
+        advancedMounts:
+          kafka:
+            app:
+              - path: /etc/kafka/secrets

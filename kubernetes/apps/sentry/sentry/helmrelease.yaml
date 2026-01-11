@@ -167,11 +167,12 @@ spec:
             "signature_version": "s3v4",
         }
 
-        # Override nodestore options for Garage compatibility
-        SENTRY_NODESTORE_OPTIONS.update({
-            "addressing_style": "path",
-            "signature_version": "s3v4",
-        })
+        # Configure boto3 for Garage S3 compatibility (path-style, v4 signature)
+        import botocore.config
+        SENTRY_NODESTORE_OPTIONS["config"] = botocore.config.Config(
+            signature_version="s3v4",
+            s3={"addressing_style": "path"},
+        )
       web:
         httpKeepalive: 15
         httpChunkedInput: true

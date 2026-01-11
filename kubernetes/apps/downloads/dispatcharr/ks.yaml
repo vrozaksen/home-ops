@@ -9,10 +9,6 @@ spec:
     - ../../../components/gpu
     - ../../../components/volsync
   dependsOn:
-    - name: crunchy-postgres-operator
-      namespace: database
-    - name: dragonfly-operator
-      namespace: database
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

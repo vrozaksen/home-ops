@@ -229,6 +229,12 @@ spec:
             - name: push
               containerPort: 7867
               protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
           volumeMounts:
             - name: nextcloud-main
               mountPath: /var/www/html

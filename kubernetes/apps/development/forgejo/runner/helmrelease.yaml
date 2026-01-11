@@ -56,6 +56,12 @@ spec:
             image:
               repository: code.forgejo.org/forgejo/runner
               tag: 12.4.0@sha256:24fae8e5bff99daa96c7c11a44d82091f04551e69072e673660ca5e35798e0f1
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 1Gi
             command:
               - "sh"
               - "-c"

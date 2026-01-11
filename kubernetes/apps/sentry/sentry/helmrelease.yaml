@@ -95,24 +95,6 @@ spec:
       port: 9092
 
     # ============================================================================
-    # Hooks & Initialization
-    # ============================================================================
-    hooks:
-      enabled: false
-      preUpgrade: false
-      removeOnSuccess: true
-      activeDeadlineSeconds: 600
-      shareProcessNamespace: true
-      dbCheck:
-        enabled: true
-      dbInit:
-        enabled: false
-      snubaInit:
-        enabled: false
-      snubaMigrate:
-        enabled: false
-
-    # ============================================================================
     # System & Auth Configuration
     # ============================================================================
     system:

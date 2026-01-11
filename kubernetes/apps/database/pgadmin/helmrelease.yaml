@@ -79,23 +79,16 @@ spec:
                   timeoutSeconds: 3
                   failureThreshold: 30
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
+              runAsUser: 5050
+              runAsGroup: 5050
+              fsGroup: 5050
+              fsGroupChangePolicy: OnRootMismatch
             resources:
               requests:
                 cpu: 10m
                 memory: 128Mi
               limits:
                 memory: 512Mi
-    defaultPodOptions:
-      automountServiceAccountToken: false
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 5050
-        runAsGroup: 5050
-        fsGroup: 5050
-        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         controller: pgadmin

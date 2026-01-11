@@ -1,4 +1,15 @@
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/keda.sh/triggerauthentication_v1alpha1.json
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: forgejo-db-auth
+spec:
+  secretTargetRef:
+    - parameter: connection
+      name: postgres-forgejo-app
+      key: uri
+---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/keda.sh/scaledobject_v1alpha1.json
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -9,20 +20,16 @@ spec:
     apiVersion: apps/v1
     kind: StatefulSet
     name: forgejo-runner
-  pollingInterval: 30  # Check every 30 seconds
+  pollingInterval: 15  # Check every 15 seconds for pending jobs
   cooldownPeriod: 300  # Wait 5 minutes before scaling down
   minReplicaCount: 1   # Minimum 1 runner always available
   maxReplicaCount: 5   # Maximum 5 runners during high load
   triggers:
-    # Cron-based scaling for known busy periods (work hours)
-    - type: cron
+    # Scale based on pending jobs in Forgejo database
+    - type: postgresql
       metadata:
-        timezone: Europe/Warsaw
-        start: 0 8 * * 1-5      # Scale up at 8 AM on weekdays
-        end: 0 20 * * 1-5       # Scale down at 8 PM on weekdays
-        desiredReplicas: "3"    # 3 runners during work hours
-    # CPU-based scaling as fallback
-    - type: cpu
-      metricType: Utilization
-      metadata:
-        value: "70"  # Scale when CPU > 70%
+        query: "SELECT COUNT(*)::int FROM action_run_job WHERE status = 5"
+        targetQueryValue: "1"  # 1 runner per pending job
+        activationTargetQueryValue: "1"  # Activate scaling when >= 1 pending job
+      authenticationRef:
+        name: forgejo-db-auth

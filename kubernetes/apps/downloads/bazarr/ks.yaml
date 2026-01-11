@@ -6,9 +6,9 @@ metadata:
   name: &app bazarr
 spec:
   components:
-    - ../../../../components/nfs-scaler
-    - ../../../../components/postgres
-    - ../../../../components/volsync
+    - ../../../components/nfs-scaler
+    - ../../../components/postgres
+    - ../../../components/volsync
   dependsOn:
     - name: keda
       namespace: observability

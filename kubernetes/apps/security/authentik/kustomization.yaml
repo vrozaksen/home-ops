@@ -5,5 +5,5 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./grafanadashboard.yaml
-  - ./helmrelease.yaml
+  # - ./helmrelease.yaml  # SUSPENDED: CNPG migration in progress
   - ./httproute.yaml

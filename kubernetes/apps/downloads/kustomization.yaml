@@ -7,11 +7,9 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./bazarr/ks.yaml
+  - ./bazarr/ks.yaml
   - ./dispatcharr/ks.yaml
   - ./flaresolverr/ks.yaml
-  # - ./lidarr/ks.yaml
-  # - ./metube/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./qui/ks.yaml

@@ -1,0 +1,81 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sentry-create-kafka-topics
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: sentry-init
+    spec:
+      restartPolicy: OnFailure
+      priorityClassName: cluster-low
+      serviceAccountName: sentry
+      initContainers:
+        - name: wait-for-config
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for sentry-sentry ConfigMap..."
+              until [ -f /etc/sentry/sentry.conf.py ]; do
+                echo "ConfigMap not ready, waiting..."
+                sleep 5
+              done
+              echo "ConfigMap ready!"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/sentry
+              readOnly: true
+      containers:
+        - name: sentry-init
+          image: ghcr.io/getsentry/sentry:25.12.1
+          command:
+            - sentry
+            - upgrade
+            - --noinput
+            - --create-kafka-topics
+          env:
+            # Secret key
+            - name: SENTRY_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: secret-key
+            # Database
+            - name: SENTRY_POSTGRES_HOST
+              value: pooler-sentry-rw.sentry.svc.cluster.local
+            - name: SENTRY_POSTGRES_PORT
+              value: "5432"
+            - name: SENTRY_DB_NAME
+              value: sentry
+            - name: SENTRY_DB_USER
+              value: sentry
+            - name: SENTRY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-sentry-app
+                  key: password
+            # Redis
+            - name: SENTRY_REDIS_HOST
+              value: sentry-dragonfly.sentry.svc.cluster.local
+            - name: SENTRY_REDIS_PORT
+              value: "6379"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/sentry
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: config
+          configMap:
+            name: sentry-sentry

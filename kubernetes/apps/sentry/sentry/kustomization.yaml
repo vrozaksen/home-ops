@@ -7,4 +7,5 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml
+  - ./job-init.yaml
   - ./securitypolicy.yaml

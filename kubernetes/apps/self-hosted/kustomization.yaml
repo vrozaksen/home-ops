@@ -8,7 +8,6 @@ components:
 resources:
   - ./namespace.yaml
   - ./atuin/ks.yaml
-  - ./free-game-notifier/ks.yaml
   - ./it-tools/ks.yaml
   - ./mumble/ks.yaml
   - ./nextcloud/ks.yaml

@@ -32,6 +32,12 @@ spec:
 
     nginx:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
 
     nextcloud:
       host: cloud.vzkn.eu
@@ -289,14 +295,20 @@ spec:
     # Resources
     resources:
       requests:
-        cpu: 100m
-        memory: 512Mi
+        cpu: 50m
+        memory: 256Mi
       limits:
-        memory: 8Gi
+        memory: 1Gi
 
     # Cronjob for background tasks
     cronjob:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
 
     # Extra manifests: Service for notify_push sidecar
     extraManifests:

@@ -7,9 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./clickhouse/ks.yaml
   - ./cloudnative-pg/ks.yaml
   - ./dragonfly/ks.yaml
-  - ./kafka/ks.yaml
   - ./mosquitto/ks.yaml
   - ./pgadmin/ks.yaml

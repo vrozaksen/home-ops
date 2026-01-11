@@ -314,7 +314,7 @@ module "oauth2-rxresume" {
   source             = "./oauth2_application"
   name               = "Reactive-Resume"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
-  launch_url         = "https://rr.${var.cluster_domain}"
+  launch_url         = "https://rxresume.${var.cluster_domain}"
   description        = "CV"
   newtab             = true
   group              = "Home"
@@ -323,7 +323,7 @@ module "oauth2-rxresume" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["rxresume"].client_id
   client_secret      = local.parsed_secrets["rxresume"].client_secret
-  redirect_uris      = ["https://rr.${var.cluster_domain}/api/auth/openid/callback"]
+  redirect_uris      = ["https://rxresume.${var.cluster_domain}/api/auth/openid/callback"]
 }
 
 ## Users

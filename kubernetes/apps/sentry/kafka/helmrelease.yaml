@@ -131,27 +131,27 @@ spec:
 
                 # Wait for Kafka to be ready
                 echo "Waiting for Kafka to be ready..."
-                until kafka-topics --bootstrap-server $BOOTSTRAP --list >/dev/null 2>&1; do
+                until kafka-topics --bootstrap-server $$BOOTSTRAP --list >/dev/null 2>&1; do
                   echo "Kafka not ready, waiting..."
                   sleep 5
                 done
                 echo "Kafka is ready!"
 
                 create_topic() {
-                  local name=$1
+                  local name=$$1
                   shift
                   local config_args=()
-                  while [[ $# -gt 0 ]]; do
-                    config_args+=("--config" "$1")
+                  while [[ $$# -gt 0 ]]; do
+                    config_args+=("--config" "$$1")
                     shift
                   done
 
-                  if kafka-topics --bootstrap-server $BOOTSTRAP --describe --topic "$name" >/dev/null 2>&1; then
-                    echo "Topic $name already exists, skipping"
+                  if kafka-topics --bootstrap-server $$BOOTSTRAP --describe --topic "$$name" >/dev/null 2>&1; then
+                    echo "Topic $$name already exists, skipping"
                   else
-                    echo "Creating topic: $name"
-                    kafka-topics --bootstrap-server $BOOTSTRAP --create --topic "$name" \
-                      --partitions 1 --replication-factor 1 "${config_args[@]}" 2>/dev/null || true
+                    echo "Creating topic: $$name"
+                    kafka-topics --bootstrap-server $$BOOTSTRAP --create --topic "$$name" \
+                      --partitions 1 --replication-factor 1 "$${config_args[@]}" 2>/dev/null || true
                   fi
                 }
 
@@ -290,7 +290,7 @@ spec:
                 create_topic "taskworker-usage-dlq"
 
                 echo "All topics created successfully!"
-                kafka-topics --bootstrap-server $BOOTSTRAP --list | wc -l | xargs echo "Total topics:"
+                kafka-topics --bootstrap-server $$BOOTSTRAP --list | wc -l | xargs echo "Total topics:"
             resources:
               requests:
                 cpu: 50m

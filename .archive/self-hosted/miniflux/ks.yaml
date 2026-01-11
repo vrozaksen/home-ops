@@ -6,7 +6,7 @@ metadata:
   name: &app miniflux
 spec:
   components:
-    - ../../../components/postgres
+    - ../../../components/postgres # TODO Migrate to CNPG!
   interval: 1h
   dependsOn:
     - name: crunchy-postgres-operator

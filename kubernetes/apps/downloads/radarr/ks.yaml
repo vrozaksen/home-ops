@@ -7,20 +7,22 @@ metadata:
 spec:
   components:
     - ../../../components/nfs-scaler
-    - ../../../components/postgres
+    - ../../../components/cnpg/initdb
     - ../../../components/volsync
   dependsOn:
-    - name: crunchy-postgres-operator
+    - name: cloudnative-pg
+      namespace: database
+    - name: plugin-barman-cloud
       namespace: database
     - name: keda
       namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph
   healthCheckExprs:
-    - apiVersion: postgres-operator.crunchydata.com/v1beta1
-      kind: PostgresCluster
-      failed: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'ProxyAvailable').all(e, e.status == 'True')
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/downloads/radarr
   postBuild:

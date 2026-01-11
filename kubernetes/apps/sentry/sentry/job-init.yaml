@@ -45,25 +45,20 @@ spec:
                 secretKeyRef:
                   name: sentry-secret
                   key: SENTRY_SECRET_KEY
-            # Database
-            - name: SENTRY_POSTGRES_HOST
+            # Database (ConfigMap expects POSTGRES_* vars)
+            - name: POSTGRES_HOST
               value: pooler-sentry-rw.sentry.svc.cluster.local
-            - name: SENTRY_POSTGRES_PORT
+            - name: POSTGRES_PORT
               value: "5432"
-            - name: SENTRY_DB_NAME
+            - name: POSTGRES_NAME
               value: sentry
-            - name: SENTRY_DB_USER
+            - name: POSTGRES_USER
               value: sentry
-            - name: SENTRY_DB_PASSWORD
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-sentry-app
                   key: password
-            # Redis
-            - name: SENTRY_REDIS_HOST
-              value: sentry-dragonfly.sentry.svc.cluster.local
-            - name: SENTRY_REDIS_PORT
-              value: "6379"
           volumeMounts:
             - name: config
               mountPath: /etc/sentry

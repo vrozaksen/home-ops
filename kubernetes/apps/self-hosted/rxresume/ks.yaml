@@ -6,7 +6,7 @@ metadata:
   name: rxresume
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
   dependsOn:
     - name: cloudnative-pg
       namespace: database

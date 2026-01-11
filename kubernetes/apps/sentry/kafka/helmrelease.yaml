@@ -14,6 +14,17 @@ spec:
       kafka:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          init-lost-found:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - sh
+              - -c
+              - rm -rf /var/lib/kafka/data/lost+found
+            securityContext:
+              runAsUser: 0
         containers:
           app:
             image:

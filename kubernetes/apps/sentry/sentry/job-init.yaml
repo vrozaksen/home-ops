@@ -44,7 +44,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: sentry-secret
-                  key: secret-key
+                  key: SENTRY_SECRET_KEY
             # Database
             - name: SENTRY_POSTGRES_HOST
               value: pooler-sentry-rw.sentry.svc.cluster.local

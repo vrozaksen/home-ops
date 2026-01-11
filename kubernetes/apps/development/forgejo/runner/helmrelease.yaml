@@ -49,6 +49,12 @@ spec:
               tag: 29.1.3-dind-rootless@sha256:0d57aab2a0ae0f891f021bce7902828f839aa324d41e82028e51e19759dc28ed
             securityContext:
               privileged: true
+            resources:
+              requests:
+                cpu: 10m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
             env:
               - name: DOCKER_TLS_CERTDIR
                 value: /certs
@@ -59,9 +65,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 64Mi
+                memory: 256Mi
               limits:
-                memory: 1Gi
+                memory: 512Mi
             command:
               - "sh"
               - "-c"

@@ -2,7 +2,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
-  name: collabora-session-affinity
+  name: collabora-websocket
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -15,3 +15,9 @@ spec:
       cookie:
         name: SERVERID
         ttl: 3600s
+  timeout:
+    http:
+      connectionIdleTimeout: 3600s
+      requestTimeout: 3600s
+    tcp:
+      connectTimeout: 30s

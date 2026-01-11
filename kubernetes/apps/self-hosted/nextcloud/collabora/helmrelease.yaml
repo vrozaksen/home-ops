@@ -17,8 +17,20 @@ spec:
             image:
               repository: collabora/code
               tag: 25.04.8.1.1@sha256:3c58d0e9bae75e4647467d0c7d91cb66f261d3e814709aed590b5c334a04db26
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop:
+                  - ALL
             env:
-              extra_params: --o:ssl.termination=true --o:ssl.enable=false
+              extra_params: --o:ssl.termination=true --o:ssl.enable=false --o:security.capabilities=false
               aliasgroup1: https://cloud.vzkn.eu:443
               domain: cloud\\.vzkn\\.eu
     rawResources:

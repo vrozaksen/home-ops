@@ -205,7 +205,7 @@ spec:
         enableSessionReplay: true   # Auto-enables: replaysConsumer, ingestReplayRecordings
         enableFeedback: true        # Auto-enables: ingestFeedback
         enableSpan: true            # Auto-enables: processSpans, processSegments
-        enableUptime: false         # Auto-disables: uptimeChecker, uptimeResults
+        enableUptime: true          # Auto-enables: uptimeChecker, uptimeResults
 
       # ------------------------------------------
       # Web & API

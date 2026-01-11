@@ -24,7 +24,7 @@ spec:
               TZ: "Europe/Warsaw"
               PORT: &port 3001
               NODE_ENV: "production"
-              PUBLIC_URL: https://rr.vzkn.eu
+              PUBLIC_URL: https://rxresume.vzkn.eu
               CHROME_URL: ws://rxresume-chrome.self-hosted.svc.cluster.local.:3000
               # S3
               STORAGE_URL: https://api.s3.vzkn.eu/rxresume
@@ -109,7 +109,6 @@ spec:
             group: self-hosted
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"
-          - rr.vzkn.eu
         parentRefs:
           - name: envoy-external
             namespace: network

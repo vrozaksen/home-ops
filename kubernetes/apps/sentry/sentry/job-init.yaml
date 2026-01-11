@@ -13,7 +13,6 @@ spec:
     spec:
       restartPolicy: OnFailure
       priorityClassName: cluster-low
-      serviceAccountName: sentry
       initContainers:
         - name: wait-for-config
           image: busybox:latest

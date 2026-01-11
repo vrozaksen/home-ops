@@ -30,7 +30,7 @@ spec:
                 drop:
                   - ALL
             env:
-              extra_params: --o:ssl.termination=true --o:ssl.enable=false --o:security.capabilities=false --o:logging.level=error
+              extra_params: --o:ssl.termination=true --o:ssl.enable=false --o:security.capabilities=false --o:logging.level=error --o:admin_console.enable=false --o:home_mode.enable=true
               aliasgroup1: https://cloud.vzkn.eu:443
               domain: cloud\\.vzkn\\.eu
     rawResources:

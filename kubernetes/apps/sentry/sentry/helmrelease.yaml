@@ -98,19 +98,19 @@ spec:
     # Hooks & Initialization
     # ============================================================================
     hooks:
-      enabled: true
-      preUpgrade: true
+      enabled: false
+      preUpgrade: false
       removeOnSuccess: true
       activeDeadlineSeconds: 600
       shareProcessNamespace: true
       dbCheck:
         enabled: true
       dbInit:
-        enabled: true
+        enabled: false
       snubaInit:
-        enabled: true
+        enabled: false
       snubaMigrate:
-        enabled: true
+        enabled: false
 
     # ============================================================================
     # System & Auth Configuration

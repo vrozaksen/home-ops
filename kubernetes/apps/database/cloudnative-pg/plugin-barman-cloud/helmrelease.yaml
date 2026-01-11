@@ -23,3 +23,7 @@ spec:
   chartRef:
     kind: OCIRepository
     name: *app
+  values:
+    certificate:
+      # Renew 22 days before expiry (must be > 21d alert threshold)
+      renewBefore: 528h

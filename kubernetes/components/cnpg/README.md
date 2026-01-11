@@ -146,16 +146,15 @@ postBuild:
 ### Core Settings (with defaults)
 ```yaml
 CNPG_REPLICAS: '3'                # Instances (3 = HA quorum)
-CNPG_SIZE: 2Gi                    # PVC size (2Gi small, 5Gi large)
+CNPG_SIZE: 2Gi                    # PVC size (2Gi small, 10Gi large)
 CNPG_STORAGECLASS: local-hostpath # Storage class
 ```
 
-### Resources (Burstable QoS - recommended for most apps)
-```yaml
-CNPG_REQUESTS_CPU: 25m            # Low reservation, can burst
-CNPG_REQUESTS_MEMORY: 256Mi       # Minimal reservation
-CNPG_LIMITS_MEMORY: 512Mi         # Can burst to 2x memory
-```
+### Resources (Unlimited by design)
+**No resource limits configured for database pods.**
+- Philosophy: Critical databases should use what they need
+- Kubernetes scheduler manages node allocation naturally
+- Poolers (PgBouncer) still have limits (32Mi/64Mi) to contain leaks
 
 ### PostgreSQL Tuning
 ```yaml
@@ -213,33 +212,24 @@ CNPG_SYNC_METHOD: ''  # Must be empty
 
 ---
 
-## Resource Sizing Guide
+## Storage Sizing Guide
 
-**Default: Burstable QoS** (ideal for idle databases)
-- Requests: CPU 25m, Memory 256Mi (minimal reservation)
-- Limits: Memory 512Mi (can burst 2x), CPU unlimited
-
-**Custom sizing examples:**
+**Storage allocation examples:**
 ```yaml
 # Small DBs (<500MB data)
-CNPG_REQUESTS_CPU: 25m
-CNPG_LIMITS_MEMORY: 512Mi
+CNPG_SIZE: 2Gi  # Default
 
 # Medium DBs (500MB-2GB)
-CNPG_REQUESTS_CPU: 100m
-CNPG_REQUESTS_MEMORY: 512Mi
-CNPG_LIMITS_MEMORY: 1Gi
+CNPG_SIZE: 5Gi
 
 # Large DBs (>2GB)
-CNPG_REQUESTS_CPU: 200m
-CNPG_REQUESTS_MEMORY: 1Gi
-CNPG_LIMITS_MEMORY: 2Gi
+CNPG_SIZE: 10Gi  # e.g., authentik
 CNPG_MAX_CONNECTIONS: '300'
 CNPG_SHARED_BUFFERS: 512MB
 CNPG_EFFECTIVE_CACHE_SIZE: 1536MB
 ```
 
-💡 **Why Burstable?** Idle DBs sit at low usage but need bursts for VACUUM, backups, indexing.
+💡 **Resource Philosophy:** Databases get unlimited CPU/memory - they're critical workloads that should use what they need. Kubernetes scheduler manages allocation naturally.
 
 ---
 
@@ -278,11 +268,11 @@ spec:
 
 ### Example 2: Restore existing database
 ```yaml
-# kubernetes/apps/security/authentik/ks.yaml
+# kubernetes/apps/media/miniflux/ks.yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: authentik
+  name: miniflux
 spec:
   components:
     - ../../../components/cnpg/restore  # ✅ Production config
@@ -293,28 +283,25 @@ spec:
       namespace: database
   postBuild:
     substitute:
-      APP: authentik
-      CNPG_SIZE: 5Gi
-      CNPG_POOLER_MODE: transaction  # Required by Authentik
-  targetNamespace: security
+      APP: miniflux
+      CNPG_SIZE: 2Gi  # Default is fine
+  targetNamespace: media
 ```
 
 ### Example 3: Large database with custom tuning
 ```yaml
-# kubernetes/apps/observability/grafana/ks.yaml
+# kubernetes/apps/security/authentik/ks.yaml
 spec:
   components:
     - ../../../components/cnpg/restore
   postBuild:
     substitute:
-      APP: grafana
+      APP: authentik
       CNPG_REPLICAS: '3'
-      CNPG_SIZE: 5Gi
-      CNPG_REQUESTS_CPU: 100m
-      CNPG_REQUESTS_MEMORY: 512Mi
-      CNPG_LIMITS_MEMORY: 1Gi
+      CNPG_SIZE: 10Gi  # Largest database
       CNPG_MAX_CONNECTIONS: '200'
-      CNPG_SHARED_BUFFERS: 256MB
+      CNPG_SHARED_BUFFERS: 512MB
+      CNPG_POOLER_MODE: transaction  # Required by Authentik
 ```
 
 ---

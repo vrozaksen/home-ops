@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: reactive-resume
+  name: rxresume
 spec:
   interval: 1h
   chartRef:
@@ -10,7 +10,7 @@ spec:
     name: app-template
   values:
     controllers:
-      reactive-resume:
+      rxresume:
         replicas: 1
         strategy: RollingUpdate
         annotations:
@@ -25,19 +25,19 @@ spec:
               PORT: &port 3001
               NODE_ENV: "production"
               PUBLIC_URL: https://rr.vzkn.eu
-              CHROME_URL: ws://reactive-resume-chrome.self-hosted.svc.cluster.local.:3000
+              CHROME_URL: ws://rxresume-chrome.self-hosted.svc.cluster.local.:3000
               # S3
-              STORAGE_URL: https://s3.vzkn.eu/rresume
+              STORAGE_URL: https://api.s3.vzkn.eu/rxresume
               STORAGE_ENDPOINT: aincrad.home.vzkn.eu
-              STORAGE_PORT: "9000"
+              STORAGE_PORT: "9010"
               STORAGE_REGION: eu-central-1
-              STORAGE_BUCKET: rresume
+              STORAGE_BUCKET: rxresume
               STORAGE_USE_SSL: "false"
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
-                    name: rresume-pguser-rresume
-                    key: pgbouncer-uri
+                    name: postgres-rxresume-app
+                    key: uri
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
@@ -98,7 +98,7 @@ spec:
           http:
             port: 3000
       app:
-        controller: reactive-resume
+        controller: rxresume
         ports:
           http:
             port: *port
@@ -121,7 +121,7 @@ spec:
       tmpfs:
         type: emptyDir
         advancedMounts:
-          reactive-resume:
+          rxresume:
             app:
               - path: /tmp
                 subPath: tmp

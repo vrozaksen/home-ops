@@ -3,7 +3,7 @@ locals {
     "cnpg",
     "forgejo",
     "harbor",
-    "rresume",
+    "rxresume",
     "sentry",
     "tfstate-mikrotik-terraform"
   ]

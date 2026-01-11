@@ -12,7 +12,7 @@ locals {
     "nextcloud",
     # "open-webui",
     "pgadmin",
-    "rresume"
+    "rxresume"
   ]
 }
 
@@ -310,7 +310,7 @@ module "oauth2-nextcloud" {
 #   redirect_uris      = ["https://docs.${var.cluster_domain}/accounts/oidc/authentik/login/callback/"]
 # }
 
-module "oauth2-rresume" {
+module "oauth2-rxresume" {
   source             = "./oauth2_application"
   name               = "Reactive-Resume"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/reactive-resume.png"
@@ -321,8 +321,8 @@ module "oauth2-rresume" {
   auth_groups        = [authentik_group.home.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["rresume"].client_id
-  client_secret      = local.parsed_secrets["rresume"].client_secret
+  client_id          = local.parsed_secrets["rxresume"].client_id
+  client_secret      = local.parsed_secrets["rxresume"].client_secret
   redirect_uris      = ["https://rr.${var.cluster_domain}/api/auth/openid/callback"]
 }
 

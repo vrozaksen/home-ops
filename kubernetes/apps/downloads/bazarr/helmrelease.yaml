@@ -24,26 +24,23 @@ spec:
             env:
               TZ: Europe/Warsaw
               POSTGRES_ENABLED: "true"
-              POSTGRES_HOST:
-                valueFrom:
-                  secretKeyRef:
-                    name: &pg bazarr-pguser-bazarr
-                    key: pgbouncer-host
+              POSTGRES_HOST: pooler-bazarr-rw
+              POSTGRES_PORT: "5432"
               POSTGRES_DATABASE:
                 valueFrom:
                   secretKeyRef:
-                    name: *pg
+                    name: &pg postgres-bazarr-app
                     key: dbname
-              POSTGRES_USERNAME:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: user
               POSTGRES_PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
                     key: password
+              POSTGRES_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: username
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

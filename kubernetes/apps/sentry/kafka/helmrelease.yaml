@@ -307,6 +307,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        controller: kafka
         ports:
           kafka:
             port: 9092

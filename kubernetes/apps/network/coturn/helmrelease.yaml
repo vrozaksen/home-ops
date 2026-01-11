@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/coturn/coturn
-              tag: 4.7.0@sha256:a00afb5b4890de4df22bbe70379c6b316685dffee297d53cac1271dcb91fab93
+              tag: 4.8.0@sha256:5de3fc6be2da60c3d93f40aa57e0f43188d9183c0053b25581883f5ccd252bdb
             args:
               - -c
               - /config/turnserver.conf

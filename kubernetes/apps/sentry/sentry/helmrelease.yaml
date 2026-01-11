@@ -115,12 +115,12 @@ spec:
     # ============================================================================
     # Hooks & Initialization
     # ============================================================================
-    hooks:
-      enabled: false
-      dbCheck:
-        enabled: true
-      dbInit:
-        enabled: false
+    # hooks:
+    #   enabled: false
+    #   dbCheck:
+    #     enabled: true
+    #   dbInit:
+    #     enabled: false
 
     # ============================================================================
     # System & Auth Configuration

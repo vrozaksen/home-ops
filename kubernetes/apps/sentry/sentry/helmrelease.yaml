@@ -112,6 +112,16 @@ spec:
     auth:
       register: false
 
+    # GitHub Integration
+    github:
+      appName: "sentry-vzkn-eu"
+      existingSecret: sentry-github
+      existingSecretAppIdKey: app-id
+      existingSecretPrivateKeyKey: private-key
+      existingSecretWebhookSecretKey: webhook-secret
+      existingSecretClientIdKey: client-id
+      existingSecretClientSecretKey: client-secret
+
     # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990) before setting up SMTP
     # After wizard completion, change back to smtp
     # mail:

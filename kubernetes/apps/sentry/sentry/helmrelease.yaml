@@ -98,14 +98,14 @@ spec:
     # System & Auth Configuration
     # ============================================================================
     system:
-      adminEmail: admin@sentry.vzkn.eu
+      adminEmail: admin@vzkn.eu
       url: https://sentry.vzkn.eu
       public: false
       existingSecret: sentry-secret
 
     user:
       create: true
-      email: admin@sentry.vzkn.eu
+      email: admin@vzkn.eu
       existingSecret: sentry-secret
       existingSecretKey: ADMIN_PASSWORD
 
@@ -155,11 +155,16 @@ spec:
         import os
         os.environ.setdefault("AWS_REQUEST_CHECKSUM_CALCULATION", "when_required")
         os.environ.setdefault("AWS_RESPONSE_CHECKSUM_VALIDATION", "when_required")
+        # Set AWS credentials from S3_* env vars for boto3
+        if os.environ.get("S3_ACCESS_KEY_ID"):
+            os.environ.setdefault("AWS_ACCESS_KEY_ID", os.environ["S3_ACCESS_KEY_ID"])
+        if os.environ.get("S3_SECRET_ACCESS_KEY"):
+            os.environ.setdefault("AWS_SECRET_ACCESS_KEY", os.environ["S3_SECRET_ACCESS_KEY"])
 
         # Override filestore options for Garage compatibility
         SENTRY_OPTIONS["filestore.options"] = {
-            "access_key": os.environ.get("FILESTORE_S3_ACCESS_KEY_ID", ""),
-            "secret_key": os.environ.get("FILESTORE_S3_SECRET_ACCESS_KEY", ""),
+            "access_key": os.environ.get("S3_ACCESS_KEY_ID", ""),
+            "secret_key": os.environ.get("S3_SECRET_ACCESS_KEY", ""),
             "bucket_name": "sentry",
             "endpoint_url": "https://api.s3.vzkn.eu",
             "region_name": "eu-central-1",

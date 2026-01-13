@@ -156,6 +156,10 @@ spec:
         SENTRY_BEACON = False
         CSRF_TRUSTED_ORIGINS += ["null"]  # For SDK requests without origin
 
+        # Disable external relay registration
+        SENTRY_RELAY_OPEN_REGISTRATION = False
+        SENTRY_RELAY_WHITELIST_PK = []
+
         # ===========================================
         # Feature Flags
         # ===========================================

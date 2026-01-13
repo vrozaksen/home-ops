@@ -370,6 +370,10 @@ spec:
         enableSpan: true            # Auto-enables: processSpans, processSegments
         enableUptime: false
 
+      # Uptime monitoring - disabled
+      uptimeResults:
+        enabled: false
+
       # ------------------------------------------
       # Web & API
       # ------------------------------------------

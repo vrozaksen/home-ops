@@ -15,6 +15,7 @@ metadata:
   name: sentry
 spec:
   interval: 1h
+  timeout: 15m
   chart:
     spec:
       # renovate: registryUrl=https://sentry-kubernetes.github.io/charts

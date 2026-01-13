@@ -112,15 +112,7 @@ spec:
     auth:
       register: false
 
-    # GitHub Integration
-    github:
-      appName: "sentry-vzkn-eu"
-      existingSecret: sentry-github
-      existingSecretAppIdKey: app-id
-      existingSecretPrivateKeyKey: private-key
-      existingSecretWebhookSecretKey: webhook-secret
-      existingSecretClientIdKey: client-id
-      existingSecretClientSecretKey: client-secret
+    # GitHub Integration (configured via sentryConfPy below)
 
     # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990) before setting up SMTP
     # After wizard completion, change back to smtp
@@ -169,6 +161,17 @@ spec:
         # Disable external relay registration
         SENTRY_RELAY_OPEN_REGISTRATION = False
         SENTRY_RELAY_WHITELIST_PK = []
+
+        # GitHub Integration
+        if os.environ.get("GITHUB_APP_ID"):
+            SENTRY_OPTIONS["github-app.id"] = int(os.environ["GITHUB_APP_ID"])
+            SENTRY_OPTIONS["github-app.name"] = os.environ.get("GITHUB_APP_NAME", "sentry-vzkn-eu")
+            SENTRY_OPTIONS["github-app.client-id"] = os.environ.get("GITHUB_CLIENT_ID", "")
+            SENTRY_OPTIONS["github-app.client-secret"] = os.environ.get("GITHUB_CLIENT_SECRET", "")
+            SENTRY_OPTIONS["github-app.webhook-secret"] = os.environ.get("GITHUB_WEBHOOK_SECRET", "")
+            # Handle private key with escaped newlines
+            private_key = os.environ.get("GITHUB_PRIVATE_KEY", "")
+            SENTRY_OPTIONS["github-app.private-key"] = private_key.replace("\\n", "\n")
 
         # ===========================================
         # Feature Flags
@@ -371,6 +374,7 @@ spec:
       # Web & API
       # ------------------------------------------
       web:
+        existingSecretEnv: sentry-github
         probeInitialDelaySeconds: 180
         probeFailureThreshold: 20
         probePeriodSeconds: 30

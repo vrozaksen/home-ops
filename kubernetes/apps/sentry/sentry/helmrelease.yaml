@@ -137,6 +137,11 @@ spec:
       host: "smtp.protonmail.ch"
       from: "admin@vzkn.eu"
 
+    # OpenAI for Sentry AI features
+    openai:
+      existingSecret: sentry-secret
+      existingSecretKey: openai-api-key
+
     # ============================================================================
     # Application Configuration
     # ============================================================================

@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-showcase
-              tag: 2026.1.51
+              tag: 2026.1.53
             env:
               TZ: Europe/Warsaw
             probes:

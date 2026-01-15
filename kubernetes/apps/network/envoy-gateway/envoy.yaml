@@ -22,12 +22,13 @@ spec:
                 matchLabels:
                   gateway.envoyproxy.io/owning-gateway-namespace: network
         container:
-          imageRepository: mirror.gcr.io/envoyproxy/envoy
+          image: mirror.gcr.io/envoyproxy/envoy:v1.36.4
+          # imageRepository: mirror.gcr.io/envoyproxy/envoy
           resources:
             requests:
               cpu: 100m
             limits:
-              memory: 1Gi
+              memory: 2Gi
       envoyService:
         externalTrafficPolicy: Local
   shutdown:
@@ -36,7 +37,7 @@ spec:
     metrics:
       prometheus:
         compression:
-          type: Gzip
+          type: Zstd
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gatewayclass_v1.json
 apiVersion: gateway.networking.k8s.io/v1
@@ -129,10 +130,18 @@ kind: BackendTrafficPolicy
 metadata:
   name: envoy
 spec:
-  compression:
+  compressor:
     - type: Zstd
+      zstd: {}
     - type: Brotli
+      brotli: {}
     - type: Gzip
+      gzip: {}
+  retry:
+    numRetries: 2
+    retryOn:
+      triggers:
+        - reset
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway

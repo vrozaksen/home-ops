@@ -11,6 +11,8 @@ spec:
   dependsOn:
     - name: keda
       namespace: observability
+    - name: priority-classes
+      namespace: flux-system
   interval: 1h
   path: ./kubernetes/apps/downloads/tdarr-node
   postBuild:

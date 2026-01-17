@@ -24,6 +24,13 @@ tasks:
       - '[[ "{{.STATE}}" == "suspend" || "{{.STATE}}" == "resume" ]]'
       - which flux kubectl
 
+  cleanup-jobs:
+    desc: Delete completed volsync jobs to unstick syncs
+    cmds:
+      - kubectl delete jobs -A -l app.kubernetes.io/created-by=volsync --field-selector status.successful=1
+    preconditions:
+      - which kubectl
+
   snapshot:
     desc: Snapshot an app [NS=default] [APP=required]
     cmds:

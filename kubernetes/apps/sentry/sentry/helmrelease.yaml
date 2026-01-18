@@ -304,6 +304,9 @@ spec:
         SENTRY_FEATURES["organizations:gen-ai-explore-traces"] = False
         SENTRY_FEATURES["organizations:unlimited-auto-triggered-autofix-runs"] = False
 
+        # Session Replay Storage - use same filestore backend
+        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.replays.usecases.reader.FilestoreBlob"
+
       web:
         httpKeepalive: 15
         httpChunkedInput: true

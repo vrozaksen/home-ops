@@ -304,8 +304,23 @@ spec:
         SENTRY_FEATURES["organizations:gen-ai-explore-traces"] = False
         SENTRY_FEATURES["organizations:unlimited-auto-triggered-autofix-runs"] = False
 
-        # Session Replay Storage - use same filestore backend
+        # =============================================
+        # Storage Backends - use same S3 as filestore
+        # =============================================
+        # Session Replay recordings
         SENTRY_OPTIONS["replay.storage.backend"] = "sentry.replays.usecases.reader.FilestoreBlob"
+
+        # Chart rendering (alert emails with charts)
+        SENTRY_OPTIONS["chart-rendering.storage.backend"] = "s3"
+        SENTRY_OPTIONS["chart-rendering.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
+
+        # Configurations storage
+        SENTRY_OPTIONS["configurations.storage.backend"] = "s3"
+        SENTRY_OPTIONS["configurations.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
+
+        # Control silo filestore
+        SENTRY_OPTIONS["filestore.control.backend"] = "s3"
+        SENTRY_OPTIONS["filestore.control.options"] = SENTRY_OPTIONS.get("filestore.options", {})
 
       web:
         httpKeepalive: 15

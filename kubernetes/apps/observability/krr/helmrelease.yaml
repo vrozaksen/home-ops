@@ -1,0 +1,127 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: krr
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      krr:
+        type: cronjob
+        cronjob:
+          schedule: "0 8 * * 1" # Every Monday at 8:00 AM
+          backoffLimit: 1
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+          ttlSecondsAfterFinished: 604800 # 7 days
+        containers:
+          app:
+            image:
+              repository: us-central1-docker.pkg.dev/genuine-flight-317411/devel/krr
+              tag: v1.28.0
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                set -e
+                echo "Starting KRR scan..."
+
+                # Run KRR and save JSON output
+                python /app/krr.py simple \
+                  --prometheus-url "${PROMETHEUS_URL}" \
+                  --max-workers 3 \
+                  -f json \
+                  --logtostderr \
+                  > /tmp/krr-report.json 2>/tmp/krr.log || true
+
+                # Check if report was generated
+                if [ ! -s /tmp/krr-report.json ]; then
+                  echo "KRR scan failed or produced no output"
+                  cat /tmp/krr.log
+                  exit 1
+                fi
+
+                TOTAL=$(cat /tmp/krr-report.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('scans', [])))" 2>/dev/null || echo "0")
+                echo "Found ${TOTAL} workloads with recommendations"
+
+                # Send to webhook for Pushover notification
+                curl -sf -X POST "${WEBHOOK_URL}" \
+                  -H "Content-Type: application/json" \
+                  -d @/tmp/krr-report.json \
+                  && echo "Webhook notification sent" \
+                  || echo "Webhook notification failed (non-fatal)"
+
+                # Print summary from JSON for logs
+                echo ""
+                echo "=== Summary ==="
+                cat /tmp/krr-report.json | python3 -c "
+                import sys, json
+                data = json.load(sys.stdin)
+                for scan in data.get('scans', []):
+                    ns = scan.get('object', {}).get('namespace', '?')
+                    name = scan.get('object', {}).get('name', '?')
+                    kind = scan.get('object', {}).get('kind', '?')
+                    rec = scan.get('recommended', {})
+                    cpu_req = rec.get('requests', {}).get('cpu', {})
+                    mem_req = rec.get('requests', {}).get('memory', {})
+                    sev = cpu_req.get('severity', '') or mem_req.get('severity', '') or 'OK'
+                    print(f'{sev:8} {ns}/{name} ({kind})')
+                "
+            env:
+              TZ: Europe/Warsaw
+              PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
+              WEBHOOK_URL: http://webhook.downloads.svc.cluster.local/hooks/krr-pushover
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false # KRR needs to write temp files
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+        pod:
+          restartPolicy: Never
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+    rbac:
+      roles:
+        krr:
+          type: ClusterRole
+          rules:
+            - apiGroups: [""]
+              resources: ["pods", "nodes", "namespaces", "services"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["apps"]
+              resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["batch"]
+              resources: ["jobs", "cronjobs"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["autoscaling"]
+              resources: ["horizontalpodautoscalers"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["autoscaling.k8s.io"]
+              resources: ["verticalpodautoscalers"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["argoproj.io"]
+              resources: ["rollouts"]
+              verbs: ["get", "list", "watch"]
+      bindings:
+        krr:
+          type: ClusterRoleBinding
+          roleRef:
+            identifier: krr
+          subjects:
+            - identifier: krr
+    serviceAccount:
+      krr: {}

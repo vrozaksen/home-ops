@@ -329,7 +329,8 @@ spec:
         # Storage Backends - use same S3 as filestore
         # =============================================
         # Session Replay recordings
-        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.replays.lib.storage.FilestoreBlob"
+        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.filestore.s3.S3Boto3Storage"
+        SENTRY_OPTIONS["replay.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
 
         # Chart rendering (alert emails with charts)
         SENTRY_OPTIONS["chart-rendering.storage.backend"] = "s3"

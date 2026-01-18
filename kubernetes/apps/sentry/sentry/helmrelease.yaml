@@ -304,11 +304,32 @@ spec:
         SENTRY_FEATURES["organizations:gen-ai-explore-traces"] = False
         SENTRY_FEATURES["organizations:unlimited-auto-triggered-autofix-runs"] = False
 
+        # S3-compatible storage settings for Garage
+        import os
+        os.environ.setdefault("AWS_REQUEST_CHECKSUM_CALCULATION", "when_required")
+        os.environ.setdefault("AWS_RESPONSE_CHECKSUM_VALIDATION", "when_required")
+        # Set AWS credentials from S3_* env vars for boto3
+        if os.environ.get("S3_ACCESS_KEY_ID"):
+            os.environ.setdefault("AWS_ACCESS_KEY_ID", os.environ["S3_ACCESS_KEY_ID"])
+        if os.environ.get("S3_SECRET_ACCESS_KEY"):
+            os.environ.setdefault("AWS_SECRET_ACCESS_KEY", os.environ["S3_SECRET_ACCESS_KEY"])
+
+        # Override filestore options for Garage compatibility
+        SENTRY_OPTIONS["filestore.options"] = {
+            "access_key": os.environ.get("S3_ACCESS_KEY_ID", ""),
+            "secret_key": os.environ.get("S3_SECRET_ACCESS_KEY", ""),
+            "bucket_name": "sentry",
+            "endpoint_url": "https://api.s3.vzkn.eu",
+            "region_name": "eu-central-1",
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+        }
+
         # =============================================
         # Storage Backends - use same S3 as filestore
         # =============================================
         # Session Replay recordings
-        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.replays.usecases.reader.FilestoreBlob"
+        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.replays.lib.storage.FilestoreBlob"
 
         # Chart rendering (alert emails with charts)
         SENTRY_OPTIONS["chart-rendering.storage.backend"] = "s3"

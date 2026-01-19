@@ -19,7 +19,7 @@ resource "authentik_group" "users" {
 resource "authentik_group" "media" {
   name         = "media"
   is_superuser = false
-  parent       = resource.authentik_group.users.id
+  parents      = [authentik_group.users.id]
   # attributes = jsonencode({
   #   defaultQuota = "5 GB"
   # })
@@ -28,7 +28,7 @@ resource "authentik_group" "media" {
 resource "authentik_group" "home" {
   name         = "home"
   is_superuser = false
-  parent       = resource.authentik_group.users.id
+  parents      = [authentik_group.users.id]
 }
 
 

@@ -6,10 +6,18 @@ resource "authentik_stage_authenticator_totp" "authenticator-totp-setup" {
   configure_flow = authentik_flow.authenticator-totp-setup.uuid
 }
 
+resource "authentik_stage_authenticator_static" "authenticator-static-setup" {
+  name           = "authenticator-static-setup"
+  friendly_name  = "Recovery Codes"
+  token_count    = 8
+  token_length   = 12
+  configure_flow = authentik_flow.authenticator-static-setup.uuid
+}
+
 resource "authentik_stage_authenticator_webauthn" "authenticator-webauthn-setup" {
   name                     = "authenticator-webauthn-setup"
-  friendly_name            = "Setup Webauthn"
-  resident_key_requirement = "preferred"
+  friendly_name            = "Security Key / Passkey"
+  resident_key_requirement = "discouraged"
   user_verification        = "preferred"
   configure_flow           = authentik_flow.authenticator-webauthn-setup.uuid
 }
@@ -18,7 +26,7 @@ resource "authentik_stage_authenticator_webauthn" "authenticator-webauthn-setup"
 resource "authentik_stage_identification" "authentication-identification" {
   name                      = "authentication-identification"
   user_fields               = ["username", "email"]
-  case_insensitive_matching = false
+  case_insensitive_matching = true
   show_source_labels        = true
   show_matched_user         = false
   password_stage            = authentik_stage_password.authentication-password.id
@@ -42,8 +50,8 @@ resource "authentik_stage_authenticator_validate" "authentication-mfa-validation
   device_classes        = ["static", "totp", "webauthn"]
   not_configured_action = "configure"
   configuration_stages = [
+    authentik_stage_authenticator_totp.authenticator-totp-setup.id,
     authentik_stage_authenticator_webauthn.authenticator-webauthn-setup.id,
-    authentik_stage_authenticator_totp.authenticator-totp-setup.id
   ]
 }
 
@@ -70,7 +78,7 @@ resource "authentik_stage_user_logout" "invalidation-logout" {
 resource "authentik_stage_identification" "recovery-identification" {
   name                      = "recovery-identification"
   user_fields               = ["username", "email"]
-  case_insensitive_matching = false
+  case_insensitive_matching = true
   show_source_labels        = false
   show_matched_user         = false
 }
@@ -126,8 +134,7 @@ resource "authentik_stage_user_write" "enrollment-user-write" {
 }
 
 resource "authentik_stage_user_login" "source-enrollment-login" {
-  name             = "source-enrollment-login"
-  session_duration = "seconds=0"
+  name = "source-enrollment-login"
 }
 
 ## User settings stages

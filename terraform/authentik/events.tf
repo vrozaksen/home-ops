@@ -92,7 +92,7 @@ resource "authentik_policy_event_matcher" "impersonation-started" {
 resource "authentik_event_rule" "security-alerts" {
   name       = "security-alerts"
   severity   = "alert"
-  group      = data.authentik_group.admins.id
+  destination_group = data.authentik_group.admins.id
   transports = [authentik_event_transport.pushover.id]
 }
 
@@ -118,7 +118,7 @@ resource "authentik_policy_binding" "security-impersonation" {
 resource "authentik_event_rule" "system-errors" {
   name       = "system-errors"
   severity   = "warning"
-  group      = data.authentik_group.admins.id
+  destination_group = data.authentik_group.admins.id
   transports = [authentik_event_transport.pushover.id]
 }
 
@@ -138,7 +138,7 @@ resource "authentik_policy_binding" "system-exception" {
 resource "authentik_event_rule" "audit-events" {
   name       = "audit-events"
   severity   = "notice"
-  group      = data.authentik_group.admins.id
+  destination_group = data.authentik_group.admins.id
   transports = [authentik_event_transport.pushover.id]
 }
 

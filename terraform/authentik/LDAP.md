@@ -83,7 +83,7 @@ Password: mypassword123456
 
 ## Access Control
 
-Only members of the `users` group can authenticate via LDAP.
+Access is controlled via RBAC permissions on the LDAP application. Bind the application to a group using policy bindings.
 
 ## Troubleshooting
 

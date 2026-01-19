@@ -55,8 +55,4 @@ resource "authentik_source_oauth" "github" {
 
   additional_scopes = "read:user user:email"
 
-  user_property_mappings = [
-    authentik_property_mapping_source_oauth.github-avatar.id,
-    authentik_property_mapping_source_oauth.github-profile.id,
-  ]
 }

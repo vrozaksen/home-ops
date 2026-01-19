@@ -17,31 +17,6 @@ resource "authentik_policy_reputation" "login-failure-protection" {
   threshold        = -10
 }
 
-# Map GitHub profile data to authentik user
-resource "authentik_property_mapping_source_oauth" "github-avatar" {
-  name       = "GitHub Avatar"
-  expression = <<-EOF
-return {
-    "avatar": source.get("avatar_url"),
-}
-EOF
-}
-
-resource "authentik_property_mapping_source_oauth" "github-profile" {
-  name       = "GitHub Profile"
-  expression = <<-EOF
-return {
-    "attributes": {
-        "github_username": source.get("login"),
-        "github_bio": source.get("bio", ""),
-        "github_company": source.get("company", ""),
-        "github_location": source.get("location", ""),
-        "github_url": source.get("html_url"),
-    }
-}
-EOF
-}
-
 resource "authentik_policy_expression" "user-settings-authorization" {
   name       = "user-settings-authorization"
   expression = <<-EOT

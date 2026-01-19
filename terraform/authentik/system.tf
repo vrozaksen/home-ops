@@ -79,7 +79,7 @@ resource "authentik_provider_ldap" "ldap" {
   name              = "LDAP"
   base_dn           = "dc=ldap,dc=${replace(var.cluster_domain, ".", ",dc=")}"
   bind_flow         = authentik_flow.authentication.uuid
-  search_group      = authentik_group.users.id
+  unbind_flow       = authentik_flow.invalidation.uuid
   certificate       = data.authentik_certificate_key_pair.generated.id
   tls_server_name   = "ldap.${var.cluster_domain}"
   uid_start_number  = 10000

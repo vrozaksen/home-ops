@@ -130,7 +130,7 @@ module "proxy-bazarr" {
 module "oauth2-flux" {
   source             = "./oauth2_application"
   name               = "Flux"
-  icon_url           = "https://raw.githubusercontent.com/fluxcd/flux2/main/docs/dev-guides/flux.png"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/flux-cd.png"
   launch_url         = "https://flux.${var.cluster_domain}"
   description        = "GitOps Status Page"
   newtab             = true

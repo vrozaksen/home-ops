@@ -2,6 +2,23 @@ data "authentik_certificate_key_pair" "generated" {
   name = "authentik Self-signed Certificate"
 }
 
+resource "authentik_system_settings" "settings" {
+  avatars                      = "initials"
+  default_token_duration       = "hours=1"
+  default_user_change_email    = false
+  default_user_change_username = false
+  gdpr_compliance              = true
+  impersonation                = true
+  event_retention              = "days=365"
+
+  footer_links = [
+    {
+      name = "Contact"
+      href = "mailto:admin@vzkn.eu"
+    }
+  ]
+}
+
 data "authentik_brand" "authentik-default" {
   domain = "authentik-default"
 }
@@ -40,13 +57,16 @@ resource "authentik_brand" "default" {
 resource "authentik_brand" "home" {
   domain           = var.cluster_domain
   default          = true
-  branding_title   = "Home"
+  branding_title   = "Vzkn.eu"
   branding_logo    = "/static/dist/assets/icons/icon_left_brand.svg"
   branding_favicon = "/static/dist/assets/icons/icon.png"
 
   flow_authentication = authentik_flow.authentication.uuid
   flow_invalidation   = authentik_flow.invalidation.uuid
+  flow_recovery       = authentik_flow.recovery.uuid
   flow_user_settings  = authentik_flow.user-settings.uuid
+  flow_device_code    = authentik_flow.device-code.uuid
+  flow_unenrollment   = authentik_flow.unenrollment.uuid
 }
 
 resource "authentik_service_connection_kubernetes" "local" {
@@ -54,6 +74,53 @@ resource "authentik_service_connection_kubernetes" "local" {
   local = true
 }
 
+## LDAP Provider
+resource "authentik_provider_ldap" "ldap" {
+  name              = "LDAP"
+  base_dn           = "dc=ldap,dc=${replace(var.cluster_domain, ".", ",dc=")}"
+  bind_flow         = authentik_flow.authentication.uuid
+  search_group      = authentik_group.users.id
+  certificate       = data.authentik_certificate_key_pair.generated.id
+  tls_server_name   = "ldap.${var.cluster_domain}"
+  uid_start_number  = 10000
+  gid_start_number  = 10000
+  mfa_support       = true
+}
+
+resource "authentik_application" "ldap" {
+  name              = "LDAP"
+  slug              = "ldap"
+  group             = "Infrastructure"
+  protocol_provider = authentik_provider_ldap.ldap.id
+  meta_icon         = "fa://fa-address-book"
+  meta_description  = "LDAP Directory"
+  meta_launch_url   = "blank://blank"
+  open_in_new_tab   = false
+}
+
+resource "authentik_policy_binding" "ldap" {
+  target = authentik_application.ldap.uuid
+  group  = authentik_group.users.id
+  order  = 0
+}
+
+resource "authentik_outpost" "ldap" {
+  name               = "ldap-outpost"
+  type               = "ldap"
+  service_connection = authentik_service_connection_kubernetes.local.id
+  protocol_providers = [authentik_provider_ldap.ldap.id]
+  config = jsonencode({
+    authentik_host          = "https://sso.${var.cluster_domain}"
+    authentik_host_insecure = false
+    log_level               = "info"
+    object_naming_template  = "ak-outpost-%(name)s"
+    kubernetes_replicas     = 1
+    kubernetes_namespace    = "security"
+    kubernetes_service_type = "ClusterIP"
+  })
+}
+
+## Proxy Outpost
 resource "authentik_outpost" "proxyoutpost" {
   name               = "proxy-outpost"
   type               = "proxy"

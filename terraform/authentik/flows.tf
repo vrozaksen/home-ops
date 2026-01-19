@@ -59,10 +59,23 @@ resource "authentik_flow" "authentication" {
   #background         = "https://cdn.${var.cluster_domain}/branding/Background.jpeg"
 }
 
+# Reputation check - block bad actors before they can attempt login
+resource "authentik_policy_binding" "authentication-reputation" {
+  target = authentik_flow.authentication.uuid
+  policy = authentik_policy_reputation.login-failure-protection.id
+  order  = 0
+}
+
 resource "authentik_flow_stage_binding" "authentication-flow-binding-00" {
   target = authentik_flow.authentication.uuid
   stage  = authentik_stage_identification.authentication-identification.id
   order  = 0
+}
+
+resource "authentik_flow_stage_binding" "authentication-flow-binding-05" {
+  target = authentik_flow.authentication.uuid
+  stage  = authentik_stage_captcha.turnstile.id
+  order  = 5
 }
 
 resource "authentik_flow_stage_binding" "authentication-flow-binding-10" {
@@ -233,5 +246,41 @@ resource "authentik_flow" "provider-authorization-implicit-consent" {
   policy_engine_mode = "any"
   denied_action      = "message_continue"
   designation        = "authorization"
-  #background         = "https://cdn.${var.cluster_domain}/branding/Background.jpeg"
+}
+
+## Device code flow (for TV/CLI OAuth)
+resource "authentik_flow" "device-code" {
+  name               = "Device Code Authorization"
+  title              = "Link device to your account"
+  slug               = "device-code"
+  designation        = "stage_configuration"
+  authentication     = "require_authenticated"
+  denied_action      = "message_continue"
+}
+
+resource "authentik_flow_stage_binding" "device-code-binding-00" {
+  target = authentik_flow.device-code.uuid
+  stage  = authentik_stage_consent.device-code-consent.id
+  order  = 0
+}
+
+## Unenrollment flow (user self-deletion)
+resource "authentik_flow" "unenrollment" {
+  name               = "Unenrollment"
+  title              = "Delete your account"
+  slug               = "unenrollment"
+  designation        = "unenrollment"
+  denied_action      = "message_continue"
+}
+
+resource "authentik_flow_stage_binding" "unenrollment-binding-00" {
+  target = authentik_flow.unenrollment.uuid
+  stage  = authentik_stage_consent.unenrollment-consent.id
+  order  = 0
+}
+
+resource "authentik_flow_stage_binding" "unenrollment-binding-10" {
+  target = authentik_flow.unenrollment.uuid
+  stage  = authentik_stage_user_delete.unenrollment-delete.id
+  order  = 10
 }

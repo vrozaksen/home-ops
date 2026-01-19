@@ -47,7 +47,7 @@ module "oauth2-unraid" {
   description                  = "NAS"
   newtab                       = true
   group                        = "Infrastructure"
-  auth_groups                  = [authentik_group.infrastructure.id]
+  auth_groups                  = [authentik_group.admin.id]
   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
   client_id                    = local.parsed_secrets["unraid"].client_id
@@ -69,7 +69,7 @@ module "proxy-prowlarr" {
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.media.id]
+  auth_groups        = [authentik_group.admin.id]
 }
 
 module "proxy-radarr" {
@@ -82,7 +82,7 @@ module "proxy-radarr" {
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.media.id]
+  auth_groups        = [authentik_group.admin.id]
 }
 
 module "proxy-sonarr" {
@@ -95,7 +95,7 @@ module "proxy-sonarr" {
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.media.id]
+  auth_groups        = [authentik_group.admin.id]
 }
 
 # module "proxy-lidarr" {
@@ -108,7 +108,7 @@ module "proxy-sonarr" {
 #   domain             = var.cluster_domain
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   auth_groups        = [authentik_group.media.id]
+#   auth_groups        = [authentik_group.admin.id]
 # }
 
 module "proxy-bazarr" {
@@ -121,7 +121,7 @@ module "proxy-bazarr" {
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.media.id]
+  auth_groups        = [authentik_group.admin.id]
 }
 
 ## Media
@@ -135,7 +135,7 @@ module "oauth2-flux" {
   description        = "GitOps Status Page"
   newtab             = true
   group              = "Infrastructure"
-  auth_groups        = [authentik_group.infrastructure.id]
+  auth_groups        = [authentik_group.admin.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["flux"].client_id
@@ -151,7 +151,7 @@ module "oauth2-grafana" {
   description        = "Observability"
   newtab             = true
   group              = "Infrastructure"
-  auth_groups        = [authentik_group.infrastructure.id]
+  auth_groups        = [authentik_group.admin.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["grafana"].client_id
@@ -167,7 +167,7 @@ module "oauth2-grafana" {
 #   description                  = "Container Registry"
 #   newtab                       = true
 #   group                        = "Development"
-#   auth_groups                  = [authentik_group.infrastructure.id]
+#   auth_groups                  = [authentik_group.admin.id]
 #   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
 #   client_id                    = local.parsed_secrets["harbor"].client_id
@@ -186,7 +186,7 @@ module "oauth2-headlamp" {
   description        = "Kubernetes tooling"
   newtab             = true
   group              = "Infrastructure"
-  auth_groups        = [authentik_group.infrastructure.id]
+  auth_groups        = [authentik_group.admin.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["headlamp"].client_id
@@ -203,7 +203,7 @@ module "oauth2-headlamp" {
 #   description        = "Cloud Development Environments"
 #   newtab             = true
 #   group              = "Development"
-#   auth_groups        = [authentik_group.infrastructure.id]
+#   auth_groups        = [authentik_group.admin.id]
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
 #   client_id          = local.parsed_secrets["coder"].client_id
@@ -235,7 +235,7 @@ module "oauth2-pgadmin" {
   description        = "Postgres Manager"
   newtab             = true
   group              = "Infrastructure"
-  auth_groups        = [authentik_group.infrastructure.id]
+  auth_groups        = [authentik_group.admin.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["pgadmin"].client_id
@@ -268,7 +268,7 @@ module "oauth2-pgadmin" {
 #   description        = "RSS"
 #   newtab             = true
 #   group              = "Home"
-#   auth_groups        = [authentik_group.home.id]
+#   auth_groups        = [authentik_group.users.id]
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
 #   client_id          = local.parsed_secrets["miniflux"].client_id
@@ -302,7 +302,7 @@ module "oauth2-nextcloud" {
 #   description        = "Documents"
 #   newtab             = true
 #   group              = "Home"
-#   auth_groups        = [authentik_group.home.id]
+#   auth_groups        = [authentik_group.users.id]
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
 #   client_id          = local.parsed_secrets["paperless"].client_id
@@ -318,7 +318,7 @@ module "oauth2-rxresume" {
   description        = "CV"
   newtab             = true
   group              = "Home"
-  auth_groups        = [authentik_group.home.id]
+  auth_groups        = [authentik_group.users.id]
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["rxresume"].client_id
@@ -335,7 +335,7 @@ module "oauth2-rxresume" {
 #   description        = "Chat"
 #   newtab             = true
 #   group              = "Home"
-#   auth_groups        = [authentik_group.home.id]
+#   auth_groups        = [authentik_group.users.id]
 #   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
 #   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
 #   client_id          = local.parsed_secrets["open-webui"].client_id

@@ -8,6 +8,40 @@ resource "authentik_policy_password" "password-complexity" {
   error_message    = "Minimum 10 characters with at least 1: uppercase, lowercase, digit, symbol"
 }
 
+# Block users/IPs after failed login attempts
+# Score: -1 per failed login, +1 per success, expires after 24h (default)
+resource "authentik_policy_reputation" "login-failure-protection" {
+  name             = "login-failure-protection"
+  check_ip         = true
+  check_username   = true
+  threshold        = -10
+}
+
+# Map GitHub profile data to authentik user
+resource "authentik_property_mapping_source_oauth" "github-avatar" {
+  name       = "GitHub Avatar"
+  expression = <<-EOF
+return {
+    "avatar": source.get("avatar_url"),
+}
+EOF
+}
+
+resource "authentik_property_mapping_source_oauth" "github-profile" {
+  name       = "GitHub Profile"
+  expression = <<-EOF
+return {
+    "attributes": {
+        "github_username": source.get("login"),
+        "github_bio": source.get("bio", ""),
+        "github_company": source.get("company", ""),
+        "github_location": source.get("location", ""),
+        "github_url": source.get("html_url"),
+    }
+}
+EOF
+}
+
 resource "authentik_policy_expression" "user-settings-authorization" {
   name       = "user-settings-authorization"
   expression = <<-EOT
@@ -47,34 +81,21 @@ resource "authentik_property_mapping_provider_scope" "openid-nextcloud" {
   name       = "OAuth Mapping: OpenID 'nextcloud'"
   scope_name = "nextcloud"
   expression = <<EOF
-# Extract all groups the user is a member of
 groups = [group.name for group in user.ak_groups.all()]
 
-# In Nextcloud, administrators must be members of a fixed group called "admin".
-
-# If a user is an admin in authentik, ensure that "admin" is appended to their group list.
+# Nextcloud admin group mapping
 if user.is_superuser and "admin" not in groups:
     groups.append("admin")
+if "nextcloudAdmin" in groups and "admin" not in groups:
+    groups.append("admin")
 
-# Determine quota based on group membership and admin status
-quota_value = "5 GB"  # Default quota
-
-# Priority 1: Admin users get unlimited quota ("none")
-if user.is_superuser:
-    quota_value = "none"
-# Priority 2: Members of "Home" group get 50GB
-elif "Home" in groups:
-    quota_value = "50 GB"
-# Priority 3: Use custom attribute if set
-else:
-    quota_value = user.attributes.get("nextcloud_quota", user.group_attributes().get("nextcloud_quota", "5 GB"))
+# Quota: unlimited for all, or use custom attribute if set
+quota_value = user.attributes.get("nextcloud_quota", "none")
 
 return {
     "name": request.user.name,
     "groups": groups,
-    # Set a quota by using the "nextcloud_quota" property in the user's attributes
     "quota": quota_value,
-    # To connect an existing Nextcloud user, set "nextcloud_user_id" to the Nextcloud username.
     "user_id": user.attributes.get("nextcloud_user_id", str(user.uuid)),
 }
 EOF

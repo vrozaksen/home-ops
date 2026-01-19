@@ -1,3 +1,13 @@
+## Captcha stage (Cloudflare Turnstile)
+resource "authentik_stage_captcha" "turnstile" {
+  name        = "captcha-turnstile"
+  public_key  = local.turnstile_site_key
+  private_key = local.turnstile_secret_key
+  js_url      = "https://challenges.cloudflare.com/turnstile/v0/api.js"
+  api_url     = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+  interactive = true
+}
+
 ## Auth setup stages
 
 resource "authentik_stage_authenticator_totp" "authenticator-totp-setup" {
@@ -66,7 +76,8 @@ resource "authentik_stage_authenticator_validate" "authentication-passkey-valida
 }
 
 resource "authentik_stage_user_login" "authentication-login" {
-  name = "authentication-login"
+  name             = "authentication-login"
+  session_duration = "hours=24"
 }
 
 ## Invalidation stages
@@ -130,11 +141,12 @@ resource "authentik_stage_prompt" "source-enrollment-prompt" {
 resource "authentik_stage_user_write" "enrollment-user-write" {
   name                     = "enrollment-user-write"
   create_users_as_inactive = false
-  create_users_group       = authentik_group.users.id
+  create_users_group       = authentik_group.pending.id
 }
 
 resource "authentik_stage_user_login" "source-enrollment-login" {
-  name = "source-enrollment-login"
+  name             = "source-enrollment-login"
+  session_duration = "hours=24"
 }
 
 ## User settings stages
@@ -156,4 +168,21 @@ resource "authentik_stage_prompt" "user-settings" {
 resource "authentik_stage_user_write" "user-settings-write" {
   name                     = "user-settings-write"
   create_users_as_inactive = false
+}
+
+## Device code stages
+resource "authentik_stage_consent" "device-code-consent" {
+  name    = "device-code-consent"
+  mode    = "always_require"
+  consent_expire_in = "weeks=4"
+}
+
+## Unenrollment stages
+resource "authentik_stage_consent" "unenrollment-consent" {
+  name    = "unenrollment-consent"
+  mode    = "always_require"
+}
+
+resource "authentik_stage_user_delete" "unenrollment-delete" {
+  name = "unenrollment-delete"
 }

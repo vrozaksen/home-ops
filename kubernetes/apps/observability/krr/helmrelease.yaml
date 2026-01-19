@@ -29,53 +29,46 @@ spec:
             args:
               - |
                 set -e
+                TIMESTAMP=$(date +%Y-%m-%d)
                 echo "Starting KRR scan..."
 
-                # Run KRR and save JSON output
+                # Run KRR and generate HTML report
                 python /app/krr.py simple \
                   --prometheus-url "${PROMETHEUS_URL}" \
                   --max-workers 3 \
-                  -f json \
+                  -f html \
                   --logtostderr \
-                  > /tmp/krr-report.json 2>/tmp/krr.log || true
+                  > /tmp/krr-report.html 2>/tmp/krr.log || true
 
                 # Check if report was generated
-                if [ ! -s /tmp/krr-report.json ]; then
+                if [ ! -s /tmp/krr-report.html ]; then
                   echo "KRR scan failed or produced no output"
                   cat /tmp/krr.log
                   exit 1
                 fi
 
-                TOTAL=$(cat /tmp/krr-report.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('scans', [])))" 2>/dev/null || echo "0")
-                echo "Found ${TOTAL} workloads with recommendations"
+                echo "Report generated, uploading to Nextcloud..."
 
-                # Send to webhook for Pushover notification
-                curl -sf -X POST "${WEBHOOK_URL}" \
-                  -H "Content-Type: application/json" \
-                  -d @/tmp/krr-report.json \
-                  && echo "Webhook notification sent" \
-                  || echo "Webhook notification failed (non-fatal)"
+                # Upload to Nextcloud via WebDAV
+                REPORT_PATH="${NEXTCLOUD_FOLDER}/krr-report-${TIMESTAMP}.html"
+                curl -sf -X PUT \
+                  -u "${NEXTCLOUD_USER}:${NEXTCLOUD_PASSWORD}" \
+                  -H "Content-Type: text/html" \
+                  --data-binary @/tmp/krr-report.html \
+                  "${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/${REPORT_PATH}" \
+                  && echo "Report uploaded to Nextcloud: ${REPORT_PATH}" \
+                  || echo "Nextcloud upload failed"
 
-                # Print summary from JSON for logs
                 echo ""
-                echo "=== Summary ==="
-                cat /tmp/krr-report.json | python3 -c "
-                import sys, json
-                data = json.load(sys.stdin)
-                for scan in data.get('scans', []):
-                    ns = scan.get('object', {}).get('namespace', '?')
-                    name = scan.get('object', {}).get('name', '?')
-                    kind = scan.get('object', {}).get('kind', '?')
-                    rec = scan.get('recommended', {})
-                    cpu_req = rec.get('requests', {}).get('cpu', {})
-                    mem_req = rec.get('requests', {}).get('memory', {})
-                    sev = cpu_req.get('severity', '') or mem_req.get('severity', '') or 'OK'
-                    print(f'{sev:8} {ns}/{name} ({kind})')
-                "
+                echo "Done! Full report: https://${NEXTCLOUD_URL#https://}/${REPORT_PATH}"
             env:
               TZ: Europe/Warsaw
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
-              WEBHOOK_URL: http://webhook.downloads.svc.cluster.local/hooks/krr-pushover
+              NEXTCLOUD_URL: https://cloud.vzkn.eu
+              NEXTCLOUD_FOLDER: Reports/KRR
+            envFrom:
+              - secretRef:
+                  name: krr-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false # KRR needs to write temp files

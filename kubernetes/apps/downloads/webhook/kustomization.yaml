@@ -9,7 +9,6 @@ configMapGenerator:
   - name: webhook-configmap
     files:
       - hooks.yaml=./resources/hooks.yaml
-      - krr-pushover.sh=./resources/krr-pushover.sh
       - seerr-pushover.sh=./resources/seerr-pushover.sh
       - radarr-pushover.sh=./resources/radarr-pushover.sh
       - sonarr-pushover.sh=./resources/sonarr-pushover.sh

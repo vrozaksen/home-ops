@@ -1,9 +1,4 @@
 ---
-- id: krr-pushover
-  execute-command: /config/krr-pushover.sh
-  pass-arguments-to-command:
-    - source: entire-payload
-
 - id: seerr-pushover
   execute-command: /config/seerr-pushover.sh
   pass-arguments-to-command:

@@ -61,13 +61,13 @@ resource "authentik_flow" "authentication" {
 
 resource "authentik_flow_stage_binding" "authentication-flow-binding-00" {
   target = authentik_flow.authentication.uuid
-  stage  = authentik_stage_identification.authentication-identification.id
+  stage  = authentik_stage_captcha.turnstile.id
   order  = 0
 }
 
 resource "authentik_flow_stage_binding" "authentication-flow-binding-05" {
   target = authentik_flow.authentication.uuid
-  stage  = authentik_stage_captcha.turnstile.id
+  stage  = authentik_stage_identification.authentication-identification.id
   order  = 5
 }
 

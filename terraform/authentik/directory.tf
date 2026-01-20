@@ -3,6 +3,21 @@ data "authentik_group" "admins" {
   name = "authentik Admins"
 }
 
+## Service Accounts
+
+# LDAP bind service account for applications (Emby, etc.)
+resource "authentik_user" "ldap-service" {
+  username = "ldap-service"
+  name     = "LDAP Service Account"
+  email    = "ldap-service@${var.cluster_domain}"
+  password = local.ldap_service_password
+  type     = "service_account"
+  groups   = [authentik_group.users.id]
+  attributes = jsonencode({
+    "goauthentik.io/user/service-account" = true
+  })
+}
+
 ## Groups
 
 # Pending - new registrations, no app access (admin approves to users)

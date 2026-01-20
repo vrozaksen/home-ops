@@ -17,7 +17,15 @@ Authentik exposes an LDAP interface for applications that require LDAP authentic
 cn=<username>,ou=users,dc=ldap,dc=vzkn,dc=eu
 ```
 
-Example:
+### Service Account (recommended for applications)
+
+| Setting | Value |
+|---------|-------|
+| **Bind DN** | `cn=ldap-service,ou=users,dc=ldap,dc=vzkn,dc=eu` |
+| **Password** | Stored in Bitwarden (`authentik` → `LDAP_SERVICE_PASSWORD`) |
+
+### User Account Example
+
 ```
 cn=john,ou=users,dc=ldap,dc=vzkn,dc=eu
 ```
@@ -51,6 +59,18 @@ cn=john,ou=users,dc=ldap,dc=vzkn,dc=eu
 | `gidNumber` | POSIX GID |
 
 ## Example: Application Configuration
+
+### Emby
+
+| Setting | Value |
+|---------|-------|
+| **LDAP server address** | `ak-outpost-ldap-outpost.security.svc.cluster.local` |
+| **Port** | `389` |
+| **SSL** | Disabled (internal cluster) |
+| **Bind DN** | `cn=ldap-service,ou=users,dc=ldap,dc=vzkn,dc=eu` |
+| **Bind credentials** | `LDAP_SERVICE_PASSWORD` from Bitwarden |
+| **User search base** | `ou=users,dc=ldap,dc=vzkn,dc=eu` |
+| **User search filter** | `(cn={0})` |
 
 ### Nextcloud
 

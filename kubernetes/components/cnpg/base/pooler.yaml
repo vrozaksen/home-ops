@@ -25,6 +25,10 @@ spec:
     #   * Highest connection reuse but most restrictive
     #   * Cannot use: transactions, prepared statements, temp tables
     poolMode: ${CNPG_POOLER_MODE:=session}
+    parameters:
+      # PgBouncer defaults: default_pool_size=20, max_client_conn=100
+      default_pool_size: ${CNPG_POOLER_POOL_SIZE:="20"}
+      max_client_conn: ${CNPG_POOLER_MAX_CONN:="100"}
   template:
     metadata:
       labels:

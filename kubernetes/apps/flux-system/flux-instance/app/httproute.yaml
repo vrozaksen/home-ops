@@ -9,7 +9,8 @@ metadata:
       group: infrastructure
       conditions: ["[STATUS] == 404"]
 spec:
-  hostnames: ["flux-webhook.vzkn.eu"]
+  hostnames:
+    - flux-webhook.vzkn.eu
   parentRefs:
     - name: envoy-external
       namespace: network

@@ -8,7 +8,8 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: security
 spec:
-  hostnames: ["sso.vzkn.eu"]
+  hostnames:
+    - sso.vzkn.eu
   parentRefs:
     - name: envoy-external
       namespace: network

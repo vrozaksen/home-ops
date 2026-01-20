@@ -122,7 +122,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: home-automation
-        hostnames: ["hass-code.vzkn.eu"]
+        hostnames:
+          - hass-code.vzkn.eu
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -32,7 +32,8 @@ spec:
           annotations:
             gatus.home-operations.com/endpoint: |-
               group: observability
-          hostnames: ["alertmanager.vzkn.eu"]
+          hostnames:
+            - alertmanager.vzkn.eu
           parentRefs:
             - name: envoy-internal
               namespace: network
@@ -103,7 +104,8 @@ spec:
           annotations:
             gatus.home-operations.com/endpoint: |-
               group: observability
-          hostnames: ["prometheus.vzkn.eu"]
+          hostnames:
+            - prometheus.vzkn.eu
           parentRefs:
             - name: envoy-internal
               namespace: network

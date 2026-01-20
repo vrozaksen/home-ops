@@ -86,7 +86,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: education
-        hostnames: ["checkers.vzkn.eu"]
+        hostnames:
+          - checkers.vzkn.eu
         parentRefs:
           - name: envoy-external
             namespace: network

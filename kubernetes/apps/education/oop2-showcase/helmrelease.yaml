@@ -80,7 +80,8 @@ spec:
             group: education
           # Gateway API timeout for WebSocket connections
           gateway.envoyproxy.io/timeout: "300s"
-        hostnames: ["oop2.vzkn.eu"]
+        hostnames:
+          - oop2.vzkn.eu
         parentRefs:
           - name: envoy-external
             namespace: network

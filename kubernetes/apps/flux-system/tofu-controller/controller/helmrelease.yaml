@@ -24,10 +24,6 @@ spec:
     kind: OCIRepository
     name: tofu-controller
   values:
-    runner:
-      image:
-        repository: ghcr.io/joryirving/opentofu-runner
-        tag: 1.11.1@sha256:2fb6a198c7a8cbc2df272068c6420911e259db087c41d5f469736390c3c0907b
     metrics:
       enabled: true
       serviceMonitor:

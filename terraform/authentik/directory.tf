@@ -12,7 +12,10 @@ resource "authentik_user" "ldap-service" {
   email    = "ldap-service@${var.cluster_domain}"
   password = local.ldap_service_password
   type     = "service_account"
-  groups   = [authentik_group.users.id]
+  groups = [
+    authentik_group.users.id,
+    authentik_group.ldap-service-accounts.id,
+  ]
   attributes = jsonencode({
     "goauthentik.io/user/service-account" = true
   })

@@ -104,12 +104,6 @@ resource "authentik_policy_binding" "ldap" {
   order  = 0
 }
 
-# Grant ldap-service permission to search full LDAP directory
-resource "authentik_rbac_permission_user" "ldap-search" {
-  user       = authentik_user.ldap-service.id
-  permission = "authentik_providers_ldap.search_full_directory"
-}
-
 resource "authentik_outpost" "ldap" {
   name               = "ldap-outpost"
   type               = "ldap"

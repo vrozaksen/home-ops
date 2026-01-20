@@ -59,13 +59,6 @@ resource "authentik_flow" "authentication" {
   #background         = "https://cdn.${var.cluster_domain}/branding/Background.jpeg"
 }
 
-# Reputation check - block bad actors before they can attempt login
-resource "authentik_policy_binding" "authentication-reputation" {
-  target = authentik_flow.authentication.uuid
-  policy = authentik_policy_reputation.login-failure-protection.id
-  order  = 0
-}
-
 resource "authentik_flow_stage_binding" "authentication-flow-binding-00" {
   target = authentik_flow.authentication.uuid
   stage  = authentik_stage_identification.authentication-identification.id

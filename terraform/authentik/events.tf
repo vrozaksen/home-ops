@@ -44,12 +44,7 @@ resource "authentik_event_transport" "pushover" {
   send_once               = true
 }
 
-## Event Matcher Policies
-
-resource "authentik_policy_event_matcher" "login-failed" {
-  name   = "event-match-login-failed"
-  action = "login_failed"
-}
+## Event Matcher Policies (critical/important only)
 
 resource "authentik_policy_event_matcher" "suspicious-request" {
   name   = "event-match-suspicious-request"
@@ -66,60 +61,39 @@ resource "authentik_policy_event_matcher" "system-exception" {
   action = "system_exception"
 }
 
-resource "authentik_policy_event_matcher" "model-deleted" {
-  name   = "event-match-model-deleted"
-  action = "model_deleted"
-}
-
-resource "authentik_policy_event_matcher" "password-set" {
-  name   = "event-match-password-set"
-  action = "password_set"
-}
-
-resource "authentik_policy_event_matcher" "secret-view" {
-  name   = "event-match-secret-view"
-  action = "secret_view"
-}
-
 resource "authentik_policy_event_matcher" "impersonation-started" {
   name   = "event-match-impersonation-started"
   action = "impersonation_started"
 }
 
-## Event Rules
+## Event Rules (critical/important only - no spam)
 
-# Security alerts (login failures, suspicious requests, impersonation)
+# Security alerts (suspicious requests, impersonation)
 resource "authentik_event_rule" "security-alerts" {
-  name       = "security-alerts"
-  severity   = "alert"
+  name              = "security-alerts"
+  severity          = "alert"
   destination_group = data.authentik_group.admins.id
-  transports = [authentik_event_transport.pushover.id]
-}
-
-resource "authentik_policy_binding" "security-login-failed" {
-  target = authentik_event_rule.security-alerts.id
-  policy = authentik_policy_event_matcher.login-failed.id
-  order  = 0
+  transports        = [authentik_event_transport.pushover.id]
 }
 
 resource "authentik_policy_binding" "security-suspicious" {
   target = authentik_event_rule.security-alerts.id
   policy = authentik_policy_event_matcher.suspicious-request.id
-  order  = 1
+  order  = 0
 }
 
 resource "authentik_policy_binding" "security-impersonation" {
   target = authentik_event_rule.security-alerts.id
   policy = authentik_policy_event_matcher.impersonation-started.id
-  order  = 2
+  order  = 1
 }
 
 # System errors (configuration errors, exceptions)
 resource "authentik_event_rule" "system-errors" {
-  name       = "system-errors"
-  severity   = "warning"
+  name              = "system-errors"
+  severity          = "warning"
   destination_group = data.authentik_group.admins.id
-  transports = [authentik_event_transport.pushover.id]
+  transports        = [authentik_event_transport.pushover.id]
 }
 
 resource "authentik_policy_binding" "system-config-error" {
@@ -132,30 +106,4 @@ resource "authentik_policy_binding" "system-exception" {
   target = authentik_event_rule.system-errors.id
   policy = authentik_policy_event_matcher.system-exception.id
   order  = 1
-}
-
-# Audit events (deletions, secret views, password changes)
-resource "authentik_event_rule" "audit-events" {
-  name       = "audit-events"
-  severity   = "notice"
-  destination_group = data.authentik_group.admins.id
-  transports = [authentik_event_transport.pushover.id]
-}
-
-resource "authentik_policy_binding" "audit-model-deleted" {
-  target = authentik_event_rule.audit-events.id
-  policy = authentik_policy_event_matcher.model-deleted.id
-  order  = 0
-}
-
-resource "authentik_policy_binding" "audit-secret-view" {
-  target = authentik_event_rule.audit-events.id
-  policy = authentik_policy_event_matcher.secret-view.id
-  order  = 1
-}
-
-resource "authentik_policy_binding" "audit-password-set" {
-  target = authentik_event_rule.audit-events.id
-  policy = authentik_policy_event_matcher.password-set.id
-  order  = 2
 }

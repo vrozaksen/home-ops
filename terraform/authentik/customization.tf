@@ -8,14 +8,6 @@ resource "authentik_policy_password" "password-complexity" {
   error_message    = "Minimum 10 characters with at least 1: uppercase, lowercase, digit, symbol"
 }
 
-# Block users/IPs after failed login attempts
-# Score: -1 per failed login, +1 per success, expires after 24h (default)
-resource "authentik_policy_reputation" "login-failure-protection" {
-  name             = "login-failure-protection"
-  check_ip         = true
-  check_username   = true
-  threshold        = -10
-}
 
 resource "authentik_policy_expression" "user-settings-authorization" {
   name       = "user-settings-authorization"

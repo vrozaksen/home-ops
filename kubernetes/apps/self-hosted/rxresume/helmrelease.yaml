@@ -146,3 +146,5 @@ spec:
             gotenberg:
               - path: /tmp
                 subPath: gotenberg-tmp
+              - path: /home/gotenberg
+                subPath: gotenberg-home

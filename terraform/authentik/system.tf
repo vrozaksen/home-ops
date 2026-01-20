@@ -132,7 +132,7 @@ resource "authentik_outpost" "proxyoutpost" {
     # Home
     module.proxy-zigbee.id,
     module.proxy-searxng.id,
-    module.proxy-screego.id,
+    # module.proxy-screego.id,
     # Downloads
     module.proxy-qbittorrent.id,
     # module.proxy-slskd.id,

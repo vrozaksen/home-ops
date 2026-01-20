@@ -66,15 +66,6 @@ spec:
         maxReplicas: 3
         targetCPUUtilizationPercentage: 70
         targetMemoryUtilizationPercentage: 80
-      startupProbe:
-        periodSeconds: 5
-        failureThreshold: 60  # 5 minutes total for startup
-      livenessProbe:
-        periodSeconds: 10
-        timeoutSeconds: 5
-      readinessProbe:
-        periodSeconds: 10
-        timeoutSeconds: 5
       resources:
         requests:
           cpu: 500m

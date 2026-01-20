@@ -110,6 +110,7 @@ module "proxy-navidrome" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
   ignore_paths       = "^/rest/.*$|^/share/.*$"
+  additional_hosts   = ["music"]
 }
 
 module "proxy-jellystat" {
@@ -172,6 +173,7 @@ module "proxy-searxng" {
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   auth_groups        = [authentik_group.household.id, authentik_group.admin.id]
+  additional_hosts   = ["search"]
 }
 
 module "proxy-screego" {
@@ -327,6 +329,7 @@ module "proxy-qbittorrent" {
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   auth_groups        = [authentik_group.admin.id]
+  additional_hosts   = ["qb"]
 }
 
 # module "proxy-slskd" {

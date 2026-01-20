@@ -10,7 +10,8 @@ terraform {
 resource "authentik_provider_proxy" "this" {
   name                  = var.name
   external_host         = "https://${var.slug}.${var.domain}"
-  mode                  = "forward_single"
+  mode                  = length(var.additional_hosts) > 0 ? "forward_domain" : "forward_single"
+  cookie_domain         = length(var.additional_hosts) > 0 ? var.domain : null
   authorization_flow    = var.authorization_flow
   invalidation_flow     = var.invalidation_flow
   access_token_validity = var.access_token_validity

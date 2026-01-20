@@ -10,6 +10,7 @@ resources:
   - ./bazarr/ks.yaml
   - ./dispatcharr/ks.yaml
   - ./flaresolverr/ks.yaml
+  - ./metube/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./qui/ks.yaml

@@ -7,8 +7,11 @@ metadata:
 spec:
   components:
     - ../../../components/cnpg/restore
+    - ../../../components/ext-auth
     - ../../../components/volsync
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: emby
       namespace: media
     - name: cloudnative-pg

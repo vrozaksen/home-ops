@@ -6,6 +6,8 @@ metadata:
   name: kube-prometheus-stack
 spec:
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster

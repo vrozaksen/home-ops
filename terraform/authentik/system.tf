@@ -126,12 +126,29 @@ resource "authentik_outpost" "proxyoutpost" {
   type               = "proxy"
   service_connection = authentik_service_connection_kubernetes.local.id
   protocol_providers = [
+    # Media
+    module.proxy-navidrome.id,
+    module.proxy-jellystat.id,
+    # Home
+    module.proxy-zigbee.id,
+    module.proxy-searxng.id,
+    module.proxy-screego.id,
+    # Downloads
+    module.proxy-qbittorrent.id,
+    # module.proxy-slskd.id,
+    module.proxy-metube.id,
+    module.proxy-dispatcharr.id,
     module.proxy-prowlarr.id,
     module.proxy-radarr.id,
     module.proxy-sonarr.id,
     # module.proxy-lidarr.id,
-    module.proxy-bazarr.id
-    # module.proxy-navidrome.id,
+    module.proxy-bazarr.id,
+    # Infrastructure
+    module.proxy-prometheus.id,
+    module.proxy-alertmanager.id,
+    module.proxy-victoria-logs.id,
+    module.proxy-karma.id,
+    module.proxy-kopia.id,
   ]
   config = jsonencode({
     authentik_host          = "https://sso.${var.cluster_domain}",

@@ -4,7 +4,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: perplexica-dbstore
 spec:
-  accessModes: ["ReadWriteOnce"]
+  accessModes:
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: 1Gi
@@ -15,7 +16,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: perplexica-uploads
 spec:
-  accessModes: ["ReadWriteOnce"]
+  accessModes:
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: 5Gi

@@ -6,25 +6,25 @@ metadata:
   name: suspicious-network
 spec:
   kprobes:
-  - call: "tcp_connect"
-    syscall: false
-    return: false
-    args:
-    - index: 0
-      type: "sock"
-    selectors:
-    - matchArgs:
-      # Monitor connections to common C2/malware ports
-      - index: 0
-        operator: "DPort"
-        values:
-        - "4444"   # Metasploit
-        - "5555"   # Android Debug Bridge / Malware
-        - "6666"   # IRC bots
-        - "31337"  # Elite/Back Orifice
-        - "8080"   # Common proxy/C2
-        - "9001"   # Tor
-        - "1337"   # Common backdoor
-        - "12345"  # NetBus
-      matchActions:
-      - action: Post
+    - call: "tcp_connect"
+      syscall: false
+      return: false
+      args:
+        - index: 0
+          type: "sock"
+      selectors:
+        - matchArgs:
+            # Monitor connections to common C2/malware ports
+            - index: 0
+              operator: "DPort"
+              values:
+                - "4444"  # Metasploit
+                - "5555"  # Android Debug Bridge / Malware
+                - "6666"  # IRC bots
+                - "31337"  # Elite/Back Orifice
+                - "8080"  # Common proxy/C2
+                - "9001"  # Tor
+                - "1337"  # Common backdoor
+                - "12345"  # NetBus
+          matchActions:
+            - action: Post

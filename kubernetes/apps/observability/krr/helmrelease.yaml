@@ -14,34 +14,36 @@ spec:
       krr:
         type: cronjob
         cronjob:
-          schedule: "0 8 * * 1" # Every Monday at 8:00 AM
+          schedule: "0 8 * * 1"  # Every Monday at 8:00 AM
           backoffLimit: 1
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
-          ttlSecondsAfterFinished: 604800 # 7 days
+          ttlSecondsAfterFinished: 604800  # 7 days
         containers:
           app:
             image:
               repository: us-central1-docker.pkg.dev/genuine-flight-317411/devel/krr
               tag: v1.28.0
-            command: ["/bin/sh", "-c"]
+            command:
+              - "/bin/sh"
+              - "-c"
             args:
               - |
                 set -e
                 TIMESTAMP=$(date +%Y-%m-%d)
                 echo "Starting KRR scan..."
 
-                # Run KRR and generate HTML report
+                # Run KRR and generate CSV report
                 python /app/krr.py simple \
                   --prometheus-url "${PROMETHEUS_URL}" \
                   --max-workers 3 \
-                  -f html \
+                  -f csv \
                   --logtostderr \
-                  > /tmp/krr-report.html 2>/tmp/krr.log || true
+                  > /tmp/krr-report.csv 2>/tmp/krr.log || true
 
                 # Check if report was generated
-                if [ ! -s /tmp/krr-report.html ]; then
+                if [ ! -s /tmp/krr-report.csv ]; then
                   echo "KRR scan failed or produced no output"
                   cat /tmp/krr.log
                   exit 1
@@ -61,15 +63,15 @@ spec:
                 nextcloud_password = os.environ['NEXTCLOUD_PASSWORD']
                 nextcloud_folder = os.environ['NEXTCLOUD_FOLDER']
 
-                report_path = f"{nextcloud_folder}/krr-report-{timestamp}.html"
+                report_path = f"{nextcloud_folder}/krr-report-{timestamp}.csv"
                 upload_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_user}/{report_path}"
 
-                with open('/tmp/krr-report.html', 'rb') as f:
+                with open('/tmp/krr-report.csv', 'rb') as f:
                     response = requests.put(
                         upload_url,
                         data=f,
                         auth=(nextcloud_user, nextcloud_password),
-                        headers={'Content-Type': 'text/html'}
+                        headers={'Content-Type': 'text/csv'}
                     )
 
                 if response.status_code in (200, 201, 204):
@@ -80,7 +82,7 @@ spec:
                 UPLOAD_SCRIPT
 
                 echo ""
-                echo "Done! Full report: ${NEXTCLOUD_URL}/f/${NEXTCLOUD_FOLDER}/krr-report-${TIMESTAMP}.html"
+                echo "Done!"
             env:
               TZ: Europe/Warsaw
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
@@ -91,7 +93,7 @@ spec:
                   name: krr-secret
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false # KRR needs to write temp files
+              readOnlyRootFilesystem: false  # KRR needs to write temp files
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
@@ -111,24 +113,61 @@ spec:
         krr:
           type: ClusterRole
           rules:
-            - apiGroups: [""]
-              resources: ["pods", "nodes", "namespaces", "services"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["apps"]
-              resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["batch"]
-              resources: ["jobs", "cronjobs"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["autoscaling"]
-              resources: ["horizontalpodautoscalers"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["autoscaling.k8s.io"]
-              resources: ["verticalpodautoscalers"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["argoproj.io"]
-              resources: ["rollouts"]
-              verbs: ["get", "list", "watch"]
+            - apiGroups:
+                - ""
+              resources:
+                - "pods"
+                - "nodes"
+                - "namespaces"
+                - "services"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "apps"
+              resources:
+                - "deployments"
+                - "daemonsets"
+                - "statefulsets"
+                - "replicasets"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "batch"
+              resources:
+                - "jobs"
+                - "cronjobs"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "autoscaling"
+              resources:
+                - "horizontalpodautoscalers"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "autoscaling.k8s.io"
+              resources:
+                - "verticalpodautoscalers"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "argoproj.io"
+              resources:
+                - "rollouts"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
       bindings:
         krr:
           type: ClusterRoleBinding

@@ -6,9 +6,13 @@ metadata:
   name: &app kopia
 spec:
   components:
+    - ../../../components/ext-auth
     - ../../../components/nfs-scaler
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: volsync
+      namespace: storage
   interval: 1h
   path: ./kubernetes/apps/storage/kopia
   postBuild:

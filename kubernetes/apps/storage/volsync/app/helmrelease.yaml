@@ -24,7 +24,7 @@ spec:
     kind: OCIRepository
     name: volsync
   values:
-    fullnameOverride: volsync # Required for volsync-perfectra1n fork
+    fullnameOverride: volsync  # Required for volsync-perfectra1n fork
     image: &image
       repository: ghcr.io/perfectra1n/volsync
       tag: 0.17.6

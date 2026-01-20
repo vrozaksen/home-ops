@@ -45,10 +45,10 @@ spec:
 
       # Enhanced observability
       debug: false
-      enableK8sAPI: true          # Associate events with K8s pods
-      enableCiliumAPI: true        # Associate events with Cilium endpoints
-      enableProcessCred: true      # Capabilities visibility
-      enableProcessNs: true        # Namespaces visibility
+      enableK8sAPI: true  # Associate events with K8s pods
+      enableCiliumAPI: true  # Associate events with Cilium endpoints
+      enableProcessCred: true  # Capabilities visibility
+      enableProcessNs: true  # Namespaces visibility
 
       # Cluster identification
       clusterName: main

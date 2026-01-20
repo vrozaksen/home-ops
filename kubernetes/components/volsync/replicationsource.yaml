@@ -9,7 +9,8 @@ spec:
   trigger:
     schedule: "0 * * * *"
   kopia:
-    accessModes: ["${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}"]
+    accessModes:
+      - "${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}"
     compression: zstd-fastest
     copyMethod: Snapshot
     moverSecurityContext:

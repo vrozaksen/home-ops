@@ -1,3 +1,4 @@
+---
 apiVersion: infra.contrib.fluxcd.io/v1alpha2
 kind: Terraform
 metadata:
@@ -22,12 +23,12 @@ spec:
         use_lockfile                = true
       }
   backendConfigsFrom:
-  - kind: Secret
-    name: terraform-backend-secret
+    - kind: Secret
+      name: terraform-backend-secret
   path: ./garage
   sourceRef:
     kind: OCIRepository
     name: terraform
   varsFrom:
-  - kind: Secret
-    name: terraform-secret
+    - kind: Secret
+      name: terraform-secret

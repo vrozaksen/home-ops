@@ -21,10 +21,11 @@ spec:
             image:
               repository: ghcr.io/open-webui/mcpo
               tag: latest
-            args: [
-              "--config", "/app/config.json",
-              "--api-key", "$(API_KEY)"
-            ]
+            args:
+              - "--config"
+              - "/app/config.json"
+              - "--api-key"
+              - "$(API_KEY)"
             env:
               - name: API_KEY
                 valueFrom:
@@ -75,7 +76,8 @@ spec:
             port: &port 8000
     route:
       app:
-        hostnames: ["mcpo.vzkn.eu"]
+        hostnames:
+          - "mcpo.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

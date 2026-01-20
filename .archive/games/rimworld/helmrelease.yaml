@@ -63,7 +63,8 @@ spec:
             port: 80
     route:
       filebrowser:
-        hostnames: ["rimworld-files.vzkn.eu"]
+        hostnames:
+          - "rimworld-files.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

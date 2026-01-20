@@ -6,11 +6,11 @@ tasks:
   push:
     desc: Push all kubeconfig to Bitwarden Secrets Manager
     cmds:
-      - bws secret edit ffadfa6f-6e02-4873-a7d6-b2550100efb7 --value "$(kubectl config view --flatten)" &>/dev/null # KUBECONFIG_FLAT
-      - bws secret edit 7888f846-9c9d-4849-8ee4-b256018a3883 --value "$(kubectl config view --flatten | base64 -w 0)" &>/dev/null # KUBECONFIG_BASE64
-      - bws secret edit 3e5dc441-3696-4151-9ad6-b25601897b3c --value "$(cat {{.KUBECONFIG}})" &>/dev/null # KUBECONFIG_MAIN_BASE64
-      - bws secret edit 76bf4533-0884-4b90-8490-b25601879083 --value "$(cat {{.TALOSCONFIG}})" &>/dev/null # TALOSCONFIG_MAIN
-      - bws secret edit 3e024961-ec9a-46e4-b288-b25e0176d5ad --value "$(cat {{.TALOSCONFIG}} | base64 -w 0)" &>/dev/null # TALOSCONFIG_MAIN_BASE64
+      - bws secret edit ffadfa6f-6e02-4873-a7d6-b2550100efb7 --value "$(kubectl config view --flatten)" &>/dev/null  # KUBECONFIG_FLAT
+      - bws secret edit 7888f846-9c9d-4849-8ee4-b256018a3883 --value "$(kubectl config view --flatten | base64 -w 0)" &>/dev/null  # KUBECONFIG_BASE64
+      - bws secret edit 3e5dc441-3696-4151-9ad6-b25601897b3c --value "$(cat {{.KUBECONFIG}})" &>/dev/null  # KUBECONFIG_MAIN_BASE64
+      - bws secret edit 76bf4533-0884-4b90-8490-b25601879083 --value "$(cat {{.TALOSCONFIG}})" &>/dev/null  # TALOSCONFIG_MAIN
+      - bws secret edit 3e024961-ec9a-46e4-b288-b25e0176d5ad --value "$(cat {{.TALOSCONFIG}} | base64 -w 0)" &>/dev/null  # TALOSCONFIG_MAIN_BASE64
     preconditions:
       - which bws
 
@@ -19,9 +19,9 @@ tasks:
     cmds:
       - mkdir -p ~/.kube
       - mkdir -p ~/.talos
-      - bws secret get 3e5dc441-3696-4151-9ad6-b25601897b3c | jq -r '.value' > {{.KUBECONFIG}} # Main kubeconfig
-      - bws secret get 76bf4533-0884-4b90-8490-b25601879083 | jq -r '.value' > {{.TALOSCONFIG}} # Main talosconfig
-      - bws secret get ffadfa6f-6e02-4873-a7d6-b2550100efb7 | jq -r '.value' > ~/.kube/config # Flat kubeconfig
-      - bws secret get 76bf4533-0884-4b90-8490-b25601879083 | jq -r '.value' > ~/.talos/config # Flat talosconfig
+      - bws secret get 3e5dc441-3696-4151-9ad6-b25601897b3c | jq -r '.value' > {{.KUBECONFIG}}  # Main kubeconfig
+      - bws secret get 76bf4533-0884-4b90-8490-b25601879083 | jq -r '.value' > {{.TALOSCONFIG}}  # Main talosconfig
+      - bws secret get ffadfa6f-6e02-4873-a7d6-b2550100efb7 | jq -r '.value' > ~/.kube/config  # Flat kubeconfig
+      - bws secret get 76bf4533-0884-4b90-8490-b25601879083 | jq -r '.value' > ~/.talos/config  # Flat talosconfig
     preconditions:
       - which bws jq

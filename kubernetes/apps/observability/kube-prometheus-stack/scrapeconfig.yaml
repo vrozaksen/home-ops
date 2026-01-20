@@ -39,7 +39,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        -  aincrad.home.vzkn.eu:3930
+        - aincrad.home.vzkn.eu:3930
   metricsPath: /metrics
   relabelings:
     - action: replace

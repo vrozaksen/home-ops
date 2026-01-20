@@ -1,3 +1,4 @@
+---
 router_model_list:
   - router_model_name: vision-router
     model_group: vision_tasks
@@ -5,7 +6,9 @@ router_model_list:
       temperature: 0.5  # Temperature controls creativity: 0.0 = deterministic, 1.0 = creative
     metadata:
       label: "Vision Assistant"
-      capabilities: ["chat", "vision"]
+      capabilities:
+        - "chat"
+        - "vision"
 
   - router_model_name: code-router
     model_group: code_pipeline
@@ -13,7 +16,9 @@ router_model_list:
       temperature: 0.2  # Temperature controls creativity: 0.0 = deterministic, 1.0 = creative
     metadata:
       label: "Code Assistant"
-      capabilities: ["chat", "code"]
+      capabilities:
+        - "chat"
+        - "code"
 
   - router_model_name: education-router
     model_group: education_pipeline
@@ -21,74 +26,90 @@ router_model_list:
       temperature: 0.6  # Temperature controls creativity: 0.0 = deterministic, 1.0 = creative
     metadata:
       label: "Education Assistant"
-      capabilities: ["chat", "reasoning", "tutoring"]
+      capabilities:
+        - "chat"
+        - "reasoning"
+        - "tutoring"
 
 model_list:
-# Actual Model Definitions
-# Each entry maps to a real provider + model pairing
-# Models may define aliases for routing/fallback via `model_groups`
+  # Actual Model Definitions
+  # Each entry maps to a real provider + model pairing
+  # Models may define aliases for routing/fallback via `model_groups`
 
-# Anthropic Models
+  # Anthropic Models
   - model_name: "Anthopic: claude-3.5-haiku"
     provider: anthropic
     litellm_params:
       model: anthropic/claude-3-5-haiku-20241022
     api_key: ${ANTHROPIC_API_KEY}
-    aliases: [general_anthropic, vision_anthropic]
+    aliases:
+      - general_anthropic
+      - vision_anthropic
 
-# Deepseek Models
+    # Deepseek Models
   - model_name: "Deepseek: Chat"
     provider: deepseek
     litellm_params:
       model: deepseek/deepseek-chat
     api_key: ${DEEPSEEK_API_KEY}
-    aliases: [general_deepseek]
+    aliases:
+      - general_deepseek
 
   - model_name: "Deepseek: Coder"
     provider: deepseek
     litellm_params:
       model: deepseek/deepseek-coder
     api_key: ${DEEPSEEK_API_KEY}
-    aliases: [code_deepseek]
+    aliases:
+      - code_deepseek
 
   - model_name: "Deepseek: Reasoner"
     provider: deepseek
     litellm_params:
       model: deepseek/deepseek-reasoner
     api_key: ${DEEPSEEK_API_KEY}
-    aliases: [reasoner_deepseek]
+    aliases:
+      - reasoner_deepseek
 
-# Groq Models
+    # Groq Models
   - model_name: "Groq: Meta llama3-70b-8192"
     provider: groq
     litellm_params:
       model: groq/llama3-70b-8192
       drop_params: true
     api_key: ${GROQ_API_KEY}
-    aliases: [code_groq]
+    aliases:
+      - code_groq
 
-# Open AI Models
+    # Open AI Models
   - model_name: "OpenAI: text-embedding-3-small"
     provider: openai
     litellm_params:
       model: openai/text-embedding-3-small
       mode: embedding  # Required for embeddings
     api_key: ${OPENAI_API_KEY}
-    aliases: [embedding_openai]
+    aliases:
+      - embedding_openai
 
   - model_name: "OpenAI: gpt-4.1-mini"
     provider: openai
     litellm_params:
       model: openai/gpt-4.1-mini
     api_key: ${OPENAI_API_KEY}
-    aliases: [gpt-4.1, general_openai, vision_openai]
+    aliases:
+      - gpt-4.1
+      - general_openai
+      - vision_openai
 
   - model_name: "OpenAI: gpt-4o"
     provider: openai
     litellm_params:
       model: openai/gpt-4o
     api_key: ${OPENAI_API_KEY}
-    aliases: [general_openai_4o, vision_openai_4o, education_4o]
+    aliases:
+      - general_openai_4o
+      - vision_openai_4o
+      - education_4o
 
   - model_name: "OpenAI: Whisper-1"
     provider: openai
@@ -98,10 +119,14 @@ model_list:
     model_info:
       id: whisper-1
       mode: completion
-      input_cost_per_token: 0.000000006   # USD $0.006 per million tokens (input)
-    aliases: [general_openai_4o, vision_openai_4o, education_4o, whisper-1]
+      input_cost_per_token: 0.000000006  # USD $0.006 per million tokens (input)
+    aliases:
+      - general_openai_4o
+      - vision_openai_4o
+      - education_4o
+      - whisper-1
 
-# TogetherAI Models
+    # TogetherAI Models
   - model_name: "TogetherAI: Qwen2.5-Coder-32B-Instruct"
     provider: togetherai
     litellm_params:
@@ -113,16 +138,19 @@ model_list:
       input_cost_per_token: 0.0000008  # USD $0.80 per million tokens (input)
       output_cost_per_token: 0.0000008  # USD $0.80 per million tokens (output)
       max_tokens: 16384
-    aliases: [code_together]
+    aliases:
+      - code_together
 
-# xAI Models
+    # xAI Models
   - model_name: "xAI: grok-3-mini-beta"
     provider: xai
     litellm_params:
       model: xai/grok-3-mini-beta
       api_base: "https://api.x.ai/v1"  # Required endpoint for xAI
     api_key: ${XAI_API_KEY}
-    aliases: [general_xai, vision_xai]
+    aliases:
+      - general_xai
+      - vision_xai
 
 # Fallback Groups
 # Each group is a list of model aliases (not full names!)
@@ -130,26 +158,26 @@ model_list:
 
 model_groups:
   code_pipeline:
-    - code_groq            # Fast + cheap reasoning for code
-    - code_deepseek        # Strong code reasoning
-    - code_together        # Big context + strong code skills
+    - code_groq  # Fast + cheap reasoning for code
+    - code_deepseek  # Strong code reasoning
+    - code_together  # Big context + strong code skills
 
   general_tasks:
-    - general_openai_4o             # GPT-4o – multilingual, expressive
-    - general_openai                # GPT-4.1 Mini – strong balance of capability and cost
-    - general_anthropic             # Claude 3.5 – ideal for thoughtful reasoning and tone
-    - general_xai                   # Grok 3 – experimental fallback
-    - general_deepseek              # DeepSeek Chat – strong reasoning
+    - general_openai_4o  # GPT-4o – multilingual, expressive
+    - general_openai  # GPT-4.1 Mini – strong balance of capability and cost
+    - general_anthropic  # Claude 3.5 – ideal for thoughtful reasoning and tone
+    - general_xai  # Grok 3 – experimental fallback
+    - general_deepseek  # DeepSeek Chat – strong reasoning
 
   vision_tasks:
-    - vision_openai_4o              # GPT-4o – best visual model for accuracy
-    - vision_openai                 # GPT-4.1 Mini – vision-capable fallback
-    - vision_anthropic              # Claude 3.5 – vision-capable fallback
-    - vision_xai                    # Grok 3 – visual reasoning backup
+    - vision_openai_4o  # GPT-4o – best visual model for accuracy
+    - vision_openai  # GPT-4.1 Mini – vision-capable fallback
+    - vision_anthropic  # Claude 3.5 – vision-capable fallback
+    - vision_xai  # Grok 3 – visual reasoning backup
 
   education_pipeline:
-    - education_4o                  # GPT-4o – ideal for tutoring with language diversity
-    - general_openai                # GPT-4.1 Mini – ideal for tutoring
-    - general_anthropic             # Claude 3.5 – empathetic and capable in tutoring
-    - general_xai                   # Grok 3 – fallback if others fail
-    - reasoner_deepseek             # DeepSeek Reasoner – strong reasoning for educational tasks
+    - education_4o  # GPT-4o – ideal for tutoring with language diversity
+    - general_openai  # GPT-4.1 Mini – ideal for tutoring
+    - general_anthropic  # Claude 3.5 – empathetic and capable in tutoring
+    - general_xai  # Grok 3 – fallback if others fail
+    - reasoner_deepseek  # DeepSeek Reasoner – strong reasoning for educational tasks

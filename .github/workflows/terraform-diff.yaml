@@ -5,8 +5,10 @@ name: "Terraform Diff"
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
-    paths: ["terraform/**"]
+    branches:
+      - "main"
+    paths:
+      - "terraform/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -23,13 +25,13 @@ jobs:
       matrix: ${{ steps.changed-terraform.outputs.all_changed_and_modified_files }}
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           persist-credentials: false
 
       - name: Get Changed Terraform
         id: changed-terraform
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891  # v47.0.1
         with:
           files: terraform/**
           dir_names: true
@@ -44,8 +46,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: [home-ops-runner] # Backend is stored on local Garage with no external ingress
-    needs: ["changed-terraform"]
+    runs-on:
+      - home-ops-runner
+    needs:
+      - "changed-terraform"
     strategy:
       matrix:
         paths: ${{ fromJSON(needs.changed-terraform.outputs.matrix) }}
@@ -53,7 +57,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Get Secrets
-        uses: bitwarden/sm-action@f1de238fc00c738c56140796018be9084c2b5d21 # v2
+        uses: bitwarden/sm-action@f1de238fc00c738c56140796018be9084c2b5d21  # v2
         with:
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
           secrets: |
@@ -61,20 +65,20 @@ jobs:
             fef6b3b2-2e2b-498a-9882-b265016e9e1c > BW_PROJ_ID
 
       - name: Generate Token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf  # v2
         id: app-token
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Install Opentofu
-        uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+        uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f  # v1.0.8
         with:
           tofu_wrapper: false
 
@@ -89,11 +93,11 @@ jobs:
           # Extract backend credentials
           ACCESS_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_KEY_ID:' | cut -d' ' -f2)
           SECRET_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_SECRET_KEY:' | cut -d' ' -f2)
-          
+
           # Mask sensitive values before using them
           echo "::add-mask::$ACCESS_KEY"
           echo "::add-mask::$SECRET_KEY"
-          
+
           # Export as AWS env vars for Terraform backend
           echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_ENV
@@ -120,7 +124,7 @@ jobs:
 
       - name: Post PR comment
         continue-on-error: true
-        uses: borchero/terraform-plan-comment@5461c89b054077416f3220bac9089c6093483020 # v2
+        uses: borchero/terraform-plan-comment@5461c89b054077416f3220bac9089c6093483020  # v2
         with:
           token: ${{ steps.app-token.outputs.token }}
           planfile: .planfile

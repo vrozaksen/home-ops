@@ -20,7 +20,8 @@ spec:
             image:
               repository: ghcr.io/slskd/slskd
               tag: 0.24.3@sha256:bcf9820dab68e21d2bba8ebb1ffd583d71fcba542a50a1e998119f69b7b498fe
-            args: ["sync"]
+            args:
+              - "sync"
             env:
               TZ: Europe/Warsaw
               DOTNET_BUNDLE_EXTRACT_BASE_DIR: /tmp/.net
@@ -48,7 +49,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -82,7 +83,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: downloads
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

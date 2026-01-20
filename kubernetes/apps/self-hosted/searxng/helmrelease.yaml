@@ -69,7 +69,6 @@ spec:
           gatus.home-operations.com/endpoint: |-
             group: self-hosted
         hostnames:
-          - "{{ .Release.Name }}.vzkn.eu"
           - search.vzkn.eu
         parentRefs:
           - name: envoy-internal

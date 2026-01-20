@@ -110,7 +110,7 @@ spec:
           - target:
               kind: Service
               name: *app
-            patch: |
+            patch: |-
               - op: add
                 path: /spec/ports/-
                 value:

@@ -1,3 +1,4 @@
+---
 cluster:
   allowSchedulingOnControlPlanes: true
   apiServer:
@@ -5,16 +6,22 @@ cluster:
       enable-aggregator-routing: true
       feature-gates: MutatingAdmissionPolicy=true
       runtime-config: admissionregistration.k8s.io/v1beta1=true
+      # OIDC authentication for Headlamp
+      oidc-issuer-url: https://sso.vzkn.eu/application/o/headlamp/
+      oidc-client-id: headlamp
+      oidc-username-claim: preferred_username
+      oidc-groups-claim: groups
   controllerManager:
     extraArgs:
       bind-address: 0.0.0.0
   coreDNS:
     disabled: true
   etcd:
-    advertisedSubnets: ["10.10.0.0/24"]
+    advertisedSubnets:
+      - "10.10.0.0/24"
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
-      quota-backend-bytes: 4294967296 # 4 GiB
+      quota-backend-bytes: 4294967296  # 4 GiB
   proxy:
     disabled: true
   scheduler:

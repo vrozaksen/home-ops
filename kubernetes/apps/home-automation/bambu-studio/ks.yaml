@@ -6,8 +6,11 @@ metadata:
   name: &app bambu-studio
 spec:
   components:
+    - ../../../components/ext-auth
     - ../../../components/volsync
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: external-secrets-store
       namespace: external-secrets
     - name: rook-ceph-cluster

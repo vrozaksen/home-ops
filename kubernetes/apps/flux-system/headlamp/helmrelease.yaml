@@ -39,6 +39,12 @@ spec:
             name: headlamp-plugins
     config:
       pluginsDir: /build/plugins
+      oidc:
+        secret:
+          create: false
+        externalSecret:
+          enabled: true
+          name: headlamp-secret
     serviceAccount:
       create: false
       name: headlamp-admin

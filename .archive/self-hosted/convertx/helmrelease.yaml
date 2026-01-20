@@ -52,13 +52,13 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-            # TODO: Add resources for CPU/memory limits
-            # resources:
-            #   requests:
-            #     gpu.intel.com/i915: 1
-            #   limits:
-            #     gpu.intel.com/i915: 1
+              capabilities: {drop: ["ALL"]}
+              # TODO: Add resources for CPU/memory limits
+              # resources:
+              #   requests:
+              #     gpu.intel.com/i915: 1
+              #   limits:
+              #     gpu.intel.com/i915: 1
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -76,7 +76,8 @@ spec:
             port: *port
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-external
             namespace: network

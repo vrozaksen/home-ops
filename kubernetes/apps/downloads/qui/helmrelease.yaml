@@ -25,6 +25,11 @@ spec:
               QUI__HOST: 0.0.0.0
               QUI__PORT: &port 80
               QUI__LOG_LEVEL: INFO
+              # OIDC Authentication
+              QUI__OIDC_ENABLED: "true"
+              QUI__OIDC_ISSUER: https://sso.vzkn.eu/application/o/qui/
+              QUI__OIDC_REDIRECT_URL: https://qui.vzkn.eu/api/auth/oidc/callback
+              QUI__OIDC_DISABLE_BUILT_IN_LOGIN: "true"
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
@@ -67,7 +72,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: downloads
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

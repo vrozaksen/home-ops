@@ -1,10 +1,11 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: neko-firefox-config
   namespace: self-hosted
 data:
-  policies.json: |
+  policies.json: |-
     {
       "policies": {
         "BlockAboutAddons": false,

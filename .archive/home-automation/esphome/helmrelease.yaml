@@ -25,7 +25,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             probes:
               liveness:
                 enabled: true
@@ -48,15 +48,18 @@ spec:
               tag: 4.100.3@sha256:c5b7ec231b24f26ecee243e8d9f9df57af906d03c9c8238efd893217c9f1f725
             env:
               TZ: Europe/Warsaw
-            args: [
-              "--auth", "none",
-              "--disable-telemetry",
-              "--disable-update-check",
-              "--user-data-dir", "/config/.vscode",
-              "--extensions-dir", "/config/.vscode",
-              "--port", "12321",
-              "/config"
-            ]
+            args:
+              - "--auth"
+              - "none"
+              - "--disable-telemetry"
+              - "--disable-update-check"
+              - "--user-data-dir"
+              - "/config/.vscode"
+              - "--extensions-dir"
+              - "/config/.vscode"
+              - "--port"
+              - "12321"
+              - "/config"
             resources:
               requests:
                 cpu: 25m
@@ -80,7 +83,8 @@ spec:
             port: &codeserverPort 12321
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

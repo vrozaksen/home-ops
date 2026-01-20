@@ -8,7 +8,8 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: infrastructure
 spec:
-  hostnames: ["headlamp.vzkn.eu"]
+  hostnames:
+    - headlamp.vzkn.eu
   parentRefs:
     - name: envoy-internal
       namespace: network

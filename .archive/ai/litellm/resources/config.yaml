@@ -1,3 +1,4 @@
+---
 include:
   - model_config.yaml
 
@@ -28,23 +29,27 @@ litellm_settings:
   # Caching settings
   cache: false
   cache_params:
-    type: qdrant-semantic        # redis, s3, redis-semantic, qdrant-semantic, disk, () not specificed = In memory
+    type: qdrant-semantic  # redis, s3, redis-semantic, qdrant-semantic, disk, () not specificed = In memory
 
     # https://docs.litellm.ai/docs/caching/all_caches#updating-cache-params-redis-host-port-etc
 
     # Optional - Qdrant Semantic Cache Settings
-    qdrant_semantic_cache_embedding_model: text-embedding-3-small # the model should be defined on the model_list
+    qdrant_semantic_cache_embedding_model: text-embedding-3-small  # the model should be defined on the model_list
     qdrant_collection_name: litellm_cache
     qdrant_quantization_config: binary
-    similarity_threshold: 0.98   # similarity threshold for semantic cache
+    similarity_threshold: 0.98  # similarity threshold for semantic cache
 
     # Common Cache settings
     # Optional - Supported call types for caching
 
-    supported_call_types: ["acompletion", "atext_completion", "aembedding", "atranscription"]
-                          # /chat/completions, /completions, /embeddings, /audio/transcriptions
-    mode: default_on # if default_off, you need to opt in to caching on a per call basis
-    ttl: 600 # ttl for caching
+    supported_call_types:
+      - "acompletion"
+      - "atext_completion"
+      - "aembedding"
+      - "atranscription"
+    # /chat/completions, /completions, /embeddings, /audio/transcriptions
+    mode: default_on  # if default_off, you need to opt in to caching on a per call basis
+    ttl: 600  # ttl for caching
 
 router:
   - destination: vision_openai

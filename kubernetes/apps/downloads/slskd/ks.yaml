@@ -3,15 +3,23 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: slskd
+  name: &app slskd
 spec:
   components:
+    - ../../../components/ext-auth
     - ../../../components/nfs-scaler
   dependsOn:
+    - name: authentik
+      namespace: security
+    - name: keda
+      namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/downloads/slskd
+  postBuild:
+    substitute:
+      APP: *app
   prune: true
   sourceRef:
     kind: GitRepository

@@ -8,3 +8,5 @@ resources:
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
   - ./scrapeconfig.yaml
+  - ./securitypolicy-alertmanager.yaml
+  - ./securitypolicy-prometheus.yaml

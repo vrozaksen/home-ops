@@ -6,23 +6,23 @@ metadata:
   name: package-management
 spec:
   kprobes:
-  - call: "security_bprm_check"
-    syscall: false
-    return: false
-    selectors:
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/usr/bin/apt"
-        - "/usr/bin/apt-get"
-        - "/usr/bin/dpkg"
-        - "/usr/bin/yum"
-        - "/usr/bin/dnf"
-        - "/usr/bin/rpm"
-        - "/usr/bin/apk"
-        - "/usr/bin/pacman"
-        - "/usr/local/bin/pip"
-        - "/usr/bin/pip"
-        - "/usr/bin/npm"
-      matchActions:
-      - action: Post
+    - call: "security_bprm_check"
+      syscall: false
+      return: false
+      selectors:
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/apt"
+                - "/usr/bin/apt-get"
+                - "/usr/bin/dpkg"
+                - "/usr/bin/yum"
+                - "/usr/bin/dnf"
+                - "/usr/bin/rpm"
+                - "/usr/bin/apk"
+                - "/usr/bin/pacman"
+                - "/usr/local/bin/pip"
+                - "/usr/bin/pip"
+                - "/usr/bin/npm"
+          matchActions:
+            - action: Post

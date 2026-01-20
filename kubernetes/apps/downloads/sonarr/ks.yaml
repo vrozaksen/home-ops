@@ -6,10 +6,13 @@ metadata:
   name: &app sonarr
 spec:
   components:
-    - ../../../components/nfs-scaler
     - ../../../components/cnpg/restore
+    - ../../../components/ext-auth
+    - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: cloudnative-pg
       namespace: database
     - name: plugin-barman-cloud

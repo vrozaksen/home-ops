@@ -18,7 +18,11 @@ spec:
             image:
               repository: docker.io/krateng/maloja
               tag: 3.2.4@sha256:4ecea26058d2ca5168a8d53820279942d28f0606664cea6425f42371d5d88f95
-            command: ["/venv/bin/python", "-m", "maloja", "run"]
+            command:
+              - "/venv/bin/python"
+              - "-m"
+              - "maloja"
+              - "run"
             env:
               TZ: &tz Europe/Warsaw
               MALOJA_LOCATION_TIMEZONE: *tz
@@ -41,7 +45,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -66,7 +70,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: media
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

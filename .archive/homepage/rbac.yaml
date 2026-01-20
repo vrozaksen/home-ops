@@ -53,4 +53,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: *app
-    namespace: self-hosted # keep
+    namespace: self-hosted  # keep

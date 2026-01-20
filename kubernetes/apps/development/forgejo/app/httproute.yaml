@@ -8,7 +8,8 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: development
 spec:
-  hostnames: ["forgejo.vzkn.eu"]
+  hostnames:
+    - forgejo.vzkn.eu
   parentRefs:
     - name: envoy-external
       namespace: network
@@ -24,7 +25,8 @@ kind: HTTPRoute
 metadata:
   name: forgejo-redirect-from-gitea
 spec:
-  hostnames: ["gitea.vzkn.eu"]
+  hostnames:
+    - gitea.vzkn.eu
   parentRefs:
     - name: envoy-external
       namespace: network

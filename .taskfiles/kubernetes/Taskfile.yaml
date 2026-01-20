@@ -14,7 +14,8 @@ tasks:
       | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "{{.NS}}")' -
       | kubectl apply --server-side --field-manager=kustomize-controller --filename -
     requires:
-      vars: [PATH]
+      vars:
+        - PATH
     vars:
       NS: '{{.NS | default "flux-system"}}'
       KS:
@@ -29,7 +30,8 @@ tasks:
     vars:
       NS: '{{.NS | default "default"}}'
     requires:
-      vars: [CLAIM]
+      vars:
+        - CLAIM
     preconditions:
       - kubectl --namespace {{.NS}} get persistentvolumeclaims {{.CLAIM}}
       - kubectl browse-pvc --version
@@ -40,7 +42,8 @@ tasks:
     interactive: true
     cmd: kubectl node-shell -n kube-system -x {{.NODE}}
     requires:
-      vars: [NODE]
+      vars:
+        - NODE
     preconditions:
       - kubectl get nodes {{.NODE}}
       - kubectl node-shell --version
@@ -49,7 +52,7 @@ tasks:
   sync-secrets:
     desc: Sync all ExternalSecrets
     cmds:
-      - for: { var: SECRETS, split: "\n" }
+      - for: {var: SECRETS, split: "\n"}
         cmd: kubectl --namespace {{splitList "," .ITEM | first}} annotate externalsecret {{splitList "," .ITEM | last}} force-sync="{{now | unixEpoch}}" --overwrite
     vars:
       SECRETS:
@@ -62,7 +65,10 @@ tasks:
     cmds:
       - for:
           matrix:
-            PHASE: [Failed, Pending, Succeeded]
+            PHASE:
+              - Failed
+              - Pending
+              - Succeeded
         cmd: kubectl delete pods --all-namespaces --field-selector status.phase={{.ITEM.PHASE}} --ignore-not-found=true
     preconditions:
       - which kubectl

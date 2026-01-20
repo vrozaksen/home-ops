@@ -16,7 +16,8 @@ spec:
               name: cloudflare-secret
               key: CLOUDFLARE_DNS_TOKEN
         selector:
-          dnsZones: ["vzkn.eu"]
+          dnsZones:
+            - "vzkn.eu"
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/clusterissuer_v1.json
 apiVersion: cert-manager.io/v1

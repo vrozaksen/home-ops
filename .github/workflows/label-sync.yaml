@@ -5,10 +5,12 @@ name: Label Sync
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
-    paths: [".github/labels.yaml"]
+    branches:
+      - "main"
+    paths:
+      - ".github/labels.yaml"
   schedule:
-    - cron: "0 0 * * *" # Every day at midnight
+    - cron: "0 0 * * *"  # Every day at midnight
 
 permissions:
   contents: read
@@ -22,13 +24,13 @@ jobs:
       issues: write
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/labels.yaml
 
       - name: Sync Labels
-        uses: EndBug/label-sync@52074158190acb45f3077f9099fea818aa43f97a # v2.3.3
+        uses: EndBug/label-sync@52074158190acb45f3077f9099fea818aa43f97a  # v2.3.3
         with:
           config-file: |
             https://raw.githubusercontent.com/vrozaksen/renovate-config/refs/heads/main/.github/labels.yaml

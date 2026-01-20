@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/referencegrant_v1beta1.json
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: ext-auth-outpost
+  namespace: security
+spec:
+  from:
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: development
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: downloads
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: home
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: home-automation
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: media
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: observability
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: rook-ceph
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: self-hosted
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: storage
+  to:
+    - group: ""
+      kind: Service
+      name: ak-outpost-proxy-outpost

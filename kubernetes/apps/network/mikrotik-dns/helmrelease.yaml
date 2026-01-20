@@ -24,12 +24,12 @@ spec:
     kind: OCIRepository
     name: mikrotik-dns
   install:
-    disableSchemaValidation: true # Ref: https://github.com/kubernetes-sigs/external-dns/issues/5206
+    disableSchemaValidation: true  # Ref: https://github.com/kubernetes-sigs/external-dns/issues/5206
     remediation:
       retries: -1
   upgrade:
     cleanupOnFail: true
-    disableSchemaValidation: true # Ref: https://github.com/kubernetes-sigs/external-dns/issues/5206
+    disableSchemaValidation: true  # Ref: https://github.com/kubernetes-sigs/external-dns/issues/5206
     remediation:
       retries: 3
   values:
@@ -89,11 +89,14 @@ spec:
       - --managed-record-types=TXT
       - --managed-record-types=SRV
     policy: sync
-    sources: ["gateway-httproute", "service"]
+    sources:
+      - "gateway-httproute"
+      - "service"
     registry: txt
     txtOwnerId: default
     txtPrefix: k8s.
-    domainFilters: ["vzkn.eu"]
+    domainFilters:
+      - "vzkn.eu"
     serviceMonitor:
       enabled: true
     podAnnotations:

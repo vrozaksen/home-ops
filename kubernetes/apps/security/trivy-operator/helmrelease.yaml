@@ -37,7 +37,7 @@ spec:
       scanJobsConcurrentLimit: 3
       scanJobTTL: ""
       scanJobTimeout: 5m
-      scanJobsRetryDelay: 30s      # -- Built-in Trivy server mode
+      scanJobsRetryDelay: 30s  # -- Built-in Trivy server mode
       builtInTrivyServer: true
 
       # -- Scanner feature flags
@@ -53,7 +53,7 @@ spec:
 
       infraAssessmentScannerEnabled: true
 
-      clusterComplianceEnabled: false # Disable for homelab to save resources
+      clusterComplianceEnabled: false  # Disable for homelab to save resources
 
       exposedSecretScannerEnabled: true
 
@@ -67,12 +67,12 @@ spec:
 
       # -- Metrics configuration
       metricsFindingsEnabled: true
-      metricsVulnIdEnabled: false # Disable to reduce cardinality
-      metricsExposedSecretInfo: false # Disable to reduce cardinality
-      metricsConfigAuditInfo: false # Disable to reduce cardinality
-      metricsRbacAssessmentInfo: false # Disable to reduce cardinality
-      metricsInfraAssessmentInfo: false # Disable to reduce cardinality
-      metricsImageInfo: false # Disable to reduce cardinality
+      metricsVulnIdEnabled: false  # Disable to reduce cardinality
+      metricsExposedSecretInfo: false  # Disable to reduce cardinality
+      metricsConfigAuditInfo: false  # Disable to reduce cardinality
+      metricsRbacAssessmentInfo: false  # Disable to reduce cardinality
+      metricsInfraAssessmentInfo: false  # Disable to reduce cardinality
+      metricsImageInfo: false  # Disable to reduce cardinality
 
       # -- Access global secrets for private registries
       accessGlobalSecretsAndServiceAccount: true
@@ -104,15 +104,15 @@ spec:
       severity: HIGH,CRITICAL
 
       # -- Performance tuning
-      slow: true # Less CPU/memory, takes more time
-      ignoreUnfixed: true # Skip vulnerabilities without fixes
+      slow: true  # Less CPU/memory, takes more time
+      ignoreUnfixed: true  # Skip vulnerabilities without fixes
       timeout: 5m0s
 
       # -- Database timeout (new in v0.66.0)
       dbRepositoryTimeout: 10m
 
       # -- Storage configuration
-      storageClassEnabled: false # Use ephemeral storage
+      storageClassEnabled: false  # Use ephemeral storage
 
       # -- Resource limits for scan jobs
       resources:

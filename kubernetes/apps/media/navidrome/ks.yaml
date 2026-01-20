@@ -6,9 +6,12 @@ metadata:
   name: &app navidrome
 spec:
   components:
+    - ../../../components/ext-auth
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
+    - name: authentik
+      namespace: security
     - name: keda
       namespace: observability
     - name: rook-ceph-cluster

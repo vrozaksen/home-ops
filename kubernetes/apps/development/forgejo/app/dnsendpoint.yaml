@@ -8,7 +8,8 @@ spec:
   endpoints:
     - dnsName: "ssh.forgejo.vzkn.eu"
       recordType: A
-      targets: ["10.10.0.51"]
+      targets:
+        - "10.10.0.51"
       providerSpecific:
         - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
           value: 'false'

@@ -12,7 +12,7 @@ spec:
   values:
     controllers:
       neko:
-        replicas: 1 # active nas
+        replicas: 1  # active nas
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
@@ -50,10 +50,10 @@ spec:
                 cpu: 1
                 memory: 2Gi
                 gpu.intel.com/i915: 1
-            # securityContext:
-            #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: true
-            #   capabilities: { drop: ["ALL"] }
+                # securityContext:
+                #   allowPrivilegeEscalation: false
+                #   readOnlyRootFilesystem: true
+                #   capabilities: { drop: ["ALL"] }
     service:
       app:
         controller: *app
@@ -70,7 +70,8 @@ spec:
             protocol: UDP
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-external
             namespace: network

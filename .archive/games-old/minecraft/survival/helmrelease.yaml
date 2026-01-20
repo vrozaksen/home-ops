@@ -4,7 +4,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: itzg-charts
-  namespace: games # Required for Renovate lookups
+  namespace: games  # Required for Renovate lookups
 spec:
   interval: 2h
   url: https://itzg.github.io/minecraft-server-charts/
@@ -78,20 +78,20 @@ spec:
         - https://github.com/Norbit4/TreeCuter/releases/download/v1.8.8/TreeCuter-v1.8.8.jar
       spigetResources:
         # - 36618 #Prom Exporter
-        - 31585 # One Player Sleep
+        - 31585  # One Player Sleep
       modrinth:
         projects:
-          - Cz6msz34 # AxGraves
-          - pZ2wrerK # Emotecraft
-          - fALzjamp # Chunky
-          - OhduvhIc # Veinminer
-          - J6U9o3JG # HuskHomes
-          - z4mHgUYG # InteractionVisualizer
-          - MwLGimob # TabListPing
-          - IahtO7tM # Clumps
-          - iOwOrlzi # xpDisplay
-          - swbUV1cr # BlueMap
-          - Zjb20YAx # Xaero Map Spigot
+          - Cz6msz34  # AxGraves
+          - pZ2wrerK  # Emotecraft
+          - fALzjamp  # Chunky
+          - OhduvhIc  # Veinminer
+          - J6U9o3JG  # HuskHomes
+          - z4mHgUYG  # InteractionVisualizer
+          - MwLGimob  # TabListPing
+          - IahtO7tM  # Clumps
+          - iOwOrlzi  # xpDisplay
+          - swbUV1cr  # BlueMap
+          - Zjb20YAx  # Xaero Map Spigot
         # Specifies whether to download Modrinth dependencies. The allowed values are: none, required, optional
         downloadDependencies: required
         # The version type is used to determine the newest version to use from each project. The allowed values are: release, beta, alpha

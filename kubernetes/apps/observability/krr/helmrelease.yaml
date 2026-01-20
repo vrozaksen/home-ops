@@ -14,18 +14,20 @@ spec:
       krr:
         type: cronjob
         cronjob:
-          schedule: "0 8 * * 1" # Every Monday at 8:00 AM
+          schedule: "0 8 * * 1"  # Every Monday at 8:00 AM
           backoffLimit: 1
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
-          ttlSecondsAfterFinished: 604800 # 7 days
+          ttlSecondsAfterFinished: 604800  # 7 days
         containers:
           app:
             image:
               repository: us-central1-docker.pkg.dev/genuine-flight-317411/devel/krr
               tag: v1.28.0
-            command: ["/bin/sh", "-c"]
+            command:
+              - "/bin/sh"
+              - "-c"
             args:
               - |
                 set -e
@@ -91,7 +93,7 @@ spec:
                   name: krr-secret
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false # KRR needs to write temp files
+              readOnlyRootFilesystem: false  # KRR needs to write temp files
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
@@ -111,24 +113,61 @@ spec:
         krr:
           type: ClusterRole
           rules:
-            - apiGroups: [""]
-              resources: ["pods", "nodes", "namespaces", "services"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["apps"]
-              resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["batch"]
-              resources: ["jobs", "cronjobs"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["autoscaling"]
-              resources: ["horizontalpodautoscalers"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["autoscaling.k8s.io"]
-              resources: ["verticalpodautoscalers"]
-              verbs: ["get", "list", "watch"]
-            - apiGroups: ["argoproj.io"]
-              resources: ["rollouts"]
-              verbs: ["get", "list", "watch"]
+            - apiGroups:
+                - ""
+              resources:
+                - "pods"
+                - "nodes"
+                - "namespaces"
+                - "services"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "apps"
+              resources:
+                - "deployments"
+                - "daemonsets"
+                - "statefulsets"
+                - "replicasets"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "batch"
+              resources:
+                - "jobs"
+                - "cronjobs"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "autoscaling"
+              resources:
+                - "horizontalpodautoscalers"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "autoscaling.k8s.io"
+              resources:
+                - "verticalpodautoscalers"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
+            - apiGroups:
+                - "argoproj.io"
+              resources:
+                - "rollouts"
+              verbs:
+                - "get"
+                - "list"
+                - "watch"
       bindings:
         krr:
           type: ClusterRoleBinding

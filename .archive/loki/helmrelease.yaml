@@ -51,14 +51,14 @@ spec:
         ingestion_rate_mb: 16
         ingestion_burst_size_mb: 32
       server:
-        grpc_server_max_recv_msg_size: 10485760 # 10 MiB
-        grpc_server_max_send_msg_size: 10485760 # 10 MiB
+        grpc_server_max_recv_msg_size: 10485760  # 10 MiB
+        grpc_server_max_send_msg_size: 10485760  # 10 MiB
         log_level: info
       storage:
         type: filesystem
       schemaConfig:
         configs:
-          - from: "2024-04-01" # quote
+          - from: "2024-04-01"  # quote
             store: tsdb
             object_store: filesystem
             schema: v13

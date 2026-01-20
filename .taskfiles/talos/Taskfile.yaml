@@ -25,7 +25,8 @@ tasks:
     vars:
       MODE: '{{.MODE | default "auto"}}'
     requires:
-      vars: [HOSTNAME]
+      vars:
+        - HOSTNAME
     preconditions:
       - talosctl --nodes {{.HOSTNAME}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
       - test -f talconfig.yaml
@@ -37,8 +38,8 @@ tasks:
       HOSTNAMES:
         sh: kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'
     cmds:
-      - for: { var: HOSTNAMES }
-        task:  apply-node
+      - for: {var: HOSTNAMES}
+        task: apply-node
         vars:
           HOSTNAME: '{{.ITEM}}'
     preconditions:
@@ -70,7 +71,8 @@ tasks:
       - talosctl --nodes {{.HOSTNAME}} health --talosconfig {{.ROOT_DIR}}/talosconfig
       - task: up
     requires:
-      vars: [HOSTNAME]
+      vars:
+        - HOSTNAME
     preconditions:
       - talosctl --nodes {{.HOSTNAME}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
@@ -84,7 +86,7 @@ tasks:
       HOSTNAMES:
         sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
     cmds:
-      - for: { var: HOSTNAMES }
+      - for: {var: HOSTNAMES}
         task: reboot-node
         vars:
           HOSTNAME: '{{.ITEM}}'

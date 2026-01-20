@@ -7,9 +7,9 @@ metadata:
 spec:
   components:
     - ../../../../components/cnpg/restore  # PostgreSQL cluster
-    - ../../../../components/dragonfly    # Redis cache (nextcloud-dragonfly)
-    - ../../../../components/nfs-scaler   # Scale down on NFS mount issues
-    - ../../../../components/volsync      # Backup config/apps volume
+    - ../../../../components/dragonfly  # Redis cache (nextcloud-dragonfly)
+    - ../../../../components/nfs-scaler  # Scale down on NFS mount issues
+    - ../../../../components/volsync  # Backup config/apps volume
   dependsOn:
     - name: cloudnative-pg
       namespace: database
@@ -35,8 +35,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      CNPG_SIZE: 10Gi         # PostgreSQL PVC size
-      VOLSYNC_CAPACITY: 100Gi # Config/apps backup size (thumbnails, etc)
+      CNPG_SIZE: 10Gi  # PostgreSQL PVC size
+      VOLSYNC_CAPACITY: 100Gi  # Config/apps backup size (thumbnails, etc)
       VOLSYNC_GID: "100"
       VOLSYNC_UID: "1000"
   prune: true
@@ -65,24 +65,24 @@ spec:
     namespace: flux-system
   targetNamespace: self-hosted
   wait: false
-# ---
-# # yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: nextcloud-talk
-# spec:
-#   dependsOn:
-#     - name: nextcloud
-#       namespace: self-hosted
-#     - name: coturn
-#       namespace: network
-#   interval: 1h
-#   path: ./kubernetes/apps/self-hosted/nextcloud/talk
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-#     namespace: flux-system
-#   targetNamespace: self-hosted
-#   wait: false
+  # ---
+  # # yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+  # apiVersion: kustomize.toolkit.fluxcd.io/v1
+  # kind: Kustomization
+  # metadata:
+  #   name: nextcloud-talk
+  # spec:
+  #   dependsOn:
+  #     - name: nextcloud
+  #       namespace: self-hosted
+  #     - name: coturn
+  #       namespace: network
+  #   interval: 1h
+  #   path: ./kubernetes/apps/self-hosted/nextcloud/talk
+  #   prune: true
+  #   sourceRef:
+  #     kind: GitRepository
+  #     name: flux-system
+  #     namespace: flux-system
+  #   targetNamespace: self-hosted
+  #   wait: false

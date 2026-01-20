@@ -22,8 +22,8 @@ spec:
     name: forgejo-runner
   pollingInterval: 15  # Check every 15 seconds for pending jobs
   cooldownPeriod: 300  # Wait 5 minutes before scaling down
-  minReplicaCount: 1   # Minimum 1 runner always available
-  maxReplicaCount: 5   # Maximum 5 runners during high load
+  minReplicaCount: 1  # Minimum 1 runner always available
+  maxReplicaCount: 5  # Maximum 5 runners during high load
   triggers:
     # Scale based on pending jobs in Forgejo database
     - type: postgresql

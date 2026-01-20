@@ -8,7 +8,8 @@ spec:
   selector:
     matchLabels:
       app: ${APP}-dragonfly
-  podTargetLabels: ["app"]
+  podTargetLabels:
+    - "app"
   podMetricsEndpoints:
     - port: admin
   fallbackScrapeProtocol: PrometheusText0.0.4

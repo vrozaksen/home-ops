@@ -38,11 +38,9 @@ spec:
                     name: outline-pguser-outline
                     key: pgbouncer-uri
             command:
-              [
-                /bin/sh,
-                -c,
-                yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled,
-              ]
+              - /bin/sh
+              - -c
+              - yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled
             resources:
               requests:
                 cpu: 10m
@@ -57,7 +55,8 @@ spec:
             port: &port 8080
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
 
         parentRefs:
           - name: envoy-external

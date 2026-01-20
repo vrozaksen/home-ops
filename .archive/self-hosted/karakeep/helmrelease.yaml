@@ -54,7 +54,7 @@ spec:
               CRAWLER_FULL_PAGE_SCREENSHOT: true
               CRAWLER_FULL_PAGE_ARCHIVE: true
               CRAWLER_VIDEO_DOWNLOAD: true
-              CRAWLER_VIDEO_DOWNLOAD_MAX_SIZE: 50 # -1 to disable
+              CRAWLER_VIDEO_DOWNLOAD_MAX_SIZE: 50  # -1 to disable
               CRAWLER_ENABLE_ADBLOCKER: true
               ### OCR Configs
               OCR_LANGS: eng,pol
@@ -93,7 +93,7 @@ spec:
               - --remote-debugging-port=9222
               - --hide-scrollbars
             securityContext:
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -169,7 +169,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: self-hosted
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-external
             namespace: network

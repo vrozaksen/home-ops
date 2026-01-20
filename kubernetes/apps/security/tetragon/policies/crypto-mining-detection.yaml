@@ -6,36 +6,36 @@ metadata:
   name: crypto-mining-detection
 spec:
   kprobes:
-  - call: "security_bprm_check"
-    syscall: false
-    return: false
-    selectors:
-    # Known crypto mining binaries
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "xmrig"
-        - "minerd"
-        - "ccminer"
-        - "ethminer"
-        - "claymore"
-        - "cgminer"
-        - "bfgminer"
-        - "t-rex"
-        - "phoenixminer"
-        - "lolminer"
-        - "nbminer"
-      matchActions:
-      - action: Post
-    # Curl/wget piping to shell (common crypto miner installation)
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "curl"
-        - "wget"
-        - "/bin/bash"
-        - "/bin/sh"
-        - "/usr/bin/bash"
-        - "/usr/bin/sh"
-      matchActions:
-      - action: Post
+    - call: "security_bprm_check"
+      syscall: false
+      return: false
+      selectors:
+        # Known crypto mining binaries
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "xmrig"
+                - "minerd"
+                - "ccminer"
+                - "ethminer"
+                - "claymore"
+                - "cgminer"
+                - "bfgminer"
+                - "t-rex"
+                - "phoenixminer"
+                - "lolminer"
+                - "nbminer"
+          matchActions:
+            - action: Post
+        # Curl/wget piping to shell (common crypto miner installation)
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "curl"
+                - "wget"
+                - "/bin/bash"
+                - "/bin/sh"
+                - "/usr/bin/bash"
+                - "/usr/bin/sh"
+          matchActions:
+            - action: Post

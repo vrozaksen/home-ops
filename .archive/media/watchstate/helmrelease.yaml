@@ -57,7 +57,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: media
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

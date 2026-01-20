@@ -41,7 +41,8 @@ tasks:
       NS: '{{.NS | default "default"}}'
       JOB: volsync-src-{{.APP}}
     requires:
-      vars: [APP]
+      vars:
+        - APP
     preconditions:
       - kubectl --namespace {{.NS}} get replicationsources {{.APP}}
       - which kubectl
@@ -91,7 +92,8 @@ tasks:
       PGID:
         sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.kopia.moverSecurityContext.runAsGroup}"
     requires:
-      vars: [APP]
+      vars:
+        - APP
     preconditions:
       - sh: '[ -n "{{.PREVIOUS}}" ] || [ -n "{{.ASOF}}" ]'
         msg: "Either PREVIOUS or ASOF must be provided"

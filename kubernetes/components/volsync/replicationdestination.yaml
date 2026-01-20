@@ -10,7 +10,8 @@ spec:
   trigger:
     manual: restore-once
   kopia:
-    accessModes: ["${VOLSYNC_ACCESSMODES:=ReadWriteOnce}"]
+    accessModes:
+      - "${VOLSYNC_ACCESSMODES:=ReadWriteOnce}"
     capacity: "${VOLSYNC_CAPACITY:=2Gi}"
     copyMethod: Snapshot
     enableFileDeletion: true

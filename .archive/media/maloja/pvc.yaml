@@ -6,7 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: maloja
 spec:
-  accessModes: ["ReadWriteOnce"]
+  accessModes:
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: 10Gi

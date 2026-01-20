@@ -2,8 +2,10 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
-set: [pipefail]
-shopt: [globstar]
+set:
+  - pipefail
+shopt:
+  - globstar
 
 vars:
   BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'

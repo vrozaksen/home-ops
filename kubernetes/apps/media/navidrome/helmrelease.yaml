@@ -31,13 +31,13 @@ spec:
               ND_ENABLEINSIGHTSCOLLECTOR: false
               # Advanced
               # ND_AUTHREQUESTLIMIT: 0 - Default: 5
-              ND_COVERJPEGQUALITY: 100 # Default: 75
+              ND_COVERJPEGQUALITY: 100  # Default: 75
               ND_DEFAULTTHEME: Spotify-ish
               ND_ENABLEDOWNLOADS: true
               ND_ENABLEEXTERNALSERVICES: true
               ND_ENABLEGRAVATAR: false
               ND_ENABLESHARING: true
-              ND_ENABLESTARRATING: true # Default: false
+              ND_ENABLESTARRATING: true  # Default: false
               ND_IMAGECACHESIZE: 1GB
               ND_LASTFM_ENABLED: false
               ND_LISTENBRAINZ_BASEURL: http://maloja.media.svc.cluster.local/apis/listenbrainz/1/
@@ -68,7 +68,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 25m

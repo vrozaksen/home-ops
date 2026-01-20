@@ -5,7 +5,8 @@ kind: HTTPRoute
 metadata:
   name: netbox
 spec:
-  hostnames: ["netbox.vzkn.eu"]
+  hostnames:
+    - "netbox.vzkn.eu"
   parentRefs:
     - name: envoy-internal
       namespace: network

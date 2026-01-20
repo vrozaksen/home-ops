@@ -56,7 +56,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -86,7 +86,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: self-hosted
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-external
             namespace: network

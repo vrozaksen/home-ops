@@ -11,7 +11,7 @@ on:
       - 'bootstrap/**'
       - 'talos/**'
   schedule:
-    - cron: '0 6 * * 1' # Weekly on Monday at 6 AM UTC
+    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
   workflow_dispatch:
 
 concurrency:
@@ -20,8 +20,8 @@ concurrency:
 
 permissions:
   contents: read
-  security-events: write # For SARIF upload
-  issues: write # For creating GitHub Issues
+  security-events: write  # For SARIF upload
+  issues: write  # For creating GitHub Issues
 
 jobs:
   kubernetes-manifests:
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Run Trivy scanner on kubernetes directory
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8  # 0.33.1
         with:
           scan-type: 'fs'
           scan-ref: 'kubernetes/'
@@ -44,14 +44,14 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89  # v4
         if: always()
         with:
           sarif_file: 'trivy-k8s-results.sarif'
           category: 'kubernetes-manifests'
 
       - name: Run Trivy scanner for GitHub Issues
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8  # 0.33.1
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         with:
           scan-type: 'fs'
@@ -132,10 +132,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Run Trivy scanner on talos directory
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8  # 0.33.1
         with:
           scan-type: 'fs'
           scan-ref: 'talos/'
@@ -146,7 +146,7 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89  # v4
         if: always()
         with:
           sarif_file: 'trivy-talos-results.sarif'
@@ -157,10 +157,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Run Trivy scanner on bootstrap directory
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8  # 0.33.1
         with:
           scan-type: 'fs'
           scan-ref: 'bootstrap/'
@@ -171,7 +171,7 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89  # v4
         if: always()
         with:
           sarif_file: 'trivy-bootstrap-results.sarif'

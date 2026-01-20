@@ -41,8 +41,8 @@ spec:
           resourceClaimTemplateName: dispatcharr-gpu
       securityContext:
         supplementalGroups:
-          - 44 # video
-          - 109 # render
+          - 44  # video
+          - 109  # render
     service:
       app:
         ports:

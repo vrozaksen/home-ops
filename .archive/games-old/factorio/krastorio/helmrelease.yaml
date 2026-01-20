@@ -83,7 +83,8 @@ spec:
           unknownQueueItems: false
     route:
       filebrowser:
-        hostnames: ["krastorio-files.vzkn.eu"]
+        hostnames:
+          - "krastorio-files.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -5,7 +5,8 @@ kind: HTTPRoute
 metadata:
   name: minecraft-survival-map
 spec:
-  hostnames: ["survival-map.vzkn.eu"]
+  hostnames:
+    - "survival-map.vzkn.eu"
   parentRefs:
     - name: external
       namespace: kube-system

@@ -28,7 +28,7 @@ spec:
     expose:
       type: route
       tls:
-        enabled: false # Gateway handles TLS termination
+        enabled: false  # Gateway handles TLS termination
       route:
         annotations:
           gatus.home-operations.com/endpoint: |-
@@ -115,7 +115,7 @@ spec:
       maxJobWorkers: 10
       jobLoggers:
         - stdout
-      loggerSweeperDuration: 14 # days
+      loggerSweeperDuration: 14  # days
       resources:
         requests:
           cpu: 50m

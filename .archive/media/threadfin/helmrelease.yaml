@@ -42,7 +42,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -58,8 +58,8 @@ spec:
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:
-          - 44 # video
-          - 109 # render
+          - 44  # video
+          - 109  # render
     service:
       app:
         ports:
@@ -70,7 +70,8 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: media
-        hostnames: ["iptv.vzkn.eu"]
+        hostnames:
+          - "iptv.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

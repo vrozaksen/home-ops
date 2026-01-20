@@ -27,7 +27,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m
@@ -47,7 +47,7 @@ spec:
         ports:
           http:
             port: 8080
-    ingress: # TODO route
+    ingress:  # TODO route
       app:
         className: internal
         annotations:

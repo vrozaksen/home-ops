@@ -21,7 +21,8 @@ tasks:
 
   krew:
     desc: Set up Krew tools
-    deps: [brew]
+    deps:
+      - brew
     cmds:
       - kubectl krew install cert-manager cnpg browse-pvc node-shell rook-ceph view-secret get-all
     preconditions:

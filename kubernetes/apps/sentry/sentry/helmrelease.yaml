@@ -384,10 +384,10 @@ spec:
       # Features control component auto-enablement
       features:
         orgSubdomains: false
-        enableProfiling: false      # Auto-disables: vroom, ingestProfiles, profilesConsumer, profiling*Consumer
-        enableSessionReplay: true   # Auto-enables: replaysConsumer, ingestReplayRecordings
-        enableFeedback: true        # Auto-enables: ingestFeedback
-        enableSpan: true            # Auto-enables: processSpans, processSegments
+        enableProfiling: false  # Auto-disables: vroom, ingestProfiles, profilesConsumer, profiling*Consumer
+        enableSessionReplay: true  # Auto-enables: replaysConsumer, ingestReplayRecordings
+        enableFeedback: true  # Auto-enables: ingestFeedback
+        enableSpan: true  # Auto-enables: processSpans, processSegments
         enableUptime: false
 
       # Uptime monitoring - disabled

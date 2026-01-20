@@ -33,7 +33,8 @@ spec:
       name: vrozaksen
       email: admin@vzkn.eu
     admins:
-      - ["vrozaksen", "admin@vzkn.eu"]
+      - - "vrozaksen"
+        - "admin@vzkn.eu"
     loginRequired: true
     timeZone: Europe/Warsaw
     dateFormat: "j. F, Y"
@@ -93,10 +94,10 @@ spec:
       enabled: false
     worker:
       enabled: false
-    # plugins:
-    #   - netbox_kea
-    #   - netbox_topology_views
-    #   - netbox_cable_labels
+      # plugins:
+      #   - netbox_kea
+      #   - netbox_topology_views
+      #   - netbox_cable_labels
   valuesFrom:
     - targetPath: storages.default.OPTIONS.access_key
       kind: Secret

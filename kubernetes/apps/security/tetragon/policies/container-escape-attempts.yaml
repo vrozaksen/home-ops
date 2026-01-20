@@ -6,31 +6,31 @@ metadata:
   name: container-escape-attempts
 spec:
   kprobes:
-  - call: "security_bprm_check"
-    syscall: false
-    return: false
-    selectors:
-    # nsenter - used to escape containers
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/usr/bin/nsenter"
-        - "/bin/nsenter"
-      matchActions:
-      - action: Post
-    # Docker socket access
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/usr/bin/docker"
-        - "/usr/local/bin/docker"
-      matchActions:
-      - action: Post
-    # crictl (container runtime CLI)
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/usr/bin/crictl"
-        - "/usr/local/bin/crictl"
-      matchActions:
-      - action: Post
+    - call: "security_bprm_check"
+      syscall: false
+      return: false
+      selectors:
+        # nsenter - used to escape containers
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/nsenter"
+                - "/bin/nsenter"
+          matchActions:
+            - action: Post
+        # Docker socket access
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/docker"
+                - "/usr/local/bin/docker"
+          matchActions:
+            - action: Post
+        # crictl (container runtime CLI)
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/crictl"
+                - "/usr/local/bin/crictl"
+          matchActions:
+            - action: Post

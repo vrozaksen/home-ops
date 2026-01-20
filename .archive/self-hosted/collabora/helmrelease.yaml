@@ -49,7 +49,8 @@ spec:
             port: &port 9980
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.vzkn.eu"]
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
           - name: envoy-external
             namespace: network
@@ -63,4 +64,4 @@ spec:
                   set:
                     - name: X-WOPISrc-Hash
                       value: "$(query_params.WOPISrc)"
-# Different way: https://github.com/zednotdead/gensokyo/blob/main/kubernetes/apps/default/collabora/app/hr.yaml
+                      # Different way: https://github.com/zednotdead/gensokyo/blob/main/kubernetes/apps/default/collabora/app/hr.yaml

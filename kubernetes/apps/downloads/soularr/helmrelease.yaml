@@ -22,11 +22,11 @@ spec:
               tag: main@sha256:84fead20dc2bcc00d6f0d2df53e56866b4fe634640e075820b420ae4ea146fd2
             env:
               TZ: Europe/Warsaw
-              SCRIPT_INTERVAL: 300 # Script interval in seconds
+              SCRIPT_INTERVAL: 300  # Script interval in seconds
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 10m

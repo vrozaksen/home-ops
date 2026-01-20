@@ -6,24 +6,24 @@ metadata:
   name: privileged-execution
 spec:
   kprobes:
-  - call: "security_bprm_check"
-    syscall: false
-    return: false
-    selectors:
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/bin/bash"
-        - "/bin/sh"
-        - "/usr/bin/bash"
-        - "/usr/bin/sh"
-        - "/bin/dash"
-      matchCapabilities:
-      - type: Effective
-        operator: In
-        values:
-        - "CAP_SYS_ADMIN"
-        - "CAP_SYS_PTRACE"
-        - "CAP_SYS_MODULE"
-      matchActions:
-      - action: Post
+    - call: "security_bprm_check"
+      syscall: false
+      return: false
+      selectors:
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/bin/bash"
+                - "/bin/sh"
+                - "/usr/bin/bash"
+                - "/usr/bin/sh"
+                - "/bin/dash"
+          matchCapabilities:
+            - type: Effective
+              operator: In
+              values:
+                - "CAP_SYS_ADMIN"
+                - "CAP_SYS_PTRACE"
+                - "CAP_SYS_MODULE"
+          matchActions:
+            - action: Post

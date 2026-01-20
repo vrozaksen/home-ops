@@ -148,7 +148,7 @@ spec:
             category: security
           annotations:
             summary: "Tetragon BPF map errors"
-            description: |
+            description: |-
               Tetragon is experiencing BPF map operation errors.
 
               Error rate: {{ $value | humanize }} errors/sec

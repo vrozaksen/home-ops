@@ -6,14 +6,14 @@ metadata:
   name: kubectl-exec
 spec:
   kprobes:
-  - call: "security_bprm_check"
-    syscall: false
-    return: false
-    selectors:
-    - matchBinaries:
-      - operator: "In"
-        values:
-        - "/usr/bin/kubectl"
-        - "/usr/local/bin/kubectl"
-      matchActions:
-      - action: Post
+    - call: "security_bprm_check"
+      syscall: false
+      return: false
+      selectors:
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/kubectl"
+                - "/usr/local/bin/kubectl"
+          matchActions:
+            - action: Post

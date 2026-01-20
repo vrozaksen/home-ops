@@ -60,7 +60,8 @@ spec:
             port: &port 8000
     route:
       app:
-        hostnames: ["github-mcp.vzkn.eu"]
+        hostnames:
+          - "github-mcp.vzkn.eu"
         parentRefs:
           - name: envoy-internal
             namespace: network

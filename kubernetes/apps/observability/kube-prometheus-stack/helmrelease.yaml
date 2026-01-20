@@ -59,7 +59,7 @@ spec:
     kubeEtcd:
       service:
         selector:
-          component: kube-apiserver # etcd runs on control plane nodes
+          component: kube-apiserver  # etcd runs on control plane nodes
     kubeProxy:
       enabled: false
     kube-state-metrics:

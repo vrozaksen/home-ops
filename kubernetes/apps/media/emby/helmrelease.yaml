@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/emby
-              tag: 4.9.3.0@sha256:ffe3c31d3da7e5cd7e4b4416bc951ea95a6419683a86d271ccb5368b4a297539 # BETA
+              tag: 4.9.3.0@sha256:ffe3c31d3da7e5cd7e4b4416bc951ea95a6419683a86d271ccb5368b4a297539
             env:
               TZ: Europe/Warsaw
               DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
@@ -49,7 +49,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: {drop: ["ALL"]}
             resources:
               claims:
                 - name: gpu
@@ -69,8 +69,8 @@ spec:
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:
-          - 44 # video
-          - 109 # render
+          - 44  # video
+          - 109  # render
     service:
       app:
         type: LoadBalancer

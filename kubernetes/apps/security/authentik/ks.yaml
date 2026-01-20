@@ -31,8 +31,6 @@ spec:
       APP: *app
       CNPG_SIZE: 10Gi
       CNPG_POOLER_MODE: session
-      CNPG_POOLER_POOL_SIZE: "50"
-      CNPG_POOLER_MAX_CONN: "200"
   prune: true
   sourceRef:
     kind: GitRepository

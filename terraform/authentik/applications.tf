@@ -532,6 +532,8 @@ module "oauth2-headlamp" {
   client_id          = local.parsed_secrets["headlamp"].client_id
   client_secret      = local.parsed_secrets["headlamp"].client_secret
   redirect_uris      = ["https://headlamp.${var.cluster_domain}/oidc-callback"]
+  # Include groups claim for K8s OIDC authentication
+  additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
 }
 
 module "oauth2-flux" {

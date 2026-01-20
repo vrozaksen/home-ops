@@ -74,10 +74,10 @@ resource "authentik_application" "emby" {
 }
 
 resource "authentik_policy_binding" "emby" {
-  for_each = toset([authentik_group.ff.id, authentik_group.admin.id])
+  for_each = { for idx, group in [authentik_group.ff.id, authentik_group.admin.id] : idx => group }
   target   = authentik_application.emby.uuid
   group    = each.value
-  order    = index([authentik_group.ff.id, authentik_group.admin.id], each.value)
+  order    = each.key
 }
 
 # Seerr uses Emby/Plex authentication - launch link only
@@ -92,10 +92,10 @@ resource "authentik_application" "seerr" {
 }
 
 resource "authentik_policy_binding" "seerr" {
-  for_each = toset([authentik_group.ff.id, authentik_group.admin.id])
+  for_each = { for idx, group in [authentik_group.ff.id, authentik_group.admin.id] : idx => group }
   target   = authentik_application.seerr.uuid
   group    = each.value
-  order    = index([authentik_group.ff.id, authentik_group.admin.id], each.value)
+  order    = each.key
 }
 
 module "proxy-navidrome" {
@@ -142,10 +142,10 @@ resource "authentik_application" "home-assistant" {
 }
 
 resource "authentik_policy_binding" "home-assistant" {
-  for_each = toset([authentik_group.household.id, authentik_group.admin.id])
+  for_each = { for idx, group in [authentik_group.household.id, authentik_group.admin.id] : idx => group }
   target   = authentik_application.home-assistant.uuid
   group    = each.value
-  order    = index([authentik_group.household.id, authentik_group.admin.id], each.value)
+  order    = each.key
 }
 
 module "proxy-zigbee" {

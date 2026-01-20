@@ -49,9 +49,9 @@ resource "authentik_application" "this" {
 }
 
 resource "authentik_policy_binding" "this" {
-  for_each = toset(var.auth_groups)
+  for_each = { for idx, group in var.auth_groups : idx => group }
 
   target = authentik_application.this.uuid
   group  = each.value
-  order  = index(var.auth_groups, each.value)
+  order  = each.key
 }

@@ -39,7 +39,7 @@ resource "authentik_provider_oauth2" "this" {
 
 resource "authentik_application" "this" {
   name              = var.name
-  slug              = lower(var.name)
+  slug              = lower(replace(var.name, " ", "-"))
   group             = var.group
   protocol_provider = authentik_provider_oauth2.this.id
   meta_icon         = var.icon_url

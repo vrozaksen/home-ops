@@ -49,18 +49,38 @@ spec:
 
                 echo "Report generated, uploading to Nextcloud..."
 
-                # Upload to Nextcloud via WebDAV
-                REPORT_PATH="${NEXTCLOUD_FOLDER}/krr-report-${TIMESTAMP}.html"
-                curl -sf -X PUT \
-                  -u "${NEXTCLOUD_USER}:${NEXTCLOUD_PASSWORD}" \
-                  -H "Content-Type: text/html" \
-                  --data-binary @/tmp/krr-report.html \
-                  "${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/${REPORT_PATH}" \
-                  && echo "Report uploaded to Nextcloud: ${REPORT_PATH}" \
-                  || echo "Nextcloud upload failed"
+                # Upload to Nextcloud via WebDAV using Python requests
+                python3 << 'UPLOAD_SCRIPT'
+                import os
+                import requests
+                from datetime import date
+
+                timestamp = date.today().strftime('%Y-%m-%d')
+                nextcloud_url = os.environ['NEXTCLOUD_URL']
+                nextcloud_user = os.environ['NEXTCLOUD_USER']
+                nextcloud_password = os.environ['NEXTCLOUD_PASSWORD']
+                nextcloud_folder = os.environ['NEXTCLOUD_FOLDER']
+
+                report_path = f"{nextcloud_folder}/krr-report-{timestamp}.html"
+                upload_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_user}/{report_path}"
+
+                with open('/tmp/krr-report.html', 'rb') as f:
+                    response = requests.put(
+                        upload_url,
+                        data=f,
+                        auth=(nextcloud_user, nextcloud_password),
+                        headers={'Content-Type': 'text/html'}
+                    )
+
+                if response.status_code in (200, 201, 204):
+                    print(f"Report uploaded to Nextcloud: {report_path}")
+                else:
+                    print(f"Nextcloud upload failed: {response.status_code} - {response.text}")
+                    exit(1)
+                UPLOAD_SCRIPT
 
                 echo ""
-                echo "Done! Full report: https://${NEXTCLOUD_URL#https://}/${REPORT_PATH}"
+                echo "Done! Full report: ${NEXTCLOUD_URL}/f/${NEXTCLOUD_FOLDER}/krr-report-${TIMESTAMP}.html"
             env:
               TZ: Europe/Warsaw
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090

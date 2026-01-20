@@ -113,6 +113,28 @@ resource "authentik_flow_stage_binding" "passwordless_authentication-binding-10"
   order                = 10
 }
 
+## LDAP bind flow (simple, no captcha/MFA for service accounts)
+resource "authentik_flow" "ldap-authentication" {
+  name               = "ldap-authentication-flow"
+  title              = "LDAP Authentication"
+  slug               = "ldap-authentication-flow"
+  designation        = "authentication"
+  policy_engine_mode = "all"
+  denied_action      = "message_continue"
+}
+
+resource "authentik_flow_stage_binding" "ldap-authentication-binding-00" {
+  target = authentik_flow.ldap-authentication.uuid
+  stage  = authentik_stage_identification.authentication-identification.id
+  order  = 0
+}
+
+resource "authentik_flow_stage_binding" "ldap-authentication-binding-10" {
+  target = authentik_flow.ldap-authentication.uuid
+  stage  = authentik_stage_user_login.authentication-login.id
+  order  = 10
+}
+
 ## Invalidation flow
 resource "authentik_flow" "invalidation" {
   name               = "invalidation-flow"

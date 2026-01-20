@@ -78,13 +78,13 @@ resource "authentik_service_connection_kubernetes" "local" {
 resource "authentik_provider_ldap" "ldap" {
   name              = "LDAP"
   base_dn           = "dc=ldap,dc=${replace(var.cluster_domain, ".", ",dc=")}"
-  bind_flow         = authentik_flow.authentication.uuid
+  bind_flow         = authentik_flow.ldap-authentication.uuid  # Simple flow without captcha
   unbind_flow       = authentik_flow.invalidation.uuid
   certificate       = data.authentik_certificate_key_pair.generated.id
   tls_server_name   = "ldap.${var.cluster_domain}"
   uid_start_number  = 10000
   gid_start_number  = 10000
-  mfa_support       = true
+  mfa_support       = false  # Disabled for service accounts
 }
 
 resource "authentik_application" "ldap" {

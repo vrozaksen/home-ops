@@ -22,17 +22,18 @@ spec:
               tag: v5.0.0@sha256:066eebd08b94de0042936334509244dcdec5ee438bf849cfcd52e51342a7cee0
             env:
               TZ: "Europe/Warsaw"
-              PORT: &port 3001
               NODE_ENV: "production"
-              PUBLIC_URL: https://rxresume.vzkn.eu
-              CHROME_URL: ws://rxresume-chrome.self-hosted.svc.cluster.local.:3000
-              # S3
-              STORAGE_URL: https://api.s3.vzkn.eu/rxresume
-              STORAGE_ENDPOINT: aincrad.home.vzkn.eu
-              STORAGE_PORT: "9010"
-              STORAGE_REGION: eu-central-1
-              STORAGE_BUCKET: rxresume
-              STORAGE_USE_SSL: "false"
+              # URLs
+              APP_URL: https://rxresume.vzkn.eu
+              PRINTER_APP_URL: http://localhost:3000
+              # Printer (Gotenberg sidecar on port 3001)
+              GOTENBERG_ENDPOINT: http://localhost:3001
+              # S3 Storage
+              S3_ENDPOINT: https://api.s3.vzkn.eu
+              S3_BUCKET: rxresume
+              S3_REGION: eu-central-1
+              S3_FORCE_PATH_STYLE: "true"
+              # Database
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
@@ -48,12 +49,23 @@ spec:
                 spec:
                   httpGet:
                     path: /api/health
-                    port: *port
-                  initialDelaySeconds: 0
+                    port: &port 3000
+                  initialDelaySeconds: 10
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 5
                   failureThreshold: 3
               readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -62,43 +74,53 @@ spec:
               requests:
                 cpu: 10m
               limits:
-                cpu: 3000m
-                memory: 600Mi
-      chrome:
-        replicas: 1
-        strategy: RollingUpdate
-        annotations:
-          reloader.stakater.com/auto: "true"
-        containers:
-          app:
+                cpu: 1000m
+                memory: 1Gi
+          gotenberg:
             image:
-              repository: ghcr.io/browserless/chromium
-              tag: v2.38.3@sha256:e5b4f5b6e1306647eeb4b415cec7844dd0058b00d353e04cedacaf24906b6f28
-
-            env:
-              TZ: "Europe/Warsaw"
-              DEBUG: "browserless*,-*:trace,-*:verbose"
-              ENABLE_DEBUGGER: "false"
-              TIMEOUT: "60000"
-              CONCURRENT: "10"
-              EXIT_ON_HEALTH_FAILURE: "true"
-              HEALTH: "true"
-            envFrom:
-              - secretRef:
-                  name: browserless-chrome-secret
+              repository: gotenberg/gotenberg
+              tag: 8.25.1@sha256:f9104080d9a7ecab253fb5ebe75100329cf5699c33ec0448f2ea02d885dfde4b
+            args:
+              - gotenberg
+              - --api-port=3001
+              - --api-timeout=60s
+              - --libreoffice-disable-routes=true
+              - --chromium-auto-start=true
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 3001
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 3001
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
             securityContext:
-              runAsUser: 999
-              runAsGroup: 999
               allowPrivilegeEscalation: false
-              capabilities: { drop: [ALL] }
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                cpu: 2000m
+                memory: 512Mi
     service:
-      chrome:
-        controller: chrome
-        ports:
-          http:
-            port: 3000
       app:
-        controller: rxresume
         ports:
           http:
             port: *port
@@ -112,10 +134,6 @@ spec:
         parentRefs:
           - name: envoy-external
             namespace: network
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
     persistence:
       tmpfs:
         type: emptyDir
@@ -123,4 +141,7 @@ spec:
           rxresume:
             app:
               - path: /tmp
-                subPath: tmp
+                subPath: app-tmp
+            gotenberg:
+              - path: /tmp
+                subPath: gotenberg-tmp

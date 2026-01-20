@@ -49,6 +49,21 @@ resource "authentik_group" "nextcloudAdmin" {
   parents      = [authentik_group.users.id]
 }
 
+# Friends & Family - access to media apps (Navidrome, Emby, Seerr)
+resource "authentik_group" "ff" {
+  name         = "Friends & Family"
+  is_superuser = false
+  parents      = [authentik_group.users.id]
+}
+
+# Household - access to home automation apps (Home Assistant, etc.)
+# Inherits from Friends & Family (media access)
+resource "authentik_group" "household" {
+  name         = "Household"
+  is_superuser = false
+  parents      = [authentik_group.ff.id]
+}
+
 ## OAuth Sources
 
 data "bitwarden_secret" "github" {

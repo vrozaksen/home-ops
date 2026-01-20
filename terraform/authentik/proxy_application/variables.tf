@@ -51,9 +51,3 @@ variable "ignore_paths" {
   type    = string
   default = ""
 }
-
-variable "additional_hosts" {
-  description = "Additional hostnames for forward_domain mode (e.g., ['music', 'search'])"
-  type        = list(string)
-  default     = []
-}

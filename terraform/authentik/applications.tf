@@ -104,13 +104,12 @@ module "proxy-navidrome" {
   description        = "Music streaming"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/navidrome.png"
   group              = "Media"
-  slug               = "navidrome"
+  slug               = "music"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
   ignore_paths       = "^/rest/.*$|^/share/.*$"
-  additional_hosts   = ["music"]
 }
 
 module "proxy-jellystat" {
@@ -168,26 +167,25 @@ module "proxy-searxng" {
   description        = "Private search engine"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/searxng.png"
   group              = "Home"
-  slug               = "searxng"
+  slug               = "search"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.household.id, authentik_group.admin.id]
-  additional_hosts   = ["search"]
+  auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
 }
 
-module "proxy-screego" {
-  source             = "./proxy_application"
-  name               = "Screego"
-  description        = "Screen sharing"
-  icon_url           = "https://screego.net/logo.svg"
-  group              = "Home"
-  slug               = "screego"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.users.id]
-}
+# module "proxy-screego" {
+#   source             = "./proxy_application"
+#   name               = "Screego"
+#   description        = "Screen sharing"
+#   icon_url           = "https://screego.net/logo.svg"
+#   group              = "Home"
+#   slug               = "screego"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.users.id]
+# }
 
 # module "proxy-bambu-studio" {
 #   source             = "./proxy_application"
@@ -324,12 +322,11 @@ module "proxy-qbittorrent" {
   description        = "Torrent client"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/qbittorrent.png"
   group              = "Downloads"
-  slug               = "qbittorrent"
+  slug               = "qb"
   domain             = var.cluster_domain
   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   auth_groups        = [authentik_group.admin.id]
-  additional_hosts   = ["qb"]
 }
 
 # module "proxy-slskd" {

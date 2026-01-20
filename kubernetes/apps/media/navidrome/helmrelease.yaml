@@ -99,8 +99,7 @@ spec:
           gatus.home-operations.com/endpoint: |-
             group: media
         hostnames:
-          - "{{ .Release.Name }}.vzkn.eu"
-          - "music.vzkn.eu"
+          - music.vzkn.eu
         parentRefs:
           - name: envoy-external
             namespace: network

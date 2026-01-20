@@ -99,7 +99,6 @@ spec:
           gatus.home-operations.com/endpoint: |-
             group: downloads
         hostnames:
-          - "{{ .Release.Name }}.vzkn.eu"
           - qb.vzkn.eu
         parentRefs:
           - name: envoy-internal

@@ -3,13 +3,15 @@
 KUBECONFIG = "{{config_root}}/kubeconfig"
 MINIJINJA_CONFIG_FILE = "{{config_root}}/.minijinja.toml"
 TALOSCONFIG = "{{config_root}}/talosconfig"
-# Included file paths
-_.file = [
-  "{{config_root}}/kubernetes/apps/system-upgrade/versions.env"
-]
-# _.python.venv = { path = "{{config_root}}/.venv", create = true }
+JUST_UNSTABLE = "1"
+LEFTHOOK_OUTPUT = "false"
 
-# [tools]
-# "python" = "3.13"
-# "uv" = "latest"
-# "pipx:flux-local" = "latest"
+_.file = [
+  "{{config_root}}/.secrets.env",
+]
+
+[tools]
+"go:github.com/google/yamlfmt/cmd/yamlfmt" = "latest"
+"go:github.com/evilmartians/lefthook" = "latest"
+"uv" = "latest"
+"pipx:flux-local" = "latest"

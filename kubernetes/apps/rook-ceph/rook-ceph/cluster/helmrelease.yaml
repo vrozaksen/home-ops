@@ -67,6 +67,10 @@ spec:
             enabled: true
           - name: insights
             enabled: true
+          - name: k8sevents
+            enabled: true
+          - name: nfs
+            enabled: false  # not using NFS-Ganesha exports
           - name: pg_autoscaler
             enabled: true
           - name: rook

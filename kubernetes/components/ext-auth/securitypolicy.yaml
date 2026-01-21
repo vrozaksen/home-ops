@@ -9,6 +9,10 @@ spec:
     failOpen: false
     headersToExtAuth:
       - cookie
+      - authorization
+      - x-forwarded-proto
+      - x-forwarded-host
+      - x-forwarded-for
     http:
       backendRefs:
         - name: ak-outpost-proxy-outpost

@@ -17,7 +17,7 @@ spec:
         - name: ak-outpost-proxy-outpost
           namespace: security
           port: 9000
-      path: /outpost.goauthentik.io/auth/caddy
+      path: /outpost.goauthentik.io/auth/envoy
       headersToBackend:
         - set-cookie
         - x-authentik-*

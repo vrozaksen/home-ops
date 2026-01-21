@@ -12,13 +12,14 @@ spec:
       - authorization
       - x-forwarded-proto
       - x-forwarded-host
+      - x-forwarded-uri
       - x-forwarded-for
     http:
       backendRefs:
         - name: ak-outpost-proxy-outpost
           namespace: security
           port: 9000
-      path: /outpost.goauthentik.io/auth/envoy
+      path: /outpost.goauthentik.io/auth/traefik
       headersToBackend:
         - set-cookie
         - x-authentik-username

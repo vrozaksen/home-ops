@@ -9,12 +9,15 @@ spec:
     failOpen: false
     headersToExtAuth:
       - cookie
+      - x-forwarded-proto
+      - x-forwarded-host
+      - x-forwarded-uri
     http:
       backendRefs:
         - name: ak-outpost-proxy-outpost
           namespace: security
           port: 9000
-      path: /outpost.goauthentik.io/auth/envoy
+      path: /outpost.goauthentik.io/auth/caddy
       headersToBackend:
         - set-cookie
         - x-authentik-*

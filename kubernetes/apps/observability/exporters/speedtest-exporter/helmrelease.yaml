@@ -25,10 +25,10 @@ spec:
               TZ: Europe/Warsaw
             resources:
               requests:
-                cpu: 15m
-                memory: 50Mi
+                cpu: 10m
+                memory: 96Mi
               limits:
-                memory: 100Mi
+                memory: 192Mi
     service:
       metrics:
         ipFamilyPolicy: PreferDualStack

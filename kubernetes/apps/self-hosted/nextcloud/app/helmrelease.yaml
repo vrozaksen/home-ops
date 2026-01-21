@@ -35,9 +35,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 96Mi
         limits:
-          memory: 128Mi
+          memory: 192Mi
 
     nextcloud:
       host: cloud.vzkn.eu
@@ -232,9 +232,9 @@ spec:
           resources:
             requests:
               cpu: 10m
-              memory: 64Mi
+              memory: 96Mi
             limits:
-              memory: 128Mi
+              memory: 192Mi
           volumeMounts:
             - name: nextcloud-main
               mountPath: /var/www/html
@@ -301,10 +301,10 @@ spec:
     # Resources
     resources:
       requests:
-        cpu: 50m
+        cpu: 60m
         memory: 256Mi
       limits:
-        memory: 1Gi
+        memory: 512Mi
 
     # Cronjob for background tasks
     cronjob:
@@ -312,9 +312,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 96Mi
         limits:
-          memory: 128Mi
+          memory: 192Mi
 
     # Extra manifests: Service for notify_push sidecar
     extraManifests:

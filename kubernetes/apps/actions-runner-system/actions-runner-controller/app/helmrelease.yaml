@@ -25,3 +25,9 @@ spec:
     name: gha-runner-scale-set-controller
   values:
     fullnameOverride: *name
+    resources:
+      requests:
+        cpu: 15m
+        memory: 96Mi
+      limits:
+        memory: 192Mi

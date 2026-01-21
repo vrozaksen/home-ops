@@ -38,22 +38,20 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 128Mi
+        memory: 96Mi
       limits:
-        memory: 128Mi
-    # Cert Manager Cainjector Resources
+        memory: 192Mi
     cainjector:
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 160Mi
         limits:
-          memory: 128Mi
-    # Cert Manager Webhook Resources
+          memory: 320Mi
     webhook:
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 96Mi
         limits:
-          memory: 128Mi
+          memory: 192Mi

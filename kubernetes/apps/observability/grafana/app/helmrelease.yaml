@@ -26,5 +26,11 @@ spec:
   values:
     dashboard:
       enabled: true
+    resources:
+      requests:
+        cpu: 35m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
     serviceMonitor:
       enabled: true

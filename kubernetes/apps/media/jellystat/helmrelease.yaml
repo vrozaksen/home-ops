@@ -60,10 +60,10 @@ spec:
               readiness: *probes
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
+                cpu: 20m
+                memory: 352Mi
               limits:
-                memory: 2Gi
+                memory: 704Mi
     service:
       app:
         ports:

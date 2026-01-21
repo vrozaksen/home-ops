@@ -25,6 +25,25 @@ spec:
     name: keda
   values:
     enableServiceLinks: false
+    resources:
+      operator:
+        requests:
+          cpu: 15m
+          memory: 448Mi
+        limits:
+          memory: 896Mi
+      metricServer:
+        requests:
+          cpu: 20m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+      webhooks:
+        requests:
+          cpu: 10m
+          memory: 96Mi
+        limits:
+          memory: 192Mi
     prometheus:
       metricServer:
         enabled: true

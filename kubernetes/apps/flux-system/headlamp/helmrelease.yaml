@@ -56,3 +56,9 @@ spec:
     volumes:
       - name: headlamp-plugins
         emptyDir: {}
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 192Mi

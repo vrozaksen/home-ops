@@ -61,10 +61,10 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 10m
-                memory: 128Mi
+                cpu: 85m
+                memory: 192Mi
               limits:
-                memory: 1Gi
+                memory: 512Mi
     defaultPodOptions:
       priorityClassName: cluster-low
       securityContext:

@@ -29,12 +29,30 @@ spec:
       enabled: true
     grafanaDashboard:
       enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 160Mi
+      limits:
+        memory: 320Mi
     certController:
       serviceMonitor:
         enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 96Mi
+        limits:
+          memory: 192Mi
     webhook:
       serviceMonitor:
         enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 160Mi
+        limits:
+          memory: 320Mi
     reportsController:
       serviceMonitor:
         enabled: true
@@ -42,3 +60,9 @@ spec:
       enabled: true
       podAnnotations:
         secret.reloader.stakater.com/reload: "bitwarden,bitwarden-tls-certs"
+      resources:
+        requests:
+          cpu: 15m
+          memory: 96Mi
+        limits:
+          memory: 192Mi

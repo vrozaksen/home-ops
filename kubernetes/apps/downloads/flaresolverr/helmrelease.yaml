@@ -40,10 +40,10 @@ spec:
               readiness: *probes
             resources:
               requests:
-                cpu: 10m
-                memory: 256Mi
-              limits:
+                cpu: 55m
                 memory: 512Mi
+              limits:
+                memory: 1Gi
     service:
       app:
         annotations:

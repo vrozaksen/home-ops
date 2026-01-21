@@ -41,6 +41,12 @@ spec:
         alertmanagerConfiguration:
           name: alertmanager
         externalUrl: https://alertmanager.vzkn.eu
+        resources:
+          requests:
+            cpu: 10m
+            memory: 176Mi
+          limits:
+            memory: 352Mi
         storage:
           volumeClaimTemplate:
             spec:
@@ -64,8 +70,27 @@ spec:
       enabled: false
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
+      resources:
+        requests:
+          cpu: 15m
+          memory: 448Mi
+        limits:
+          memory: 896Mi
     prometheus-node-exporter:
       fullnameOverride: node-exporter
+      resources:
+        requests:
+          cpu: 10m
+          memory: 96Mi
+        limits:
+          memory: 192Mi
+    prometheusOperator:
+      resources:
+        requests:
+          cpu: 35m
+          memory: 96Mi
+        limits:
+          memory: 192Mi
     additionalPrometheusRulesMap:
       dockerhub-rules:
         groups:
@@ -120,9 +145,10 @@ spec:
         retentionSize: 50GB
         resources:
           requests:
-            cpu: 100m
+            cpu: 525m
+            memory: 2304Mi
           limits:
-            memory: 2000Mi
+            memory: 4608Mi
         storageSpec:
           volumeClaimTemplate:
             spec:

@@ -25,6 +25,12 @@ spec:
     name: smartctl-exporter
   values:
     fullnameOverride: *app
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
     serviceMonitor:
       enabled: true
     prometheusRules:

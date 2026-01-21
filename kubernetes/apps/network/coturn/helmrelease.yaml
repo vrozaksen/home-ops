@@ -26,6 +26,12 @@ spec:
               capabilities:
                 add:
                   - NET_BIND_SERVICE
+            resources:
+              requests:
+                cpu: 10m
+                memory: 96Mi
+              limits:
+                memory: 192Mi
 
     service:
       app:

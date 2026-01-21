@@ -37,6 +37,12 @@ spec:
     manageCRDs: true
     metrics:
       disableAuth: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 448Mi
+      limits:
+        memory: 896Mi
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 1000

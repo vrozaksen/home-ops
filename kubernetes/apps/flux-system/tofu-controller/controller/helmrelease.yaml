@@ -31,7 +31,7 @@ spec:
         interval: 1m
     resources:
       requests:
-        cpu: 10m
-        memory: 256Mi
+        cpu: 40m
+        memory: 384Mi
       limits:
-        memory: 512Mi
+        memory: 768Mi

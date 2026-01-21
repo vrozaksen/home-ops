@@ -59,9 +59,10 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 100m
+                cpu: 10m
+                memory: 96Mi
               limits:
-                memory: 256Mi
+                memory: 192Mi
         statefulset:
           volumeClaimTemplates:
             - name: config

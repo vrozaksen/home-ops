@@ -60,10 +60,10 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 100m
-                memory: 2Gi
+                cpu: 400m
+                memory: 1536Mi
               limits:
-                memory: 8Gi
+                memory: 4Gi
           vuetorrent:
             dependsOn: app
             image:
@@ -77,9 +77,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 100Mi
+                memory: 96Mi
               limits:
-                memory: 100Mi
+                memory: 192Mi
     service:
       app:
         type: LoadBalancer

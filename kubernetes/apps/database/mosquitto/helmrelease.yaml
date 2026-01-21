@@ -27,8 +27,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 96Mi
               limits:
-                memory: 100Mi
+                memory: 192Mi
         statefulset:
           volumeClaimTemplates:
             - name: config

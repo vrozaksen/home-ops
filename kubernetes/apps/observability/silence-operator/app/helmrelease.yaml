@@ -25,5 +25,11 @@ spec:
     name: silence-operator
   values:
     alertmanagerAddress: http://kube-prometheus-stack-alertmanager:9093
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
     networkPolicy:
       enabled: false

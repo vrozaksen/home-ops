@@ -28,18 +28,18 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 96Mi
         limits:
-          memory: 128Mi
+          memory: 192Mi
     manager:
       image:
         repository: ghcr.io/dragonflydb/operator
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 96Mi
         limits:
-          memory: 128Mi
+          memory: 192Mi
     grafanaDashboard:
       enabled: true
       folder: data

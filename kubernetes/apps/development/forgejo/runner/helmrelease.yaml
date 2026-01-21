@@ -65,9 +65,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 256Mi
+                memory: 384Mi
               limits:
-                memory: 512Mi
+                memory: 768Mi
             command:
               - "sh"
               - "-c"

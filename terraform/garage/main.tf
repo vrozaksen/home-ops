@@ -15,10 +15,8 @@ terraform {
 }
 
 provider "bitwarden" {
-  access_token = var.bw_access_token
-  experimental {
-    embedded_client = true
-  }
+  access_token          = var.bw_access_token
+  client_implementation = "embedded"
 }
 
 data "bitwarden_secret" "bw_proj_id" {

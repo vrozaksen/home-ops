@@ -161,6 +161,12 @@ spec:
     xForwardedFor:
       trustedCIDRs:
         - 10.69.0.0/16
+  # Set X-Forwarded headers early so ext-auth receives correct values
+  headers:
+    earlyRequestHeaders:
+      set:
+        - name: X-Forwarded-Proto
+          value: https
   http2:
     onInvalidMessage: TerminateStream
   http3: {}

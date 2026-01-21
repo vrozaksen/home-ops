@@ -9,24 +9,15 @@ spec:
     failOpen: false
     headersToExtAuth:
       - cookie
-      - authorization
-      - x-forwarded-proto
-      - x-forwarded-host
-      - x-forwarded-uri
-      - x-forwarded-for
     http:
       backendRefs:
-        - name: ak-outpost-proxy-outpost
+        - name: ak-outpost-authentik-embedded-outpost
           namespace: security
           port: 9000
-      path: /outpost.goauthentik.io/auth/traefik
+      path: /outpost.goauthentik.io/auth/envoy
       headersToBackend:
         - set-cookie
-        - x-authentik-username
-        - x-authentik-groups
-        - x-authentik-email
-        - x-authentik-name
-        - x-authentik-uid
+        - x-authentik-*
         - authorization
   targetRefs:
     - group: gateway.networking.k8s.io

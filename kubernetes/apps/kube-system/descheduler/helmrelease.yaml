@@ -27,30 +27,57 @@ spec:
     kind: Deployment
     deschedulerPolicyAPIVersion: descheduler/v1alpha2
     deschedulerPolicy:
+      # Global eviction limits to prevent disruption
+      maxNoOfPodsToEvictPerNode: 10
+      maxNoOfPodsToEvictPerNamespace: 5
+      # Use actual metrics from metrics-server instead of requests
       metricsProviders:
         - source: KubernetesMetrics
       profiles:
         - name: Default
           pluginConfig:
+            # Pod protection and eviction filtering
             - name: DefaultEvictor
               args:
+                # Verify pods can be scheduled elsewhere before eviction
+                nodeFit: true
+                # Protect pods younger than 5 minutes (prevents thrashing)
+                minPodAge: 5m
+                # Protect small deployments from losing availability
+                minReplicas: 2
+                # Pod protections
                 podProtections:
                   defaultDisabled:
                     - FailedBarePods
                     - PodsWithLocalStorage
                     - SystemCriticalPods
+                # Don't evict critical system pods
+                priorityThreshold:
+                  value: 100000000
+            # Balance nodes using actual metrics from metrics-server
             - name: LowNodeUtilization
               args:
                 metricsUtilization:
                   source: KubernetesMetrics
+                # Use deviation from mean - better for heterogeneous clusters
+                # Nodes 25% below cluster mean are underutilized
+                # Nodes 30% above cluster mean are overutilized
+                useDeviationThresholds: true
                 thresholds:
-                  cpu: 30
-                  memory: 55
-                  pods: 30
+                  cpu: 25
+                  memory: 30
                 targetThresholds:
-                  cpu: 70
-                  memory: 80
-                  pods: 70
+                  cpu: 30
+                  memory: 35
+                # Skip these namespaces from eviction
+                evictableNamespaces:
+                  exclude:
+                    - kube-system
+                    - rook-ceph
+                    - flux-system
+            # Ensure replicas are spread across nodes (not co-located)
+            - name: RemoveDuplicates
+            # Clean up failed pods
             - name: RemoveFailedPods
               args:
                 reasons:
@@ -70,10 +97,15 @@ spec:
                   - requiredDuringSchedulingIgnoredDuringExecution
             - name: RemovePodsViolatingNodeTaints
             - name: RemovePodsViolatingTopologySpreadConstraint
+              args:
+                # Only enforce hard constraints
+                constraints:
+                  - DoNotSchedule
           plugins:
             balance:
               enabled:
                 - LowNodeUtilization
+                - RemoveDuplicates
                 - RemovePodsViolatingTopologySpreadConstraint
             deschedule:
               enabled:

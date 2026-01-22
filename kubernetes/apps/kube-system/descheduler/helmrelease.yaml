@@ -43,8 +43,8 @@ spec:
                 nodeFit: true
                 # Protect pods younger than 5 minutes (prevents thrashing)
                 minPodAge: 5m
-                # Protect small deployments from losing availability
-                minReplicas: 2
+                # Allow single-replica apps to be moved (they restart anyway)
+                minReplicas: 1
                 # Pod protections
                 podProtections:
                   defaultDisabled:

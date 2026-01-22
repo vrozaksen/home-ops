@@ -55,18 +55,16 @@ spec:
           automountServiceAccountToken: true
           containers:
             - name: cleanup
-              image: ghcr.io/onedr0p/kubetools:latest
+              image: ghcr.io/fluxcd/flux-cli:v2.7.5
               command:
-                - /bin/bash
+                - /bin/sh
                 - -c
                 - |
                   echo "Cleaning up volsync FailedScheduling events..."
-                  # Delete FailedScheduling events for volsync pods
-                  kubectl get events -A --field-selector reason=FailedScheduling -o json | \
-                    jq -r '.items[] | select(.involvedObject.name | test("volsync")) | "\(.metadata.namespace) \(.metadata.name)"' | \
+                  kubectl get events -A --field-selector reason=FailedScheduling \
+                    -o jsonpath='{range .items[?(@.involvedObject.name contains "volsync")]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}' | \
                     while read ns name; do
-                      echo "Deleting event $ns/$name"
-                      kubectl delete event -n "$ns" "$name" --ignore-not-found
+                      [ -n "$ns" ] && kubectl delete event -n "$ns" "$name" --ignore-not-found
                     done
                   echo "Cleanup complete"
               resources:

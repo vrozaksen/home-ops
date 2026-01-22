@@ -62,9 +62,11 @@ spec:
                 - |
                   echo "Cleaning up volsync FailedScheduling events..."
                   kubectl get events -A --field-selector reason=FailedScheduling \
-                    -o jsonpath='{range .items[?(@.involvedObject.name contains "volsync")]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}' | \
+                    -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,OBJ:.involvedObject.name --no-headers | \
+                    grep volsync | awk '{print $1, $2}' | \
                     while read ns name; do
-                      [ -n "$ns" ] && kubectl delete event -n "$ns" "$name" --ignore-not-found
+                      echo "Deleting event $ns/$name"
+                      kubectl delete event -n "$ns" "$name" --ignore-not-found
                     done
                   echo "Cleanup complete"
               resources:

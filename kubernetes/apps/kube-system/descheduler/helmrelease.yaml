@@ -59,16 +59,19 @@ spec:
               args:
                 metricsUtilization:
                   source: KubernetesMetrics
-                # Use deviation from mean - better for heterogeneous clusters
-                # Nodes 25% below cluster mean are underutilized
-                # Nodes 30% above cluster mean are overutilized
-                useDeviationThresholds: true
+                # Absolute thresholds - nodes below these are underutilized
+                # Adjusted for cluster with balanced memory but imbalanced CPU:
+                # - Memory is 43-62% across nodes (balanced)
+                # - CPU ranges from 9-95% (imbalanced)
                 thresholds:
                   cpu: 25
-                  memory: 30
+                  memory: 60  # High memory threshold so balanced nodes aren't blocking
+                  pods: 25
+                # Target thresholds - nodes above these are overutilized
                 targetThresholds:
-                  cpu: 30
-                  memory: 35
+                  cpu: 70
+                  memory: 85  # High to prevent memory-based blocking
+                  pods: 70
                 # Skip these namespaces from eviction
                 evictableNamespaces:
                   exclude:

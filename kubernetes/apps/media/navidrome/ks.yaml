@@ -6,7 +6,7 @@ metadata:
   name: &app navidrome
 spec:
   components:
-    - ../../../components/ext-auth
+    # - ../../../components/ext-auth
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:

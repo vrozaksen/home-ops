@@ -98,31 +98,65 @@ resource "authentik_policy_binding" "seerr" {
   order    = each.key
 }
 
-module "proxy-navidrome" {
-  source             = "./proxy_application"
-  name               = "Navidrome"
-  description        = "Music streaming"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/navidrome.png"
-  group              = "Media"
-  slug               = "music"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
-  ignore_paths       = "^/rest/.*$|^/share/.*$"
+# DISABLED: Envoy Gateway ext-auth issue - converted to launch URLs
+# module "proxy-navidrome" {
+#   source             = "./proxy_application"
+#   name               = "Navidrome"
+#   description        = "Music streaming"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/navidrome.png"
+#   group              = "Media"
+#   slug               = "music"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
+#   ignore_paths       = "^/rest/.*$|^/share/.*$"
+# }
+
+resource "authentik_application" "navidrome" {
+  name             = "Navidrome"
+  slug             = "music"
+  group            = "Media"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/navidrome.png"
+  meta_description = "Music streaming"
+  meta_launch_url  = "https://music.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-jellystat" {
-  source             = "./proxy_application"
-  name               = "Jellystat"
-  description        = "Media statistics"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/jellystat.png"
-  group              = "Media"
-  slug               = "jellystat"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+resource "authentik_policy_binding" "navidrome" {
+  for_each = { for idx, group in [authentik_group.ff.id, authentik_group.admin.id] : idx => group }
+  target   = authentik_application.navidrome.uuid
+  group    = each.value
+  order    = each.key
+}
+
+# module "proxy-jellystat" {
+#   source             = "./proxy_application"
+#   name               = "Jellystat"
+#   description        = "Media statistics"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/jellystat.png"
+#   group              = "Media"
+#   slug               = "jellystat"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "jellystat" {
+  name             = "Jellystat"
+  slug             = "jellystat"
+  group            = "Media"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/jellystat.png"
+  meta_description = "Media statistics"
+  meta_launch_url  = "https://jellystat.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "jellystat" {
+  target = authentik_application.jellystat.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -148,30 +182,64 @@ resource "authentik_policy_binding" "home-assistant" {
   order    = each.key
 }
 
-module "proxy-zigbee" {
-  source             = "./proxy_application"
-  name               = "Zigbee2MQTT"
-  description        = "Zigbee device management"
-  icon_url           = "https://raw.githubusercontent.com/Koenkk/zigbee2mqtt/master/images/logo.png"
-  group              = "Home"
-  slug               = "zigbee"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.household.id, authentik_group.admin.id]
+# module "proxy-zigbee" {
+#   source             = "./proxy_application"
+#   name               = "Zigbee2MQTT"
+#   description        = "Zigbee device management"
+#   icon_url           = "https://raw.githubusercontent.com/Koenkk/zigbee2mqtt/master/images/logo.png"
+#   group              = "Home"
+#   slug               = "zigbee"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.household.id, authentik_group.admin.id]
+# }
+
+resource "authentik_application" "zigbee" {
+  name             = "Zigbee2MQTT"
+  slug             = "zigbee"
+  group            = "Home"
+  meta_icon        = "https://raw.githubusercontent.com/Koenkk/zigbee2mqtt/master/images/logo.png"
+  meta_description = "Zigbee device management"
+  meta_launch_url  = "https://zigbee.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-searxng" {
-  source             = "./proxy_application"
-  name               = "SearXNG"
-  description        = "Private search engine"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/searxng.png"
-  group              = "Home"
-  slug               = "search"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
+resource "authentik_policy_binding" "zigbee" {
+  for_each = { for idx, group in [authentik_group.household.id, authentik_group.admin.id] : idx => group }
+  target   = authentik_application.zigbee.uuid
+  group    = each.value
+  order    = each.key
+}
+
+# module "proxy-searxng" {
+#   source             = "./proxy_application"
+#   name               = "SearXNG"
+#   description        = "Private search engine"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/searxng.png"
+#   group              = "Home"
+#   slug               = "search"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.ff.id, authentik_group.admin.id]
+# }
+
+resource "authentik_application" "searxng" {
+  name             = "SearXNG"
+  slug             = "search"
+  group            = "Home"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/searxng.png"
+  meta_description = "Private search engine"
+  meta_launch_url  = "https://search.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "searxng" {
+  for_each = { for idx, group in [authentik_group.ff.id, authentik_group.admin.id] : idx => group }
+  target   = authentik_application.searxng.uuid
+  group    = each.value
+  order    = each.key
 }
 
 # module "proxy-screego" {
@@ -316,17 +384,34 @@ module "oauth2-qui" {
   redirect_uris      = ["https://qui.${var.cluster_domain}/api/auth/oidc/callback"]
 }
 
-module "proxy-qbittorrent" {
-  source             = "./proxy_application"
-  name               = "qBittorrent"
-  description        = "Torrent client"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/qbittorrent.png"
-  group              = "Downloads"
-  slug               = "qb"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# DISABLED: Envoy Gateway ext-auth issue - converted to launch URLs
+# module "proxy-qbittorrent" {
+#   source             = "./proxy_application"
+#   name               = "qBittorrent"
+#   description        = "Torrent client"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/qbittorrent.png"
+#   group              = "Downloads"
+#   slug               = "qb"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "qbittorrent" {
+  name             = "qBittorrent"
+  slug             = "qb"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/qbittorrent.png"
+  meta_description = "Torrent client"
+  meta_launch_url  = "https://qb.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "qbittorrent" {
+  target = authentik_application.qbittorrent.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 # module "proxy-slskd" {
@@ -342,69 +427,149 @@ module "proxy-qbittorrent" {
 #   auth_groups        = [authentik_group.admin.id]
 # }
 
-module "proxy-metube" {
-  source             = "./proxy_application"
-  name               = "MeTube"
-  description        = "YouTube downloader"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/metube.png"
-  group              = "Downloads"
-  slug               = "metube"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-metube" {
+#   source             = "./proxy_application"
+#   name               = "MeTube"
+#   description        = "YouTube downloader"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/metube.png"
+#   group              = "Downloads"
+#   slug               = "metube"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "metube" {
+  name             = "MeTube"
+  slug             = "metube"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/metube.png"
+  meta_description = "YouTube downloader"
+  meta_launch_url  = "https://metube.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-dispatcharr" {
-  source             = "./proxy_application"
-  name               = "Dispatcharr"
-  description        = "Download dispatcher"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/dispatcharr.png"
-  group              = "Downloads"
-  slug               = "dispatcharr"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+resource "authentik_policy_binding" "metube" {
+  target = authentik_application.metube.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
-module "proxy-prowlarr" {
-  source             = "./proxy_application"
-  name               = "Prowlarr"
-  description        = "Torrent indexer"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/prowlarr.png"
-  group              = "Downloads"
-  slug               = "prowlarr"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-dispatcharr" {
+#   source             = "./proxy_application"
+#   name               = "Dispatcharr"
+#   description        = "Download dispatcher"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/dispatcharr.png"
+#   group              = "Downloads"
+#   slug               = "dispatcharr"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "dispatcharr" {
+  name             = "Dispatcharr"
+  slug             = "dispatcharr"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/dispatcharr.png"
+  meta_description = "Download dispatcher"
+  meta_launch_url  = "https://dispatcharr.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-radarr" {
-  source             = "./proxy_application"
-  name               = "Radarr"
-  description        = "Movies"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/radarr.png"
-  group              = "Downloads"
-  slug               = "radarr"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+resource "authentik_policy_binding" "dispatcharr" {
+  target = authentik_application.dispatcharr.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
-module "proxy-sonarr" {
-  source             = "./proxy_application"
-  name               = "Sonarr"
-  description        = "TV Shows"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sonarr.png"
-  group              = "Downloads"
-  slug               = "sonarr"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-prowlarr" {
+#   source             = "./proxy_application"
+#   name               = "Prowlarr"
+#   description        = "Torrent indexer"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/prowlarr.png"
+#   group              = "Downloads"
+#   slug               = "prowlarr"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "prowlarr" {
+  name             = "Prowlarr"
+  slug             = "prowlarr"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/prowlarr.png"
+  meta_description = "Torrent indexer"
+  meta_launch_url  = "https://prowlarr.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "prowlarr" {
+  target = authentik_application.prowlarr.uuid
+  group  = authentik_group.admin.id
+  order  = 0
+}
+
+# module "proxy-radarr" {
+#   source             = "./proxy_application"
+#   name               = "Radarr"
+#   description        = "Movies"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/radarr.png"
+#   group              = "Downloads"
+#   slug               = "radarr"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "radarr" {
+  name             = "Radarr"
+  slug             = "radarr"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/radarr.png"
+  meta_description = "Movies"
+  meta_launch_url  = "https://radarr.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "radarr" {
+  target = authentik_application.radarr.uuid
+  group  = authentik_group.admin.id
+  order  = 0
+}
+
+# module "proxy-sonarr" {
+#   source             = "./proxy_application"
+#   name               = "Sonarr"
+#   description        = "TV Shows"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sonarr.png"
+#   group              = "Downloads"
+#   slug               = "sonarr"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "sonarr" {
+  name             = "Sonarr"
+  slug             = "sonarr"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sonarr.png"
+  meta_description = "TV Shows"
+  meta_launch_url  = "https://sonarr.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "sonarr" {
+  target = authentik_application.sonarr.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 # module "proxy-lidarr" {
@@ -420,17 +585,33 @@ module "proxy-sonarr" {
 #   auth_groups        = [authentik_group.admin.id]
 # }
 
-module "proxy-bazarr" {
-  source             = "./proxy_application"
-  name               = "Bazarr"
-  description        = "Subtitles"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/bazarr.png"
-  group              = "Downloads"
-  slug               = "bazarr"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-bazarr" {
+#   source             = "./proxy_application"
+#   name               = "Bazarr"
+#   description        = "Subtitles"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/bazarr.png"
+#   group              = "Downloads"
+#   slug               = "bazarr"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "bazarr" {
+  name             = "Bazarr"
+  slug             = "bazarr"
+  group            = "Downloads"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/bazarr.png"
+  meta_description = "Subtitles"
+  meta_launch_url  = "https://bazarr.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "bazarr" {
+  target = authentik_application.bazarr.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -466,56 +647,120 @@ module "oauth2-grafana" {
   redirect_uris      = ["https://grafana.${var.cluster_domain}/login/generic_oauth"]
 }
 
-module "proxy-prometheus" {
-  source             = "./proxy_application"
-  name               = "Prometheus"
-  description        = "Metrics"
-  icon_url           = "https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg"
-  group              = "Infrastructure"
-  slug               = "prometheus"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-prometheus" {
+#   source             = "./proxy_application"
+#   name               = "Prometheus"
+#   description        = "Metrics"
+#   icon_url           = "https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg"
+#   group              = "Infrastructure"
+#   slug               = "prometheus"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "prometheus" {
+  name             = "Prometheus"
+  slug             = "prometheus"
+  group            = "Infrastructure"
+  meta_icon        = "https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg"
+  meta_description = "Metrics"
+  meta_launch_url  = "https://prometheus.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-alertmanager" {
-  source             = "./proxy_application"
-  name               = "Alertmanager"
-  description        = "Alert management"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/alertmanager.png"
-  group              = "Infrastructure"
-  slug               = "alertmanager"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+resource "authentik_policy_binding" "prometheus" {
+  target = authentik_application.prometheus.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
-module "proxy-victoria-logs" {
-  source             = "./proxy_application"
-  name               = "Victoria Logs"
-  description        = "Log aggregation"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/victoriametrics.png"
-  group              = "Infrastructure"
-  slug               = "logs"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-alertmanager" {
+#   source             = "./proxy_application"
+#   name               = "Alertmanager"
+#   description        = "Alert management"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/alertmanager.png"
+#   group              = "Infrastructure"
+#   slug               = "alertmanager"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "alertmanager" {
+  name             = "Alertmanager"
+  slug             = "alertmanager"
+  group            = "Infrastructure"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/alertmanager.png"
+  meta_description = "Alert management"
+  meta_launch_url  = "https://alertmanager.${var.cluster_domain}"
+  open_in_new_tab  = true
 }
 
-module "proxy-karma" {
-  source             = "./proxy_application"
-  name               = "Karma"
-  description        = "Alert dashboard"
-  icon_url           = "https://raw.githubusercontent.com/prymitive/karma/main/ui/public/favicon.ico"
-  group              = "Infrastructure"
-  slug               = "karma"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+resource "authentik_policy_binding" "alertmanager" {
+  target = authentik_application.alertmanager.uuid
+  group  = authentik_group.admin.id
+  order  = 0
+}
+
+# module "proxy-victoria-logs" {
+#   source             = "./proxy_application"
+#   name               = "Victoria Logs"
+#   description        = "Log aggregation"
+#   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/victoriametrics.png"
+#   group              = "Infrastructure"
+#   slug               = "logs"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "victoria-logs" {
+  name             = "Victoria Logs"
+  slug             = "logs"
+  group            = "Infrastructure"
+  meta_icon        = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/victoriametrics.png"
+  meta_description = "Log aggregation"
+  meta_launch_url  = "https://logs.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "victoria-logs" {
+  target = authentik_application.victoria-logs.uuid
+  group  = authentik_group.admin.id
+  order  = 0
+}
+
+# module "proxy-karma" {
+#   source             = "./proxy_application"
+#   name               = "Karma"
+#   description        = "Alert dashboard"
+#   icon_url           = "https://raw.githubusercontent.com/prymitive/karma/main/ui/public/favicon.ico"
+#   group              = "Infrastructure"
+#   slug               = "karma"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "karma" {
+  name             = "Karma"
+  slug             = "karma"
+  group            = "Infrastructure"
+  meta_icon        = "https://raw.githubusercontent.com/prymitive/karma/main/ui/public/favicon.ico"
+  meta_description = "Alert dashboard"
+  meta_launch_url  = "https://karma.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "karma" {
+  target = authentik_application.karma.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 module "oauth2-headlamp" {
@@ -568,17 +813,33 @@ module "oauth2-pgadmin" {
   redirect_uris      = ["https://pgadmin.${var.cluster_domain}/oauth2/authorize"]
 }
 
-module "proxy-kopia" {
-  source             = "./proxy_application"
-  name               = "Kopia"
-  description        = "Backup management"
-  icon_url           = "https://raw.githubusercontent.com/kopia/kopia/master/icons/kopia.svg"
-  group              = "Infrastructure"
-  slug               = "kopia"
-  domain             = var.cluster_domain
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  auth_groups        = [authentik_group.admin.id]
+# module "proxy-kopia" {
+#   source             = "./proxy_application"
+#   name               = "Kopia"
+#   description        = "Backup management"
+#   icon_url           = "https://raw.githubusercontent.com/kopia/kopia/master/icons/kopia.svg"
+#   group              = "Infrastructure"
+#   slug               = "kopia"
+#   domain             = var.cluster_domain
+#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+#   auth_groups        = [authentik_group.admin.id]
+# }
+
+resource "authentik_application" "kopia" {
+  name             = "Kopia"
+  slug             = "kopia"
+  group            = "Infrastructure"
+  meta_icon        = "https://raw.githubusercontent.com/kopia/kopia/master/icons/kopia.svg"
+  meta_description = "Backup management"
+  meta_launch_url  = "https://kopia.${var.cluster_domain}"
+  open_in_new_tab  = true
+}
+
+resource "authentik_policy_binding" "kopia" {
+  target = authentik_application.kopia.uuid
+  group  = authentik_group.admin.id
+  order  = 0
 }
 
 # Ceph Dashboard uses native auth - launch link only

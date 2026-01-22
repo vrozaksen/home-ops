@@ -6,7 +6,7 @@ metadata:
   name: &app slskd
 spec:
   components:
-    - ../../../components/ext-auth
+    # - ../../../components/ext-auth
     - ../../../components/nfs-scaler
   dependsOn:
     - name: authentik

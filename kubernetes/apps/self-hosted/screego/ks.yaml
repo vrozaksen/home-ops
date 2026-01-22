@@ -5,8 +5,8 @@ kind: Kustomization
 metadata:
   name: &app screego
 spec:
-  components:
-    - ../../../components/ext-auth
+  components: []
+  # - ../../../components/ext-auth
   dependsOn:
     - name: authentik
       namespace: security

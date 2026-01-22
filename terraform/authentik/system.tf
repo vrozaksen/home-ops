@@ -120,62 +120,62 @@ resource "authentik_outpost" "ldap" {
   })
 }
 
-## Proxy Outpost
-resource "authentik_outpost" "proxyoutpost" {
-  name               = "proxy-outpost"
-  type               = "proxy"
-  service_connection = authentik_service_connection_kubernetes.local.id
-  protocol_providers = [
-    # Media
-    module.proxy-navidrome.id,
-    module.proxy-jellystat.id,
-    # Home
-    module.proxy-zigbee.id,
-    module.proxy-searxng.id,
-    # module.proxy-screego.id,
-    # Downloads
-    module.proxy-qbittorrent.id,
-    # module.proxy-slskd.id,
-    module.proxy-metube.id,
-    module.proxy-dispatcharr.id,
-    module.proxy-prowlarr.id,
-    module.proxy-radarr.id,
-    module.proxy-sonarr.id,
-    # module.proxy-lidarr.id,
-    module.proxy-bazarr.id,
-    # Infrastructure
-    module.proxy-prometheus.id,
-    module.proxy-alertmanager.id,
-    module.proxy-victoria-logs.id,
-    module.proxy-karma.id,
-    module.proxy-kopia.id,
-  ]
-  config = jsonencode({
-    authentik_host          = "https://sso.${var.cluster_domain}",
-    log_level               = "warning",
-    object_naming_template  = "ak-outpost-%(name)s",
-    kubernetes_replicas     = 1,
-    kubernetes_namespace    = "security",
-    kubernetes_httproute_parent_refs = [
-      {
-        group       = "gateway.networking.k8s.io"
-        kind        = "Gateway"
-        name        = "envoy-internal"
-        namespace   = "network"
-        sectionName = "https"
-      },
-      {
-        group       = "gateway.networking.k8s.io"
-        kind        = "Gateway"
-        name        = "envoy-external"
-        namespace   = "network"
-        sectionName = "https"
-      }
-    ],
-    kubernetes_httproute_annotations = {
-      "gatus.home-operations.com/enabled" = "false"
-    }
-    kubernetes_service_type        = "ClusterIP",
-    kubernetes_disabled_components = ["ingress"],
-  })
-}
+# ## Proxy Outpost - DISABLED: Envoy Gateway ext-auth issue (Location header not forwarded)
+# resource "authentik_outpost" "proxyoutpost" {
+#   name               = "proxy-outpost"
+#   type               = "proxy"
+#   service_connection = authentik_service_connection_kubernetes.local.id
+#   protocol_providers = [
+#     # Media
+#     module.proxy-navidrome.id,
+#     module.proxy-jellystat.id,
+#     # Home
+#     module.proxy-zigbee.id,
+#     module.proxy-searxng.id,
+#     # module.proxy-screego.id,
+#     # Downloads
+#     module.proxy-qbittorrent.id,
+#     # module.proxy-slskd.id,
+#     module.proxy-metube.id,
+#     module.proxy-dispatcharr.id,
+#     module.proxy-prowlarr.id,
+#     module.proxy-radarr.id,
+#     module.proxy-sonarr.id,
+#     # module.proxy-lidarr.id,
+#     module.proxy-bazarr.id,
+#     # Infrastructure
+#     module.proxy-prometheus.id,
+#     module.proxy-alertmanager.id,
+#     module.proxy-victoria-logs.id,
+#     module.proxy-karma.id,
+#     module.proxy-kopia.id,
+#   ]
+#   config = jsonencode({
+#     authentik_host          = "https://sso.${var.cluster_domain}",
+#     log_level               = "warning",
+#     object_naming_template  = "ak-outpost-%(name)s",
+#     kubernetes_replicas     = 1,
+#     kubernetes_namespace    = "security",
+#     kubernetes_httproute_parent_refs = [
+#       {
+#         group       = "gateway.networking.k8s.io"
+#         kind        = "Gateway"
+#         name        = "envoy-internal"
+#         namespace   = "network"
+#         sectionName = "https"
+#       },
+#       {
+#         group       = "gateway.networking.k8s.io"
+#         kind        = "Gateway"
+#         name        = "envoy-external"
+#         namespace   = "network"
+#         sectionName = "https"
+#       }
+#     ],
+#     kubernetes_httproute_annotations = {
+#       "gatus.home-operations.com/enabled" = "false"
+#     }
+#     kubernetes_service_type        = "ClusterIP",
+#     kubernetes_disabled_components = ["ingress"],
+#   })
+# }

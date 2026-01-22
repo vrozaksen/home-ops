@@ -6,7 +6,7 @@ metadata:
   name: &app dispatcharr
 spec:
   components:
-    - ../../../components/ext-auth
+    # - ../../../components/ext-auth
     - ../../../components/gpu
     - ../../../components/volsync
   dependsOn:

@@ -6,7 +6,7 @@ metadata:
   name: &app zigbee
 spec:
   components:
-    - ../../../components/ext-auth
+    # - ../../../components/ext-auth
     - ../../../components/volsync
   dependsOn:
     - name: authentik

@@ -7,7 +7,7 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/ext-auth
+    # - ../../../components/ext-auth
   dependsOn:
     - name: authentik
       namespace: security

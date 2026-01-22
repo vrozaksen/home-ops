@@ -162,12 +162,27 @@ resource "authentik_outpost" "proxyoutpost" {
     container_image         = null,
     kubernetes_replicas     = 1,
     kubernetes_namespace    = "security",
-    kubernetes_ingress_annotations = {
-      "cert-manager.io/cluster-issuer" = "letsencrypt-production"
+    kubernetes_httproute_parent_refs = [
+      {
+        group       = "gateway.networking.k8s.io"
+        kind        = "Gateway"
+        name        = "envoy-internal"
+        namespace   = "network"
+        sectionName = "https"
+      },
+      {
+        group       = "gateway.networking.k8s.io"
+        kind        = "Gateway"
+        name        = "envoy-external"
+        namespace   = "network"
+        sectionName = "https"
+      }
+    ],
+    kubernetes_httproute_annotations = {
+      "gatus.home-operations.com/enabled" = "false"
     },
-    kubernetes_ingress_secret_name = "proxy-outpost-tls",
     kubernetes_service_type        = "ClusterIP",
-    kubernetes_disabled_components = [],
+    kubernetes_disabled_components = ["ingress"],
     kubernetes_image_pull_secrets  = []
   })
 }

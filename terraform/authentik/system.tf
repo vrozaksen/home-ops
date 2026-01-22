@@ -152,14 +152,8 @@ resource "authentik_outpost" "proxyoutpost" {
   ]
   config = jsonencode({
     authentik_host          = "https://sso.${var.cluster_domain}",
-    authentik_host_insecure = false,
-    authentik_host_browser  = "",
-    log_level               = "debug",
+    log_level               = "warning",
     object_naming_template  = "ak-outpost-%(name)s",
-    docker_network          = null,
-    docker_map_ports        = true,
-    docker_labels           = null,
-    container_image         = null,
     kubernetes_replicas     = 1,
     kubernetes_namespace    = "security",
     kubernetes_httproute_parent_refs = [
@@ -180,9 +174,8 @@ resource "authentik_outpost" "proxyoutpost" {
     ],
     kubernetes_httproute_annotations = {
       "gatus.home-operations.com/enabled" = "false"
-    },
+    }
     kubernetes_service_type        = "ClusterIP",
     kubernetes_disabled_components = ["ingress"],
-    kubernetes_image_pull_secrets  = []
   })
 }

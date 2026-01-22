@@ -7,19 +7,24 @@ metadata:
 spec:
   extAuth:
     failOpen: false
-    recomputeRoute: true
     headersToExtAuth:
-      - Cookie
       - X-Forwarded-Proto
-      - X-Forwarded-Host
-      - X-Forwarded-Uri
+      - cookie
     http:
       backendRefs:
         - name: ak-outpost-proxy-outpost
           namespace: security
           port: 9000
       path: /outpost.goauthentik.io/auth/envoy
+      headersToBackend:
+        - Set-Cookie
+        - X-authentik-username
+        - X-authentik-groups
+        - X-authentik-email
+        - X-authentik-name
+        - X-authentik-uid
+        - authorization
   targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: ${APP}
+    - group: ${EXT_AUTH_GROUP:-gateway.networking.k8s.io}
+      kind: ${EXT_AUTH_KIND:-HTTPRoute}
+      name: ${EXT_AUTH_TARGET:-${APP}}

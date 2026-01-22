@@ -52,7 +52,7 @@ spec:
               # Auto-create topics (Sentry creates many topics)
               KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
               # Performance
-              KAFKA_LOG_RETENTION_HOURS: "24"
+              KAFKA_LOG_RETENTION_HOURS: "72"
               KAFKA_COMPRESSION_TYPE: "lz4"
               # Message size (50MB for large replay recordings)
               KAFKA_MESSAGE_MAX_BYTES: "50000000"

@@ -8,6 +8,7 @@ spec:
   advanced:
     restoreToOriginalReplicaCount: true
   cooldownPeriod: 0
+  initialCooldownPeriod: 60
   minReplicaCount: 0
   maxReplicaCount: 1
   scaleTargetRef:

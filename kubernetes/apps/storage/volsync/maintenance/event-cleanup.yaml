@@ -1,0 +1,78 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/v1/serviceaccount.json
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: volsync-event-cleanup
+  namespace: storage
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/rbac.authorization.k8s.io/clusterrole_v1.json
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: volsync-event-cleanup
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - "events"
+    verbs:
+      - "list"
+      - "delete"
+      - "deletecollection"
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/rbac.authorization.k8s.io/clusterrolebinding_v1.json
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: volsync-event-cleanup
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: volsync-event-cleanup
+subjects:
+  - kind: ServiceAccount
+    name: volsync-event-cleanup
+    namespace: storage
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: volsync-event-cleanup
+  namespace: storage
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          serviceAccountName: volsync-event-cleanup
+          automountServiceAccountToken: true
+          containers:
+            - name: cleanup
+              image: ghcr.io/onedr0p/kubetools:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  echo "Cleaning up volsync FailedScheduling events..."
+                  # Delete FailedScheduling events for volsync pods
+                  kubectl get events -A --field-selector reason=FailedScheduling -o json | \
+                    jq -r '.items[] | select(.involvedObject.name | test("volsync")) | "\(.metadata.namespace) \(.metadata.name)"' | \
+                    while read ns name; do
+                      echo "Deleting event $ns/$name"
+                      kubectl delete event -n "$ns" "$name" --ignore-not-found
+                    done
+                  echo "Cleanup complete"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi
+          restartPolicy: OnFailure

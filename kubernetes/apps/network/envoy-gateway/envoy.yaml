@@ -161,15 +161,6 @@ spec:
     xForwardedFor:
       trustedCIDRs:
         - 10.69.0.0/16
-  headers:
-    earlyRequestHeaders:
-      set:
-        - name: X-Forwarded-Proto
-          value: https
-        - name: X-Forwarded-Host
-          value: "%REQ(:authority)%"
-        - name: X-Forwarded-Uri
-          value: "%REQ(:path)%"
   http2:
     onInvalidMessage: TerminateStream
   http3: {}

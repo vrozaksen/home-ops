@@ -66,5 +66,10 @@ spec:
     parameters:
       random_page_cost: ${CNPG_RANDOM_PAGE_COST:="1.1"}
       effective_io_concurrency: ${CNPG_EFFECTIVE_IO_CONCURRENCY:="200"}
+      # REPLICA CATCH-UP settings (prevents slow WAL archive restore):
+      # - wal_keep_size: WAL retained on primary for streaming catch-up (default: 512MB)
+      # - max_slot_wal_keep_size: Auto-invalidate slot when replica >N behind → forces pg_basebackup rebuild
+      wal_keep_size: ${CNPG_WAL_KEEP_SIZE:="1GB"}
+      max_slot_wal_keep_size: ${CNPG_MAX_SLOT_WAL_KEEP:="2GB"}
   monitoring:
     enablePodMonitor: true

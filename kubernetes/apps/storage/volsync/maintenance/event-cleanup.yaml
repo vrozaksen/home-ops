@@ -42,7 +42,7 @@ metadata:
   name: volsync-event-cleanup
   namespace: storage
 spec:
-  schedule: "*/15 * * * *"
+  schedule: "5 * * * *"  # 5 minutes after volsync hourly schedule
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1

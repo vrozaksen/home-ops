@@ -116,42 +116,43 @@ nodes:
           downdelay: 200
         dhcp: true
         mtu: 1500
-  # Worker Nodes
-  - hostname: "granzam"
-    ipAddress: "10.10.0.31"
-    #installDisk: /dev/sda
-    talosImageURL: *talosImage
-    controlPlane: false
-    nodeLabels:
-      topology.kubernetes.io/zone: worker
-      intel.feature.node.kubernetes.io/gpu: "true"
-      feature.node.kubernetes.io/custom-e1000e: "true"
-      # feature.node.kubernetes.io/custom-i40e: "false"
-    installDiskSelector:
-      model: "INTEL*"
-    extraManifests:
-      - ./manifests/e1000e.yaml
-    networkInterfaces:
-      # 1G Internal Port / eno1
-      # - deviceSelector:
-      #     hardwareAddr: e8:6a:64:47:fe:44
-      #   ignore: true
-      # 2.5G PICe Port / enp1s0
-      - deviceSelector:
-          hardwareAddr: 00:e0:4c:68:07:2c
-        dhcp: true
-        mtu: 1500
+        # Worker Nodes
+        # NOTE: granzam removed due to frequent crashes
+        # - hostname: "granzam"
+        #   ipAddress: "10.10.0.31"
+        #   #installDisk: /dev/sda
+        #   talosImageURL: *talosImage
+        #   controlPlane: false
+        #   nodeLabels:
+        #     topology.kubernetes.io/zone: worker
+        #     intel.feature.node.kubernetes.io/gpu: "true"
+        #     feature.node.kubernetes.io/custom-e1000e: "true"
+        #     # feature.node.kubernetes.io/custom-i40e: "false"
+        #   installDiskSelector:
+        #     model: "INTEL*"
+        #   extraManifests:
+        #     - ./manifests/e1000e.yaml
+        #   networkInterfaces:
+        #     # 1G Internal Port / eno1
+        #     # - deviceSelector:
+        #     #     hardwareAddr: e8:6a:64:47:fe:44
+        #     #   ignore: true
+        #     # 2.5G PICe Port / enp1s0
+        #     - deviceSelector:
+        #         hardwareAddr: 00:e0:4c:68:07:2c
+        #       dhcp: true
+        #       mtu: 1500
 patches:
-  - "@./patches/global/machine-files.yaml"   # Spegel/NFS Mount
+  - "@./patches/global/machine-files.yaml"  # Spegel/NFS Mount
   # - "@./patches/global/machine-install.yaml" # This is baked into the install image now, as of v1.10.0
   # https://github.com/siderolabs/talos/releases/tag/v1.10.0
-  - "@./patches/global/machine-kubelet.yaml" # VLAN Subnet Info
-  - "@./patches/global/machine-network.yaml" # Search Domain / DNS
-  - "@./patches/global/machine-openebs.yaml" # Kubelet Mount
-  - "@./patches/global/machine-sysctls.yaml" # Network Tweaks
+  - "@./patches/global/machine-kubelet.yaml"  # VLAN Subnet Info
+  - "@./patches/global/machine-network.yaml"  # Search Domain / DNS
+  - "@./patches/global/machine-openebs.yaml"  # Kubelet Mount
+  - "@./patches/global/machine-sysctls.yaml"  # Network Tweaks
   # - "@./patches/global/machine-sysfs.yaml"   # CPU Power
-  - "@./patches/global/machine-time.yaml"    # NTP
-  - "@./patches/global/oom-config.yaml"      # Disable OOM killer
+  - "@./patches/global/machine-time.yaml"  # NTP
+  - "@./patches/global/oom-config.yaml"  # Disable OOM killer
 
 # Controller patches
 controlPlane:

@@ -143,12 +143,14 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         retention: 14d
         retentionSize: 50GB
+        nodeSelector:
+          kubernetes.io/hostname: alfheim
         resources:
           requests:
             cpu: 525m
-            memory: 2304Mi
+            memory: 4Gi
           limits:
-            memory: 4608Mi
+            memory: 8Gi
         storageSpec:
           volumeClaimTemplate:
             spec:

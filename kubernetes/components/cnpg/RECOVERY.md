@@ -87,7 +87,7 @@ spec:
         apiVersion: postgresql.cnpg.io/v1
         kind: Cluster
         metadata:
-          name: postgres-forgejo
+          name: postgres-${APP}
           annotations:
             cnpg.io/skipEmptyWalArchiveCheck: 'enabled'
         spec:
@@ -103,11 +103,11 @@ spec:
               plugin:
                 name: barman-cloud.cloudnative-pg.io
                 parameters:
-                  barmanObjectName: postgres-forgejo
+                  barmanObjectName: postgres-${APP}
                   serverName: postgres-forgejo
       target:
         kind: Cluster
-        name: postgres-forgejo
+        name: postgres-${APP}
   postBuild:
     substitute:
       APP: forgejo
@@ -121,7 +121,7 @@ spec:
         apiVersion: postgresql.cnpg.io/v1
         kind: Cluster
         metadata:
-          name: postgres-forgejo
+          name: postgres-${APP}
           annotations:
             cnpg.io/skipEmptyWalArchiveCheck: 'enabled'
         spec:
@@ -138,11 +138,11 @@ spec:
               plugin:
                 name: barman-cloud.cloudnative-pg.io
                 parameters:
-                  barmanObjectName: postgres-forgejo
+                  barmanObjectName: postgres-${APP}
                   serverName: postgres-forgejo
       target:
         kind: Cluster
-        name: postgres-forgejo
+        name: postgres-${APP}
 ```
 
 **Option C: Recover to named restore point**
@@ -152,7 +152,7 @@ spec:
         apiVersion: postgresql.cnpg.io/v1
         kind: Cluster
         metadata:
-          name: postgres-forgejo
+          name: postgres-${APP}
           annotations:
             cnpg.io/skipEmptyWalArchiveCheck: 'enabled'
         spec:
@@ -169,11 +169,11 @@ spec:
               plugin:
                 name: barman-cloud.cloudnative-pg.io
                 parameters:
-                  barmanObjectName: postgres-forgejo
+                  barmanObjectName: postgres-${APP}
                   serverName: postgres-forgejo
       target:
         kind: Cluster
-        name: postgres-forgejo
+        name: postgres-${APP}
 ```
 
 **Option D: Recover to earliest consistent state**
@@ -183,7 +183,7 @@ spec:
         apiVersion: postgresql.cnpg.io/v1
         kind: Cluster
         metadata:
-          name: postgres-forgejo
+          name: postgres-${APP}
           annotations:
             cnpg.io/skipEmptyWalArchiveCheck: 'enabled'
         spec:
@@ -199,11 +199,11 @@ spec:
               plugin:
                 name: barman-cloud.cloudnative-pg.io
                 parameters:
-                  barmanObjectName: postgres-forgejo
+                  barmanObjectName: postgres-${APP}
                   serverName: postgres-forgejo
       target:
         kind: Cluster
-        name: postgres-forgejo
+        name: postgres-${APP}
 ```
 
 **Why this approach?**
@@ -289,6 +289,49 @@ git push
 | `targetName` | Pre-created restore point | ✅ Yes |
 | `targetLSN` | Rollback to WAL position | ❌ No (auto-finds backup) |
 | `targetImmediate` | Earliest consistent state | ❌ No |
+| `targetTLI` | Recover to specific timeline (see below) | ❌ No |
+
+---
+
+## Timeline Recovery (targetTLI)
+
+**When needed:** After multiple restore attempts or when backup is from different timeline than WAL archive.
+
+PostgreSQL uses timelines to track recovery history. Each PITR creates a new timeline. If you get this error:
+
+```
+FATAL: requested timeline 8 is not a child of this server's history
+detail: Latest checkpoint in file "backup_label" is at 11/4C0000B8 on timeline 7,
+        but in the history of the requested timeline, the server forked off from that timeline at 10/230000A0.
+```
+
+**Solution:** Add `targetTLI` to force recovery to specific timeline:
+
+```yaml
+# ks.yaml patches section
+patches:
+  - patch: |-
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      metadata:
+        name: postgres-${APP}
+      spec:
+        bootstrap:
+          recovery:
+            recoveryTarget:
+              targetTLI: "7"  # Timeline from error message
+    target:
+      group: postgresql.cnpg.io
+      kind: Cluster
+      name: postgres-${APP}
+```
+
+**IMPORTANT:** Use `postgres-${APP}` in patch target (before variable substitution), not the final name like `postgres-myapp`.
+
+**Finding the correct timeline:**
+1. Check error message for "timeline N" in backup_label
+2. Or list timeline history files in S3: `00000007.history`, `00000008.history`, etc.
+3. Use the timeline number where your backup was created
 
 ---
 

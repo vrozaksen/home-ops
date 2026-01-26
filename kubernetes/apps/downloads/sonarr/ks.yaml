@@ -28,21 +28,6 @@ spec:
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/downloads/sonarr
-  patches:
-    - patch: |
-        apiVersion: postgresql.cnpg.io/v1
-        kind: Cluster
-        metadata:
-          name: postgres-sonarr
-        spec:
-          bootstrap:
-            recovery:
-              recoveryTarget:
-                targetTLI: "7"
-      target:
-        group: postgresql.cnpg.io
-        kind: Cluster
-        name: postgres-sonarr
   postBuild:
     substitute:
       APP: *app

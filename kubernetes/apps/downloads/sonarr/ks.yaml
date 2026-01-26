@@ -30,10 +30,15 @@ spec:
   path: ./kubernetes/apps/downloads/sonarr
   patches:
     - patch: |
-        - op: add
-          path: /spec/bootstrap/recovery/recoveryTarget
-          value:
-            targetTLI: "7"
+        apiVersion: postgresql.cnpg.io/v1
+        kind: Cluster
+        metadata:
+          name: postgres-sonarr
+        spec:
+          bootstrap:
+            recovery:
+              recoveryTarget:
+                targetTLI: "7"
       target:
         group: postgresql.cnpg.io
         kind: Cluster

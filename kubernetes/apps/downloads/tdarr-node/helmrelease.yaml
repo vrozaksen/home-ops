@@ -33,8 +33,10 @@ spec:
                 - name: gpu
               requests:
                 cpu: 100m
+                memory: 1Gi
               limits:
                 cpu: 2000m
+                memory: 6Gi
     defaultPodOptions:
       priorityClassName: cluster-low
       resourceClaims:

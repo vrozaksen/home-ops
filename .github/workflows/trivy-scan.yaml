@@ -44,7 +44,7 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789  # v4
+        uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30  # v4
         if: always()
         with:
           sarif_file: 'trivy-k8s-results.sarif'
@@ -146,7 +146,7 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789  # v4
+        uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30  # v4
         if: always()
         with:
           sarif_file: 'trivy-talos-results.sarif'
@@ -171,7 +171,7 @@ jobs:
           hide-progress: true
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789  # v4
+        uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30  # v4
         if: always()
         with:
           sarif_file: 'trivy-bootstrap-results.sarif'

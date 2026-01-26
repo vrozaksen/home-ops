@@ -27,7 +27,7 @@ spec:
       disabledDefaultServices: ${CNPG_DISABLED_SERVICES:=['ro', 'r']}
   storage:
     size: ${CNPG_SIZE:=2Gi}
-    storageClass: ${CNPG_STORAGECLASS:=local-hostpath}
+    storageClass: ${CNPG_STORAGECLASS:=ceph-block-single}
   superuserSecret:
     name: ${APP}-cnpg-secret
   enableSuperuserAccess: true

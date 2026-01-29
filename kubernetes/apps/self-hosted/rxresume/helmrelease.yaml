@@ -20,15 +20,15 @@ spec:
           app:
             image:
               repository: ghcr.io/amruthpillai/reactive-resume
-              tag: v5.0.2@sha256:5fc05515143fcbfaf63a3e3407027ff89bee97e8d28add70277d264438dbcdfa
+              tag: v5.0.4@sha256:dde0788d9fb16f02ac878963b524c7daa8f31e62099441fe196973a66c97dd14
             env:
               TZ: "Europe/Warsaw"
               NODE_ENV: "production"
               # URLs
               APP_URL: https://rxresume.vzkn.eu
               PRINTER_APP_URL: http://localhost:3000
-              # Printer (Gotenberg sidecar on port 3001)
-              GOTENBERG_ENDPOINT: http://localhost:3001
+              # Printer (Browserless Chromium sidecar on port 3001)
+              PRINTER_ENDPOINT: ws://localhost:3001?token=rxresume-printer
               # S3 Storage
               S3_ENDPOINT: https://api.s3.vzkn.eu
               S3_BUCKET: rxresume
@@ -77,16 +77,16 @@ spec:
                 memory: 320Mi
               limits:
                 memory: 640Mi
-          gotenberg:
+          browserless:
             image:
-              repository: gotenberg/gotenberg
-              tag: 8.25.1@sha256:f9104080d9a7ecab253fb5ebe75100329cf5699c33ec0448f2ea02d885dfde4b
-            args:
-              - gotenberg
-              - --api-port=3001
-              - --api-timeout=60s
-              - --libreoffice-disable-routes=true
-              - --chromium-auto-start=true
+              repository: ghcr.io/browserless/chromium
+              tag: v2.24.3
+            env:
+              PORT: "3001"
+              TOKEN: rxresume-printer
+              TIMEOUT: "60000"
+              CONCURRENT: "10"
+              HEALTH: "true"
             probes:
               liveness:
                 enabled: true
@@ -112,14 +112,14 @@ spec:
                   failureThreshold: 3
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 140m
-                memory: 2048Mi
+                cpu: 100m
+                memory: 1Gi
               limits:
-                memory: 4Gi
+                memory: 2Gi
     service:
       app:
         ports:
@@ -143,8 +143,6 @@ spec:
             app:
               - path: /tmp
                 subPath: app-tmp
-            gotenberg:
+            browserless:
               - path: /tmp
-                subPath: gotenberg-tmp
-              - path: /home/gotenberg
-                subPath: gotenberg-home
+                subPath: browserless-tmp

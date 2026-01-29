@@ -34,6 +34,12 @@ spec:
             memory: 512Mi
           limits:
             memory: 1Gi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     config:
       envoyGateway:
         provider:

@@ -62,3 +62,10 @@ spec:
         memory: 96Mi
       limits:
         memory: 192Mi
+    # Schedule on control-plane nodes
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: ""
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule

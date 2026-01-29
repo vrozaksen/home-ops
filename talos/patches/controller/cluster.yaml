@@ -1,6 +1,6 @@
 ---
 cluster:
-  allowSchedulingOnControlPlanes: true
+  allowSchedulingOnControlPlanes: false
   apiServer:
     extraArgs:
       enable-aggregator-routing: true

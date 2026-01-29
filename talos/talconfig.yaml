@@ -22,16 +22,70 @@ cniConfig:
   name: none
 
 nodes:
-  # Controller Nodes
+  # ============================================
+  # NEW CONTROL-PLANE NODE (SOYO M4 Mini)
+  # ============================================
+  - hostname: "saga"
+    ipAddress: "10.10.0.15"
+    controlPlane: true
+    # SecureBoot installer (sd-boot) - use secureboot ISO for initial boot
+    talosImageURL: &talosImageSecureBoot factory.talos.dev/installer-secureboot/56d936e2c7919954cf5e13b2b9c06859ac5475ded8b9878bc63dc0e4bebbf854
+    installDiskSelector:
+      model: "*"
+    networkInterfaces:
+      # SOYO M4 Mini: enp1s0 (e0:51:d8:1f:43:3d) + enp2s0 (e0:51:d8:1f:43:3e)
+      - deviceSelector:
+          hardwareAddr: e0:51:d8:1f:43:3d  # enp1s0
+        addresses:
+          - 10.10.0.15/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 10.10.0.1
+        mtu: 1500
+
+  - hostname: "eir"
+    ipAddress: "10.10.0.16"
+    controlPlane: true
+    talosImageURL: *talosImageSecureBoot
+    installDiskSelector:
+      model: "*"
+    networkInterfaces:
+      # SOYO M4 Mini: enp1s0 (e0:51:d8:1f:ac:84) + enp2s0 (e0:51:d8:1f:ac:85)
+      - deviceSelector:
+          hardwareAddr: e0:51:d8:1f:ac:84  # enp1s0
+        addresses:
+          - 10.10.0.16/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 10.10.0.1
+        mtu: 1500
+
+  - hostname: "skuld"
+    ipAddress: "10.10.0.17"
+    controlPlane: true
+    talosImageURL: *talosImageSecureBoot
+    installDiskSelector:
+      model: "*"
+    networkInterfaces:
+      # SOYO M4 Mini: enp1s0 (e0:51:d8:1f:b6:95) + enp2s0 (e0:51:d8:1f:b6:96)
+      - deviceSelector:
+          hardwareAddr: e0:51:d8:1f:b6:95  # enp1s0
+        addresses:
+          - 10.10.0.17/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 10.10.0.1
+        mtu: 1500
+
+  # ============================================
+  # WORKER NODES (Lenovo M720q)
+  # ============================================
   - hostname: "alfheim"
     ipAddress: "10.10.0.21"
     # installDisk: /dev/sda
+    # Standard installer (no SecureBoot on M720q)
     talosImageURL: &talosImage factory.talos.dev/installer/59fbb820a54701d6aacf45e8f65adeba13a0ee2009cbca30e5b1ae6f4155e581
-    controlPlane: true
-    nodeLabels: &intel
-      intel.feature.node.kubernetes.io/gpu: "true"
-      feature.node.kubernetes.io/custom-e1000e: "true"
-      feature.node.kubernetes.io/custom-i40e: "true"
+    controlPlane: false
     installDiskSelector:
       model: "Samsung*"
     extraManifests:
@@ -60,8 +114,7 @@ nodes:
     ipAddress: "10.10.0.22"
     # installDisk: /dev/sda
     talosImageURL: *talosImage
-    controlPlane: true
-    nodeLabels: *intel
+    controlPlane: false
     installDiskSelector:
       model: "MTFD*"
     extraManifests:
@@ -90,8 +143,7 @@ nodes:
     ipAddress: "10.10.0.23"
     # installDisk: /dev/sda
     talosImageURL: *talosImage
-    controlPlane: true
-    nodeLabels: *intel
+    controlPlane: false
     installDiskSelector:
       model: "Samsung*"
     extraManifests:

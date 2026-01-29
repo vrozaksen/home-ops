@@ -80,7 +80,7 @@ spec:
           browserless:
             image:
               repository: ghcr.io/browserless/chromium
-              tag: v2.24.3
+              tag: v2.38.4
             env:
               PORT: "3001"
               TOKEN: rxresume-printer

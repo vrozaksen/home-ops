@@ -85,6 +85,22 @@ spec:
             secretKeyRef:
               name: *secret
               key: OIDC_CLIENT_SECRET
+        # Database password from CNPG secret (for sync hook)
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-nextcloud-app
+              key: password
+
+      # Volumes for hooks
+      extraVolumes:
+        - name: hooks
+          configMap:
+            name: nextcloud-hooks
+            defaultMode: 0755
+      extraVolumeMounts:
+        - name: hooks
+          mountPath: /docker-entrypoint-hooks.d/before-starting
 
       # PHP configuration files
       configs:
@@ -316,8 +332,9 @@ spec:
         limits:
           memory: 192Mi
 
-    # Extra manifests: Service for notify_push sidecar
+    # Extra manifests
     extraManifests:
+      # Service for notify_push sidecar
       - |
         apiVersion: v1
         kind: Service
@@ -336,6 +353,31 @@ spec:
           selector:
             app.kubernetes.io/name: {{ include "nextcloud.name" . }}
             app.kubernetes.io/instance: {{ .Release.Name }}
+      # Hook to sync DB password from CNPG secret to config.php
+      - |
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: nextcloud-hooks
+        data:
+          sync-db-password.sh: |
+            #!/bin/sh
+            set -e
+            CONFIG_FILE="/var/www/html/config/config.php"
+            if [ -f "$CONFIG_FILE" ] && [ -n "$POSTGRES_PASSWORD" ]; then
+              echo "=> Syncing database password from secret to config.php"
+              # Use PHP to safely update the password
+              php -r "
+                \$config = file_get_contents('$CONFIG_FILE');
+                \$config = preg_replace(
+                  \"/'dbpassword'\\s*=>\\s*'[^']*'/\",
+                  \"'dbpassword' => '\" . getenv('POSTGRES_PASSWORD') . \"'\",
+                  \$config
+                );
+                file_put_contents('$CONFIG_FILE', \$config);
+              "
+              echo "=> Database password synced successfully"
+            fi
 
     # Disable unused components
     redis:

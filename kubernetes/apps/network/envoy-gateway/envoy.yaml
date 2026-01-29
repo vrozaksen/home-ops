@@ -17,7 +17,7 @@ spec:
           topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
+              whenUnsatisfiable: ScheduleAnyway
               labelSelector:
                 matchLabels:
                   gateway.envoyproxy.io/owning-gateway-namespace: network

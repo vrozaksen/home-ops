@@ -59,19 +59,18 @@ spec:
               args:
                 metricsUtilization:
                   source: KubernetesMetrics
-                # Absolute thresholds - nodes below these are underutilized
-                # Adjusted for cluster with balanced memory but imbalanced CPU:
-                # - Memory is 43-62% across nodes (balanced)
-                # - CPU ranges from 9-95% (imbalanced)
+                # Thresholds for 3 CP + 3 worker topology
+                # Workers: CPU 14-24%, Memory 25-38%
+                # CP nodes excluded via taint (nodeFit: true)
                 thresholds:
-                  cpu: 25
-                  memory: 60  # High memory threshold so balanced nodes aren't blocking
-                  pods: 25
+                  cpu: 15
+                  memory: 30
+                  pods: 20
                 # Target thresholds - nodes above these are overutilized
                 targetThresholds:
-                  cpu: 70
-                  memory: 85  # High to prevent memory-based blocking
-                  pods: 70
+                  cpu: 50
+                  memory: 65
+                  pods: 60
                 # Skip these namespaces from eviction
                 evictableNamespaces:
                   exclude:

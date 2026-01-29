@@ -34,3 +34,10 @@ spec:
       enabled: true
     serviceMonitor:
       enabled: true
+    # Schedule on control-plane nodes
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: ""
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule

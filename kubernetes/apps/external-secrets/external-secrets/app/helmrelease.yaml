@@ -35,6 +35,13 @@ spec:
         memory: 160Mi
       limits:
         memory: 320Mi
+    # Schedule on control-plane nodes
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: ""
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
     certController:
       serviceMonitor:
         enabled: true
@@ -44,6 +51,12 @@ spec:
           memory: 96Mi
         limits:
           memory: 192Mi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     webhook:
       serviceMonitor:
         enabled: true
@@ -53,9 +66,21 @@ spec:
           memory: 160Mi
         limits:
           memory: 320Mi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     reportsController:
       serviceMonitor:
         enabled: true
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     bitwarden-sdk-server:
       enabled: true
       podAnnotations:
@@ -66,3 +91,9 @@ spec:
           memory: 96Mi
         limits:
           memory: 192Mi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule

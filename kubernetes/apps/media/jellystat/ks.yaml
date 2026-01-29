@@ -32,6 +32,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      CNPG_SIZE: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

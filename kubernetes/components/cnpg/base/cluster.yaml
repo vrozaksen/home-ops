@@ -45,12 +45,13 @@ spec:
     podAntiAffinityType: required
     nodeSelector:
       kubernetes.io/arch: amd64
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: node-role.kubernetes.io/control-plane
-                operator: Exists
+      # Schedule on workers
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: node-role.kubernetes.io/control-plane
+      #             operator: DoesNotExist
   postgresql:
     # SYNCHRONOUS REPLICATION configuration:
     # - Multi-node (3+ replicas): Provides HA + near-zero data loss (~1-2ms write latency)

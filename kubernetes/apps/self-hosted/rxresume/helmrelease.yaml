@@ -93,7 +93,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
+                    path: /config
                     port: 3001
                   initialDelaySeconds: 10
                   periodSeconds: 30
@@ -104,7 +104,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
+                    path: /config
                     port: 3001
                   initialDelaySeconds: 5
                   periodSeconds: 10

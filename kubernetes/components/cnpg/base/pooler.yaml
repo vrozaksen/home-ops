@@ -54,11 +54,12 @@ spec:
                     values:
                       - database-pooler
               topologyKey: kubernetes.io/hostname
+        # Schedule on workers
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: node-role.kubernetes.io/control-plane
-                    operator: Exists
+                    operator: DoesNotExist
       nodeSelector:
         kubernetes.io/arch: amd64

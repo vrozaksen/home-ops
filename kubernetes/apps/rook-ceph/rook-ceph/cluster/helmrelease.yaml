@@ -128,13 +128,14 @@ spec:
         config:
           osdsPerDevice: "1"
       placement:
+        # Schedule Ceph mgr/mon on workers (nodes with NVMe storage)
         mgr: &placement
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
                 - matchExpressions:
                     - key: node-role.kubernetes.io/control-plane
-                      operator: Exists
+                      operator: DoesNotExist
         mon: *placement
     cephBlockPools:
       # Default pool with 3x replication for general workloads

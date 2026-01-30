@@ -95,7 +95,7 @@ spec:
       image:
         registry: ghcr.io
         repository: aquasecurity/trivy
-        tag: 0.68.2
+        tag: 0.69.0
 
       # -- Mode: ClientServer uses built-in server
       mode: ClientServer

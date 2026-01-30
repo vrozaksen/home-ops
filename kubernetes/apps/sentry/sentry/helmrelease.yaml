@@ -60,6 +60,23 @@ spec:
     pgbouncer:
       enabled: false
 
+    # Gateway API HTTPRoute (chart-managed)
+    route:
+      main:
+        enabled: true
+        hostnames:
+          - sentry.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+      httpRedirect:
+        enabled: true
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: http
+
     # ============================================================================
     # External Services
     # ============================================================================

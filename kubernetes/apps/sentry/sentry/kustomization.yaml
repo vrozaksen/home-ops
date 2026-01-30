@@ -7,5 +7,6 @@ resources:
   - ./dragonfly.yaml
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./httproute.yaml
+  # HTTPRoute now managed by Sentry chart (v28.1.0+)
+  # - ./httproute.yaml
   - ./securitypolicy.yaml

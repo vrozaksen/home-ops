@@ -31,7 +31,7 @@ spec:
     image:
       registry: code.forgejo.org
       repository: forgejo/forgejo
-      tag: 14.0.1
+      tag: 14.0.2
       rootless: true
 
     podSecurityContext:

@@ -19,5 +19,5 @@ resources:
   # - ./slskd/ks.yaml
   - ./sonarr/ks.yaml
   # - ./soularr/ks.yaml
-  # - ./tdarr-node/ks.yaml
+  - ./tdarr-node/ks.yaml
   - ./webhook/ks.yaml

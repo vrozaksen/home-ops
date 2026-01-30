@@ -58,6 +58,14 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 100
+      # Only on workers - closer to envoy gateways
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
     service:
       app:
         ports:

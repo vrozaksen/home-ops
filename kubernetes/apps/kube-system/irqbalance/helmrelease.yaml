@@ -30,6 +30,14 @@ spec:
     defaultPodOptions:
       hostIPC: true
       hostPID: true
+      # Only on workers - CP doesn't need IRQ balancing
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
     persistence:
       run:
         type: emptyDir

@@ -33,6 +33,11 @@ spec:
       enableLiveness: true
       serviceMonitor:
         enabled: true
+      # Allow CSI nodeplugin on CP nodes (for potential future volume mounts)
+      pluginTolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     image:
       repository: ghcr.io/rook/ceph
     monitoring:

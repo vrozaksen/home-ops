@@ -30,7 +30,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      CNPG_SIZE: 1Gi
+      CNPG_SIZE: 5Gi
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:

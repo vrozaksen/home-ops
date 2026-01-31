@@ -87,30 +87,24 @@ spec:
         connections:
           requireMsgr2: true
       resources:
+        # Only CPU requests specified - memory uses Rook defaults:
+        # mon: 1Gi request, 2Gi limit (fixes RocksDB compaction issues)
+        # mgr: 512Mi request, 1Gi limit
+        # osd: 4Gi request, 4Gi limit
         mgr:
           requests:
-            cpu: 50m
-            memory: 1Gi
-          limits:
-            memory: 2Gi
+            cpu: 125m
         mon:
           requests:
-            cpu: 50m
-            memory: 768Mi
-          limits:
-            memory: 1536Mi
+            cpu: 250m
         osd:
           requests:
-            cpu: 500m
-            memory: 2560Mi
-          limits:
-            memory: 6Gi
-        mgr-sidecar:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
+            cpu: 250m
+      healthCheck:
+        livenessProbe:
+          mon:
+            probe:
+              timeoutSeconds: 15
       storage:
         useAllNodes: false
         nodes:

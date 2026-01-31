@@ -53,19 +53,28 @@ spec:
                 memory: 6Gi
     defaultPodOptions:
       priorityClassName: cluster-low
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: clickhouse
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
         runAsGroup: 101
         fsGroup: 101
         fsGroupChangePolicy: OnRootMismatch
+      # Only on workers, prefer different node than Kafka
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: kafka
+                topologyKey: kubernetes.io/hostname
     service:
       app:
         ports:

@@ -38,6 +38,23 @@ spec:
 
     priorityClassName: cluster-low
 
+    # Schedule all Sentry components on workers only
+    global:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+      topologySpreadConstraints:
+        - maxSkew: 2
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sentry
+
     # ============================================================================
     # Bundled Services - All Disabled (using external)
     # ============================================================================

@@ -36,7 +36,7 @@ spec:
                 memory: 1Gi
               limits:
                 cpu: 2000m
-                memory: 6Gi
+                memory: 12Gi
     defaultPodOptions:
       priorityClassName: cluster-low
       resourceClaims:

@@ -62,17 +62,33 @@ spec:
                 nextcloud_user = os.environ['NEXTCLOUD_USER']
                 nextcloud_password = os.environ['NEXTCLOUD_PASSWORD']
                 nextcloud_folder = os.environ['NEXTCLOUD_FOLDER']
+                auth = (nextcloud_user, nextcloud_password)
+                base_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_user}"
+
+                # Ensure folder exists (create nested folders if needed)
+                path_parts = []
+                for folder in nextcloud_folder.split('/'):
+                    if folder:
+                        path_parts.append(folder)
+                        folder_path = '/'.join(path_parts)
+                        requests.request('MKCOL', f"{base_url}/{folder_path}", auth=auth)
+
+                # Read file content for proper Content-Length
+                with open('/tmp/krr-report.csv', 'rb') as f:
+                    content = f.read()
 
                 report_path = f"{nextcloud_folder}/krr-report-{timestamp}.csv"
-                upload_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_user}/{report_path}"
+                upload_url = f"{base_url}/{report_path}"
 
-                with open('/tmp/krr-report.csv', 'rb') as f:
-                    response = requests.put(
-                        upload_url,
-                        data=f,
-                        auth=(nextcloud_user, nextcloud_password),
-                        headers={'Content-Type': 'text/csv'}
-                    )
+                response = requests.put(
+                    upload_url,
+                    data=content,
+                    auth=auth,
+                    headers={
+                        'Content-Type': 'text/csv',
+                        'Content-Length': str(len(content))
+                    }
+                )
 
                 if response.status_code in (200, 201, 204):
                     print(f"Report uploaded to Nextcloud: {report_path}")

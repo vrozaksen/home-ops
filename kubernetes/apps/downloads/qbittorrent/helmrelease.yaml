@@ -103,22 +103,9 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-    configMaps:
-      config:
-        forceRename: &configMapName "{{ .Release.Name }}"
-        data:
-          .qbt.toml: |
-            [qbittorrent]
-            addr = "http://localhost:80"
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
-      config-file:
-        type: configMap
-        name: *configMapName
-        globalMounts:
-          - path: /config/.qbt.toml
-            subPath: .qbt.toml
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

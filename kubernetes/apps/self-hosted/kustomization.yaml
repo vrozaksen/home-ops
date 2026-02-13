@@ -14,4 +14,4 @@ resources:
   - ./rxresume/ks.yaml
   # - ./screego/ks.yaml
   - ./searxng/ks.yaml
-  - ./teamspeak/ks.yaml
+  # - ./teamspeak/ks.yaml

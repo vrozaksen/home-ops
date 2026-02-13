@@ -23,9 +23,7 @@ spec:
               ATUIN_OPEN_REGISTRATION: "true"
               ATUIN_DB_URI: sqlite:///config/atuin.db
               TZ: Europe/Warsaw
-            command:
-              - atuin
-              - server
+            args:
               - start
             probes:
               liveness: &probes

@@ -43,6 +43,9 @@ spec:
           - name: envoy-internal
             namespace: network
     cephClusterSpec:
+      mon:
+        count: 5
+        allowMultiplePerNode: false  # Max 1 mon per node - forces distribution
       cephConfig:
         global:
           bdev_enable_discard: "true"  # quote
@@ -122,15 +125,20 @@ spec:
         config:
           osdsPerDevice: "1"
       placement:
-        # Schedule Ceph mgr/mon on workers (nodes with NVMe storage)
-        mgr: &placement
+        # Schedule Ceph mgr on workers (needs storage access)
+        mgr:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
                 - matchExpressions:
                     - key: node-role.kubernetes.io/control-plane
                       operator: DoesNotExist
-        mon: *placement
+        # Mons can run anywhere - allows quorum during worker upgrades
+        mon:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
     cephBlockPools:
       # Default pool with 3x replication for general workloads
       - name: ceph-blockpool

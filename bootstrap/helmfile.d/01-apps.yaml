@@ -70,7 +70,7 @@ releases:
   - name: external-secrets
     namespace: external-secrets
     chart: oci://ghcr.io/external-secrets/charts/external-secrets
-    version: 2.0.0
+    version: 2.0.1
     values:
       - '../values.yaml.gotmpl'
     needs:

@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: collabora/code
-              tag: 25.04.8.3.1@sha256:fa876e9fc1fdeb9aabac545e9fced19360e3a0492879432d857c17be4e4ea025
+              tag: 25.04.9.2.1@sha256:cfbf62dbed7f3a2bebeb634235c606613813a1857f85111da3a97db316029bba
             resources:
               requests:
                 cpu: 150m

@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: ghcr.io/amruthpillai/reactive-resume
-              tag: v5.0.5@sha256:c92a23eb45ce6813260c5f24501e793ed04d2a9fade3ad0b2801dfc86b786c32
+              tag: v5.0.10@sha256:aa658a521d6630d2f3289acb8ffe7d60e40c2d34e0d34cc97f1f230bd99144e1
             env:
               TZ: "Europe/Warsaw"
               NODE_ENV: "production"

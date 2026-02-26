@@ -51,11 +51,13 @@ spec:
                     - FailedBarePods
                     - PodsWithLocalStorage
                     - SystemCriticalPods
-                  # Protect database pods using local storage
-                  storageClassProtection:
-                    enabled: true
-                    storageClasses:
-                      - local-hostpath
+                  # Protect database pods using local-hostpath storage
+                  extraEnabled:
+                    - PodsWithPVC
+                  config:
+                    PodsWithPVC:
+                      protectedStorageClasses:
+                        - name: local-hostpath
                 # Don't evict critical system pods
                 priorityThreshold:
                   value: 100000000

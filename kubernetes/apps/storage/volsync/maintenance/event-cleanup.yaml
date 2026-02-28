@@ -55,7 +55,7 @@ spec:
           automountServiceAccountToken: true
           containers:
             - name: cleanup
-              image: ghcr.io/fluxcd/flux-cli:v2.8.0
+              image: ghcr.io/fluxcd/flux-cli:v2.8.1
               command:
                 - /bin/sh
                 - -c

@@ -8,14 +8,10 @@ spec:
   components:
     - ../../../components/volsync
   dependsOn:
-    - name: volsync
-      namespace: storage
     - name: rook-ceph-cluster
       namespace: rook-ceph
     - name: authentik
       namespace: security
-    - name: external-secrets-store
-      namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/communication/continuwuity
   postBuild:

@@ -1,0 +1,115 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: continuwuity
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      continuwuity:
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/continuwuity/continuwuity
+              tag: v0.5.5
+            env:
+              # Server
+              CONTINUWUITY_SERVER_NAME: "vzkn.eu"
+              CONTINUWUITY_DATABASE_PATH: "/data/db"
+              CONTINUWUITY_ADDRESS: "[::]"
+              CONTINUWUITY_PORT: &port 8080
+              # Well-known
+              CONTINUWUITY_WELL_KNOWN__CLIENT: "https://matrix.vzkn.eu"
+              CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.vzkn.eu:443"
+              # Federation
+              CONTINUWUITY_ALLOW_FEDERATION: "true"
+              CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org"]'
+              # Registration disabled - LDAP only
+              CONTINUWUITY_ALLOW_REGISTRATION: "false"
+              CONTINUWUITY_ALLOW_GUEST_REGISTRATION: "false"
+              # LDAP (Authentik)
+              CONTINUWUITY_LDAP__ENABLE: "true"
+              CONTINUWUITY_LDAP__LDAP_ONLY: "true"
+              CONTINUWUITY_LDAP__URI: "ldap://ak-outpost-ldap-outpost.security.svc.cluster.local:389"
+              CONTINUWUITY_LDAP__BASE_DN: "ou=users,dc=ldap,dc=vzkn,dc=eu"
+              CONTINUWUITY_LDAP__BIND_DN: "cn=ldap-service,ou=users,dc=ldap,dc=vzkn,dc=eu"
+              CONTINUWUITY_LDAP__BIND_PASSWORD_FILE: "/secrets/ldap-password"
+              CONTINUWUITY_LDAP__FILTER: "(cn={username})"
+              CONTINUWUITY_LDAP__UID_ATTRIBUTE: "cn"
+              CONTINUWUITY_LDAP__NAME_ATTRIBUTE: "displayName"
+              # Security
+              CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_OVER_FEDERATION: "false"
+              CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_WITHOUT_AUTH: "false"
+              CONTINUWUITY_ALLOW_PROFILE_LOOKUP_OVER_FEDERATION: "true"
+              # Logging
+              CONTINUWUITY_LOG_LEVEL: "info"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_matrix/federation/v1/version
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /_matrix/federation/v1/version
+                    port: *port
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - path: /data
+      secrets:
+        type: secret
+        name: continuwuity-secret
+        globalMounts:
+          - path: /secrets
+            readOnly: true
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

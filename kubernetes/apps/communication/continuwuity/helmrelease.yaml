@@ -30,6 +30,8 @@ spec:
               # Well-known
               CONTINUWUITY_WELL_KNOWN__CLIENT: "https://matrix.vzkn.eu"
               CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.vzkn.eu:443"
+              CONTINUWUITY_WELL_KNOWN__SUPPORT_EMAIL: "admin@vzkn.eu"
+              CONTINUWUITY_WELL_KNOWN__SUPPORT_MXID: "@admin:vzkn.eu"
               # Federation
               CONTINUWUITY_ALLOW_FEDERATION: "true"
               CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org"]'
@@ -49,9 +51,6 @@ spec:
               # Security
               CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_OVER_FEDERATION: "false"
               CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_WITHOUT_AUTH: "false"
-              CONTINUWUITY_ALLOW_PROFILE_LOOKUP_OVER_FEDERATION: "true"
-              # Logging
-              CONTINUWUITY_LOG_LEVEL: "info"
             probes:
               liveness: &probes
                 enabled: true

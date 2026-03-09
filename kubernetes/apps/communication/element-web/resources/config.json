@@ -1,0 +1,86 @@
+{
+  "default_server_name": "vzkn.eu",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://matrix.vzkn.eu",
+      "server_name": "vzkn.eu"
+    }
+  },
+  "brand": "Element",
+  "permalink_prefix": "https://element.vzkn.eu",
+  "disable_custom_urls": true,
+  "disable_guests": true,
+  "disable_login_language_selector": false,
+  "disable_3pid_login": false,
+  "default_theme": "dark",
+  "default_country_code": "PL",
+  "room_directory": {
+    "servers": [
+      "vzkn.eu",
+      "matrix.org"
+    ]
+  },
+  "show_labs_settings": true,
+  "features": {
+    "feature_video_rooms": true,
+    "feature_group_calls": true,
+    "feature_element_call_video_rooms": true,
+    "feature_notifications": true,
+    "feature_pinning": true,
+    "feature_jump_to_date": true,
+    "feature_html_topic": true,
+    "feature_bridge_state": true,
+    "feature_mjolnir": true,
+    "feature_presence_in_room_list": true,
+    "feature_custom_themes": true,
+    "feature_dehydration": true,
+    "feature_extensible_events": true,
+    "feature_oidc_native_flow": true
+  },
+  "setting_defaults": {
+    "breadcrumbs": true,
+    "showHiddenEventsInTimeline": false,
+    "showJoinLeaves": false,
+    "showAvatarChanges": false,
+    "showDisplaynameChanges": false,
+    "showReadReceipts": true,
+    "showTypingNotifications": true,
+    "ctrlFForSearch": true,
+    "MessageComposerInput.autoReplaceEmoji": true,
+    "MessageComposerInput.suggestEmoji": true,
+    "sendTypingNotifications": true,
+    "showTwelveHourTimestamps": false,
+    "alwaysShowTimestamps": false,
+    "useCompactLayout": false,
+    "showRedactions": true,
+    "enableSyntaxHighlightLanguageDetection": true,
+    "expandCodeByDefault": false,
+    "scrollToBottomOnMessageSent": true,
+    "Pill.shouldShowPillAvatar": true,
+    "TextualBody.enableBigEmoji": true,
+    "VideoView.flipVideoHorizontally": false,
+    "TagPanel.enableTagPanel": true,
+    "theme": "dark",
+    "webRtcAllowPeerToPeer": true,
+    "webrtc_audiooutput": "default",
+    "webrtc_audioinput": "default",
+    "webrtc_videoinput": "default",
+    "RoomList.orderByImportance": true,
+    "urlPreviewsEnabled": true,
+    "urlPreviewsEnabled_e2ee": false,
+    "notificationsEnabled": true,
+    "notificationSound": true,
+    "notificationBodyEnabled": true,
+    "audioNotificationsEnabled": true,
+    "breadcrumb_rooms": [],
+    "FTUE.useCaseSelection": null,
+    "devtools": true
+  },
+  "enable_presence_by_hs_url": {
+    "https://matrix.vzkn.eu": true
+  },
+  "map_style_url": "https://api.maptiler.com/maps/streets/style.json?key=fU3vlMsMn4Jb6dnEIFsx",
+  "jitsi": {
+    "preferred_domain": "meet.element.io"
+  }
+}

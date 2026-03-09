@@ -8,3 +8,4 @@ components:
 resources:
   - ./namespace.yaml
   - ./continuwuity/ks.yaml
+  - ./element-web/ks.yaml

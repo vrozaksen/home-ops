@@ -56,7 +56,7 @@ spec:
               CONTINUWUITY_TURN_SECRET_FILE: "/secrets/turn-secret"
               CONTINUWUITY_TURN_TTL: "86400"
               # LiveKit (Matrix RTC)
-              CONTINUWUITY_MATRIX_RTC__FOCI: '[{"type":"livekit","livekit_service_url":"https://livekit.vzkn.eu"}]'
+              CONTINUWUITY_MATRIX_RTC__FOCI: '[{type = "livekit", livekit_service_url = "https://livekit.vzkn.eu"}]'
             probes:
               liveness: &probes
                 enabled: true

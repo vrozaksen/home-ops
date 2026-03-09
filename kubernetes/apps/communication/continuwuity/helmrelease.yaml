@@ -51,6 +51,10 @@ spec:
               # Security
               CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_OVER_FEDERATION: "false"
               CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_WITHOUT_AUTH: "false"
+              # TURN (coturn)
+              CONTINUWUITY_TURN_URIS: '["turn:turn.vzkn.eu:3478?transport=udp","turn:turn.vzkn.eu:3478?transport=tcp","turns:turn.vzkn.eu:5349?transport=tcp"]'
+              CONTINUWUITY_TURN_SECRET_FILE: "/secrets/turn-secret"
+              CONTINUWUITY_TURN_TTL: "86400"
             probes:
               liveness: &probes
                 enabled: true

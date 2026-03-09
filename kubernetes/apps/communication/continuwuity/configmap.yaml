@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: continuwuity-config
+data:
+  continuwuity.toml: |-
+    [global.matrix_rtc]
+    foci = [
+        { type = "livekit", livekit_service_url = "https://livekit.vzkn.eu" },
+    ]

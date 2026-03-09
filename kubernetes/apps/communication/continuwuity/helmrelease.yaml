@@ -55,8 +55,7 @@ spec:
               CONTINUWUITY_TURN_URIS: '["turn:turn.vzkn.eu:3478?transport=udp","turn:turn.vzkn.eu:3478?transport=tcp","turns:turn.vzkn.eu:5349?transport=tcp"]'
               CONTINUWUITY_TURN_SECRET_FILE: "/secrets/turn-secret"
               CONTINUWUITY_TURN_TTL: "86400"
-              # LiveKit (Matrix RTC)
-              CONTINUWUITY_MATRIX_RTC__FOCI: '[{type = "livekit", livekit_service_url = "https://livekit.vzkn.eu"}]'
+              # LiveKit (Matrix RTC) - configured via config file (env vars can't handle array of tables)
             probes:
               liveness: &probes
                 enabled: true
@@ -113,6 +112,12 @@ spec:
         name: continuwuity-secret
         globalMounts:
           - path: /secrets
+            readOnly: true
+      config:
+        type: configMap
+        name: continuwuity-config
+        globalMounts:
+          - path: /config
             readOnly: true
       tmpfs:
         type: emptyDir

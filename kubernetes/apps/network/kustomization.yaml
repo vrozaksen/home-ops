@@ -11,7 +11,6 @@ resources:
   - ./cloudflare-dns/ks.yaml
   - ./cloudflare-tunnel/secret/ks.yaml
   - ./cloudflare-tunnel/ks.yaml
-  - ./coturn/ks.yaml
   - ./echo/ks.yaml
   - ./envoy-gateway/ks.yaml
   - ./mikrotik-dns/ks.yaml

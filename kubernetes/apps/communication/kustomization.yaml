@@ -8,5 +8,6 @@ components:
 resources:
   - ./namespace.yaml
   - ./continuwuity/ks.yaml
+  - ./coturn/ks.yaml
   - ./element-web/ks.yaml
   - ./livekit/ks.yaml

@@ -9,11 +9,11 @@ spec:
     - name: certificates-import
       namespace: network
   interval: 1h
-  path: ./kubernetes/apps/network/coturn
+  path: ./kubernetes/apps/communication/coturn
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: network
+  targetNamespace: communication
   wait: false

@@ -9,3 +9,4 @@ resources:
   - ./namespace.yaml
   - ./continuwuity/ks.yaml
   - ./element-web/ks.yaml
+  - ./livekit/ks.yaml

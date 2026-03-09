@@ -1,0 +1,176 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: livekit
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      livekit:
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: livekit/livekit-server
+              tag: v1.8.3
+            args:
+              - --config
+              - /config/livekit.yaml
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 7880
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+      jwt-service:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/element-hq/lk-jwt-service
+              tag: latest
+            env:
+              LIVEKIT_URL: "wss://livekit.vzkn.eu"
+              LIVEKIT_FULL_ACCESS_HOMESERVERS: "vzkn.eu"
+            envFrom:
+              - secretRef:
+                  name: livekit-secret
+            probes:
+              liveness: &jwtprobes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &jwtport 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *jwtprobes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+    service:
+      livekit:
+        controller: livekit
+        ports:
+          http:
+            port: *port
+      livekit-rtc:
+        controller: livekit
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.54
+        ports:
+          rtc-tcp:
+            port: 7881
+            protocol: TCP
+          rtc-udp-1:
+            port: 50100
+            protocol: UDP
+          rtc-udp-2:
+            port: 50101
+            protocol: UDP
+          rtc-udp-3:
+            port: 50102
+            protocol: UDP
+          rtc-udp-4:
+            port: 50103
+            protocol: UDP
+          rtc-udp-5:
+            port: 50104
+            protocol: UDP
+          rtc-udp-6:
+            port: 50105
+            protocol: UDP
+          rtc-udp-7:
+            port: 50106
+            protocol: UDP
+          rtc-udp-8:
+            port: 50107
+            protocol: UDP
+          rtc-udp-9:
+            port: 50108
+            protocol: UDP
+          rtc-udp-10:
+            port: 50109
+            protocol: UDP
+      jwt-service:
+        controller: jwt-service
+        ports:
+          http:
+            port: *jwtport
+    route:
+      livekit:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: communication
+        hostnames:
+          - livekit.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - name: livekit-livekit
+                port: *port
+      jwt:
+        hostnames:
+          - livekit.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /sfu
+              - path:
+                  type: PathPrefix
+                  value: /get_token
+            backendRefs:
+              - name: livekit-jwt-service
+                port: *jwtport
+    persistence:
+      config:
+        type: secret
+        name: livekit-secret
+        advancedMounts:
+          livekit:
+            app:
+              - path: /config/livekit.yaml
+                subPath: livekit.yaml
+                readOnly: true

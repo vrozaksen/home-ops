@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: confluentinc/cp-kafka
-              tag: 7.6.9@sha256:652f4017a6389f22930eb27ad02ce730622ebe145efa442625d7f439f1bc111e
+              tag: 7.6.10@sha256:7cce3895882347426e3e215b79e803fffdf94b53ec4e430529028e70cfb5cbfc
             env:
               # KRaft mode (no Zookeeper)
               KAFKA_PROCESS_ROLES: "broker,controller"
@@ -121,7 +121,7 @@ spec:
           init:
             image:
               repository: confluentinc/cp-kafka
-              tag: 7.6.9@sha256:652f4017a6389f22930eb27ad02ce730622ebe145efa442625d7f439f1bc111e
+              tag: 7.6.10@sha256:7cce3895882347426e3e215b79e803fffdf94b53ec4e430529028e70cfb5cbfc
             command:
               - /bin/bash
               - -c

@@ -17,7 +17,7 @@ spec:
           app:
             image:
               repository: ghcr.io/strukturag/nextcloud-spreed-signaling
-              tag: 2.1.0@sha256:190f70b41db10dd6594db166e27f64c40cb31c5a98910ae1c99d4245977b199b
+              tag: 2.1.1@sha256:b306eae9d1e62c4b2eaf10a6683dfe1fe76b833bd0f68d1606861e33aff5bca1
             env:
               SIGNALING_LISTEN: 0.0.0.0:8080
             probes:

@@ -8,5 +8,6 @@ components:
 resources:
   - ./namespace.yaml
   - ./authentik/ks.yaml
+  - ./infisical-operator/ks.yaml
   # - ./tetragon/ks.yaml
   # - ./trivy-operator/ks.yaml

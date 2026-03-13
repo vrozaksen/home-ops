@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: infisical
+spec:
+  interval: 1h
+  url: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: infisical-secrets-operator
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: secrets-operator
+      version: v0.10.26
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: infisical
+  values:
+    controllerManager:
+      manager:
+        image:
+          repository: infisical/kubernetes-operator
+          tag: v0.10.26
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+    telemetry:
+      serviceMonitor:
+        enabled: true

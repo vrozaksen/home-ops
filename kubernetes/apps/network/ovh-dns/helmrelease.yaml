@@ -47,6 +47,7 @@ spec:
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
+      - --label-filter=!external-dns/exclude
     triggerLoopOnEvent: true
     policy: sync
     sources:

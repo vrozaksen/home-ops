@@ -50,6 +50,8 @@ spec:
             env:
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
                 value: "false"
+              - name: RUNNER_TOOL_CACHE
+                value: /tmp/runner-tool-cache
               - name: NODE
                 valueFrom:
                   fieldRef:

@@ -17,16 +17,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-  patches:
-    - target:
-        group: volsync.backube
-        version: v1alpha1
-        kind: ReplicationDestination
-        name: mumble-dst
-      patch: |
-        - op: add
-          path: /spec/kopia/sourceIdentity/sourceNamespace
-          value: self-hosted
   prune: true
   sourceRef:
     kind: GitRepository

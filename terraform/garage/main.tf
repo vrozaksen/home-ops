@@ -10,6 +10,13 @@ terraform {
       source  = "schwitzd/garage"
       version = "1.2.1"
     }
+
+    # Temporary — needed for state migration (removed blocks)
+    # Delete after first successful apply
+    bitwarden = {
+      source  = "maxlaverse/bitwarden"
+      version = ">= 0.11.0"
+    }
   }
 }
 

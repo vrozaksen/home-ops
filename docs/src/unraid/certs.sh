@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # Configuration
-BWS_ACCESS_TOKEN="MACHINE_TOKEN"
-TLS_CRT_SECRET_ID=""
-TLS_KEY_SECRET_ID=""
-CADDY_CERT_DIR="/mnt/zfs/appdata/caddy/data/certificates"
+INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=""
+INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=""
+INFISICAL_API_URL="https://eu.infisical.com/api"
+INFISICAL_PROJECT_ID="da94b011-9a7d-408b-92d9-55be47efe750"
+INFISICAL_SECRET_PATH="/kubernetes/network/certificates-import"
+CADDY_CERT_DIR="/mnt/blaze/appdata/caddy/data/certificates"
 CADDY_CONTAINER_NAME="caddy"
-CADDY_TEST_URL="https://" # Any valid local URL
+CADDY_TEST_URL="https://s3c.vzkn.eu"
 NOTIFY="/usr/local/emhttp/plugins/dynamix/scripts/notify"
 CURL_TIMEOUT=60
 
@@ -39,15 +41,27 @@ rollback() {
     exit 1
 }
 
-# Clean and extract secret value
-clean_secret() {
-    local secret="$1"
-    # Remove KEY= prefix
-    secret="${secret#*=}"
-    # Remove surrounding quotes if present
-    secret="${secret%\"}"
-    secret="${secret#\"}"
-    echo "$secret"
+# Fetch a secret from Infisical via API
+fetch_infisical_secret() {
+    local secret_name="$1"
+    # Get access token via universal auth
+    local token_response
+    token_response=$(curl --silent --request POST \
+        "${INFISICAL_API_URL}/v1/auth/universal-auth/login" \
+        --header "Content-Type: application/json" \
+        --data "{\"clientId\": \"${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}\", \"clientSecret\": \"${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}\"}")
+    local access_token
+    access_token=$(echo "$token_response" | jq -r '.accessToken')
+    if [[ -z "$access_token" || "$access_token" == "null" ]]; then
+        log_and_notify "Failed to authenticate with Infisical" notify "Update Failed" "Auth Error" "Infisical authentication failed" "alert"
+        exit 1
+    fi
+    # Fetch the secret
+    local secret_response
+    secret_response=$(curl --silent --request GET \
+        "${INFISICAL_API_URL}/v3/secrets/raw/${secret_name}?workspaceId=${INFISICAL_PROJECT_ID}&environment=prod&secretPath=${INFISICAL_SECRET_PATH}" \
+        --header "Authorization: Bearer ${access_token}")
+    echo "$secret_response" | jq -r '.secret.secretValue'
 }
 
 # Main execution
@@ -60,19 +74,17 @@ FINAL_CRT="${CADDY_CERT_DIR}/wildcard.crt"
 FINAL_KEY="${CADDY_CERT_DIR}/wildcard.key"
 
 # Fetch certificate
-log_and_notify "Retrieving certificate from Bitwarden..."
-CERT_ENV=$(docker run --rm bitwarden/bws secret get "$TLS_CRT_SECRET_ID" --access-token "$BWS_ACCESS_TOKEN" --output env)
-CLEAN_CERT=$(clean_secret "$CERT_ENV")
-if ! echo "$CLEAN_CERT" | base64 -d > "$TMP_CRT"; then
+log_and_notify "Retrieving certificate from Infisical..."
+TLS_CRT=$(fetch_infisical_secret "TLS_CRT")
+if [[ -z "$TLS_CRT" || "$TLS_CRT" == "null" ]] || ! echo "$TLS_CRT" | base64 -d > "$TMP_CRT"; then
     log_and_notify "Certificate retrieval failed" notify "Update Failed" "Certificate Error" "Failed to decode certificate" "alert"
     exit 1
 fi
 
 # Fetch private key
-log_and_notify "Retrieving private key from Bitwarden..."
-KEY_ENV=$(docker run --rm bitwarden/bws secret get "$TLS_KEY_SECRET_ID" --access-token "$BWS_ACCESS_TOKEN" --output env)
-CLEAN_KEY=$(clean_secret "$KEY_ENV")
-if ! echo "$CLEAN_KEY" | base64 -d > "$TMP_KEY"; then
+log_and_notify "Retrieving private key from Infisical..."
+TLS_KEY=$(fetch_infisical_secret "TLS_KEY")
+if [[ -z "$TLS_KEY" || "$TLS_KEY" == "null" ]] || ! echo "$TLS_KEY" | base64 -d > "$TMP_KEY"; then
     log_and_notify "Key retrieval failed" notify "Update Failed" "Key Error" "Failed to decode private key" "alert"
     rm -f "$TMP_CRT"
     exit 1

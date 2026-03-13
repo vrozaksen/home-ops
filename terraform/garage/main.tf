@@ -40,3 +40,9 @@ provider "garage" {
   host  = var.garage_url
   token = data.infisical_secrets.garage.secrets["GARAGE_ADMIN_TOKEN"].value
 }
+
+# Temporary — needed for state migration (removed blocks)
+# Delete after first successful apply
+provider "bitwarden" {
+  access_token = "dummy"
+}

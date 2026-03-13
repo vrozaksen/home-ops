@@ -32,7 +32,8 @@ variable "auth_groups" {
 }
 
 variable "client_id" {
-  type = string
+  type    = string
+  default = null
 }
 
 variable "client_secret" {
@@ -88,6 +89,7 @@ variable "redirect_uris" {
 }
 
 locals {
+  client_id = var.client_id
   client_secret = (
     var.client_type == "confidential" ? var.client_secret : null
   )

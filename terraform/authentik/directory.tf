@@ -66,13 +66,9 @@ resource "authentik_group" "household" {
 
 ## OAuth Sources
 
-data "bitwarden_secret" "github" {
-  key = "github"
-}
-
 locals {
-  github_client_id     = replace(regex("GITHUB_CLIENT_ID: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
-  github_client_secret = replace(regex("GITHUB_CLIENT_SECRET: (\\S+)", data.bitwarden_secret.github.value)[0], "\"", "")
+  github_client_id     = data.infisical_secrets.authentik.secrets["GITHUB_CLIENT_ID"].value
+  github_client_secret = data.infisical_secrets.authentik.secrets["GITHUB_CLIENT_SECRET"].value
 }
 
 resource "authentik_source_oauth" "github" {

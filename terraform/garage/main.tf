@@ -2,9 +2,8 @@ terraform {
   required_version = ">= 1.0"
 
   required_providers {
-    bitwarden = {
-      source  = "maxlaverse/bitwarden"
-      version = ">= 0.11.0"
+    infisical = {
+      source = "infisical/infisical"
     }
 
     garage = {
@@ -14,24 +13,23 @@ terraform {
   }
 }
 
-provider "bitwarden" {
-  access_token          = var.bw_access_token
-  client_implementation = "embedded"
+provider "infisical" {
+  host = "https://eu.infisical.com"
+  auth = {
+    universal = {
+      client_id     = var.infisical_client_id
+      client_secret = var.infisical_client_secret
+    }
+  }
 }
 
-data "bitwarden_secret" "bw_proj_id" {
-  key = "BW_PROJ_ID"
-}
-
-data "bitwarden_secret" "garage" {
-  key = "garage"
-}
-
-locals {
-  garage_admin_token = regex("GARAGE_ADMIN_TOKEN: (\\S+)", data.bitwarden_secret.garage.value)
+data "infisical_secrets" "garage" {
+  env_slug     = "prod"
+  workspace_id = "da94b011-9a7d-408b-92d9-55be47efe750"
+  folder_path  = "/terraform/garage"
 }
 
 provider "garage" {
   host  = var.garage_url
-  token = local.garage_admin_token[0]
+  token = data.infisical_secrets.garage.secrets["GARAGE_ADMIN_TOKEN"].value
 }

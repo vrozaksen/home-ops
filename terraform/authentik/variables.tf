@@ -1,6 +1,12 @@
-variable "bw_access_token" {
+variable "infisical_client_id" {
   type        = string
-  description = "Bitwarden Secret Manager Access token"
+  description = "Infisical Machine Identity Client ID"
+  sensitive   = true
+}
+
+variable "infisical_client_secret" {
+  type        = string
+  description = "Infisical Machine Identity Client Secret"
   sensitive   = true
 }
 

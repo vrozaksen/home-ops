@@ -22,7 +22,7 @@ data "authentik_property_mapping_provider_scope" "scopes" {
 
 resource "authentik_provider_oauth2" "this" {
   name                       = var.name
-  client_id                  = var.client_id
+  client_id                  = local.client_id
   client_secret              = local.client_secret
   authorization_flow         = var.authorization_flow
   invalidation_flow          = var.invalidation_flow

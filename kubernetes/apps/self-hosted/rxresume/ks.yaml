@@ -22,10 +22,11 @@ spec:
   postBuild:
     substitute:
       APP: rxresume
+      NS: &ns self-hosted
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: *ns
   wait: false

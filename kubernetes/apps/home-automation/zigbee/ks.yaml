@@ -22,10 +22,11 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns home-automation
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-automation
+  targetNamespace: *ns
   wait: false

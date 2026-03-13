@@ -20,10 +20,11 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns downloads
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: downloads
+  targetNamespace: *ns
   wait: false

@@ -15,6 +15,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns sentry
       VOLSYNC_CAPACITY: 20Gi
       VOLSYNC_PUID: "1000"
       VOLSYNC_PGID: "100"
@@ -23,6 +24,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: sentry
+  targetNamespace: *ns
   timeout: 5m
   wait: false

@@ -34,6 +34,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns sentry
       CNPG_SIZE: 10Gi
       CNPG_POOLER_MODE: transaction
   prune: true
@@ -41,6 +42,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: sentry
+  targetNamespace: *ns
   timeout: 10m
   wait: false

@@ -19,6 +19,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns database
       VOLSYNC_UID: "5050"
       VOLSYNC_GID: "5050"
       VOLSYNC_CAPACITY: 1Gi
@@ -27,5 +28,5 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: database
+  targetNamespace: *ns
   wait: false

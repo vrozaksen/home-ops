@@ -19,11 +19,12 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns home-automation
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: home-automation
+  targetNamespace: *ns
   wait: false

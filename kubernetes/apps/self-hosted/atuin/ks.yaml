@@ -15,11 +15,12 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns self-hosted
       VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: self-hosted
+  targetNamespace: *ns
   wait: false

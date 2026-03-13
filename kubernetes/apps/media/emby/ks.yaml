@@ -21,11 +21,12 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns media
       VOLSYNC_CAPACITY: 10Gi
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
+  targetNamespace: *ns
   wait: false

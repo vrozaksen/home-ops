@@ -17,6 +17,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns education
       VOLSYNC_CAPACITY: 5Gi
       VOLSYNC_PUID: "1000"
       VOLSYNC_PGID: "1000"
@@ -25,5 +26,5 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: education
+  targetNamespace: *ns
   wait: false

@@ -30,6 +30,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns media
       CNPG_SIZE: 5Gi
       VOLSYNC_CAPACITY: 5Gi
   prune: true
@@ -37,5 +38,5 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: media
+  targetNamespace: *ns
   wait: false

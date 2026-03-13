@@ -17,10 +17,11 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: &ns communication
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: communication
+  targetNamespace: *ns
   wait: false

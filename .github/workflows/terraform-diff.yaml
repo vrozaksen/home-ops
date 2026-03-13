@@ -71,6 +71,8 @@ jobs:
 
       - name: Install Opentofu
         uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f  # v1.0.8
+        env:
+          RUNNER_TOOL_CACHE: /tmp/runner-tool-cache
         with:
           tofu_wrapper: false
 

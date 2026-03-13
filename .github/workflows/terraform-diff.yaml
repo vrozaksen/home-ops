@@ -56,14 +56,6 @@ jobs:
       max-parallel: 4
       fail-fast: false
     steps:
-      - name: Get Secrets
-        uses: bitwarden/sm-action@f1de238fc00c738c56140796018be9084c2b5d21  # v2
-        with:
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
-          secrets: |
-            300c8e44-bef6-4820-bacf-b38e014bdf44 > GARAGE
-            fef6b3b2-2e2b-498a-9882-b265016e9e1c > BW_PROJ_ID
-
       - name: Generate Token
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf  # v2
         id: app-token
@@ -88,30 +80,13 @@ jobs:
         run: tofu fmt -check
         continue-on-error: true
 
-      - name: Extract Garage Secrets
-        run: |
-          # Extract backend credentials
-          ACCESS_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_KEY_ID:' | cut -d' ' -f2)
-          SECRET_KEY=$(echo "$GARAGE" | grep 'TERRAFORM_STATE_SECRET_KEY:' | cut -d' ' -f2)
-
-          # Mask sensitive values before using them
-          echo "::add-mask::$ACCESS_KEY"
-          echo "::add-mask::$SECRET_KEY"
-
-          # Export as AWS env vars for Terraform backend
-          echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_ENV
-
       - name: Tofu Init
         id: init
         working-directory: ${{ matrix.paths }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
         run: |
           tofu init \
-            -backend-config="access_key=$AWS_ACCESS_KEY_ID" \
-            -backend-config="secret_key=$AWS_SECRET_ACCESS_KEY"
+            -backend-config="access_key=${{ secrets.TERRAFORM_STATE_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.TERRAFORM_STATE_SECRET_KEY }}"
 
       - name: Tofu Validate
         id: validate
@@ -120,7 +95,7 @@ jobs:
 
       - name: Tofu Plan
         working-directory: ${{ matrix.paths }}
-        run: tofu plan -lock=false -var "bw_access_token=${{ secrets.BW_ACCESS_TOKEN }}" -out .planfile | grep -v "Refreshing state...\|Reading...\|Read complete after"
+        run: tofu plan -lock=false -var "infisical_client_id=${{ secrets.INFISICAL_CLIENT_ID }}" -var "infisical_client_secret=${{ secrets.INFISICAL_CLIENT_SECRET }}" -out .planfile | grep -v "Refreshing state...\|Reading...\|Read complete after"
 
       - name: Post PR comment
         continue-on-error: true

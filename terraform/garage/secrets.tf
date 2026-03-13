@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────────────────
 # State migration — drop old bitwarden resources (provider removed)
-# Safe to delete these blocks after first successful apply
+# Safe to delete these removed blocks after first successful apply
 # ─────────────────────────────────────────────────────────────────────────────────
 
 removed {

@@ -9,7 +9,6 @@ resources:
   - ./namespace.yaml
   - ./atuin/ks.yaml
   - ./it-tools/ks.yaml
-  - ./mumble/ks.yaml
   - ./nextcloud/ks.yaml
   - ./rxresume/ks.yaml
   # - ./screego/ks.yaml

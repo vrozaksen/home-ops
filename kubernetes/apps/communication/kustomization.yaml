@@ -11,4 +11,4 @@ resources:
   - ./coturn/ks.yaml
   - ./element-web/ks.yaml
   - ./livekit/ks.yaml
-  # - ./mumble/ks.yaml
+  - ./mumble/ks.yaml

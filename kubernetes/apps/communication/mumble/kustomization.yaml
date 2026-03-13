@@ -6,3 +6,5 @@ resources:
   - ./dnsendpoint.yaml
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+patches:
+  - path: ./replicationdestination-patch.yaml

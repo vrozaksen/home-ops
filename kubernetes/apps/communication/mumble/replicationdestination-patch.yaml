@@ -1,0 +1,10 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: mumble-dst
+spec:
+  kopia:
+    sourceIdentity:
+      sourceName: mumble
+      sourceNamespace: self-hosted

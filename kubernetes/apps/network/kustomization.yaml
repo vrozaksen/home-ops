@@ -14,3 +14,4 @@ resources:
   - ./echo/ks.yaml
   - ./envoy-gateway/ks.yaml
   - ./mikrotik-dns/ks.yaml
+  - ./ovh-dns/ks.yaml

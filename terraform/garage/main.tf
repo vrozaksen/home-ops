@@ -10,13 +10,6 @@ terraform {
       source  = "schwitzd/garage"
       version = "1.2.1"
     }
-
-    # Temporary — needed for state migration (removed blocks)
-    # Delete after first successful apply
-    bitwarden = {
-      source  = "maxlaverse/bitwarden"
-      version = ">= 0.11.0"
-    }
   }
 }
 
@@ -39,10 +32,4 @@ data "infisical_secrets" "garage" {
 provider "garage" {
   host  = var.garage_url
   token = data.infisical_secrets.garage.secrets["GARAGE_ADMIN_TOKEN"].value
-}
-
-# Temporary — needed for state migration (removed blocks)
-# Delete after first successful apply
-provider "bitwarden" {
-  access_token = "dummy"
 }

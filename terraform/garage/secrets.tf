@@ -1,24 +1,3 @@
-# ─────────────────────────────────────────────────────────────────────────────────
-# State migration — drop old bitwarden resources (provider removed)
-# Safe to delete these removed blocks after first successful apply
-# ─────────────────────────────────────────────────────────────────────────────────
-
-removed {
-  from = module.secrets
-  lifecycle {
-    destroy = false
-  }
-}
-
-removed {
-  from = bitwarden_secret.admin_user
-  lifecycle {
-    destroy = false
-  }
-}
-
-# ─────────────────────────────────────────────────────────────────────────────────
-
 resource "infisical_secret" "bucket_access_key_id" {
   for_each     = toset(local.buckets)
   name         = "${upper(replace(each.key, "-", "_"))}_ACCESS_KEY_ID"

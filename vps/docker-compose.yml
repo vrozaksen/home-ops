@@ -98,7 +98,7 @@ services:
         reservations:
           memory: 128m
     environment:
-      COLLECTIONS: crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
+      COLLECTIONS: crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/linux
       ENROLL_INSTANCE_NAME: bifrost-crowdsec
       ENROLL_KEY: ${CROWDSEC_ENROLL_KEY:-}
       ENROLL_TAGS: docker

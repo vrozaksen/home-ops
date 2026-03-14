@@ -192,7 +192,7 @@ configs:
             version: "v1.3.1"
           crowdsec:
             moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-            version: v1.4.4
+            version: v1.4.6
 
       log:
         level: "INFO"

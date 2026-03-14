@@ -11,12 +11,6 @@ spec:
   dependsOn:
     - name: authentik
       namespace: security
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
-    - name: external-secrets-store
-      namespace: external-secrets
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

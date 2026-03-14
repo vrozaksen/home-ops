@@ -9,6 +9,8 @@ spec:
     - ../../../components/dragonfly
     - ../../../components/cnpg/restore
   dependsOn:
+    - name: infisical-operator
+      namespace: security
     - name: cloudnative-pg
       namespace: database
     - name: plugin-barman-cloud

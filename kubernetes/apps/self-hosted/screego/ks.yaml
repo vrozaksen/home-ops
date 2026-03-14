@@ -10,8 +10,6 @@ spec:
   dependsOn:
     - name: authentik
       namespace: security
-    - name: external-secrets-store
-      namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/self-hosted/screego
   postBuild:

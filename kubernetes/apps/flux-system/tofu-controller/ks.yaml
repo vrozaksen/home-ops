@@ -3,8 +3,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app tofu-controller
+  name: tofu-controller
 spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
   interval: 1h
   path: ./kubernetes/apps/flux-system/tofu-controller/controller
   prune: true
@@ -19,7 +22,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app tofu-controller-terraforms
+  name: tofu-controller-terraforms
 spec:
   dependsOn:
     - name: tofu-controller

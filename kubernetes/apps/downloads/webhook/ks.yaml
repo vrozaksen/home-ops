@@ -5,6 +5,9 @@ kind: Kustomization
 metadata:
   name: webhook
 spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
   interval: 1h
   path: ./kubernetes/apps/downloads/webhook
   prune: true

@@ -8,18 +8,16 @@ spec:
   components:
     - ../../../components/cnpg/restore
   dependsOn:
-    - name: priority-classes
-      namespace: flux-system
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
+    - name: clickhouse
+      namespace: sentry
     - name: dragonfly-operator
       namespace: database
     - name: kafka
       namespace: sentry
-    - name: clickhouse
-      namespace: sentry
+    - name: cloudnative-pg
+      namespace: database
+    - name: plugin-barman-cloud
+      namespace: database
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

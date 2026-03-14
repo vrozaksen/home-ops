@@ -8,8 +8,6 @@ spec:
   dependsOn:
     - name: continuwuity
       namespace: communication
-    - name: external-secrets-store
-      namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/communication/element-web
   postBuild:

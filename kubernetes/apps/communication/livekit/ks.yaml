@@ -8,10 +8,10 @@ spec:
   components:
     - ../../../components/dragonfly
   dependsOn:
-    - name: dragonfly-operator
-      namespace: database
     - name: continuwuity
       namespace: communication
+    - name: dragonfly-operator
+      namespace: database
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly

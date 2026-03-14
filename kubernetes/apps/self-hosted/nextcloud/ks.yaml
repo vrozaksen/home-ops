@@ -19,8 +19,6 @@ spec:
       namespace: database
     - name: rook-ceph-cluster
       namespace: rook-ceph
-    - name: volsync
-      namespace: storage
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

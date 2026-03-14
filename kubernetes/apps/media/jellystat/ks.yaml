@@ -14,14 +14,6 @@ spec:
       namespace: security
     - name: emby
       namespace: media
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
-    - name: external-secrets-store
-      namespace: external-secrets
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

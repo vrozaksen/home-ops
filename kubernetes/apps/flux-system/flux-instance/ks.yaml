@@ -6,8 +6,6 @@ metadata:
   name: flux-instance
 spec:
   dependsOn:
-    - name: external-secrets-store
-      namespace: external-secrets
     - name: flux-operator
       namespace: flux-system
   interval: 1h

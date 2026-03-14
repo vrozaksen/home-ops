@@ -6,8 +6,8 @@ metadata:
   name: coturn
 spec:
   dependsOn:
-    - name: external-secrets-store
-      namespace: external-secrets
+    - name: infisical-operator
+      namespace: security
   interval: 1h
   path: ./kubernetes/apps/communication/coturn
   prune: true

@@ -12,10 +12,6 @@ spec:
       namespace: downloads
     - name: sonarr
       namespace: downloads
-    - name: external-secrets-store
-      namespace: external-secrets
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/apps/downloads/recyclarr
   postBuild:

@@ -10,16 +10,10 @@ spec:
     - ../../../components/nfs-scaler
     - ../../../components/volsync
   dependsOn:
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
     - name: radarr
       namespace: downloads
     - name: sonarr
       namespace: downloads
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

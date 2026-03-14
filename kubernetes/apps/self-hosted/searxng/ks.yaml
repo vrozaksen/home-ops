@@ -11,10 +11,6 @@ spec:
   dependsOn:
     - name: authentik
       namespace: security
-    - name: dragonfly-operator
-      namespace: database
-    - name: external-secrets-store
-      namespace: external-secrets
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly

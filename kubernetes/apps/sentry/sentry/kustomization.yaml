@@ -5,7 +5,6 @@ kind: Kustomization
 resources:
   - ./backendpolicy.yaml
   - ./dragonfly.yaml
-  # - ./externalsecret.yaml
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
   # HTTPRoute now managed by Sentry chart (v28.1.0+)

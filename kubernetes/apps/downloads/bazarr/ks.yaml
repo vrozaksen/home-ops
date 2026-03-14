@@ -13,10 +13,6 @@ spec:
   dependsOn:
     - name: authentik
       namespace: security
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
     - name: keda
       namespace: observability
     - name: rook-ceph-cluster

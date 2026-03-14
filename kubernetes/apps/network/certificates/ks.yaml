@@ -5,6 +5,9 @@ kind: Kustomization
 metadata:
   name: certificates-import
 spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
   interval: 1h
   path: ./kubernetes/apps/network/certificates/import
   prune: true

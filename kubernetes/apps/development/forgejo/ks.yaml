@@ -10,14 +10,16 @@ spec:
     - ../../../../components/dragonfly
     - ../../../../components/volsync
   dependsOn:
-    - name: priority-classes
-      namespace: flux-system
     - name: cloudnative-pg
       namespace: database
     - name: plugin-barman-cloud
       namespace: database
     - name: dragonfly-operator
       namespace: database
+    - name: infisical-operator
+      namespace: security
+    - name: priority-classes
+      namespace: flux-system
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

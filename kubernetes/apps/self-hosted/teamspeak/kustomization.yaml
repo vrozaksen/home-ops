@@ -5,6 +5,5 @@ kind: Kustomization
 namespace: self-hosted
 resources:
   - ./dnsendpoint.yaml
-  # - ./externalsecret.yaml
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml

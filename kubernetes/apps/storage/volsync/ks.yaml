@@ -6,6 +6,8 @@ metadata:
   name: &app volsync
 spec:
   dependsOn:
+    - name: infisical-operator
+      namespace: security
     - name: openebs
       namespace: storage
     - name: snapshot-controller

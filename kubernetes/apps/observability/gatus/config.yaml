@@ -33,6 +33,14 @@ endpoints:
     conditions:
       - "[CERTIFICATE_EXPIRATION] > 240h"
 
+  - name: Pangolin
+    group: external
+    url: "https://pangolin.vzkn.eu"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 240h"
+
   - name: trivy-critical-vulnerabilities
     group: security
     url: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/query?query=sum(trivy_image_vulnerabilities{severity='Critical'})"

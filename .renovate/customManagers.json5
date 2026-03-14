@@ -29,5 +29,16 @@
       ],
       datasourceTemplate: "docker",
     },
+    {
+      customType: "regex",
+      description: "Process Traefik plugin versions in Docker Compose",
+      managerFilePatterns: [
+        "/docker-compose\\.ya?ml$/",
+      ],
+      matchStrings: [
+        "moduleName:\\s*\"?github\\.com/(?<depName>[^\"\\s]+)\"?\\s*\\n\\s*version:\\s*\"?(?<currentValue>[^\"\\s]+)\"?",
+      ],
+      datasourceTemplate: "github-releases",
+    },
   ],
 }

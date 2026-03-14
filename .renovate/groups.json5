@@ -48,6 +48,16 @@
       "minimumGroupSize": 2
     },
     {
+      "description": ["Pangolin Stack Group"],
+      "groupName": "pangolin",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/fosrl/pangolin/", "/fosrl/gerbil/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Talos Group"],
       "groupName": "talos",
       "matchDatasources": ["docker"],

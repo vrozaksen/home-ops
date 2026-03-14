@@ -25,6 +25,12 @@ spec:
     name: newt
   values:
     defaultPodOptions:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -51,8 +57,8 @@ spec:
         containers:
           app:
             image:
-              repository: fosrl/newt
-              tag: 1.10.2
+              repository: ghcr.io/fosrl/newt
+              tag: 1.10.2@sha256:c7b4f508cba35d698a3e4b2d55e3d902ae993d6588198291ef8e232d30421974
             env:
               PANGOLIN_ENDPOINT:
                 valueFrom:

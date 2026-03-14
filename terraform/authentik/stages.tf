@@ -1,12 +1,12 @@
 ## Captcha stage (Cloudflare Turnstile)
-resource "authentik_stage_captcha" "turnstile" {
-  name        = "captcha-turnstile"
-  public_key  = local.turnstile_site_key
-  private_key = local.turnstile_secret_key
-  js_url      = "https://challenges.cloudflare.com/turnstile/v0/api.js"
-  api_url     = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-  interactive = true
-}
+# resource "authentik_stage_captcha" "turnstile" {
+#   name        = "captcha-turnstile"
+#   public_key  = local.turnstile_site_key
+#   private_key = local.turnstile_secret_key
+#   js_url      = "https://challenges.cloudflare.com/turnstile/v0/api.js"
+#   api_url     = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+#   interactive = true
+# }
 
 ## Auth setup stages
 

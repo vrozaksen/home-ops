@@ -35,8 +35,8 @@ data "infisical_secrets" "authentik" {
 
 locals {
   authentik_token       = data.infisical_secrets.authentik.secrets["AUTHENTIK_TOKEN"].value
-  turnstile_site_key    = data.infisical_secrets.authentik.secrets["TURNSTILE_SITE_KEY"].value
-  turnstile_secret_key  = data.infisical_secrets.authentik.secrets["TURNSTILE_SECRET_KEY"].value
+  # turnstile_site_key    = data.infisical_secrets.authentik.secrets["TURNSTILE_SITE_KEY"].value
+  # turnstile_secret_key  = data.infisical_secrets.authentik.secrets["TURNSTILE_SECRET_KEY"].value
   pushover_user_key     = data.infisical_secrets.authentik.secrets["PUSHOVER_USER_KEY"].value
   pushover_api_token    = data.infisical_secrets.authentik.secrets["PUSHOVER_API_TOKEN"].value
   ldap_service_password = data.infisical_secrets.authentik.secrets["LDAP_SERVICE_PASSWORD"].value

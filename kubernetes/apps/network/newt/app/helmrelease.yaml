@@ -49,7 +49,7 @@ spec:
               - --gateway-name=envoy-external
               - --site-id=spiteful-screaming-hairy-armadillo
               - --target-hostname=envoy-external.network.svc.cluster.local
-              - --deny-countries=RU,CN,KP,IR,BY
+              - --deny-countries=RU,CN,KP,IR,BY,KZ,UZ,TM,TJ,KG,AM,AZ,SY,IQ,SA,KW,BH,QA,AE,OM,YE,AF,PK,BD,MM,MN
             restartPolicy: Always
             resources:
               limits:

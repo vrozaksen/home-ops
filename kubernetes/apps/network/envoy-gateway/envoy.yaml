@@ -62,7 +62,7 @@ metadata:
     external-dns.alpha.kubernetes.io/target: &hostname external.vzkn.eu
     gatus.home-operations.com/endpoint: |-
       client:
-        dns-resolver: tcp://1.1.1.1:53
+        dns-resolver: tcp://9.9.9.9:53
       group: external
 spec:
   gatewayClassName: envoy

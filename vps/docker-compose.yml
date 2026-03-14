@@ -12,7 +12,7 @@ services:
         reservations:
           memory: 256m
     volumes:
-      - ./config:/app/config
+      - /opt/pangolin/config:/app/config
     configs:
       - source: pangolin_config
         target: /app/config/config.yml
@@ -44,7 +44,7 @@ services:
       - --generateAndSaveKeyTo=/var/config/key
       - --remoteConfig=http://pangolin:3001/api/v1/
     volumes:
-      - ./config/:/var/config
+      - /opt/pangolin/config:/var/config
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -79,8 +79,8 @@ services:
     command:
       - --configFile=/etc/traefik/traefik_config.yml
     volumes:
-      - ./config/letsencrypt:/letsencrypt
-      - ./config/traefik/logs:/var/log/traefik
+      - /opt/pangolin/config/letsencrypt:/letsencrypt
+      - /opt/pangolin/config/traefik/logs:/var/log/traefik
     configs:
       - source: traefik_config
         target: /etc/traefik/traefik_config.yml
@@ -119,7 +119,7 @@ services:
     volumes:
       - /opt/crowdsec/config:/etc/crowdsec
       - /opt/crowdsec/data:/var/lib/crowdsec/data
-      - ./config/traefik/logs:/var/log/traefik
+      - /opt/pangolin/config/traefik/logs:/var/log/traefik
     configs:
       - source: crowdsec_acquis
         target: /etc/crowdsec/acquis.yaml
@@ -134,7 +134,7 @@ services:
       - GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-ASN
       - GEOIPUPDATE_FREQUENCY=72
     volumes:
-      - ./config/GeoLite2:/usr/share/GeoIP
+      - /opt/pangolin/config/GeoLite2:/usr/share/GeoIP
 
 networks:
   default:

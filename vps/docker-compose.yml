@@ -163,6 +163,7 @@ configs:
               base_domain: "vzkn.eu"
               cert_resolver: "letsencrypt"
       server:
+          integration_port: 3003
           secret: "${PANGOLIN_SECRET}"
           cors:
               origins: ["https://pangolin.vzkn.eu"]

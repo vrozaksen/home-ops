@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/externaldns.k8s.io/dnsendpoint_v1alpha1.json
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: pangolin
+spec:
+  endpoints:
+    - dnsName: pangolin.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
+    - dnsName: external.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}

@@ -11,10 +11,21 @@ spec:
       name: *name
     solvers:
       - dns01:
-          cloudflare:
-            apiTokenSecretRef:
-              name: cloudflare-secret
-              key: CLOUDFLARE_DNS_TOKEN
+          webhook:
+            groupName: acme.vzkn.eu
+            solverName: ovh
+            config:
+              endpoint: ovh-eu
+              authenticationMethod: application
+              applicationKeyRef:
+                key: applicationKey
+                name: ovh-issuer-secret
+              applicationSecretRef:
+                key: applicationSecret
+                name: ovh-issuer-secret
+              applicationConsumerKeyRef:
+                key: consumerKey
+                name: ovh-issuer-secret
         selector:
           dnsZones:
             - "vzkn.eu"

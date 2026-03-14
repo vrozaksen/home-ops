@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: newt
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 4.6.2
+  url: oci://ghcr.io/bjw-s-labs/helm/app-template
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: newt
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: newt
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+    controllers:
+      newt:
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          newt-sidecar:
+            image:
+              repository: ghcr.io/home-operations/newt-sidecar
+              tag: 0.0.2
+            args:
+              - --gateway-name=envoy-external
+              - --site-id=spiteful-screaming-hairy-armadillo
+              - --target-hostname=envoy-external.network.svc.cluster.local
+              - --deny-countries=RU,CN,KP,IR,BY
+            restartPolicy: Always
+            resources:
+              limits:
+                memory: 64Mi
+        containers:
+          app:
+            image:
+              repository: fosrl/newt
+              tag: 1.10.2
+            env:
+              PANGOLIN_ENDPOINT:
+                valueFrom:
+                  secretKeyRef:
+                    name: newt-secret
+                    key: NEWT_SERVER_URL
+              NEWT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: newt-secret
+                    key: NEWT_ID
+              NEWT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: newt-secret
+                    key: NEWT_SECRET
+              BLUEPRINT_FILE: /etc/newt/blueprint.yaml
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+    rbac:
+      roles:
+        newt:
+          type: ClusterRole
+          rules:
+            - apiGroups:
+                - gateway.networking.k8s.io
+              resources:
+                - httproutes
+              verbs:
+                - get
+                - watch
+                - list
+      bindings:
+        newt:
+          type: ClusterRoleBinding
+          roleRef:
+            identifier: newt
+          subjects:
+            - identifier: newt
+    serviceAccount:
+      newt: {}
+    persistence:
+      blueprint:
+        type: emptyDir
+        globalMounts:
+          - path: /etc/newt

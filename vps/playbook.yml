@@ -1,0 +1,609 @@
+---
+- name: Bootstrap bifrost VPS — hardening + Pangolin
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    ansible_user: debian
+    ansible_ssh_private_key_file: ~/.ssh/bifrost
+    infisical_project: "da94b011-9a7d-408b-92d9-55be47efe750"
+    infisical_env: "prod"
+    infisical_path: "/vps"
+    doco_cd_repo: "https://github.com/vrozaksen/home-ops.git"
+    pangolin_hostname: "pangolin.vzkn.eu"
+    pangolin_org_id: "vzkn"
+    pangolin_org_name: "Vzkn.eu"
+    pangolin_site_name: "bifrost"
+    pangolin_org_subnet: "100.89.0.0/16"
+    pangolin_org_utility_subnet: "100.90.0.0/24"
+
+  tasks:
+    # ==========================================
+    # GATHER INFO
+    # ==========================================
+    - name: Ping
+      ansible.builtin.ping:
+
+    - name: Get VPS public IP
+      ansible.builtin.set_fact:
+        vps_ip: "{{ ansible_default_ipv4.address }}"
+
+    # ==========================================
+    # READ SECRETS FROM INFISICAL
+    # ==========================================
+    - name: infisical | Read all secrets from /vps
+      ansible.builtin.shell: >
+        infisical secrets get {{ item }}
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ infisical_path }}
+        --plain 2>/dev/null || echo ""
+      delegate_to: localhost
+      become: false
+      loop:
+        - PANGOLIN_SECRET
+        - OVH_APPLICATION_KEY
+        - OVH_APPLICATION_SECRET
+        - OVH_CONSUMER_KEY
+        - ADMIN_EMAIL
+        - ADMIN_PASSWORD
+        - GITHUB_TOKEN
+        - MAXMIND_USER_ID
+        - MAXMIND_LICENSE_KEY
+        - CROWDSEC_ENROLL_KEY
+      register: infisical_raw
+      no_log: true
+
+    - name: infisical | Set secret facts
+      ansible.builtin.set_fact:
+        pangolin_secret: "{{ infisical_raw.results[0].stdout }}"
+        ovh_application_key: "{{ infisical_raw.results[1].stdout }}"
+        ovh_application_secret: "{{ infisical_raw.results[2].stdout }}"
+        ovh_consumer_key: "{{ infisical_raw.results[3].stdout }}"
+        admin_email: "{{ infisical_raw.results[4].stdout }}"
+        admin_password: "{{ infisical_raw.results[5].stdout }}"
+        github_token: "{{ infisical_raw.results[6].stdout }}"
+        maxmind_user_id: "{{ infisical_raw.results[7].stdout | default('', true) }}"
+        maxmind_license_key: "{{ infisical_raw.results[8].stdout | default('', true) }}"
+        crowdsec_enroll_key: "{{ infisical_raw.results[9].stdout | default('', true) }}"
+      no_log: true
+
+    - name: infisical | Validate required secrets are not empty
+      ansible.builtin.fail:
+        msg: "Required secret '{{ item.name }}' is empty! Set it in Infisical {{ infisical_path }}"
+      when: item.value == ""
+      loop:
+        - { name: PANGOLIN_SECRET, value: "{{ pangolin_secret }}" }
+        - { name: OVH_APPLICATION_KEY, value: "{{ ovh_application_key }}" }
+        - { name: OVH_APPLICATION_SECRET, value: "{{ ovh_application_secret }}" }
+        - { name: OVH_CONSUMER_KEY, value: "{{ ovh_consumer_key }}" }
+        - { name: ADMIN_EMAIL, value: "{{ admin_email }}" }
+        - { name: ADMIN_PASSWORD, value: "{{ admin_password }}" }
+        - { name: GITHUB_TOKEN, value: "{{ github_token }}" }
+      no_log: true
+
+    # ==========================================
+    # SSH HARDENING
+    # ==========================================
+    - name: ssh | Harden sshd_config
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/99-hardening.conf
+        content: |
+          PermitRootLogin no
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+          MaxAuthTries 3
+          LoginGraceTime 20
+          X11Forwarding no
+          AllowTcpForwarding no
+          AllowAgentForwarding no
+          ClientAliveInterval 300
+          ClientAliveCountMax 2
+          AllowUsers debian
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart ssh
+
+    # ==========================================
+    # SYSCTL HARDENING
+    # ==========================================
+    - name: sysctl | Security hardening + IP forwarding
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-hardening.conf
+        content: |
+          # IP forwarding (required by WireGuard/Gerbil)
+          net.ipv4.ip_forward = 1
+          net.ipv6.conf.all.forwarding = 1
+          # SYN flood protection
+          net.ipv4.tcp_syncookies = 1
+          net.ipv4.tcp_max_syn_backlog = 2048
+          net.ipv4.tcp_synack_retries = 2
+          # Ignore ICMP redirects
+          net.ipv4.conf.all.accept_redirects = 0
+          net.ipv6.conf.all.accept_redirects = 0
+          net.ipv4.conf.all.send_redirects = 0
+          # Ignore source routing
+          net.ipv4.conf.all.accept_source_route = 0
+          net.ipv6.conf.all.accept_source_route = 0
+          # Log martian packets
+          net.ipv4.conf.all.log_martians = 1
+          # Disable ICMP broadcast
+          net.ipv4.icmp_echo_ignore_broadcasts = 1
+          # TCP hardening
+          net.ipv4.tcp_rfc1337 = 1
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Apply sysctl
+
+    # ==========================================
+    # FIREWALL (UFW)
+    # ==========================================
+    - name: firewall | Install ufw
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+        update_cache: true
+
+    - name: firewall | Allow ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.protocol | default('tcp') }}"
+        comment: "{{ item.name }}"
+      loop:
+        - { name: SSH, port: "22" }
+        - { name: HTTP, port: "80" }
+        - { name: HTTPS, port: "443" }
+        - { name: WireGuard, port: "51820", protocol: udp }
+        - { name: Gerbil, port: "21820", protocol: udp }
+
+    - name: firewall | Enable UFW (deny by default)
+      community.general.ufw:
+        state: enabled
+        policy: deny
+
+    # ==========================================
+    # FAIL2BAN
+    # ==========================================
+    - name: fail2ban | Install
+      ansible.builtin.apt:
+        name: fail2ban
+        state: present
+
+    - name: fail2ban | Configure SSH jail
+      ansible.builtin.copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [DEFAULT]
+          bantime = 3600
+          findtime = 600
+          maxretry = 3
+          backend = systemd
+
+          [sshd]
+          enabled = true
+          port = 22
+          mode = aggressive
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart fail2ban
+
+    # ==========================================
+    # UNATTENDED UPGRADES
+    # ==========================================
+    - name: upgrades | Install unattended-upgrades
+      ansible.builtin.apt:
+        name:
+          - unattended-upgrades
+          - apt-listchanges
+        state: present
+
+    - name: upgrades | Configure auto-upgrades
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+          APT::Periodic::AutocleanInterval "7";
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: upgrades | Configure unattended-upgrades
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+        content: |
+          Unattended-Upgrade::Allowed-Origins {
+            "${distro_id}:${distro_codename}";
+            "${distro_id}:${distro_codename}-security";
+          };
+          Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+          Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+          Unattended-Upgrade::Remove-Unused-Dependencies "true";
+          Unattended-Upgrade::Automatic-Reboot "true";
+          Unattended-Upgrade::Automatic-Reboot-Time "04:00";
+        owner: root
+        group: root
+        mode: "0644"
+
+    # ==========================================
+    # LOGROTATE (Traefik access logs)
+    # ==========================================
+    - name: logrotate | Configure Traefik access log rotation
+      ansible.builtin.copy:
+        dest: /etc/logrotate.d/traefik
+        content: |
+          /opt/pangolin/config/traefik/logs/access.log {
+            daily
+            rotate 14
+            compress
+            delaycompress
+            missingok
+            notifempty
+            copytruncate
+          }
+        owner: root
+        group: root
+        mode: "0644"
+
+    # ==========================================
+    # DISABLE ROOT
+    # ==========================================
+    - name: security | Disable root password login
+      ansible.builtin.user:
+        name: root
+        password_lock: true
+
+    # ==========================================
+    # DOCKER
+    # ==========================================
+    - name: docker | Install
+      ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
+      args:
+        executable: /bin/bash
+        creates: /usr/bin/docker
+
+    - name: docker | Add debian user to docker group
+      ansible.builtin.user:
+        name: debian
+        groups: docker
+        append: true
+
+    - name: docker | Harden daemon config
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "live-restore": true,
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "10m",
+              "max-file": "3"
+            }
+          }
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart docker
+
+    - name: docker | Flush handlers to restart Docker before Pangolin
+      ansible.builtin.meta: flush_handlers
+
+    # ==========================================
+    # HOSTNAME
+    # ==========================================
+    - name: hostname | Set hostname to bifrost
+      ansible.builtin.hostname:
+        name: bifrost
+
+    # ==========================================
+    # PANGOLIN DEPLOY
+    # ==========================================
+    - name: pangolin | Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0700"
+      loop:
+        - /opt/pangolin
+        - /opt/pangolin/config
+        - /opt/pangolin/config/letsencrypt
+        - /opt/pangolin/config/traefik
+        - /opt/pangolin/config/traefik/logs
+        - /opt/pangolin/config/GeoLite2
+        - /opt/crowdsec/config
+        - /opt/crowdsec/data
+        - /opt/doco-cd
+
+    - name: pangolin | Create .env file
+      ansible.builtin.copy:
+        dest: /opt/pangolin/.env
+        content: |
+          PANGOLIN_SECRET={{ pangolin_secret }}
+          OVH_APPLICATION_KEY={{ ovh_application_key }}
+          OVH_APPLICATION_SECRET={{ ovh_application_secret }}
+          OVH_CONSUMER_KEY={{ ovh_consumer_key }}
+          CROWDSEC_API_KEY=changeme-after-bootstrap
+          MAXMIND_ACCOUNT_ID={{ maxmind_user_id }}
+          MAXMIND_LICENSE_KEY={{ maxmind_license_key }}
+          CROWDSEC_ENROLL_KEY={{ crowdsec_enroll_key }}
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: true
+
+    - name: pangolin | Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: docker-compose.yml
+        dest: /opt/pangolin/docker-compose.yml
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: pangolin | Start services
+      ansible.builtin.shell: |
+        cd /opt/pangolin && docker compose up -d
+      args:
+        executable: /bin/bash
+
+    - name: pangolin | Wait for healthy
+      ansible.builtin.command: >
+        docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' pangolin
+      register: pangolin_health
+      until: pangolin_health.stdout == "healthy"
+      retries: 30
+      delay: 10
+
+    # ==========================================
+    # PANGOLIN BOOTSTRAP
+    # ==========================================
+    - name: pangolin | Set admin credentials
+      ansible.builtin.shell: >
+        docker exec
+        -e ADMIN_EMAIL='{{ admin_email }}'
+        -e ADMIN_PASSWORD='{{ admin_password }}'
+        pangolin sh -c 'node /app/dist/cli.mjs set-admin-credentials
+        --email "$ADMIN_EMAIL"
+        --password "$ADMIN_PASSWORD"'
+      no_log: true
+
+    - name: pangolin | Bootstrap org and site
+      ansible.builtin.shell: |
+        docker exec -i \
+          -e ADMIN_EMAIL='{{ admin_email }}' \
+          -e ADMIN_PASSWORD='{{ admin_password }}' \
+          pangolin node - << 'JSEOF'
+        const http = require('http');
+        const CSRF = 'x-csrf-protection';
+        let cookie = '';
+
+        function api(method, path, body) {
+          return new Promise((resolve, reject) => {
+            const data = body ? JSON.stringify(body) : null;
+            const opts = {
+              hostname: 'localhost', port: 3000,
+              path: '/api/v1' + path, method,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF,
+                ...(cookie ? { Cookie: cookie } : {})
+              }
+            };
+            const req = http.request(opts, res => {
+              const sc = res.headers['set-cookie'];
+              if (sc) cookie = sc.map(c => c.split(';')[0]).join('; ');
+              let buf = '';
+              res.on('data', d => buf += d);
+              res.on('end', () => resolve(JSON.parse(buf)));
+            });
+            req.on('error', reject);
+            if (data) req.write(data);
+            req.end();
+          });
+        }
+
+        async function main() {
+          let r = await api('POST', '/auth/login',
+            { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD });
+          if (!r.success) { console.log('LOGIN_FAILED: ' + r.message); process.exit(1); }
+
+          r = await api('PUT', '/org', {
+            orgId: '{{ pangolin_org_id }}', name: '{{ pangolin_org_name }}',
+            subnet: '{{ pangolin_org_subnet }}', utilitySubnet: '{{ pangolin_org_utility_subnet }}'
+          });
+          if (!r.success && !r.message.includes('already exists')) {
+            console.log('ORG_FAILED: ' + r.message); process.exit(1);
+          }
+
+          const sites = await api('GET', '/org/{{ pangolin_org_id }}/sites');
+          const existing = (sites.data?.sites || []).find(s => s.name === '{{ pangolin_site_name }}');
+          if (existing) { console.log('SITE_EXISTS:' + existing.niceId); process.exit(0); }
+
+          const defaults = await api('GET', '/org/{{ pangolin_org_id }}/pick-site-defaults');
+          if (!defaults.success) { console.log('DEFAULTS_FAILED: ' + defaults.message); process.exit(1); }
+
+          const newtId = defaults.data.newtId;
+          const newtSecret = defaults.data.newtSecret;
+
+          r = await api('PUT', '/org/{{ pangolin_org_id }}/site', {
+            name: '{{ pangolin_site_name }}', type: 'newt',
+            newtId, secret: newtSecret
+          });
+          if (!r.success) { console.log('SITE_FAILED: ' + r.message); process.exit(1); }
+
+          console.log('NEWT_ID:' + newtId);
+          console.log('NEWT_SECRET:' + newtSecret);
+          console.log('SITE_NICE_ID:' + r.data.niceId);
+        }
+
+        main().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });
+        JSEOF
+      args:
+        executable: /bin/bash
+      register: pangolin_bootstrap
+      no_log: true
+
+    - name: pangolin | Parse bootstrap output
+      ansible.builtin.set_fact:
+        newt_id: "{{ (pangolin_bootstrap.stdout | regex_search('NEWT_ID:(.+)', '\\1') or ['']) | first }}"
+        newt_secret: "{{ (pangolin_bootstrap.stdout | regex_search('NEWT_SECRET:(.+)', '\\1') or ['']) | first }}"
+        site_nice_id: "{{ (pangolin_bootstrap.stdout | regex_search('SITE_(?:NICE_ID|EXISTS):(.+)', '\\1') or ['']) | first }}"
+
+    - name: pangolin | Fail if bootstrap returned an error
+      ansible.builtin.fail:
+        msg: "{{ pangolin_bootstrap.stdout }}"
+      when: "'_FAILED:' in pangolin_bootstrap.stdout"
+
+    # ==========================================
+    # SAVE NEWT CREDENTIALS BACK TO INFISICAL
+    # ==========================================
+    - name: infisical | Save NEWT_ID
+      ansible.builtin.shell: >
+        infisical secrets set NEWT_ID="{{ newt_id }}"
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ infisical_path }}
+      delegate_to: localhost
+      become: false
+      when: newt_id != ""
+      no_log: true
+
+    - name: infisical | Save NEWT_SECRET
+      ansible.builtin.shell: >
+        infisical secrets set NEWT_SECRET="{{ newt_secret }}"
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ infisical_path }}
+      delegate_to: localhost
+      become: false
+      when: newt_secret != ""
+      no_log: true
+
+    - name: infisical | Save PANGOLIN_SITE_ID
+      ansible.builtin.shell: >
+        infisical secrets set PANGOLIN_SITE_ID="{{ site_nice_id }}"
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ infisical_path }}
+      delegate_to: localhost
+      become: false
+      when: site_nice_id != ""
+      no_log: true
+
+    # ==========================================
+    # CROWDSEC BOUNCER
+    # ==========================================
+    - name: crowdsec | Generate bouncer API key
+      ansible.builtin.shell: >
+        docker exec crowdsec cscli bouncers add traefik -o raw
+      register: crowdsec_bouncer_key
+      changed_when: true
+      failed_when: false
+
+    - name: crowdsec | Update .env with bouncer key
+      ansible.builtin.lineinfile:
+        path: /opt/pangolin/.env
+        regexp: '^CROWDSEC_API_KEY='
+        line: "CROWDSEC_API_KEY={{ crowdsec_bouncer_key.stdout }}"
+      when: crowdsec_bouncer_key.rc == 0
+      no_log: true
+
+    - name: crowdsec | Save bouncer key to Infisical
+      ansible.builtin.shell: >
+        infisical secrets set CROWDSEC_API_KEY="{{ crowdsec_bouncer_key.stdout }}"
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ infisical_path }}
+      delegate_to: localhost
+      become: false
+      when: crowdsec_bouncer_key.rc == 0
+      no_log: true
+
+    - name: crowdsec | Restart traefik with bouncer key
+      ansible.builtin.shell: |
+        cd /opt/pangolin && docker compose restart traefik
+      when: crowdsec_bouncer_key.rc == 0
+
+    # ==========================================
+    # DOCO-CD (GitOps for docker-compose)
+    # ==========================================
+    - name: doco-cd | Deploy
+      ansible.builtin.copy:
+        dest: /opt/doco-cd/docker-compose.yml
+        content: |
+          services:
+            doco-cd:
+              image: ghcr.io/kimdre/doco-cd:latest
+              container_name: doco-cd
+              restart: unless-stopped
+              environment:
+                TZ: Europe/Warsaw
+                GIT_ACCESS_TOKEN: "{{ github_token }}"
+                POLL_CONFIG: |
+                  - url: {{ doco_cd_repo }}
+                    reference: refs/heads/main
+                    interval: 300
+                    compose_file: vps/docker-compose.yml
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - /opt/pangolin:/data
+              healthcheck:
+                test: ["CMD", "/doco-cd", "healthcheck"]
+                start_period: 15s
+                interval: 30s
+                timeout: 5s
+                retries: 3
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: true
+
+    - name: doco-cd | Start
+      ansible.builtin.shell: |
+        cd /opt/doco-cd && docker compose up -d
+      args:
+        executable: /bin/bash
+
+    # ==========================================
+    # SUMMARY
+    # ==========================================
+    - name: Display summary
+      ansible.builtin.debug:
+        msg:
+          - "==========================================="
+          - "  BIFROST BOOTSTRAP COMPLETE"
+          - "==========================================="
+          - ""
+          - "VPS IP        : {{ vps_ip }}"
+          - "Dashboard     : https://{{ pangolin_hostname }}"
+          - "Org           : {{ pangolin_org_id }}"
+          - "Site niceId   : {{ site_nice_id }}"
+          - "Newt ID       : {{ newt_id if newt_id != '' else '(site already existed)' }}"
+          - ""
+          - "Credentials saved to Infisical ({{ infisical_path }})"
+          - ""
+          - "NEXT STEPS:"
+          - "1. Deploy Newt on cluster: kubernetes/apps/network/newt/"
+          - "2. Deploy OVH DNS: kubernetes/apps/network/ovh-dns/"
+
+  handlers:
+    - name: Restart ssh
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+    - name: Apply sysctl
+      ansible.builtin.command: sysctl --system
+
+    - name: Restart fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+
+    - name: Restart docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted

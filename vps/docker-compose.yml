@@ -53,12 +53,6 @@ services:
       - 21820:21820/udp
       - 443:443
       - 80:80
-      # Raw TCP/UDP resources
-      - 54535:54535        # qBittorrent TCP
-      - 54535:54535/udp    # qBittorrent UDP
-      - 64738:64738        # Mumble TCP
-      - 64738:64738/udp    # Mumble UDP
-      - 2222:2222          # Forgejo SSH
 
   traefik:
     image: docker.io/traefik:v3.6.10@sha256:c549d482c55d7a797398562064f35428cc53e748d84d7190997930e7b31bcc32
@@ -227,18 +221,6 @@ configs:
             encodedCharacters:
               allowEncodedSlash: true
               allowEncodedQuestionMark: true
-
-      # Raw TCP/UDP entrypoints
-        tcp-54535:
-          address: ":54535"
-        udp-54535:
-          address: ":54535/udp"
-        tcp-64738:
-          address: ":64738"
-        udp-64738:
-          address: ":64738/udp"
-        tcp-2222:
-          address: ":2222"
 
       serversTransport:
         insecureSkipVerify: true

@@ -22,6 +22,7 @@ locals {
     "grafana",
     "headlamp",
     "nextcloud",
+    "pangolin",
     "pgadmin",
     "qui",
     "rxresume",
@@ -866,6 +867,27 @@ resource "authentik_policy_binding" "ceph" {
   target = authentik_application.ceph.uuid
   group  = authentik_group.admin.id
   order  = 0
+}
+
+module "oauth2-pangolin" {
+  source             = "./oauth2_application"
+  name               = "Pangolin"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/pangolin.png"
+  launch_url         = "https://pangolin.${var.cluster_domain}"
+  description        = "Tunnel gateway"
+  newtab             = true
+  group              = "Infrastructure"
+  auth_groups        = [authentik_group.admin.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["pangolin"].client_id
+  client_secret      = local.parsed_secrets["pangolin"].client_secret
+  redirect_uris = [
+    {
+      url           = "https://pangolin.${var.cluster_domain}/auth/idp/\\d+/oidc/callback"
+      matching_mode = "regex"
+    }
+  ]
 }
 
 module "oauth2-unraid" {

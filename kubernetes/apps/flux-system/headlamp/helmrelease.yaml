@@ -38,6 +38,7 @@ spec:
           - mountPath: /build/plugins
             name: headlamp-plugins
     config:
+      sessionTTL: null
       pluginsDir: /build/plugins
       oidc:
         secret:

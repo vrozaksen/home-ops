@@ -68,12 +68,10 @@ spec:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: self-hosted
-          newt-sidecar/auth-sso: "true"
-          newt-sidecar/auth-sso-idp: "1"
         hostnames:
           - search.vzkn.eu
         parentRefs:
-          - name: envoy-external
+          - name: envoy-internal
             namespace: network
     persistence:
       config:

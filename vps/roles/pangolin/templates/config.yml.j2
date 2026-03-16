@@ -20,6 +20,15 @@ server:
         credentials: false
     maxmind_db_path: "./config/GeoLite2/GeoLite2-Country.mmdb"
     maxmind_asn_path: "./config/GeoLite2/GeoLite2-ASN.mmdb"
+{% if smtp_addr | default('') != '' %}
+email:
+    smtp_host: "{{ smtp_addr }}"
+    smtp_port: 587
+    smtp_user: "{{ smtp_user }}"
+    smtp_pass: "{{ smtp_pass }}"
+    smtp_secure: true
+    noreply: "{{ smtp_user }}"
+{% endif %}
 flags:
     require_email_verification: false
     disable_signup_without_invite: true

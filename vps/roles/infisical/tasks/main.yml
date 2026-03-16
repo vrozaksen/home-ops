@@ -12,6 +12,9 @@
       - MAXMIND_USER_ID
       - MAXMIND_LICENSE_KEY
       - CROWDSEC_ENROLL_KEY
+      - SMTP_ADDR
+      - SMTP_USER
+      - SMTP_PASS
   when: bootstrap | default(false) | bool
 
 - name: Build secret list (manage)
@@ -26,6 +29,9 @@
       - MAXMIND_LICENSE_KEY
       - CROWDSEC_API_KEY
       - PANGOLIN_API_KEY
+      - SMTP_ADDR
+      - SMTP_USER
+      - SMTP_PASS
   when: not (bootstrap | default(false) | bool)
 
 - name: Read secrets from Infisical

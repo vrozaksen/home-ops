@@ -43,7 +43,6 @@
     mode: "0600"
 
 # Bootstrap: bring stack up for the first time
-# Day-to-day: doco-cd handles compose changes, skip restart
 - name: Start services
   ansible.builtin.shell: |
     cd /opt/pangolin && docker compose up -d
@@ -51,7 +50,7 @@
     executable: /bin/bash
   when: bootstrap | default(false) | bool
 
-- name: Wait for healthy
+- name: Wait for healthy (bootstrap)
   ansible.builtin.command: >
     docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' pangolin
   register: _pangolin_health
@@ -59,3 +58,11 @@
   retries: 30
   delay: 10
   when: bootstrap | default(false) | bool
+
+# Day-to-day: restart pangolin when config.yml changes (host file, invisible to doco-cd)
+- name: Restart pangolin on config change
+  ansible.builtin.shell: |
+    cd /opt/pangolin && docker compose restart pangolin
+  when:
+    - not (bootstrap | default(false) | bool)
+    - _pangolin_config.changed

@@ -1,0 +1,177 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: renovate-token-refresh
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: renovate-token-refresh
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "update"
+      - "patch"
+    resourceNames:
+      - "renovate-token"
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "create"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: renovate-token-refresh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: renovate-token-refresh
+subjects:
+  - kind: ServiceAccount
+    name: renovate-token-refresh
+    namespace: renovate
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate-token-refresh
+spec:
+  schedule: "*/30 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: renovate-token-refresh
+          restartPolicy: OnFailure
+          containers:
+            - name: token-refresh
+              image: alpine:3.21
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 64Mi
+              env:
+                - name: GITHUB_APP_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: repo-killer-app-secret
+                      key: GITHUB_APP_ID
+              volumeMounts:
+                - name: github-app-key
+                  mountPath: /etc/github
+                  readOnly: true
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -euo pipefail
+                  apk add --no-cache curl openssl jq >/dev/null 2>&1
+
+                  # Read PEM key
+                  PEM=$(cat /etc/github/private-key.pem)
+
+                  # Generate JWT
+                  NOW=$(date +%s)
+                  IAT=$((NOW - 60))
+                  EXP=$((NOW + 600))
+
+                  b64url() {
+                    openssl base64 -A | tr '+/' '-_' | tr -d '='
+                  }
+
+                  HEADER=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
+                  PAYLOAD=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' "$IAT" "$EXP" "$GITHUB_APP_ID" | b64url)
+                  SIGNING_INPUT="${HEADER}.${PAYLOAD}"
+                  SIGNATURE=$(printf '%s' "$SIGNING_INPUT" | openssl dgst -sha256 -sign /etc/github/private-key.pem -binary | b64url)
+                  JWT="${SIGNING_INPUT}.${SIGNATURE}"
+
+                  # Auto-discover installation ID
+                  INSTALLATION_ID=$(curl -sf -H "Authorization: Bearer ${JWT}" \
+                    -H "Accept: application/vnd.github+json" \
+                    https://api.github.com/app/installations | jq -r '.[0].id')
+
+                  if [ -z "$INSTALLATION_ID" ] || [ "$INSTALLATION_ID" = "null" ]; then
+                    echo "ERROR: Could not discover installation ID"
+                    exit 1
+                  fi
+                  echo "Discovered installation ID: ${INSTALLATION_ID}"
+
+                  # Generate installation access token
+                  TOKEN=$(curl -sf -X POST \
+                    -H "Authorization: Bearer ${JWT}" \
+                    -H "Accept: application/vnd.github+json" \
+                    "https://api.github.com/app/installations/${INSTALLATION_ID}/access_tokens" | jq -r '.token')
+
+                  if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+                    echo "ERROR: Could not generate installation token"
+                    exit 1
+                  fi
+                  echo "Successfully generated installation token"
+
+                  # Create/update renovate-token secret via K8s API
+                  SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                  K8S_API="https://kubernetes.default.svc"
+
+                  TOKEN_B64=$(printf '%s' "$TOKEN" | base64 -w0)
+
+                  SECRET_JSON=$(cat <<ENDJSON
+                  {
+                    "apiVersion": "v1",
+                    "kind": "Secret",
+                    "metadata": {
+                      "name": "renovate-token",
+                      "namespace": "${NAMESPACE}"
+                    },
+                    "type": "Opaque",
+                    "data": {
+                      "RENOVATE_TOKEN": "${TOKEN_B64}",
+                      "GITHUB_COM_TOKEN": "${TOKEN_B64}"
+                    }
+                  }
+                  ENDJSON
+                  )
+
+                  # Try to update existing secret, create if not found
+                  HTTP_CODE=$(curl -so /dev/null -w '%{http_code}' \
+                    --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                    -H "Authorization: Bearer ${SA_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    -X PUT \
+                    "${K8S_API}/api/v1/namespaces/${NAMESPACE}/secrets/renovate-token" \
+                    -d "$SECRET_JSON")
+
+                  if [ "$HTTP_CODE" = "404" ]; then
+                    echo "Secret not found, creating..."
+                    curl -sf \
+                      --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                      -H "Authorization: Bearer ${SA_TOKEN}" \
+                      -H "Content-Type: application/json" \
+                      -X POST \
+                      "${K8S_API}/api/v1/namespaces/${NAMESPACE}/secrets" \
+                      -d "$SECRET_JSON" > /dev/null
+                  elif [ "$HTTP_CODE" != "200" ]; then
+                    echo "ERROR: Failed to update secret (HTTP ${HTTP_CODE})"
+                    exit 1
+                  fi
+
+                  echo "Secret renovate-token updated successfully"
+          volumes:
+            - name: github-app-key
+              secret:
+                secretName: repo-killer-app-secret
+                items:
+                  - key: private-key.pem
+                    path: private-key.pem

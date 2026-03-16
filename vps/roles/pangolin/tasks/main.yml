@@ -61,8 +61,7 @@
 
 # Day-to-day: restart pangolin when config.yml changes (host file, invisible to doco-cd)
 - name: Restart pangolin on config change
-  ansible.builtin.shell: |
-    cd /opt/pangolin && docker compose restart pangolin
+  ansible.builtin.command: docker restart pangolin
   when:
     - not (bootstrap | default(false) | bool)
     - _pangolin_config.changed

@@ -29,8 +29,6 @@ firewall_rules:
   - { port: "443", proto: tcp, comment: "HTTPS" }
   - { port: "51820", proto: udp, comment: "WireGuard Gerbil" }
   - { port: "21820", proto: udp, comment: "WireGuard Gerbil mgmt" }
-  # Monitoring
-  - { port: "9090", proto: tcp, comment: "Prometheus" }
   # Pangolin raw resources (add here when needed)
   # - { port: "64738", proto: tcp, comment: "Mumble TCP" }
 

@@ -64,8 +64,6 @@ services:
       - --storage.tsdb.path=/prometheus
       - --web.enable-lifecycle
       - --enable-feature=auto-gomaxprocs
-    ports:
-      - 9090:9090
     volumes:
       - prometheus-data:/prometheus
     configs:

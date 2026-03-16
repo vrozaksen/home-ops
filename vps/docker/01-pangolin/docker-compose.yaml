@@ -295,6 +295,10 @@ configs:
               sourceCriterion:
                 ipStrategy:
                   depth: 1
+          prometheus-auth:
+            basicAuth:
+              users:
+                - "{{ env "PROMETHEUS_BASIC_AUTH" }}"
           redirect-to-https:
             redirectScheme:
               scheme: https
@@ -381,6 +385,19 @@ configs:
               - badger
             tls:
               certResolver: letsencrypt
+          # Prometheus (federated metrics)
+          prometheus-router:
+            rule: "Host(`bifrost.vzkn.eu`)"
+            service: prometheus-service
+            entryPoints:
+              - websecure
+            middlewares:
+              - crowdsec
+              - prometheus-auth
+              - rate-limit
+              - security-headers
+            tls:
+              certResolver: letsencrypt
           # Matrix well-known delegation
           matrix-well-known:
             entryPoints:
@@ -404,6 +421,10 @@ configs:
             loadBalancer:
               servers:
                 - url: "http://pangolin:3000"
+          prometheus-service:
+            loadBalancer:
+              servers:
+                - url: "http://prometheus:9090"
       tcp:
         serversTransports:
           pp-transport-v1:

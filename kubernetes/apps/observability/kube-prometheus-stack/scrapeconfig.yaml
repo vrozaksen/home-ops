@@ -52,9 +52,17 @@ kind: ScrapeConfig
 metadata:
   name: vps-bifrost
 spec:
+  scheme: HTTPS
+  basicAuth:
+    username:
+      name: vps-prometheus-secret
+      key: username
+    password:
+      name: vps-prometheus-secret
+      key: password
   staticConfigs:
     - targets:
-        - pangolin.vzkn.eu:9090
+        - bifrost.vzkn.eu:443
       labels:
         instance: bifrost
   metricsPath: /federate

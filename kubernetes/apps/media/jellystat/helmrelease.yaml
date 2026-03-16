@@ -22,7 +22,6 @@ spec:
               repository: docker.io/cyfershepard/jellystat
               tag: unstable@sha256:224be08f2ac75911a49dbc788f15bfa6ad69c6bf145b3b26153ba2e973e835f0
             env:
-              TZ: "Europe/Warsaw"
               MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK: "30"
               IS_EMBY_API: "true"
               POSTGRES_IP: pooler-jellystat-rw

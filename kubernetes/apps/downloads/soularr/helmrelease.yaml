@@ -21,7 +21,6 @@ spec:
               repository: ghcr.io/mrusse/soularr
               tag: main@sha256:1e5812f7a306a8aec4c442abafca6af782bd9944ab1e8597e78284a72f283b2a
             env:
-              TZ: Europe/Warsaw
               SCRIPT_INTERVAL: 300  # Script interval in seconds
             securityContext:
               allowPrivilegeEscalation: false

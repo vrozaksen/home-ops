@@ -23,7 +23,6 @@ spec:
               repository: factoriotools/factorio
               tag: 2.0.62
             env:
-              TZ: Europe/Warsaw
               GENERATE_NEW_SAVE: false
               LOAD_LATEST_SAVE: true
               PORT: &port 34197
@@ -46,8 +45,6 @@ spec:
             image:
               repository: filebrowser/filebrowser
               tag: v2.42.1
-            env:
-              TZ: Europe/Warsaw
             resources:
               requests:
                 cpu: 25m

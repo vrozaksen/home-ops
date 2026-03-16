@@ -21,8 +21,6 @@ spec:
             image:
               repository: ghcr.io/miguelndecarvalho/speedtest-exporter
               tag: v3.5.4
-            env:
-              TZ: Europe/Warsaw
             resources:
               requests:
                 cpu: 10m

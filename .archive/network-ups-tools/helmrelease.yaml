@@ -18,8 +18,6 @@ spec:
             image:
               repository: ghcr.io/jr0dd/network-ups-tools
               tag: v2.8.1@sha256:2a6e47d431cbb901482ad6692f089a7541524fd3538e42857b39663bb331ba25
-            env:
-              TZ: Europe/Warsaw
             securityContext:
               privileged: true
             probes:

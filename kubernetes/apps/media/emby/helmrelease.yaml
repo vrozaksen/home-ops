@@ -20,7 +20,6 @@ spec:
               repository: ghcr.io/home-operations/emby
               tag: 4.9.3.0@sha256:7c33d88d0186ad7abcc6e53566e9db8766687daa5510cddc13094e25bc5a5dfb
             env:
-              TZ: Europe/Warsaw
               DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
             probes:
               liveness: &probes

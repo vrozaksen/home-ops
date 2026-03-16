@@ -24,8 +24,6 @@ spec:
               - "maloja"
               - "run"
             env:
-              TZ: &tz Europe/Warsaw
-              MALOJA_LOCATION_TIMEZONE: *tz
               MALOJA_PORT: &port 8080
               MALOJA_DIRECTORY_CONFIG: /data/config
               MALOJA_DIRECTORY_STATE: /data/state

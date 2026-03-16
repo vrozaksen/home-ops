@@ -19,7 +19,6 @@ spec:
               repository: lscr.io/linuxserver/bambustudio
               tag: 02.05.00
             env:
-              TZ: Europe/Warsaw
               PUID: "1000"
               PGID: "100"
             securityContext:

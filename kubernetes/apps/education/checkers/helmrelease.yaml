@@ -22,7 +22,6 @@ spec:
               repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-4
               tag: &version 2026.1.10
             env:
-              TZ: "Europe/Warsaw"
               BASE_URL: "https://checkers.vzkn.eu"
               PYTHONUNBUFFERED: "1"
               PERSISTENCE_DIR: "/app/data"

@@ -22,7 +22,6 @@ spec:
               repository: ghcr.io/diced/zipline
               tag: 4.3.1@sha256:b8701440b3604c3b2e143f1bbe9eb385aa3514e595677905407451f4e6b0d209
             env:
-              TZ: Europe/Warsaw
               CORE_HOSTNAME: 0.0.0.0
               CORE_PORT: &port 3000
               CORE_COMPRESSION_ENABLED: "true"

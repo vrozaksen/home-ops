@@ -23,7 +23,6 @@ spec:
               repository: ghcr.io/karakeep-app/karakeep
               tag: 0.28.0
             env:
-              TZ: Europe/Warsaw
               ### Configuration
               DATA_DIR: /data
               NEXTAUTH_URL: https://karakeep.vzkn.eu

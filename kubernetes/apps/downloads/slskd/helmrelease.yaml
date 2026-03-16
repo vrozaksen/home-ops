@@ -23,7 +23,6 @@ spec:
             args:
               - "sync"
             env:
-              TZ: Europe/Warsaw
               DOTNET_BUNDLE_EXTRACT_BASE_DIR: /tmp/.net
               SLSKD_APP_DIR: /config
               SLSKD_HTTP_PORT: &port 80

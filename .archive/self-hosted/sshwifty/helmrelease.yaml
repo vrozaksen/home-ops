@@ -18,7 +18,6 @@ spec:
               repository: docker.io/niruix/sshwifty
               tag: latest
             env:
-              TZ: "Europe/Warsaw"
               SSHWIFTY_HOSTNAME: "{{ .Release.Name }}.vzkn.eu"
             probes:
               liveness:

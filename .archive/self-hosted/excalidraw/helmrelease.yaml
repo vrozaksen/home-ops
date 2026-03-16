@@ -20,7 +20,6 @@ spec:
               repository: docker.io/excalidraw/excalidraw
               tag: latest@sha256:b3c38373c078f932c13a56f5ec630bfe52847b9d32dc854d357c5b8435d0d20c
             env:
-              TZ: Europe/Warsaw
               NODE_ENV: production
             probes:
               liveness:

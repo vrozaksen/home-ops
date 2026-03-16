@@ -21,7 +21,6 @@ spec:
               repository: kyantech/palmr
               tag: v3.3.2-beta@sha256:043dd6cdbb4d9985b376915020fb26c2037b19876674273eac310ab04cdf16f4
             env:
-              TZ: Europe/Warsaw
               SECURE_SITE: true
               PALMR_UID: 1000
               PALMR_GID: &gid 100

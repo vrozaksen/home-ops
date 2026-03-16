@@ -27,7 +27,6 @@ spec:
               - --config
               - /app/config.yaml
             env:
-              TZ: "Europe/Warsaw"
               LITELLM_LOG: "DEBUG"
               LITELLM_MODE: "production"
               LITELLM_DONT_SHOW_FEEDBACK_BOX: "True"

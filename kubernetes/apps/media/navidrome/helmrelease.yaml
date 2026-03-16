@@ -21,7 +21,6 @@ spec:
               tag: 0.60.3@sha256:a5dce8f33304714dd138e870cca0dcab3d937ca236be1a9f2b97da009d1a0048
             env:
               # Baisc
-              TZ: Europe/Warsaw
               ND_MUSICFOLDER: /music
               ND_DATAFOLDER: /config
               ND_CACHEFOLDER: /config/cache

@@ -22,7 +22,6 @@ spec:
               repository: ghcr.io/stirling-tools/s-pdf
               tag: 1.2.0@sha256:4b549915161efdf8a7c43bf0ad3b5d5d39f0cb0be58b7dcce1d1b62fbe8ed818
             env:
-              TZ: Europe/Warsaw
               DOCKER_ENABLE_SECURITY: "false"
               SECURITY_ENABLE_LOGIN: "false"
               SYSTEM_ENABLEANALYTICS: "false"

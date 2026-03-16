@@ -22,7 +22,6 @@ spec:
               repository: ghcr.io/mumble-voip/mumble-server
               tag: v1.6.870@sha256:b9fb72d772eb52b5c7d4c402054c183886ecde07efc59c829c53001542365a81
             env:
-              TZ: Europe/Warsaw
               MUMBLE_CONFIG_WELCOMETEXT: "Welcome to Mumble!"
             envFrom:
               - secretRef:

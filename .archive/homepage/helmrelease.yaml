@@ -21,8 +21,6 @@ spec:
             image:
               repository: ghcr.io/gethomepage/homepage
               tag: v0.10.9
-            env:
-              TZ: Europe/Warsaw
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

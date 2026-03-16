@@ -23,7 +23,6 @@ spec:
               repository: factoriotools/factorio
               tag: 2.0.72-rootless
             env:
-              TZ: Europe/Warsaw
               GENERATE_NEW_SAVE: false
               LOAD_LATEST_SAVE: true
               PORT: &port 34197
@@ -48,7 +47,6 @@ spec:
               repository: filebrowser/filebrowser
               tag: v2.53.1
             env:
-              TZ: Europe/Warsaw
               FB_NOAUTH: true
               PUID: 1000
               PGID: 1000

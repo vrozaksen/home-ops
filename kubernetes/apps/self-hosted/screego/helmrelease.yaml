@@ -20,8 +20,6 @@ spec:
             image:
               repository: ghcr.io/screego/server
               tag: 1.12.2
-            env:
-              TZ: Europe/Warsaw
             probes:
               liveness:
                 enabled: false

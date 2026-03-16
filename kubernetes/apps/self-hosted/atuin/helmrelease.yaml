@@ -22,7 +22,6 @@ spec:
               ATUIN_PORT: &port 80
               ATUIN_OPEN_REGISTRATION: "true"
               ATUIN_DB_URI: sqlite:///config/atuin.db
-              TZ: Europe/Warsaw
             args:
               - start
             probes:

@@ -48,7 +48,6 @@ spec:
     startupProbe:
       enabled: true
     extraEnv:
-      TZ: Europe/Warsaw
       ENABLE_ROLLING_LOGS: true
       MEMORY: "16384M"
     persistence:

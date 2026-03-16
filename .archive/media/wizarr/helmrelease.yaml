@@ -20,7 +20,6 @@ spec:
               repository: ghcr.io/wizarrrr/wizarr
               tag: 2025.7.5
             env:
-              TZ: Europe/Warsaw
               PUID: &uid 1000
               PGID: &gid 100
             resources:

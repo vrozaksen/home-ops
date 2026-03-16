@@ -38,7 +38,6 @@ spec:
           app:
             image: *image
             env:
-              TZ: Europe/Warsaw
               PGADMIN_DISABLE_POSTFIX: "true"
               PGADMIN_LISTEN_PORT: &port 80
               PGADMIN_REPLACE_SERVERS_ON_STARTUP: "true"

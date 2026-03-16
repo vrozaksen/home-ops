@@ -20,7 +20,6 @@ spec:
               repository: esphome/esphome
               tag: 2025.5.2@sha256:cea8ffe21995045d0a60c96f4e39bfa04e4348c2ff17444d7d3b0e94af3a9d9b
             env:
-              TZ: Europe/Warsaw
               ESPHOME_DASHBOARD_USE_PING: true
             securityContext:
               allowPrivilegeEscalation: false
@@ -46,8 +45,6 @@ spec:
             image:
               repository: ghcr.io/coder/code-server
               tag: 4.100.3@sha256:c5b7ec231b24f26ecee243e8d9f9df57af906d03c9c8238efd893217c9f1f725
-            env:
-              TZ: Europe/Warsaw
             args:
               - "--auth"
               - "none"

@@ -20,7 +20,6 @@ spec:
               repository: teamspeaksystems/teamspeak6-server
               tag: latest
             env:
-              TZ: Europe/Warsaw
               TSSERVER_LICENSE_ACCEPTED: accept
               TSSERVER_DEFAULT_PORT: "40000"
               TSSERVER_VOICE_IP: 0.0.0.0

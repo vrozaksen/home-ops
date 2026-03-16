@@ -17,6 +17,11 @@
     mode: "0600"
   no_log: true
 
+- name: Remove stale compose file
+  ansible.builtin.file:
+    path: /opt/doco-cd/docker-compose.yml
+    state: absent
+
 - name: Copy docker-compose.yaml
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/docker/.doco-cd/docker-compose.app.yaml"

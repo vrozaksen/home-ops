@@ -1,0 +1,8 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: k8tz-selfsigned
+spec:
+  selfSigned: {}

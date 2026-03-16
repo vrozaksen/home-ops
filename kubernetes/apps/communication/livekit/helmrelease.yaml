@@ -145,9 +145,11 @@ spec:
             namespace: network
         rules:
           - backendRefs:
-              - name: livekit-livekit
+              - name: livekit
                 port: *port
       jwt:
+        annotations:
+          gatus.home-operations.com/enabled: "false"
         hostnames:
           - livekit.vzkn.eu
         parentRefs:

@@ -31,6 +31,8 @@ spec:
         - kguardian
         - kube-system
       ignoreDaemonSet: true
+      nodeSelector:
+        topology.kubernetes.io/zone: worker
       resources:
         limits:
           memory: 512Mi

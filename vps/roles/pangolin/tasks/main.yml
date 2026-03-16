@@ -24,6 +24,15 @@
   no_log: true
   register: _pangolin_env
 
+- name: Write prometheus htpasswd
+  ansible.builtin.copy:
+    content: "{{ prometheus_basic_auth | default('', true) }}"
+    dest: /opt/pangolin/config/prometheus-htpasswd
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
 - name: Template config.yml
   ansible.builtin.template:
     src: config.yml.j2

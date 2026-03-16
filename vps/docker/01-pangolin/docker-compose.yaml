@@ -75,6 +75,7 @@ services:
     volumes:
       - /opt/pangolin/config/letsencrypt:/letsencrypt
       - /opt/pangolin/config/traefik/logs:/var/log/traefik
+      - /opt/pangolin/config/prometheus-htpasswd:/etc/traefik/prometheus-htpasswd:ro
     configs:
       - source: traefik_config
         target: /etc/traefik/traefik_config.yml
@@ -297,8 +298,7 @@ configs:
                   depth: 1
           prometheus-auth:
             basicAuth:
-              users:
-                - "{{ env "PROMETHEUS_BASIC_AUTH" }}"
+              usersFile: /etc/traefik/prometheus-htpasswd
           redirect-to-https:
             redirectScheme:
               scheme: https

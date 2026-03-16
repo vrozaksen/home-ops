@@ -32,6 +32,7 @@
       - SMTP_ADDR
       - SMTP_USER
       - SMTP_PASS
+      - PROMETHEUS_BASIC_AUTH
   when: not (bootstrap | default(false) | bool)
 
 - name: Read secrets from Infisical

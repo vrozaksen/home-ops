@@ -1,0 +1,129 @@
+---
+name: monitoring
+services:
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.10.2@sha256:337ff1d356b68d39cef853e8c6345de11ce7556bb34cda8bd205bcf2ed30b565
+    container_name: node-exporter
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+    command:
+      - --path.rootfs=/host
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+)($|/)
+      - --collector.netclass.ignored-devices=^(veth.*)$
+      - --no-collector.btrfs
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    networks:
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.55.1@sha256:3de2bd5203120b866d74a9b283b2ffb8ec382fbf9dc321814700c6ea6f44ec57
+    container_name: cadvisor
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    privileged: true
+    networks:
+      - monitoring
+
+  prometheus:
+    image: quay.io/prometheus/prometheus:v3.10.0@sha256:7571a304e67fbd794be02422b13627dc7de822152f74e99e2bef95d29eceecde
+    container_name: prometheus
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --enable-feature=auto-gomaxprocs
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus-data:/prometheus
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+      - pangolin
+
+  echo-server:
+    image: ghcr.io/mendhak/http-https-echo:39@sha256:59e97f8417530cd88c2a4bb7b488153276e88df8a317a86641c575138ad81829
+    container_name: echo-server
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+        reservations:
+          memory: 16m
+    environment:
+      HTTP_PORT: "8080"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+    name: monitoring
+  pangolin:
+    external: true
+
+volumes:
+  prometheus-data:
+
+configs:
+  prometheus_config:
+    content: |-
+      global:
+        scrape_interval: 30s
+        evaluation_interval: 30s
+
+      scrape_configs:
+        - job_name: prometheus
+          static_configs:
+            - targets: ["localhost:9090"]
+
+        - job_name: node-exporter
+          static_configs:
+            - targets: ["node-exporter:9100"]
+
+        - job_name: cadvisor
+          static_configs:
+            - targets: ["cadvisor:8080"]
+
+        - job_name: traefik
+          static_configs:
+            - targets: ["gerbil:8082"]
+
+        - job_name: crowdsec
+          static_configs:
+            - targets: ["crowdsec:6060"]

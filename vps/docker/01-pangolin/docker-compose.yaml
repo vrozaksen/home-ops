@@ -175,6 +175,8 @@ configs:
       entryPoints:
         web:
           address: ":80"
+        metrics:
+          address: ":8082"
         websecure:
           address: ":443"
           transport:
@@ -189,6 +191,10 @@ configs:
 
       serversTransport:
         insecureSkipVerify: true
+
+      metrics:
+        prometheus:
+          entryPoint: metrics
 
       ping:
         entryPoint: "web"

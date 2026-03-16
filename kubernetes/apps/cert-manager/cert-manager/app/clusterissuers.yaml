@@ -9,6 +9,7 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: *name
+    profile: shortlived
     solvers:
       - dns01:
           webhook:
@@ -28,41 +29,4 @@ spec:
                 name: ovh-issuer-secret
         selector:
           dnsZones:
-            - "vzkn.eu"
----
-# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/clusterissuer_v1.json
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: cluster-selfsigned-issuer
-spec:
-  selfSigned: {}
----
-# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: &name cluster-signed-issuer
-spec:
-  isCA: true
-  commonName: *name
-  subject:
-    organizations:
-      - 'vzkn.eu'
-  secretName: cluster-signed-issuer-secret
-  privateKey:
-    algorithm: ECDSA
-    size: 256
-  issuerRef:
-    name: cluster-selfsigned-issuer
-    kind: ClusterIssuer
-    group: cert-manager.io
----
-# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/clusterissuer_v1.json
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: cluster-signed-issuer
-spec:
-  ca:
-    secretName: cluster-signed-issuer-secret
+            - vzkn.eu

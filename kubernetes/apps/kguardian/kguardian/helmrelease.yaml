@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kguardian
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.9.1
+  url: oci://ghcr.io/kguardian-dev/charts/kguardian
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kguardian
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: kguardian
+  values:
+    controller:
+      containerdSockPath: /run/containerd/containerd.sock
+      containerdBundlePath: /run/containerd/io.containerd.runtime.v2.task
+      excludedNamespaces:
+        - kguardian
+        - kube-system
+      ignoreDaemonSet: true
+      resources:
+        limits:
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    broker:
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    frontend:
+      ingress:
+        enabled: false
+    llmBridge:
+      secrets:
+        anthropic:
+          enabled: true
+          name: kguardian-anthropic

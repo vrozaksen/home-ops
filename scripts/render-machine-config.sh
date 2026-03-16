@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Description:
-#   This script renders and merges Talos machine configurations using minijinja-cli, bws and talosctl.
+#   This script renders and merges Talos machine configurations using minijinja-cli, infisical and talosctl.
 #   It uses templates and patches to generate a final configuration for Talos nodes.
 #
 # Arguments:
@@ -34,7 +34,7 @@ function main() {
     fi
 
     # Render the base machine configurations
-    if ! base=$(bws run --no-inherit-env -- minijinja-cli --define "machinetype=${type}" --env "${MACHINEBASE}") || [[ -z "${base}" ]]; then
+    if ! base=$(infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --define "machinetype=${type}" --env "${MACHINEBASE}") || [[ -z "${base}" ]]; then
         log fatal "Failed to render base machine configuration" "file" "${MACHINEBASE}"
     fi
 

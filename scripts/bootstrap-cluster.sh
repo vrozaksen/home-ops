@@ -134,12 +134,12 @@ function apply_resources() {
         log fatal "File does not exist" "file" "${resources_file}"
     fi
 
-    if bws run --no-inherit-env -- minijinja-cli --env "${resources_file}" | kubectl diff --filename - &>/dev/null; then
+    if infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${resources_file}" | kubectl diff --filename - &>/dev/null; then
         log info "Resources are up-to-date"
         return
     fi
 
-    if ! bws run --no-inherit-env -- minijinja-cli --env "${resources_file}" | kubectl apply --server-side --filename - &>/dev/null; then
+    if ! infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${resources_file}" | kubectl apply --server-side --filename - &>/dev/null; then
         log fatal "Failed to apply resources"
     fi
 
@@ -191,10 +191,10 @@ function apply_apps() {
 
 function main() {
 	check_env KUBECONFIG
-	check_cli helmfile jq kubectl kustomize minijinja-cli bws talosctl yq
+	check_cli helmfile jq kubectl kustomize minijinja-cli infisical talosctl yq
 
-	if ! bws project list &>/dev/null; then
-		log error "Failed to authenticate with Bitwarden Seccret Manager CLI"
+	if ! infisical secrets list --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap &>/dev/null; then
+		log error "Failed to authenticate with Infisical CLI"
 	fi
 
 	# Bootstrap the Talos node configuration

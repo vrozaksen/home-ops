@@ -135,7 +135,7 @@ function apply_config_file() {
     fi
 }
 
-# Render a template using minijinja and inject secrets using bws
+# Render a template using minijinja and inject secrets using infisical
 function render_template() {
 	local -r file="${1}"
 	local output
@@ -144,11 +144,11 @@ function render_template() {
 		log error "File does not exist" "file=${file}"
 	fi
 
-	if [[ -z "${BWS_ACCESS_TOKEN}" ]]; then
-		log error "BWS_ACCESS_TOKEN is not defined"
+	if ! infisical export --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --format=dotenv &>/dev/null; then
+		log error "Infisical authentication failed. Run 'infisical login' or set INFISICAL_UNIVERSAL_AUTH_CLIENT_ID and INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"
 	fi
 
-	if ! output=$(bws run --no-inherit-env -- minijinja-cli --env "${file}") || [[ -z "${output}" ]]; then
+	if ! output=$(infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${file}") || [[ -z "${output}" ]]; then
 		log error "Failed to render config" "file=${file}"
 	fi
 

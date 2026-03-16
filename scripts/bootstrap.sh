@@ -142,12 +142,12 @@ function apply_resources() {
         log fatal "File does not exist" "file" "${resources_file}"
     fi
 
-    if bws run --no-inherit-env -- minijinja-cli --env "${resources_file}" | kubectl diff --filename - &>/dev/null; then
+    if infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${resources_file}" | kubectl diff --filename - &>/dev/null; then
         log info "Resources are up-to-date"
         return
     fi
 
-    if ! bws run --no-inherit-env -- minijinja-cli --env "${resources_file}" | kubectl apply --server-side --filename - &>/dev/null; then
+    if ! infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${resources_file}" | kubectl apply --server-side --filename - &>/dev/null; then
         log fatal "Failed to apply resources"
     fi
 
@@ -197,15 +197,15 @@ function apply_apps() {
     log info "Apps applied successfully"
 }
 
-# Test resource rendering with bws and minijinja-cli
-function test_bws_render() {
+# Test resource rendering with infisical and minijinja-cli
+function test_infisical_render() {
     local -r resources_file="${ROOT_DIR}/bootstrap/resources.yaml.j2"
 
     if [[ ! -f "${resources_file}" ]]; then
         log fatal "File does not exist" "file" "${resources_file}"
     fi
 
-    bws run --no-inherit-env -- minijinja-cli --env "${resources_file}"
+    infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --env "${resources_file}"
 }
 
 # Test function to render machine config and print to console
@@ -246,7 +246,7 @@ function test_machine_config_render() {
 
 function main() {
     # TEST
-    test_bws_render
+    test_infisical_render
     test_machine_config_render
 
     install_talos

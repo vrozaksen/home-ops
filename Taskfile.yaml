@@ -23,7 +23,7 @@ env:
 
 includes:
   bootstrap: .taskfiles/bootstrap
-  bitwarden: .taskfiles/bitwarden
+  infisical: .taskfiles/infisical
   kubernetes: .taskfiles/kubernetes
   talos: .taskfiles/talos
   volsync: .taskfiles/volsync

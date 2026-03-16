@@ -1,0 +1,30 @@
+---
+version: "3"
+
+vars:
+  INFISICAL_PROJECT: da94b011-9a7d-408b-92d9-55be47efe750
+  INFISICAL_ENV: prod
+
+tasks:
+  push:
+    desc: Push kubeconfig and talosconfig to Infisical
+    cmds:
+      - infisical secrets set KUBECONFIG_FLAT="$(kubectl config view --flatten)" --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig
+      - infisical secrets set KUBECONFIG_BASE64="$(kubectl config view --flatten | base64 -w 0)" --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig
+      - infisical secrets set KUBECONFIG_MAIN_BASE64="$(cat {{.KUBECONFIG}})" --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig
+      - infisical secrets set TALOSCONFIG_MAIN="$(cat {{.TALOSCONFIG}})" --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig
+      - infisical secrets set TALOSCONFIG_MAIN_BASE64="$(cat {{.TALOSCONFIG}} | base64 -w 0)" --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig
+    preconditions:
+      - which infisical
+
+  pull:
+    desc: Pull kubeconfig and talosconfig from Infisical
+    cmds:
+      - mkdir -p ~/.kube
+      - mkdir -p ~/.talos
+      - infisical run --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig -- bash -c 'echo "$KUBECONFIG_MAIN_BASE64"' > {{.KUBECONFIG}}
+      - infisical run --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig -- bash -c 'echo "$TALOSCONFIG_MAIN"' > {{.TALOSCONFIG}}
+      - infisical run --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig -- bash -c 'echo "$KUBECONFIG_FLAT"' > ~/.kube/config
+      - infisical run --env={{.INFISICAL_ENV}} --projectId={{.INFISICAL_PROJECT}} --path=/bootstrap/kubeconfig -- bash -c 'echo "$TALOSCONFIG_MAIN"' > ~/.talos/config
+    preconditions:
+      - which infisical

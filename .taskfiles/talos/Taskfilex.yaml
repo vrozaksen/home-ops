@@ -25,7 +25,7 @@ tasks:
       - test -f {{.RENDER_MACHINE_SCRIPT}}
       - test -f {{.TALOS_MACHINE_FILE}}
       - test -f {{.TALOS_NODES_DIR}}/{{.NODE}}.yaml.j2
-      - which minijinja-cli talosctl bws yq
+      - which minijinja-cli talosctl infisical yq
 
   apply-cluster:
     desc: Apply the Talos config on all nodes for an existing cluster
@@ -41,7 +41,7 @@ tasks:
       - talosctl get nodestatus
       - test -f {{.RENDER_MACHINE_SCRIPT}}
       - test -f {{.TALOS_MACHINE_FILE}}
-      - which minijinja-cli talosctl bws yq
+      - which minijinja-cli talosctl infisical yq
 
   upgrade-node:
     desc: Upgrade a node [NODE=required] [MODE=powercycle]

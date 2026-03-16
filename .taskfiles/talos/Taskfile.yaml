@@ -7,9 +7,9 @@ tasks:
     desc: Generate Talos configuration
     dir: '{{.TALOS_DIR}}'
     cmds:
-      - bws run --no-inherit-env -- talhelper genconfig
+      - infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- talhelper genconfig
     preconditions:
-      - bws project list
+      - infisical secrets list --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap
       - test -f talconfig.yaml
       - test -f talsecret.yaml
       - which talhelper

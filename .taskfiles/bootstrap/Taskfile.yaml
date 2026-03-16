@@ -13,4 +13,4 @@ tasks:
     preconditions:
       - find --version | grep -q GNU
       - test -f {{.BOOTSTRAP_SCRIPT}}
-      - which gum helm helmfile kubectl bws talosctl yq
+      - which gum helm helmfile kubectl infisical talosctl yq

@@ -45,3 +45,20 @@ spec:
     - action: replace
       targetLabel: job
       replacement: garage
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: vps-bifrost
+spec:
+  staticConfigs:
+    - targets:
+        - pangolin.vzkn.eu:9090
+      labels:
+        instance: bifrost
+  metricsPath: /federate
+  params:
+    "match[]":
+      - '{job=~".+"}'
+  honorLabels: true

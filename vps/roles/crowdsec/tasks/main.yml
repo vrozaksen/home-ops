@@ -1,0 +1,31 @@
+---
+- name: Generate bouncer API key
+  ansible.builtin.shell: >
+    docker exec crowdsec cscli bouncers add traefik -o raw
+  register: _crowdsec_bouncer_key
+  changed_when: true
+  failed_when: false
+
+- name: Update .env with bouncer key
+  ansible.builtin.lineinfile:
+    path: /opt/pangolin/.env
+    regexp: '^CROWDSEC_API_KEY='
+    line: "CROWDSEC_API_KEY={{ _crowdsec_bouncer_key.stdout }}"
+  when: _crowdsec_bouncer_key.rc == 0
+  no_log: true
+
+- name: Save bouncer key to Infisical
+  ansible.builtin.shell: >
+    infisical secrets set CROWDSEC_API_KEY="{{ _crowdsec_bouncer_key.stdout }}"
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path {{ infisical_path }}
+  delegate_to: localhost
+  become: false
+  when: _crowdsec_bouncer_key.rc == 0
+  no_log: true
+
+- name: Restart traefik with bouncer key
+  ansible.builtin.shell: |
+    cd /opt/pangolin && docker compose restart traefik
+  when: _crowdsec_bouncer_key.rc == 0

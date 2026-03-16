@@ -1,0 +1,36 @@
+---
+# Connection
+ansible_user: debian
+ansible_ssh_private_key_file: ~/.ssh/bifrost
+
+# Infisical
+infisical_project: "da94b011-9a7d-408b-92d9-55be47efe750"
+infisical_env: "prod"
+infisical_path: "/vps"
+
+# Pangolin
+pangolin_hostname: "pangolin.vzkn.eu"
+pangolin_domain: "vzkn.eu"
+pangolin_org_id: "vzkn"
+pangolin_org_name: "Vzkn.eu"
+pangolin_site_name: "bifrost"
+pangolin_site_id: "spiteful-screaming-hairy-armadillo"
+pangolin_org_subnet: "100.89.0.0/16"
+pangolin_org_utility_subnet: "100.90.0.0/24"
+
+# doco-cd
+doco_cd_repo: "https://github.com/vrozaksen/home-ops.git"
+
+# UFW firewall rules — single source of truth
+firewall_rules:
+  # Core
+  - { port: "22", proto: tcp, comment: "SSH" }
+  - { port: "80", proto: tcp, comment: "HTTP" }
+  - { port: "443", proto: tcp, comment: "HTTPS" }
+  - { port: "51820", proto: udp, comment: "WireGuard Gerbil" }
+  - { port: "21820", proto: udp, comment: "WireGuard Gerbil mgmt" }
+  # Pangolin raw resources (add here when needed)
+  # - { port: "64738", proto: tcp, comment: "Mumble TCP" }
+
+# Pangolin raw TCP/UDP resources (add here when needed)
+pangolin_raw_resources: []

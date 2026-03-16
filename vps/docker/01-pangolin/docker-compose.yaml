@@ -13,9 +13,6 @@ services:
           memory: 256m
     volumes:
       - /opt/pangolin/config:/app/config
-    configs:
-      - source: pangolin_config
-        target: /app/config/config.yml
     healthcheck:
       test:
         - CMD
@@ -64,12 +61,9 @@ services:
           memory: 512m
         reservations:
           memory: 64m
+    env_file: /opt/pangolin/.env
     environment:
-      - OVH_ENDPOINT=ovh-eu
-      - OVH_APPLICATION_KEY=${OVH_APPLICATION_KEY}
-      - OVH_APPLICATION_SECRET=${OVH_APPLICATION_SECRET}
-      - OVH_CONSUMER_KEY=${OVH_CONSUMER_KEY}
-      - CROWDSEC_API_KEY=${CROWDSEC_API_KEY}
+      OVH_ENDPOINT: ovh-eu
     network_mode: service:gerbil
     depends_on:
       crowdsec:
@@ -97,10 +91,10 @@ services:
           memory: 512m
         reservations:
           memory: 128m
+    env_file: /opt/pangolin/.env
     environment:
       COLLECTIONS: crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/linux
       ENROLL_INSTANCE_NAME: bifrost-crowdsec
-      ENROLL_KEY: ${CROWDSEC_ENROLL_KEY:-}
       ENROLL_TAGS: docker
       GID: "1000"
       PARSERS: crowdsecurity/whitelists
@@ -130,11 +124,10 @@ services:
     image: ghcr.io/maxmind/geoipupdate:v7.1.1@sha256:faecdca22579730ab0b7dea5aa9af350bb3c93cb9d39845c173639ead30346d2
     container_name: geoipupdate
     restart: unless-stopped
+    env_file: /opt/pangolin/.env
     environment:
-      - GEOIPUPDATE_ACCOUNT_ID=${MAXMIND_ACCOUNT_ID}
-      - GEOIPUPDATE_LICENSE_KEY=${MAXMIND_LICENSE_KEY}
-      - GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-ASN
-      - GEOIPUPDATE_FREQUENCY=72
+      GEOIPUPDATE_EDITION_IDS: GeoLite2-Country GeoLite2-ASN
+      GEOIPUPDATE_FREQUENCY: "72"
     volumes:
       - /opt/pangolin/config/GeoLite2:/usr/share/GeoIP
 
@@ -144,36 +137,6 @@ networks:
     name: pangolin
 
 configs:
-  pangolin_config:
-    content: |-
-      gerbil:
-          start_port: 51820
-          base_endpoint: "pangolin.vzkn.eu"
-      app:
-          dashboard_url: "https://pangolin.vzkn.eu"
-          log_level: "info"
-          telemetry:
-              anonymous_usage: false
-      domains:
-          domain1:
-              base_domain: "vzkn.eu"
-              cert_resolver: "letsencrypt"
-      server:
-          integration_port: 3003
-          secret: "${PANGOLIN_SECRET}"
-          cors:
-              origins: ["https://pangolin.vzkn.eu"]
-              methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
-              allowed_headers: ["X-CSRF-Token", "Content-Type"]
-              credentials: false
-          maxmind_db_path: "./config/GeoLite2/GeoLite2-Country.mmdb"
-          maxmind_asn_path: "./config/GeoLite2/GeoLite2-ASN.mmdb"
-      flags:
-          require_email_verification: false
-          disable_signup_without_invite: true
-          disable_user_create_org: false
-          allow_raw_resources: true
-          enable_integration_api: true
   traefik_config:
     content: |-
       api:

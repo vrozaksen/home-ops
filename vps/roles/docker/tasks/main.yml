@@ -1,0 +1,32 @@
+---
+- name: Install Docker
+  ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
+  args:
+    executable: /bin/bash
+    creates: /usr/bin/docker
+
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: true
+
+- name: Harden daemon config
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "live-restore": true,
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart docker
+
+- name: Flush handlers to ensure Docker is ready
+  ansible.builtin.meta: flush_handlers

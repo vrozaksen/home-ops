@@ -1,0 +1,76 @@
+---
+- name: Build secret list (bootstrap)
+  ansible.builtin.set_fact:
+    _infisical_secrets:
+      - PANGOLIN_SECRET
+      - OVH_APPLICATION_KEY
+      - OVH_APPLICATION_SECRET
+      - OVH_CONSUMER_KEY
+      - ADMIN_EMAIL
+      - ADMIN_PASSWORD
+      - GITHUB_TOKEN
+      - MAXMIND_USER_ID
+      - MAXMIND_LICENSE_KEY
+      - CROWDSEC_ENROLL_KEY
+  when: bootstrap | default(false) | bool
+
+- name: Build secret list (manage)
+  ansible.builtin.set_fact:
+    _infisical_secrets:
+      - PANGOLIN_SECRET
+      - OVH_APPLICATION_KEY
+      - OVH_APPLICATION_SECRET
+      - OVH_CONSUMER_KEY
+      - GITHUB_TOKEN
+      - MAXMIND_USER_ID
+      - MAXMIND_LICENSE_KEY
+      - CROWDSEC_API_KEY
+      - PANGOLIN_API_KEY
+  when: not (bootstrap | default(false) | bool)
+
+- name: Read secrets from Infisical
+  ansible.builtin.shell: >
+    infisical secrets get {{ item }}
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path {{ infisical_path }}
+    --plain 2>/dev/null || echo ""
+  delegate_to: localhost
+  become: false
+  check_mode: false
+  loop: "{{ _infisical_secrets }}"
+  register: _infisical_raw
+  no_log: true
+
+- name: Set secret facts
+  ansible.builtin.set_fact:
+    "{{ item.item | lower }}": "{{ item.stdout | default('', true) }}"
+  loop: "{{ _infisical_raw.results }}"
+  no_log: true
+
+- name: Validate required secrets (bootstrap)
+  ansible.builtin.fail:
+    msg: "Required secret '{{ item }}' is empty — set it in Infisical {{ infisical_path }}"
+  when:
+    - bootstrap | default(false) | bool
+    - lookup('vars', item | lower) == ""
+  loop:
+    - PANGOLIN_SECRET
+    - OVH_APPLICATION_KEY
+    - OVH_APPLICATION_SECRET
+    - OVH_CONSUMER_KEY
+    - ADMIN_EMAIL
+    - ADMIN_PASSWORD
+    - GITHUB_TOKEN
+  no_log: true
+
+- name: Validate required secrets (manage)
+  ansible.builtin.fail:
+    msg: "Required secret '{{ item }}' is empty — set it in Infisical {{ infisical_path }}"
+  when:
+    - not (bootstrap | default(false) | bool)
+    - lookup('vars', item | lower) == ""
+  loop:
+    - PANGOLIN_API_KEY
+    - GITHUB_TOKEN
+  no_log: true

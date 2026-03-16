@@ -1,0 +1,42 @@
+inventory := "inventory/hosts.yml"
+playbook := "site.yml"
+
+# Show available commands
+default:
+    @just --list
+
+# Full sync (all roles except bootstrap)
+sync:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --skip-tags bootstrap
+
+# Bootstrap VPS from scratch (first-time setup)
+bootstrap:
+    ansible-playbook {{ playbook }} -i {{ inventory }} -e bootstrap=true
+
+# Sync only OS hardening
+hardening:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags hardening
+
+# Sync only Docker config
+docker:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags docker
+
+# Sync only Pangolin (.env + config.yml)
+pangolin:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags pangolin
+
+# Update doco-cd (after Renovate bumps image)
+doco-cd:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags doco-cd
+
+# Sync only firewall rules
+firewall:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags firewall
+
+# Sync only Pangolin raw resources
+resources:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --tags resources
+
+# Dry-run — show what would change without applying
+dry-run:
+    ansible-playbook {{ playbook }} -i {{ inventory }} --skip-tags bootstrap --check --diff

@@ -1,0 +1,41 @@
+---
+# Declarative Pangolin raw resource management via Integration API
+# Runs curl through docker network on the VPS (port 3003 internal only)
+
+- name: List existing resources for site
+  ansible.builtin.shell: >
+    docker run --rm --network pangolin curlimages/curl
+    -sf -H "Authorization: Bearer {{ pangolin_api_key }}"
+    http://pangolin:3003/v1/org/{{ pangolin_org_id }}/site/{{ pangolin_site_id }}/resources
+  register: existing_resources_raw
+  check_mode: false
+
+- name: Parse resources JSON
+  ansible.builtin.set_fact:
+    existing_raw: >-
+      {{ (existing_resources_raw.stdout | from_json).data | default([])
+         | selectattr('http', 'equalto', false) | list }}
+    desired_names: >-
+      {{ pangolin_raw_resources | map(attribute='name') | list }}
+
+- name: Create missing resources
+  ansible.builtin.shell: >
+    docker run --rm --network pangolin curlimages/curl
+    -sf -X PUT
+    -H "Authorization: Bearer {{ pangolin_api_key }}"
+    -H "Content-Type: application/json"
+    -d '{"name":"{{ item.name }}","http":false,"protocol":"{{ item.protocol }}","proxyPort":{{ item.port }}}'
+    http://pangolin:3003/v1/org/{{ pangolin_org_id }}/site/{{ pangolin_site_id }}/resource
+  loop: "{{ pangolin_raw_resources }}"
+  when: item.name not in (existing_raw | map(attribute='name') | list)
+  no_log: true
+
+- name: Remove stale raw resources
+  ansible.builtin.shell: >
+    docker run --rm --network pangolin curlimages/curl
+    -sf -X DELETE
+    -H "Authorization: Bearer {{ pangolin_api_key }}"
+    http://pangolin:3003/v1/org/{{ pangolin_org_id }}/site/{{ pangolin_site_id }}/resource/{{ item.resourceId }}
+  loop: "{{ existing_raw }}"
+  when: item.name not in desired_names
+  no_log: true

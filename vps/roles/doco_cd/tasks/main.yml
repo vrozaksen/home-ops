@@ -1,0 +1,40 @@
+---
+- name: Create directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+  loop:
+    - /opt/doco-cd
+    - /opt/doco-cd/secrets
+
+- name: Write GitHub token
+  ansible.builtin.copy:
+    dest: /opt/doco-cd/secrets/gh_token
+    content: "{{ github_token }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Copy docker-compose.yaml
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/docker/.doco-cd/docker-compose.app.yaml"
+    dest: /opt/doco-cd/docker-compose.yaml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Start doco-cd
+  ansible.builtin.shell: |
+    cd /opt/doco-cd && docker compose up -d --pull always
+  args:
+    executable: /bin/bash
+
+- name: Wait for healthy
+  ansible.builtin.command: >
+    docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' doco-cd
+  register: _doco_cd_health
+  until: _doco_cd_health.stdout == "healthy"
+  retries: 12
+  delay: 10

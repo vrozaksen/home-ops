@@ -1,0 +1,15 @@
+---
+- name: Manage bifrost VPS
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - { role: infisical, tags: [always] }
+    - { role: hardening, tags: [hardening] }
+    - { role: firewall, tags: [firewall] }
+    - { role: docker, tags: [docker] }
+    - { role: pangolin, tags: [pangolin] }
+    - { role: pangolin_bootstrap, tags: [bootstrap], when: bootstrap | default(false) | bool }
+    - { role: crowdsec, tags: [bootstrap], when: bootstrap | default(false) | bool }
+    - { role: doco_cd, tags: [doco-cd] }
+    - { role: pangolin_resources, tags: [resources] }

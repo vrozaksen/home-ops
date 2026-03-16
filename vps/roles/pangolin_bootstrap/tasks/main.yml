@@ -1,0 +1,148 @@
+---
+- name: Set admin credentials
+  ansible.builtin.shell: >
+    docker exec
+    -e ADMIN_EMAIL='{{ admin_email }}'
+    -e ADMIN_PASSWORD='{{ admin_password }}'
+    pangolin sh -c 'node /app/dist/cli.mjs set-admin-credentials
+    --email "$ADMIN_EMAIL"
+    --password "$ADMIN_PASSWORD"'
+  no_log: true
+
+- name: Bootstrap org and site
+  ansible.builtin.shell: |
+    docker exec -i \
+      -e ADMIN_EMAIL='{{ admin_email }}' \
+      -e ADMIN_PASSWORD='{{ admin_password }}' \
+      pangolin node - << 'JSEOF'
+    const http = require('http');
+    const CSRF = 'x-csrf-protection';
+    let cookie = '';
+
+    function api(method, path, body) {
+      return new Promise((resolve, reject) => {
+        const data = body ? JSON.stringify(body) : null;
+        const opts = {
+          hostname: 'localhost', port: 3000,
+          path: '/api/v1' + path, method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': CSRF,
+            ...(cookie ? { Cookie: cookie } : {})
+          }
+        };
+        const req = http.request(opts, res => {
+          const sc = res.headers['set-cookie'];
+          if (sc) cookie = sc.map(c => c.split(';')[0]).join('; ');
+          let buf = '';
+          res.on('data', d => buf += d);
+          res.on('end', () => resolve(JSON.parse(buf)));
+        });
+        req.on('error', reject);
+        if (data) req.write(data);
+        req.end();
+      });
+    }
+
+    async function main() {
+      let r = await api('POST', '/auth/login',
+        { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD });
+      if (!r.success) { console.log('LOGIN_FAILED: ' + r.message); process.exit(1); }
+
+      r = await api('PUT', '/org', {
+        orgId: '{{ pangolin_org_id }}', name: '{{ pangolin_org_name }}',
+        subnet: '{{ pangolin_org_subnet }}', utilitySubnet: '{{ pangolin_org_utility_subnet }}'
+      });
+      if (!r.success && !r.message.includes('already exists')) {
+        console.log('ORG_FAILED: ' + r.message); process.exit(1);
+      }
+
+      const sites = await api('GET', '/org/{{ pangolin_org_id }}/sites');
+      const existing = (sites.data?.sites || []).find(s => s.name === '{{ pangolin_site_name }}');
+      if (existing) { console.log('SITE_EXISTS:' + existing.niceId); process.exit(0); }
+
+      const defaults = await api('GET', '/org/{{ pangolin_org_id }}/pick-site-defaults');
+      if (!defaults.success) { console.log('DEFAULTS_FAILED: ' + defaults.message); process.exit(1); }
+
+      const newtId = defaults.data.newtId;
+      const newtSecret = defaults.data.newtSecret;
+
+      r = await api('PUT', '/org/{{ pangolin_org_id }}/site', {
+        name: '{{ pangolin_site_name }}', type: 'newt',
+        newtId, secret: newtSecret
+      });
+      if (!r.success) { console.log('SITE_FAILED: ' + r.message); process.exit(1); }
+
+      console.log('NEWT_ID:' + newtId);
+      console.log('NEWT_SECRET:' + newtSecret);
+      console.log('SITE_NICE_ID:' + r.data.niceId);
+    }
+
+    main().catch(e => { console.log('ERROR: ' + e.message); process.exit(1); });
+    JSEOF
+  args:
+    executable: /bin/bash
+  register: _pangolin_bootstrap
+  no_log: true
+
+- name: Parse bootstrap output
+  ansible.builtin.set_fact:
+    _newt_id: "{{ (_pangolin_bootstrap.stdout | regex_search('NEWT_ID:(.+)', '\\1') or ['']) | first }}"
+    _newt_secret: "{{ (_pangolin_bootstrap.stdout | regex_search('NEWT_SECRET:(.+)', '\\1') or ['']) | first }}"
+    _site_nice_id: "{{ (_pangolin_bootstrap.stdout | regex_search('SITE_(?:NICE_ID|EXISTS):(.+)', '\\1') or ['']) | first }}"
+
+- name: Fail if bootstrap returned an error
+  ansible.builtin.fail:
+    msg: "{{ _pangolin_bootstrap.stdout }}"
+  when: "'_FAILED:' in _pangolin_bootstrap.stdout"
+
+- name: Save NEWT_ID to Infisical
+  ansible.builtin.shell: >
+    infisical secrets set NEWT_ID="{{ _newt_id }}"
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path {{ infisical_path }}
+  delegate_to: localhost
+  become: false
+  when: _newt_id != ""
+  no_log: true
+
+- name: Save NEWT_SECRET to Infisical
+  ansible.builtin.shell: >
+    infisical secrets set NEWT_SECRET="{{ _newt_secret }}"
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path {{ infisical_path }}
+  delegate_to: localhost
+  become: false
+  when: _newt_secret != ""
+  no_log: true
+
+- name: Save PANGOLIN_SITE_ID to Infisical
+  ansible.builtin.shell: >
+    infisical secrets set PANGOLIN_SITE_ID="{{ _site_nice_id }}"
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path {{ infisical_path }}
+  delegate_to: localhost
+  become: false
+  when: _site_nice_id != ""
+  no_log: true
+
+- name: Display bootstrap summary
+  ansible.builtin.debug:
+    msg:
+      - "==========================================="
+      - "  PANGOLIN BOOTSTRAP COMPLETE"
+      - "==========================================="
+      - ""
+      - "Dashboard     : https://{{ pangolin_hostname }}"
+      - "Org           : {{ pangolin_org_id }}"
+      - "Site niceId   : {{ _site_nice_id }}"
+      - "Newt ID       : {{ _newt_id if _newt_id != '' else '(site already existed)' }}"
+      - ""
+      - "Credentials saved to Infisical ({{ infisical_path }})"
+      - ""
+      - "NEXT STEPS:"
+      - "1. Deploy Newt on cluster: kubernetes/apps/network/newt/"
+      - "2. Deploy OVH DNS: kubernetes/apps/network/ovh-dns/"

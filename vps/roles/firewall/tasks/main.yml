@@ -1,0 +1,44 @@
+---
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+- name: Ensure UFW is enabled
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+
+- name: Sync firewall rules
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "managed: {{ item.comment }}"
+  loop: "{{ firewall_rules }}"
+
+- name: Get current managed rules
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ufw status verbose | grep 'managed:' | while IFS= read -r line; do
+      port_proto=$(echo "$line" | awk '{print $1}')
+      echo "$port_proto"
+    done
+  register: current_managed
+  changed_when: false
+  failed_when: false
+
+- name: Build desired port/proto list
+  ansible.builtin.set_fact:
+    desired_port_protos: "{{ firewall_rules | map(attribute='port') | zip(firewall_rules | map(attribute='proto')) | map('join', '/') | list }}"
+
+- name: Remove stale managed rules
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.split('/')[0] }}"
+    proto: "{{ item.split('/')[1] }}"
+    delete: true
+  loop: "{{ current_managed.stdout_lines | default([]) }}"
+  when: item not in desired_port_protos

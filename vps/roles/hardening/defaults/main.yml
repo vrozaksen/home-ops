@@ -1,0 +1,3 @@
+---
+hardening_ssh_allow_users: debian
+hardening_hostname: bifrost

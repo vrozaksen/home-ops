@@ -1,0 +1,61 @@
+---
+- name: Create directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+  loop:
+    - /opt/pangolin
+    - /opt/pangolin/config
+    - /opt/pangolin/config/letsencrypt
+    - /opt/pangolin/config/traefik
+    - /opt/pangolin/config/traefik/logs
+    - /opt/pangolin/config/GeoLite2
+    - /opt/crowdsec/config
+    - /opt/crowdsec/data
+
+- name: Template .env
+  ansible.builtin.template:
+    src: env.j2
+    dest: /opt/pangolin/.env
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  register: _pangolin_env
+
+- name: Template config.yml
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: /opt/pangolin/config/config.yml
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  register: _pangolin_config
+
+- name: Copy docker-compose.yaml
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/docker/01-pangolin/docker-compose.yaml"
+    dest: /opt/pangolin/docker-compose.yaml
+    owner: root
+    group: root
+    mode: "0600"
+
+# Bootstrap: bring stack up for the first time
+# Day-to-day: doco-cd handles compose changes, skip restart
+- name: Start services
+  ansible.builtin.shell: |
+    cd /opt/pangolin && docker compose up -d
+  args:
+    executable: /bin/bash
+  when: bootstrap | default(false) | bool
+
+- name: Wait for healthy
+  ansible.builtin.command: >
+    docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' pangolin
+  register: _pangolin_health
+  until: _pangolin_health.stdout == "healthy"
+  retries: 30
+  delay: 10
+  when: bootstrap | default(false) | bool

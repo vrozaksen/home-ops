@@ -123,8 +123,8 @@ services:
     configs:
       - source: crowdsec_acquis
         target: /etc/crowdsec/acquis.yaml
-      - source: crowdsec_whitelist
-        target: /etc/crowdsec/postoverflows/s01-whitelist/pangolin-whitelist.yaml
+      - source: crowdsec_simulation
+        target: /etc/crowdsec/simulation.yaml
 
   geoipupdate:
     image: ghcr.io/maxmind/geoipupdate:v7.1.1@sha256:faecdca22579730ab0b7dea5aa9af350bb3c93cb9d39845c173639ead30346d2
@@ -267,14 +267,11 @@ configs:
               X-Forwarded-For: keep
               X-Forwarded-Proto: keep
               X-Real-Ip: keep
-  crowdsec_whitelist:
+  crowdsec_simulation:
     content: |
-      name: pangolin-403-whitelist
-      description: "Whitelist http-generic-bf — Pangolin Badger handles access control and legitimately returns 403"
-      whitelist:
-        reason: "Pangolin Badger middleware returns 403 for access control, not brute force"
-        expression:
-          - evt.GetScenario() == 'crowdsecurity/http-generic-bf'
+      simulation: false
+      exclusions:
+        - crowdsecurity/http-generic-bf
   crowdsec_acquis:
     content: |
       source: file

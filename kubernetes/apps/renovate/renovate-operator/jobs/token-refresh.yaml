@@ -55,7 +55,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: token-refresh
-              image: alpine:3.21
+              image: alpine:3.23
               resources:
                 requests:
                   cpu: 50m

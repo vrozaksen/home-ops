@@ -15,10 +15,7 @@ spec:
       namespace: cert-manager
     - apiVersion: &apiVersion cert-manager.io/v1
       kind: &kind ClusterIssuer
-      name: cluster-selfsigned-issuer
-    - apiVersion: *apiVersion
-      kind: *kind
-      name: cluster-signed-issuer
+      name: letsencrypt-production
   healthCheckExprs:
     - apiVersion: *apiVersion
       kind: *kind

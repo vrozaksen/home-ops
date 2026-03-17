@@ -44,7 +44,7 @@ spec:
     newtInstances:
       - name: main-tunnel
         enabled: true
-        replicas: 2
+        replicas: 1
         auth:
           existingSecretName: newt-secret
           keys:
@@ -100,11 +100,3 @@ spec:
           enabled: false
         hostNetwork: true
         useNativeInterface: true
-        topologySpreadConstraints:
-          - maxSkew: 1
-            topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: DoNotSchedule
-            labelSelector:
-              matchLabels:
-                app.kubernetes.io/name: newt
-                app.kubernetes.io/instance: main-tunnel

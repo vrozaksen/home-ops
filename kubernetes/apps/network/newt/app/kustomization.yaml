@@ -6,4 +6,5 @@ namespace: network
 resources:
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
+  - ./clusterrole.yaml
   - ./grafanadashboard.yaml

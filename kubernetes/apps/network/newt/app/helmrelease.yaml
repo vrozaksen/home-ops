@@ -5,13 +5,13 @@ kind: OCIRepository
 metadata:
   name: newt
 spec:
-  interval: 5m
+  interval: 15m
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 4.6.2
-  url: oci://ghcr.io/bjw-s-labs/helm/app-template
+    tag: 1.2.0
+  url: oci://ghcr.io/home-operations/charts-mirror/newt
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -31,20 +31,43 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-    controllers:
-      newt:
+
+    global:
+      deploymentAnnotations:
+        reloader.stakater.com/auto: "true"
+      image:
+        tag: 1.10.2
+      nativeMode:
+        enabled: true
+
+    rbac:
+      clusterRole: true
+
+    serviceAccount:
+      automountServiceAccountToken: true
+      name: newt
+
+    newtInstances:
+      - name: main-tunnel
+        enabled: true
         replicas: 1
-        annotations:
-          reloader.stakater.com/auto: "true"
+        auth:
+          existingSecretName: newt-secret
+          keys:
+            endpointKey: NEWT_SERVER_URL
+        extraEnv:
+          BLUEPRINT_FILE: /etc/newt/blueprint.yaml
+          NEWT_ADMIN_ADDR: "0.0.0.0:2112"
+          NEWT_METRICS_PROMETHEUS_ENABLED: "true"
+        extraVolumeMounts:
+          - name: blueprint
+            mountPath: /etc/newt
+        extraVolumes:
+          - name: blueprint
+            emptyDir: {}
         initContainers:
-          newt-sidecar:
-            image:
-              repository: ghcr.io/home-operations/newt-sidecar
-              tag: 0.1.2
+          - name: newt-sidecar
+            image: ghcr.io/home-operations/newt-sidecar:0.1.2
             args:
               - --gateway-name=envoy-external
               - --site-id=spiteful-screaming-hairy-armadillo
@@ -53,72 +76,33 @@ spec:
             restartPolicy: Always
             resources:
               limits:
-                memory: 64Mi
-        containers:
-          app:
-            image:
-              repository: ghcr.io/fosrl/newt
-              tag: 1.10.2@sha256:c7b4f508cba35d698a3e4b2d55e3d902ae993d6588198291ef8e232d30421974
-            env:
-              PANGOLIN_ENDPOINT:
-                valueFrom:
-                  secretKeyRef:
-                    name: newt-secret
-                    key: NEWT_SERVER_URL
-              NEWT_ID:
-                valueFrom:
-                  secretKeyRef:
-                    name: newt-secret
-                    key: NEWT_ID
-              NEWT_SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: newt-secret
-                    key: NEWT_SECRET
-              BLUEPRINT_FILE: /etc/newt/blueprint.yaml
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - "ALL"
-                add:
-                  - "NET_ADMIN"
+                memory: 128Mi
+            volumeMounts:
+              - name: blueprint
+                mountPath: /etc/newt
+          - name: wait-blueprint
+            image: ghcr.io/home-operations/busybox:1.37.0@sha256:026ed7273270ec08f6902b4ae8334c23b473e5394bec3bbbdbfe580c710d50bc
+            command:
+              - /bin/sh
+              - -c
+              - until test -f /etc/newt/blueprint.yaml; do sleep 1; done
             resources:
               requests:
                 cpu: 10m
               limits:
-                memory: 256Mi
-    rbac:
-      roles:
-        newt:
-          type: ClusterRole
-          rules:
-            - apiGroups:
-                - gateway.networking.k8s.io
-              resources:
-                - httproutes
-              verbs:
-                - get
-                - watch
-                - list
-      bindings:
-        newt:
-          type: ClusterRoleBinding
-          roleRef:
-            identifier: newt
-          subjects:
-            - identifier: newt
-    serviceAccount:
-      newt: {}
-    persistence:
-      blueprint:
-        type: emptyDir
-        globalMounts:
-          - path: /etc/newt
-      config:
-        type: emptyDir
-        advancedMounts:
-          newt:
-            app:
-              - path: /.config
+                memory: 16Mi
+            volumeMounts:
+              - name: blueprint
+                mountPath: /etc/newt
+        metrics:
+          port: 2112
+          service:
+            enabled: true
+            port: 2112
+          serviceMonitor:
+            enabled: true
+        pingInterval: 60s
+        service:
+          enabled: false
+        hostNetwork: true
+        useNativeInterface: true

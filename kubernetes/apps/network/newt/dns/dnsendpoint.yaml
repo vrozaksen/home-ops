@@ -6,11 +6,11 @@ metadata:
   name: pangolin
 spec:
   endpoints:
-    - dnsName: pangolin.vzkn.eu
+    - dnsName: vzkn.eu
       recordType: A
       targets:
         - ${VPS_IP}
-    - dnsName: external.vzkn.eu
+    - dnsName: www.vzkn.eu
       recordType: A
       targets:
         - ${VPS_IP}
@@ -18,7 +18,11 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
-    - dnsName: vzkn.eu
+    - dnsName: external.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
+    - dnsName: pangolin.vzkn.eu
       recordType: A
       targets:
         - ${VPS_IP}

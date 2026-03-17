@@ -83,6 +83,7 @@ services:
         target: /etc/traefik/dynamic_config.yml
 
   crowdsec:
+    command: -t
     image: ghcr.io/crowdsecurity/crowdsec:v1.7.6@sha256:63b595fef92de1778573b375897a45dd226637ee9a3d3db9f57ac7355c369493
     container_name: crowdsec
     restart: unless-stopped
@@ -111,6 +112,8 @@ services:
       timeout: 5s
     labels:
       - traefik.enable=false
+    ports:
+      - 6060:6060
     volumes:
       - /opt/crowdsec/config:/etc/crowdsec
       - /opt/crowdsec/data:/var/lib/crowdsec/data
@@ -163,6 +166,10 @@ configs:
       log:
         level: "INFO"
         format: "common"
+        maxSize: 100
+        maxBackups: 3
+        maxAge: 3
+        compress: true
 
       certificatesResolvers:
         letsencrypt:
@@ -267,6 +274,7 @@ configs:
                   - 10.0.0.0/8
                   - 172.16.0.0/12
                   - 192.168.0.0/16
+                  - 100.89.137.0/20
                 crowdsecAppsecBodyLimit: 10485760
                 crowdsecAppsecEnabled: true
                 crowdsecAppsecFailureBlock: true
@@ -342,8 +350,8 @@ configs:
             entryPoints:
               - web
             middlewares:
-              - crowdsec
               - redirect-to-https
+              - badger
           # Pangolin Next.js frontend
           next-router:
             rule: "Host(`pangolin.vzkn.eu`) && !PathPrefix(`/api/v1`)"
@@ -351,9 +359,6 @@ configs:
             entryPoints:
               - websecure
             middlewares:
-              - crowdsec
-              - rate-limit
-              - security-headers
               - badger
             tls:
               certResolver: letsencrypt
@@ -368,9 +373,6 @@ configs:
             entryPoints:
               - websecure
             middlewares:
-              - crowdsec
-              - rate-limit
-              - security-headers
               - badger
             tls:
               certResolver: letsencrypt
@@ -381,7 +383,6 @@ configs:
             entryPoints:
               - websecure
             middlewares:
-              - crowdsec
               - badger
             tls:
               certResolver: letsencrypt
@@ -403,8 +404,6 @@ configs:
             entryPoints:
               - websecure
             middlewares:
-              - crowdsec
-              - rate-limit
               - matrix-cors
               - matrix-well-known-redirect
             rule: "Host(`vzkn.eu`) && PathPrefix(`/.well-known/matrix/`)"

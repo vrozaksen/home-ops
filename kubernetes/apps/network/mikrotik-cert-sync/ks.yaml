@@ -6,7 +6,7 @@ metadata:
   name: &app mikrotik-cert-sync
 spec:
   dependsOn:
-    - name: certificates
+    - name: certificates-import
       namespace: network
     - name: infisical-operator
       namespace: security

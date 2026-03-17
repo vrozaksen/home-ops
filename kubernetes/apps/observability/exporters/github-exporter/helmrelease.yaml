@@ -25,8 +25,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/githubexporter/github-exporter
-              tag: 1.1.0
+              repository: docker.io/githubexporter/github-exporter
+              tag: v2.3.0
             env:
               ORGS: vrozaksen
               LISTEN_PORT: "9171"

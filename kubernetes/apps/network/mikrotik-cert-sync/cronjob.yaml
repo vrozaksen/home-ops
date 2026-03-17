@@ -1,0 +1,75 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mikrotik-cert-sync
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          serviceAccountName: mikrotik-cert-sync
+          restartPolicy: OnFailure
+          containers:
+            - name: cert-sync
+              image: alpine:3.23
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  apk add -q --no-cache curl openssl jq openssh-client
+
+                  mkdir -p ~/.ssh
+                  cat /ssh-key/SSH_PRIVATE_KEY > ~/.ssh/id_ed25519
+                  echo >> ~/.ssh/id_ed25519
+                  chmod 600 ~/.ssh/id_ed25519
+
+                  KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  SECRET=$(curl -sS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                    -H "Authorization: Bearer $KUBE_TOKEN" \
+                    "https://kubernetes.default.svc/api/v1/namespaces/network/secrets/vzkn-eu-tls")
+
+                  echo "$SECRET" | jq -r '.data["tls.crt"]' | base64 -d > /tmp/router.crt
+                  echo "$SECRET" | jq -r '.data["tls.key"]' | base64 -d > /tmp/router.key
+
+                  echo "Certificate details:"
+                  openssl x509 -in /tmp/router.crt -noout -subject -dates | tr '\n' ' '
+                  echo
+
+                  SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
+                  ROUTER_HOST="router.home.vzkn.eu"
+                  ROUTER_USER="cert-sync"
+
+                  scp $SSH_OPTS /tmp/router.crt /tmp/router.key "${ROUTER_USER}@${ROUTER_HOST}:/"
+
+                  ssh $SSH_OPTS "${ROUTER_USER}@${ROUTER_HOST}" '
+                    /certificate remove [find where name~"router"]
+                    /certificate import file-name=router.crt passphrase=""
+                    /certificate import file-name=router.key passphrase=""
+                    :delay 1s
+                    /ip service set www-ssl certificate=router.crt_0
+                    /ip service set api-ssl certificate=router.crt_0
+                  '
+                  echo "Certificate synced to MikroTik router"
+              volumeMounts:
+                - name: ssh-key
+                  mountPath: /ssh-key
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+          volumes:
+            - name: ssh-key
+              secret:
+                secretName: mikrotik-cert-sync-secret
+                defaultMode: 0400

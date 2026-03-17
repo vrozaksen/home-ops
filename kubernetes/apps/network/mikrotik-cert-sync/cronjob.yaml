@@ -31,13 +31,13 @@ spec:
                   echo >> ~/.ssh/id_ed25519
                   chmod 600 ~/.ssh/id_ed25519
 
-                  KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-                  SECRET=$(curl -sS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
-                    -H "Authorization: Bearer $KUBE_TOKEN" \
+                  KUBE_TOKEN=$$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  SECRET=$$(curl -sS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                    -H "Authorization: Bearer $$KUBE_TOKEN" \
                     "https://kubernetes.default.svc/api/v1/namespaces/network/secrets/vzkn-eu-tls")
 
-                  echo "$SECRET" | jq -r '.data["tls.crt"]' | base64 -d > /tmp/router.crt
-                  echo "$SECRET" | jq -r '.data["tls.key"]' | base64 -d > /tmp/router.key
+                  echo "$$SECRET" | jq -r '.data["tls.crt"]' | base64 -d > /tmp/router.crt
+                  echo "$$SECRET" | jq -r '.data["tls.key"]' | base64 -d > /tmp/router.key
 
                   echo "Certificate details:"
                   openssl x509 -in /tmp/router.crt -noout -subject -dates | tr '\n' ' '
@@ -47,9 +47,9 @@ spec:
                   ROUTER_HOST="router.home.vzkn.eu"
                   ROUTER_USER="cert-sync"
 
-                  scp $SSH_OPTS /tmp/router.crt /tmp/router.key "${ROUTER_USER}@${ROUTER_HOST}:/"
+                  scp $$SSH_OPTS /tmp/router.crt /tmp/router.key "$${ROUTER_USER}@$${ROUTER_HOST}:/"
 
-                  ssh $SSH_OPTS "${ROUTER_USER}@${ROUTER_HOST}" '
+                  ssh $$SSH_OPTS "$${ROUTER_USER}@$${ROUTER_HOST}" '
                     /certificate remove [find where name~"router"]
                     /certificate import file-name=router.crt passphrase=""
                     /certificate import file-name=router.key passphrase=""

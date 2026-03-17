@@ -24,14 +24,6 @@ spec:
     kind: OCIRepository
     name: newt
   values:
-    defaultPodOptions:
-      nodeSelector:
-        node-role.kubernetes.io/control-plane: ""
-      tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: NoSchedule
-
     global:
       deploymentAnnotations:
         reloader.stakater.com/auto: "true"
@@ -39,6 +31,12 @@ spec:
         tag: 1.10.2
       nativeMode:
         enabled: true
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
 
     rbac:
       clusterRole: true
@@ -50,7 +48,7 @@ spec:
     newtInstances:
       - name: main-tunnel
         enabled: true
-        replicas: 1
+        replicas: 3
         auth:
           existingSecretName: newt-secret
           keys:
@@ -106,3 +104,11 @@ spec:
           enabled: false
         hostNetwork: true
         useNativeInterface: true
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: newt
+                app.kubernetes.io/instance: main-tunnel

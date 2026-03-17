@@ -28,7 +28,7 @@ spec:
       deploymentAnnotations:
         reloader.stakater.com/auto: "true"
       image:
-        tag: 1.10.2
+        tag: 1.10.3
       nativeMode:
         enabled: true
       nodeSelector:

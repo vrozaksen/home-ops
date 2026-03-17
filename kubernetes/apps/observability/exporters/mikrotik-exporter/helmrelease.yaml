@@ -1,0 +1,87 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mikrotik-exporter
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    fullnameOverride: *app
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    controllers:
+      mktxp:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-config:
+            image:
+              repository: busybox
+              tag: 1.37.0
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - |
+                sed -e "s|\${MIKROTIK_USERNAME}|$MIKROTIK_USERNAME|g" \
+                    -e "s|\${MIKROTIK_PASSWORD}|$MIKROTIK_PASSWORD|g" \
+                    /config-template/mktxp.conf > /config/mktxp.conf
+                cp /config-template/_mktxp.conf /config/_mktxp.conf
+            envFrom:
+              - secretRef:
+                  name: mikrotik-exporter-secret
+        containers:
+          mktxp:
+            image:
+              repository: ghcr.io/akpw/mktxp
+              tag: latest
+            command:
+              - "mktxp"
+            args:
+              - "export"
+            resources:
+              requests:
+                cpu: 20m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+    service:
+      mktxp:
+        ports:
+          http:
+            port: 49090
+    serviceMonitor:
+      mktxp:
+        serviceName: *app
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+    persistence:
+      config-template:
+        type: configMap
+        name: mktxp-config
+        globalMounts:
+          - path: /config-template/mktxp.conf
+            subPath: mktxp.conf
+          - path: /config-template/_mktxp.conf
+            subPath: _mktxp.conf
+      config:
+        type: emptyDir
+        globalMounts:
+          - path: /home/mktxp/mktxp-export

@@ -1,0 +1,112 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mktxp-config
+data:
+  mktxp.conf: |
+    ## MikroTik RB5009 Router
+    [RB5009]
+        enabled = True
+        hostname = router.home.vzkn.eu
+        port = 8728
+        username = ${MIKROTIK_USERNAME}
+        password = ${MIKROTIK_PASSWORD}
+
+        use_ssl = False
+        no_ssl_certificate = True
+        ssl_certificate_verify = False
+        plaintext_login = True
+
+        dhcp = True
+        dhcp_lease = True
+        pool = True
+        interface = True
+        firewall = True
+        monitor = True
+        route = True
+        wireless = False
+        wireless_clients = False
+        capsman = False
+        capsman_clients = False
+        kid_control_assigned = False
+        kid_control_dynamic = False
+        user = True
+        queue = True
+        bgp = True
+        routing_table = True
+        certificate = True
+        arp = False
+        lte = False
+        netwatch = True
+        ppp = False
+        switch_port = False
+        environment = False
+        partitions = False
+        gps = False
+        ups = False
+        eoip = False
+        ipsec = False
+
+    ## MikroTik CRS326 Switch
+    [CRS326]
+        enabled = True
+        hostname = switch.home.vzkn.eu
+        port = 8728
+        username = ${MIKROTIK_USERNAME}
+        password = ${MIKROTIK_PASSWORD}
+
+        use_ssl = False
+        no_ssl_certificate = True
+        ssl_certificate_verify = False
+        plaintext_login = True
+
+        dhcp = False
+        dhcp_lease = False
+        pool = False
+        interface = True
+        firewall = False
+        monitor = True
+        route = False
+        wireless = False
+        wireless_clients = False
+        capsman = False
+        capsman_clients = False
+        kid_control_assigned = False
+        kid_control_dynamic = False
+        user = True
+        queue = False
+        bgp = True
+        routing_table = True
+        certificate = False
+        arp = False
+        lte = False
+        netwatch = False
+        ppp = False
+        switch_port = True
+        environment = False
+        partitions = False
+        gps = False
+        ups = False
+        eoip = False
+        ipsec = False
+
+  _mktxp.conf: |-
+    [MKTXP]
+        port = 49090
+        socket_timeout = 2
+        initial_delay_on_failure = 120
+        max_delay_on_failure = 900
+        max_worker_threads = 5
+        bandwidth = False
+        bandwidth_test_interval = 420
+        minimal_collect_interval = 5
+        verbose_mode = False
+        fetch_routers_in_parallel = True
+        delay_inc_div = 5
+        mktxp_use_comments_over_names = True
+        mktxp_socket_timeout = 2
+
+    [LOGGING]
+        enabled = False
+        log_file = /dev/null

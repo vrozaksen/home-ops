@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app mikrotik-exporter
+spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
+  interval: 1h
+  path: ./kubernetes/apps/observability/exporters/mikrotik-exporter
+  postBuild:
+    substitute:
+      APP: *app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: observability
+  wait: false

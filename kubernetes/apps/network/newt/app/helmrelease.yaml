@@ -65,7 +65,7 @@ spec:
             args:
               - --gateway-name=envoy-external
               - --site-id=spiteful-screaming-hairy-armadillo
-              - --target-hostname=envoy-external.network.svc.cluster.local
+              - --target-hostname=10.10.0.91
               - --deny-countries=RU,CN,KP,IR,BY,KZ,UZ,TM,TJ,KG,AM,AZ,SY,IQ,SA,KW,BH,QA,AE,OM,YE,AF,PK,BD,MM,MN
             restartPolicy: Always
             resources:

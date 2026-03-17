@@ -12,4 +12,129 @@ spec:
   datasources:
     - datasourceName: prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/14171/revisions/1/download
+  json: |-
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Total Repositories",
+          "type": "stat",
+          "targets": [{"expr": "count(github_repo_stars)", "legendFormat": "Repos", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Total Stars",
+          "type": "stat",
+          "targets": [{"expr": "sum(github_repo_stars)", "legendFormat": "Stars", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Total Forks",
+          "type": "stat",
+          "targets": [{"expr": "sum(github_repo_forks)", "legendFormat": "Forks", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Total Open Issues",
+          "type": "stat",
+          "targets": [{"expr": "sum(github_repo_open_issues)", "legendFormat": "Issues", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisBorderShow": false, "axisCenteredZero": false, "axisLabel": "", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "lineWidth": 1, "scaleDistribution": {"type": "linear"}, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 4},
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true}, "tooltip": {"mode": "single"}},
+          "title": "Stars per Repository",
+          "type": "timeseries",
+          "targets": [{"expr": "github_repo_stars", "legendFormat": "{{repo}}", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisBorderShow": false, "axisCenteredZero": false, "axisLabel": "", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "lineWidth": 1, "scaleDistribution": {"type": "linear"}, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 10, "w": 12, "x": 0, "y": 14},
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "sortBy": "Last *", "sortDesc": true}, "tooltip": {"mode": "single"}},
+          "title": "Forks per Repository",
+          "type": "timeseries",
+          "targets": [{"expr": "github_repo_forks", "legendFormat": "{{repo}}", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisBorderShow": false, "axisCenteredZero": false, "axisLabel": "", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "lineWidth": 1, "scaleDistribution": {"type": "linear"}, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": []
+          },
+          "gridPos": {"h": 10, "w": 12, "x": 12, "y": 14},
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "sortBy": "Last *", "sortDesc": true}, "tooltip": {"mode": "single"}},
+          "title": "Open Issues per Repository",
+          "type": "timeseries",
+          "targets": [{"expr": "github_repo_open_issues", "legendFormat": "{{repo}}", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "thresholds"}, "custom": {"align": "auto", "cellOptions": {"type": "auto"}, "inspect": false}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}},
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "Stars"}, "properties": [{"id": "custom.width", "value": 80}]},
+              {"matcher": {"id": "byName", "options": "Forks"}, "properties": [{"id": "custom.width", "value": 80}]},
+              {"matcher": {"id": "byName", "options": "Issues"}, "properties": [{"id": "custom.width", "value": 80}]},
+              {"matcher": {"id": "byName", "options": "Size"}, "properties": [{"id": "custom.width", "value": 100}, {"id": "unit", "value": "deckbytes"}]}
+            ]
+          },
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 24},
+          "options": {"showHeader": true, "sortBy": [{"desc": true, "displayName": "Stars"}]},
+          "title": "Repository Overview",
+          "type": "table",
+          "targets": [
+            {"expr": "github_repo_stars", "format": "table", "instant": true, "legendFormat": "", "refId": "A"},
+            {"expr": "github_repo_forks", "format": "table", "instant": true, "legendFormat": "", "refId": "B"},
+            {"expr": "github_repo_open_issues", "format": "table", "instant": true, "legendFormat": "", "refId": "C"},
+            {"expr": "github_repo_size_kb", "format": "table", "instant": true, "legendFormat": "", "refId": "D"}
+          ],
+          "transformations": [
+            {"id": "seriesToColumns", "options": {"byField": "repo"}},
+            {"id": "organize", "options": {"excludeByName": {"Time 1": true, "Time 2": true, "Time 3": true, "Time 4": true, "__name__ 1": true, "__name__ 2": true, "__name__ 3": true, "__name__ 4": true, "instance 1": true, "instance 2": true, "instance 3": true, "instance 4": true, "job 1": true, "job 2": true, "job 3": true, "job 4": true, "user 1": true, "user 2": true, "user 3": true, "user 4": true}, "renameByName": {"Value #A": "Stars", "Value #B": "Forks", "Value #C": "Issues", "Value #D": "Size", "repo": "Repository"}}}
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["github"],
+      "templating": {"list": []},
+      "time": {"from": "now-7d", "to": "now"},
+      "title": "GitHub Exporter",
+      "uid": "github-exporter"
+    }

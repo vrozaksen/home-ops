@@ -34,8 +34,8 @@ spec:
               - |
                 sed -e "s|\${MIKROTIK_USERNAME}|$MIKROTIK_USERNAME|g" \
                     -e "s|\${MIKROTIK_PASSWORD}|$MIKROTIK_PASSWORD|g" \
-                    /config-template/mktxp.conf > /config/mktxp.conf
-                cp /config-template/_mktxp.conf /config/_mktxp.conf
+                    /config-template/mktxp.conf > /home/mktxp/mktxp-export/mktxp.conf
+                cp /config-template/_mktxp.conf /home/mktxp/mktxp-export/_mktxp.conf
             envFrom:
               - secretRef:
                   name: mikrotik-exporter-secret

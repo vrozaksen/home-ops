@@ -28,7 +28,7 @@ spec:
               repository: docker.io/githubexporter/github-exporter
               tag: v2.3.0
             env:
-              ORGS: vrozaksen
+              USERS: vrozaksen
               LISTEN_PORT: "9171"
             envFrom:
               - secretRef:

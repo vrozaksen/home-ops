@@ -64,7 +64,7 @@ spec:
             image: ghcr.io/home-operations/newt-sidecar:0.1.2
             args:
               - --gateway-name=envoy-external
-              - --site-id=spiteful-screaming-hairy-armadillo
+              - --site-id=lonely-northern-pika
               - --target-hostname=10.10.0.91
               - --deny-countries=RU,CN,KP,IR,BY,KZ,UZ,TM,TJ,KG,AM,AZ,SY,IQ,SA,KW,BH,QA,AE,OM,YE,AF,PK,BD,MM,MN
             restartPolicy: Always

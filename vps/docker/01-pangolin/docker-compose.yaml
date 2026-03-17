@@ -265,6 +265,15 @@ configs:
         type: appsec
   traefik_dynamic_config:
     content: |-
+      tls:
+        stores:
+          default:
+            defaultGeneratedCert:
+              resolver: letsencrypt
+              domain:
+                main: "vzkn.eu"
+                sans:
+                  - "*.vzkn.eu"
       http:
         middlewares:
           crowdsec:

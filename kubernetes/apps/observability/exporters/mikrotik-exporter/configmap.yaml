@@ -10,8 +10,8 @@ data:
         enabled = True
         hostname = router.home.vzkn.eu
         port = 8728
-        username = ${MIKROTIK_USERNAME}
-        password = ${MIKROTIK_PASSWORD}
+        username = $${MIKROTIK_USERNAME}
+        password = $${MIKROTIK_PASSWORD}
 
         use_ssl = False
         no_ssl_certificate = True
@@ -53,8 +53,8 @@ data:
         enabled = True
         hostname = switch.home.vzkn.eu
         port = 8728
-        username = ${MIKROTIK_USERNAME}
-        password = ${MIKROTIK_PASSWORD}
+        username = $${MIKROTIK_USERNAME}
+        password = $${MIKROTIK_PASSWORD}
 
         use_ssl = False
         no_ssl_certificate = True

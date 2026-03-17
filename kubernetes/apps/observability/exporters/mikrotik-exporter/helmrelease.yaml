@@ -47,6 +47,8 @@ spec:
             command:
               - "mktxp"
             args:
+              - "--cfg-dir"
+              - "/etc/mktxp"
               - "export"
             resources:
               requests:

@@ -32,8 +32,8 @@ spec:
               - "-c"
             args:
               - |
-                sed -e "s|\${MIKROTIK_USERNAME}|$MIKROTIK_USERNAME|g" \
-                    -e "s|\${MIKROTIK_PASSWORD}|$MIKROTIK_PASSWORD|g" \
+                sed -e 's|$${MIKROTIK_USERNAME}|'"$MIKROTIK_USERNAME"'|g' \
+                    -e 's|$${MIKROTIK_PASSWORD}|'"$MIKROTIK_PASSWORD"'|g' \
                     /config-template/mktxp.conf > /etc/mktxp/mktxp.conf
                 cp /config-template/_mktxp.conf /etc/mktxp/_mktxp.conf
             envFrom:

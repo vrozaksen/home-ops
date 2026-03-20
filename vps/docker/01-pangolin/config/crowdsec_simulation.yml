@@ -1,0 +1,3 @@
+simulation: false
+exclusions:
+  - crowdsecurity/http-generic-bf

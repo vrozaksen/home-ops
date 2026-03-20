@@ -1,0 +1,199 @@
+tls:
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: letsencrypt
+        domain:
+          main: "vzkn.eu"
+          sans:
+            - "*.vzkn.eu"
+http:
+  middlewares:
+    crowdsec:
+      plugin:
+        crowdsec:
+          clientTrustedIPs:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 100.89.137.0/20
+          crowdsecAppsecBodyLimit: 10485760
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecHost: crowdsec:7422
+          crowdsecAppsecUnreachableBlock: true
+          crowdsecLapiHost: crowdsec:8080
+          crowdsecLapiKey: {{ env "CROWDSEC_API_KEY" }}
+          crowdsecLapiScheme: http
+          crowdsecMode: live
+          defaultDecisionSeconds: 15
+          enabled: true
+          forwardedHeadersTrustedIPs:
+            - 0.0.0.0/0
+          httpTimeoutSeconds: 10
+          logLevel: INFO
+          updateIntervalSeconds: 15
+          updateMaxFailure: 0
+    badger:
+      plugin:
+        badger:
+          disableForwardAuth: true
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 200
+        period: 1s
+        sourceCriterion:
+          ipStrategy:
+            depth: 1
+    prometheus-auth:
+      basicAuth:
+        usersFile: /etc/traefik/prometheus-htpasswd
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+    security-headers:
+      headers:
+        contentTypeNosniff: true
+        customFrameOptionsValue: SAMEORIGIN
+        customResponseHeaders:
+          Server: ""
+          X-Forwarded-Proto: https
+          X-Powered-By: ""
+        forceSTSHeader: true
+        hostsProxyHeaders:
+          - X-Forwarded-Host
+        referrerPolicy: strict-origin-when-cross-origin
+        sslProxyHeaders:
+          X-Forwarded-Proto: https
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 63072000
+    # Internal-only IP allowlist (WireGuard + private networks)
+    internal-only:
+      ipAllowList:
+        sourceRange:
+          - 100.89.0.0/16
+          - 10.0.0.0/8
+          - 172.16.0.0/12
+          - 192.168.0.0/16
+    # Matrix well-known redirect (continuwuity federation)
+    matrix-well-known-redirect:
+      redirectRegex:
+        permanent: true
+        regex: "^https?://vzkn\\.eu(/.well-known/matrix/.*)$"
+        replacement: "https://matrix.vzkn.eu$${1}"
+    matrix-cors:
+      headers:
+        accessControlAllowOriginList:
+          - "*"
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+  routers:
+    # Pangolin dashboard HTTP → HTTPS
+    main-app-router-redirect:
+      rule: "Host(`pangolin.vzkn.eu`)"
+      service: next-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+        - badger
+    # Pangolin Next.js frontend
+    next-router:
+      rule: "Host(`pangolin.vzkn.eu`) && !PathPrefix(`/api/v1`)"
+      service: next-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - badger
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: "vzkn.eu"
+            sans:
+              - "*.vzkn.eu"
+    # Pangolin API
+    api-router:
+      rule: "Host(`pangolin.vzkn.eu`) && PathPrefix(`/api/v1`)"
+      service: api-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - badger
+      tls:
+        certResolver: letsencrypt
+    # Pangolin WebSocket
+    ws-router:
+      rule: "Host(`pangolin.vzkn.eu`)"
+      service: api-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - badger
+      tls:
+        certResolver: letsencrypt
+    # Prometheus (federated metrics)
+    prometheus-router:
+      rule: "Host(`bifrost.vzkn.eu`)"
+      service: prometheus-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - crowdsec
+        - prometheus-auth
+        - rate-limit
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+    # Dozzle (internal only — WireGuard access)
+    dozzle-router:
+      rule: "Host(`dozzle.vzkn.eu`)"
+      service: dozzle-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - internal-only
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+    # Matrix well-known delegation
+    matrix-well-known:
+      entryPoints:
+        - websecure
+      middlewares:
+        - matrix-cors
+        - matrix-well-known-redirect
+      rule: "Host(`vzkn.eu`) && PathPrefix(`/.well-known/matrix/`)"
+      priority: 1000
+      service: noop@internal
+      tls:
+        certResolver: letsencrypt
+  services:
+    next-service:
+      loadBalancer:
+        servers:
+          - url: "http://pangolin:3002"
+    api-service:
+      loadBalancer:
+        servers:
+          - url: "http://pangolin:3000"
+    prometheus-service:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+    dozzle-service:
+      loadBalancer:
+        servers:
+          - url: "http://dozzle:8080"
+tcp:
+  serversTransports:
+    pp-transport-v1:
+      proxyProtocol:
+        version: 1
+    pp-transport-v2:
+      proxyProtocol:
+        version: 2

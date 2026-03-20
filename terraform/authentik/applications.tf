@@ -852,6 +852,20 @@ resource "authentik_policy_binding" "kopia" {
   order  = 0
 }
 
+# Dozzle — VPS Docker log viewer (forward auth via traefik on VPS)
+module "proxy-dozzle" {
+  source             = "./proxy_application"
+  name               = "Dozzle"
+  description        = "Docker container logs"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/dozzle.png"
+  group              = "Infrastructure"
+  slug               = "dozzle"
+  domain             = var.cluster_domain
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  auth_groups        = [authentik_group.admin.id]
+}
+
 # Ceph Dashboard uses native auth - launch link only
 resource "authentik_application" "ceph" {
   name             = "Ceph Dashboard"

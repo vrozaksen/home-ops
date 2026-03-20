@@ -82,6 +82,7 @@ data:
         arp = False
         lte = False
         netwatch = False
+        poe = False
         ppp = False
         switch_port = True
         environment = False

@@ -18,6 +18,10 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: dozzle.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
     - dnsName: external.vzkn.eu
       recordType: A
       targets:

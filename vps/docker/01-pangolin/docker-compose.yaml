@@ -336,6 +336,14 @@ configs:
               stsIncludeSubdomains: true
               stsPreload: true
               stsSeconds: 63072000
+          # Internal-only IP allowlist (WireGuard + private networks)
+          internal-only:
+            ipAllowList:
+              sourceRange:
+                - 100.89.0.0/16
+                - 10.0.0.0/8
+                - 172.16.0.0/12
+                - 192.168.0.0/16
           # Matrix well-known redirect (continuwuity federation)
           matrix-well-known-redirect:
             redirectRegex:
@@ -408,6 +416,17 @@ configs:
               - security-headers
             tls:
               certResolver: letsencrypt
+          # Dozzle (internal only — WireGuard access)
+          dozzle-router:
+            rule: "Host(`dozzle.vzkn.eu`)"
+            service: dozzle-service
+            entryPoints:
+              - websecure
+            middlewares:
+              - internal-only
+              - security-headers
+            tls:
+              certResolver: letsencrypt
           # Matrix well-known delegation
           matrix-well-known:
             entryPoints:
@@ -433,6 +452,10 @@ configs:
             loadBalancer:
               servers:
                 - url: "http://prometheus:9090"
+          dozzle-service:
+            loadBalancer:
+              servers:
+                - url: "http://dozzle:8080"
       tcp:
         serversTransports:
           pp-transport-v1:

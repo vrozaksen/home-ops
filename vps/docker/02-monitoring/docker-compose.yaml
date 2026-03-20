@@ -73,6 +73,21 @@ services:
       - monitoring
       - pangolin
 
+  dozzle:
+    image: docker.io/amir20/dozzle:v8.14.12@sha256:0df89c904da71e94a0c9ed3c89a890f01488321b5f10ac1e0c0bedcead9af6e4
+    container_name: dozzle
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - pangolin
+
   echo-server:
     image: ghcr.io/mendhak/http-https-echo:39@sha256:59e97f8417530cd88c2a4bb7b488153276e88df8a317a86641c575138ad81829
     container_name: echo-server

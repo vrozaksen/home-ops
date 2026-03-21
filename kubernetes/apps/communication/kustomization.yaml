@@ -12,3 +12,4 @@ resources:
   - ./element-web/ks.yaml
   - ./livekit/ks.yaml
   - ./mumble/ks.yaml
+  - ./redbot/ks.yaml

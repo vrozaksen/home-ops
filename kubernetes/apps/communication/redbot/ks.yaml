@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app redbot
+spec:
+  components:
+    - ../../../components/cnpg/initdb
+    - ../../../components/volsync
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/communication/redbot
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns communication
+      CNPG_SIZE: 5Gi
+      CNPG_VERSION: "14.22-system-bookworm"
+      VOLSYNC_CAPACITY: 20Gi
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

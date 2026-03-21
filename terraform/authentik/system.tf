@@ -120,6 +120,18 @@ resource "authentik_outpost" "ldap" {
   })
 }
 
+# VPS Proxy Outpost — deployed as Docker container on VPS (no K8s service connection)
+resource "authentik_outpost" "vps_proxy" {
+  name               = "vps-proxy"
+  type               = "proxy"
+  protocol_providers = [module.proxy-dozzle.id]
+  config = jsonencode({
+    authentik_host          = "https://sso.${var.cluster_domain}"
+    authentik_host_insecure = false
+    log_level               = "info"
+  })
+}
+
 # ## Proxy Outpost - DISABLED: Envoy Gateway ext-auth issue (Location header not forwarded)
 # resource "authentik_outpost" "proxyoutpost" {
 #   name               = "proxy-outpost"

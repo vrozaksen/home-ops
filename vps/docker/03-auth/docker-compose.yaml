@@ -1,0 +1,24 @@
+---
+name: auth
+services:
+  authentik-proxy:
+    image: ghcr.io/goauthentik/proxy:2026.2.1@sha256:578b13a69df3869c8c721ce3e87658f7ce4440661c5042cf30d2ee90cacdfe6d
+    container_name: authentik-proxy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
+    env_file: /opt/pangolin/.env
+    environment:
+      AUTHENTIK_HOST: https://sso.vzkn.eu
+      AUTHENTIK_INSECURE: "false"
+      AUTHENTIK_TOKEN: ${AUTHENTIK_OUTPOST_TOKEN}
+    networks:
+      - pangolin
+
+networks:
+  pangolin:
+    external: true

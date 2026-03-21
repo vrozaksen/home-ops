@@ -124,12 +124,7 @@ http:
         - websecure
       middlewares:
         - badger
-      tls:
-        certResolver: letsencrypt
-        domains:
-          - main: "vzkn.eu"
-            sans:
-              - "*.vzkn.eu"
+      tls: {}
     # Pangolin API
     api-router:
       rule: "Host(`pangolin.vzkn.eu`) && PathPrefix(`/api/v1`)"
@@ -139,7 +134,7 @@ http:
       middlewares:
         - badger
       tls:
-        certResolver: letsencrypt
+        {}
     # Pangolin WebSocket
     ws-router:
       rule: "Host(`pangolin.vzkn.eu`)"
@@ -149,7 +144,7 @@ http:
       middlewares:
         - badger
       tls:
-        certResolver: letsencrypt
+        {}
     # Prometheus (federated metrics)
     prometheus-router:
       rule: "Host(`bifrost.vzkn.eu`)"
@@ -162,7 +157,7 @@ http:
         - rate-limit
         - security-headers
       tls:
-        certResolver: letsencrypt
+        {}
     # Traefik Dashboard — Authentik outpost callback
     traefik-outpost:
       rule: "Host(`traefik.vzkn.eu`) && PathPrefix(`/outpost.goauthentik.io/`)"
@@ -171,7 +166,7 @@ http:
         - websecure
       priority: 1000
       tls:
-        certResolver: letsencrypt
+        {}
     # Traefik Dashboard (Authentik SSO)
     traefik-dashboard-router:
       rule: "Host(`traefik.vzkn.eu`)"
@@ -183,7 +178,7 @@ http:
         - authentik-forward-auth
         - security-headers
       tls:
-        certResolver: letsencrypt
+        {}
     # Dozzle — Authentik outpost callback
     dozzle-outpost:
       rule: "Host(`dozzle.vzkn.eu`) && PathPrefix(`/outpost.goauthentik.io/`)"
@@ -192,7 +187,7 @@ http:
         - websecure
       priority: 1000
       tls:
-        certResolver: letsencrypt
+        {}
     # Dozzle (Authentik SSO)
     dozzle-router:
       rule: "Host(`dozzle.vzkn.eu`)"
@@ -204,7 +199,7 @@ http:
         - authentik-forward-auth
         - security-headers
       tls:
-        certResolver: letsencrypt
+        {}
     # Matrix well-known delegation
     matrix-well-known:
       entryPoints:
@@ -216,7 +211,7 @@ http:
       priority: 1000
       service: noop@internal
       tls:
-        certResolver: letsencrypt
+        {}
   services:
     next-service:
       loadBalancer:

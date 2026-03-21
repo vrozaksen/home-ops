@@ -52,7 +52,7 @@ services:
             mv /certs/tls.key.tmp /certs/tls.key
             chmod 600 /certs/tls.crt /certs/tls.key
             echo "cert-refresh: OK — cert updated, restarting traefik..."
-            wget -q --post-data '' -O /dev/null --unix-socket /var/run/docker.sock http://localhost/containers/traefik/restart || echo "cert-refresh: WARN — traefik restart failed"
+            curl -sf --unix-socket /var/run/docker.sock -X POST http://localhost/containers/traefik/restart || echo "cert-refresh: WARN — traefik restart failed"
           else
             echo "cert-refresh: ERROR — failed to fetch cert secrets"
           fi

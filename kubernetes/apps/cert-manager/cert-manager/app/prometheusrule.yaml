@@ -22,11 +22,11 @@ spec:
       rules:
         - alert: CertManagerCertExpirySoon
           expr: |
-            avg by (exported_namespace, namespace, name) (certmanager_certificate_expiration_timestamp_seconds - time()) < (21 * 24 * 3600)
-          for: 5m
+            avg by (exported_namespace, namespace, name) (certmanager_certificate_expiration_timestamp_seconds - time()) < (1 * 24 * 3600)
+          for: 15m
           annotations:
             summary: >-
-              The cert {{ $labels.name }} is {{ $value | humanizeDuration }} from expiry, it should have renewed over a week ago
+              The cert {{ $labels.name }} is {{ $value | humanizeDuration }} from expiry and has not renewed
           labels:
             severity: critical
 

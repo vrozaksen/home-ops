@@ -15,7 +15,6 @@ services:
     environment:
       AUTHENTIK_HOST: https://sso.vzkn.eu
       AUTHENTIK_INSECURE: "false"
-      AUTHENTIK_TOKEN: ${AUTHENTIK_OUTPOST_TOKEN}
     networks:
       - pangolin
 

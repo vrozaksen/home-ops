@@ -34,6 +34,8 @@
       - SMTP_PASS
       - PROMETHEUS_BASIC_AUTH
       - AUTHENTIK_OUTPOST_TOKEN
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_ID
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET
   when: not (bootstrap | default(false) | bool)
 
 - name: Read secrets from Infisical
@@ -54,6 +56,28 @@
   ansible.builtin.set_fact:
     "{{ item.item | lower }}": "{{ item.stdout | default('', true) }}"
   loop: "{{ _infisical_raw.results }}"
+  no_log: true
+
+- name: Pull TLS certificate from Infisical
+  ansible.builtin.shell: >
+    infisical secrets get {{ item }}
+    --projectId {{ infisical_project }}
+    --env {{ infisical_env }}
+    --path /kubernetes/network/certificates-import
+    --plain 2>/dev/null || echo ""
+  delegate_to: localhost
+  become: false
+  check_mode: false
+  loop:
+    - TLS_CRT
+    - TLS_KEY
+  register: _tls_raw
+  no_log: true
+
+- name: Set TLS facts
+  ansible.builtin.set_fact:
+    "{{ item.item | lower }}": "{{ item.stdout | default('', true) }}"
+  loop: "{{ _tls_raw.results }}"
   no_log: true
 
 - name: Validate required secrets (bootstrap)

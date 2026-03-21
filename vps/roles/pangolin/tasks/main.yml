@@ -7,6 +7,7 @@
   loop:
     - /opt/pangolin
     - /opt/pangolin/config
+    - /opt/pangolin/config/certs
     - /opt/pangolin/config/letsencrypt
     - /opt/pangolin/config/traefik
     - /opt/pangolin/config/traefik/logs
@@ -32,6 +33,26 @@
     group: root
     mode: "0600"
   no_log: true
+
+- name: Write TLS certificate
+  ansible.builtin.copy:
+    content: "{{ tls_crt | b64decode }}"
+    dest: /opt/pangolin/config/certs/tls.crt
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: tls_crt | default('', true) | length > 0
+
+- name: Write TLS key
+  ansible.builtin.copy:
+    content: "{{ tls_key | b64decode }}"
+    dest: /opt/pangolin/config/certs/tls.key
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: tls_key | default('', true) | length > 0
 
 - name: Template config.yml
   ansible.builtin.template:

@@ -74,6 +74,7 @@ services:
       - --configFile=/etc/traefik/traefik_config.yml
     volumes:
       - /opt/pangolin/config/letsencrypt:/letsencrypt
+      - /opt/pangolin/config/certs:/etc/traefik/certs:ro
       - /opt/pangolin/config/traefik/logs:/var/log/traefik
       - /opt/pangolin/config/prometheus-htpasswd:/etc/traefik/prometheus-htpasswd:ro
     configs:

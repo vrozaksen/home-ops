@@ -1,0 +1,58 @@
+---
+name: cert-refresh
+services:
+  cert-refresh:
+    image: docker.io/alpine:3.21@sha256:c3f8e73fdb79deaebaa2037150150191b9dcbfba68b4a46d70103204c53f4709
+    container_name: cert-refresh
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+        reservations:
+          memory: 16m
+    env_file: /opt/pangolin/.env
+    environment:
+      INFISICAL_API_URL: https://eu.infisical.com/api
+      INFISICAL_PROJECT_ID: da94b011-9a7d-408b-92d9-55be47efe750
+      INFISICAL_ENV: prod
+      INFISICAL_PATH: /kubernetes/network/certificates-import
+      REFRESH_INTERVAL: "43200"
+    volumes:
+      - /opt/pangolin/config/certs:/certs
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |-
+        apk add --no-cache curl jq > /dev/null 2>&1
+        echo "cert-refresh: starting (interval: $${REFRESH_INTERVAL}s)"
+        while true; do
+          echo "cert-refresh: authenticating with Infisical..."
+          TOKEN=$$(curl -sf "$${INFISICAL_API_URL}/v1/auth/universal-auth/login" \
+            -H "Content-Type: application/json" \
+            -d "{\"clientId\":\"$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}\",\"clientSecret\":\"$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}\"}" \
+            | jq -r '.accessToken // empty')
+          if [ -z "$$TOKEN" ]; then
+            echo "cert-refresh: ERROR — failed to authenticate"
+            sleep 300
+            continue
+          fi
+          SECRETS=$$(curl -sf "$${INFISICAL_API_URL}/v3/secrets/raw" \
+            -H "Authorization: Bearer $$TOKEN" \
+            -G --data-urlencode "workspaceId=$${INFISICAL_PROJECT_ID}" \
+            --data-urlencode "environment=$${INFISICAL_ENV}" \
+            --data-urlencode "secretPath=$${INFISICAL_PATH}")
+          CRT=$$(echo "$$SECRETS" | jq -r '.secrets[] | select(.secretKey=="TLS_CRT") | .secretValue // empty')
+          KEY=$$(echo "$$SECRETS" | jq -r '.secrets[] | select(.secretKey=="TLS_KEY") | .secretValue // empty')
+          if [ -n "$$CRT" ] && [ -n "$$KEY" ]; then
+            echo "$$CRT" | base64 -d > /certs/tls.crt.tmp
+            echo "$$KEY" | base64 -d > /certs/tls.key.tmp
+            mv /certs/tls.crt.tmp /certs/tls.crt
+            mv /certs/tls.key.tmp /certs/tls.key
+            chmod 600 /certs/tls.crt /certs/tls.key
+            echo "cert-refresh: OK — cert updated"
+          else
+            echo "cert-refresh: ERROR — failed to fetch cert secrets"
+          fi
+          sleep "$${REFRESH_INTERVAL}"
+        done

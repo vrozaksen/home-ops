@@ -1,12 +1,14 @@
 tls:
+  certificates:
+    - certFile: /etc/traefik/certs/tls.crt
+      keyFile: /etc/traefik/certs/tls.key
+      stores:
+        - default
   stores:
     default:
-      defaultGeneratedCert:
-        resolver: letsencrypt
-        domain:
-          main: "vzkn.eu"
-          sans:
-            - "*.vzkn.eu"
+      defaultCertificate:
+        certFile: /etc/traefik/certs/tls.crt
+        keyFile: /etc/traefik/certs/tls.key
 http:
   middlewares:
     crowdsec:

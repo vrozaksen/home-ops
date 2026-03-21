@@ -52,3 +52,23 @@ spec:
     staticConfig:
       static:
         - https://pangolin.vzkn.eu
+        - https://bifrost.vzkn.eu
+        - https://dozzle.vzkn.eu
+        - https://traefik.vzkn.eu
+        - https://sso.vzkn.eu
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/probe_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: vps-icmp
+spec:
+  jobName: vps-icmp
+  interval: 30s
+  module: icmp
+  prober:
+    url: blackbox-exporter.observability.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - pangolin.vzkn.eu

@@ -20,6 +20,7 @@ services:
       REFRESH_INTERVAL: "43200"
     volumes:
       - /opt/pangolin/config/certs:/certs
+      - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: /bin/sh
     command:
       - -c
@@ -50,7 +51,8 @@ services:
             mv /certs/tls.crt.tmp /certs/tls.crt
             mv /certs/tls.key.tmp /certs/tls.key
             chmod 600 /certs/tls.crt /certs/tls.key
-            echo "cert-refresh: OK — cert updated"
+            echo "cert-refresh: OK — cert updated, restarting traefik..."
+            wget -q --post-data '' -O /dev/null --unix-socket /var/run/docker.sock http://localhost/containers/traefik/restart || echo "cert-refresh: WARN — traefik restart failed"
           else
             echo "cert-refresh: ERROR — failed to fetch cert secrets"
           fi

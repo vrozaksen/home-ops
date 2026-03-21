@@ -124,7 +124,10 @@ resource "authentik_outpost" "ldap" {
 resource "authentik_outpost" "vps_proxy" {
   name               = "vps-proxy"
   type               = "proxy"
-  protocol_providers = [module.proxy-dozzle.id]
+  protocol_providers = [
+    module.proxy-dozzle.id,
+    module.proxy-traefik-dashboard.id,
+  ]
   config = jsonencode({
     authentik_host          = "https://sso.${var.cluster_domain}"
     authentik_host_insecure = false

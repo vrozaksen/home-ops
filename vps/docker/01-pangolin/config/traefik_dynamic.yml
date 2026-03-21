@@ -74,6 +74,7 @@ http:
       forwardAuth:
         address: "http://authentik-proxy:9000/outpost.goauthentik.io/auth/traefik"
         trustForwardHeader: true
+        maxResponseBodySize: 1048576
         authResponseHeaders:
           - X-authentik-username
           - X-authentik-groups
@@ -157,6 +158,27 @@ http:
         - crowdsec
         - prometheus-auth
         - rate-limit
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+    # Traefik Dashboard — Authentik outpost callback
+    traefik-outpost:
+      rule: "Host(`traefik.vzkn.eu`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      service: authentik-proxy-service
+      entryPoints:
+        - websecure
+      priority: 1000
+      tls:
+        certResolver: letsencrypt
+    # Traefik Dashboard (Authentik SSO)
+    traefik-dashboard-router:
+      rule: "Host(`traefik.vzkn.eu`)"
+      service: api@internal
+      entryPoints:
+        - websecure
+      middlewares:
+        - crowdsec
+        - authentik-forward-auth
         - security-headers
       tls:
         certResolver: letsencrypt

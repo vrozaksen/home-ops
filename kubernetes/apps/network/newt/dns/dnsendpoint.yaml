@@ -22,6 +22,10 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: traefik.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
     - dnsName: external.vzkn.eu
       recordType: A
       targets:

@@ -34,7 +34,7 @@ spec:
               PYLAV__DATA_FOLDER: /data/pylav
               PYLAV__YAML_CONFIG: /data/pylav/pylav.yaml
               PYLAV__LOCAL_TRACKS_FOLDER: /data/localtracks
-              PCX_EXTRA_DEPS: "pydantic>=2.11,<2.12 typing_extensions>=4.14 python-Levenshtein pip>=24.1,<25.0 wheel>=0.43.0,<0.44.0"
+              PCX_EXTRA_DEPS: "pydantic>=2.11,<2.12 typing_extensions>=4.14 python-Levenshtein"
               # PostgreSQL connection (CNPG pooler)
               PYLAV__POSTGRES_HOST: pooler-redbot-rw
               PYLAV__POSTGRES_PORT: "5432"

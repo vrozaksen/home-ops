@@ -3,13 +3,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app lavalink
+  name: &app red-lavalink
 spec:
   dependsOn:
     - name: infisical-operator
       namespace: security
   interval: 1h
-  path: ./kubernetes/apps/communication/lavalink
+  path: ./kubernetes/apps/communication/red-lavalink
   postBuild:
     substitute:
       APP: *app

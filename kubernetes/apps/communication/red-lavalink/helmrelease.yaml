@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: lavalink
+  name: red-lavalink
 spec:
   interval: 1h
   chartRef:
@@ -11,14 +11,14 @@ spec:
     name: app-template
   values:
     controllers:
-      lavalink:
+      red-lavalink:
         replicas: 1
         strategy: Recreate
         containers:
           app:
             image:
-              repository: ghcr.io/vrozaksen/lavalink
-              tag: 4.2.2@sha256:9ed1be3fb90ca60be76c9311161de70cd30b8b2e5b20b4588fb1b6ffaea35386
+              repository: ghcr.io/vrozaksen/red-lavalink
+              tag: 3.7.13@sha256:87002d52ad55e0ad4c521711063df3f7f5f41fc5bf0413780e4a5d773d9b36a3
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000
@@ -26,7 +26,6 @@ spec:
               # Server
               SERVER_ADDRESS: "0.0.0.0"
               SERVER_PORT: &port 2333
-              LAVALINK_SERVER_ENABLELEGACYHANDSHAKE: "true"
               # Plugins
               LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
               LAVALINK_PLUGINS_1_DEPENDENCY: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0"
@@ -139,7 +138,7 @@ spec:
               LOGGING_REQUEST_MAXPAYLOADLENGTH: "10000"
             envFrom:
               - secretRef:
-                  name: lavalink-secret
+                  name: red-lavalink-secret
             probes:
               startup:
                 enabled: true
@@ -173,8 +172,8 @@ spec:
         fsGroup: *gid
         fsGroupChangePolicy: OnRootMismatch
     service:
-      lavalink:
-        controller: lavalink
+      red-lavalink:
+        controller: red-lavalink
         ports:
           http:
             port: *port

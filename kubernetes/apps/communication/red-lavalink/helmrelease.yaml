@@ -18,62 +18,12 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/red-lavalink
-              tag: 3.7.13@sha256:87002d52ad55e0ad4c521711063df3f7f5f41fc5bf0413780e4a5d773d9b36a3
+              tag: 3.7.13@sha256:59f79806d959e859f2fbd5e712631c06e4637153ed47c5661095055438f64127
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000
               PGID: &gid 100
-              # Server
-              SERVER_ADDRESS: "0.0.0.0"
               SERVER_PORT: &port 2333
-              # Built-in sources
-              LAVALINK_SERVER_SOURCES_BANDCAMP: "true"
-              LAVALINK_SERVER_SOURCES_HTTP: "true"
-              LAVALINK_SERVER_SOURCES_LOCAL: "true"
-              LAVALINK_SERVER_SOURCES_SOUNDCLOUD: "true"
-              LAVALINK_SERVER_SOURCES_TWITCH: "true"
-              LAVALINK_SERVER_SOURCES_VIMEO: "true"
-              LAVALINK_SERVER_SOURCES_YOUTUBE: "true"
-              # Audio filters
-              LAVALINK_SERVER_FILTERS_CHANNELMIX: "true"
-              LAVALINK_SERVER_FILTERS_DISTORTION: "true"
-              LAVALINK_SERVER_FILTERS_EQUALIZER: "true"
-              LAVALINK_SERVER_FILTERS_KARAOKE: "true"
-              LAVALINK_SERVER_FILTERS_LOWPASS: "true"
-              LAVALINK_SERVER_FILTERS_ROTATION: "true"
-              LAVALINK_SERVER_FILTERS_TIMESCALE: "true"
-              LAVALINK_SERVER_FILTERS_TREMOLO: "true"
-              LAVALINK_SERVER_FILTERS_VIBRATO: "true"
-              LAVALINK_SERVER_FILTERS_VOLUME: "true"
-              LAVALINK_SERVER_FILTERS_ECHO: "true"
-              # Server tuning
-              LAVALINK_SERVER_BUFFERDURATIONMS: "400"
-              LAVALINK_SERVER_FRAMEBUFFERDURATIONMS: "1000"
-              LAVALINK_SERVER_GCWARNINGS: "true"
-              LAVALINK_SERVER_OPUSENCODINGQUALITY: "10"
-              LAVALINK_SERVER_PLAYERUPDATEINTERVAL: "30"
-              LAVALINK_SERVER_RESAMPLINGQUALITY: "MEDIUM"
-              LAVALINK_SERVER_SOUNDCLOUDSEARCHENABLED: "true"
-              LAVALINK_SERVER_TRACKSTUCKTHRESHOLDMS: "10000"
-              LAVALINK_SERVER_USESEEKGHOSTING: "true"
-              LAVALINK_SERVER_YOUTUBEPLAYLISTLOADLIMIT: "100"
-              LAVALINK_SERVER_YOUTUBESEARCHENABLED: "true"
-              # Metrics
-              METRICS_PROMETHEUS_ENABLED: "false"
-              METRICS_PROMETHEUS_ENDPOINT: /metrics
-              # Logging
-              LOGGING_FILE_PATH: /data/logs/
-              LOGGING_LEVEL_LAVALINK: INFO
-              LOGGING_LEVEL_ROOT: INFO
-              LOGGING_LOGBACK_ROLLINGPOLICY_MAXFILESIZE: 25MB
-              LOGGING_LOGBACK_ROLLINGPOLICY_MAXHISTORY: "7"
-              LOGGING_LOGBACK_ROLLINGPOLICY_TOTALSIZECAP: 1GB
-              LOGGING_REQUEST_ENABLED: "true"
-              LOGGING_REQUEST_INCLUDECLIENTINFO: "true"
-              LOGGING_REQUEST_INCLUDEHEADERS: "false"
-              LOGGING_REQUEST_INCLUDEPAYLOAD: "true"
-              LOGGING_REQUEST_INCLUDEQUERYSTRING: "true"
-              LOGGING_REQUEST_MAXPAYLOADLENGTH: "10000"
             envFrom:
               - secretRef:
                   name: red-lavalink-secret

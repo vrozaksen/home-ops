@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/red-discordbot
-              tag: 3.5.24@sha256:fb879bddee8822e5fd8a96c24268cf204fc09fe560215522217acf4a68e2fcbe
+              tag: 3.5.24@sha256:0dd0225d0fbd4d7e3439961ce01f0d12267516ef6e3114c71cc1291bf941e897
             env:
               PREFIX: "."
               PREFIX2: "/"

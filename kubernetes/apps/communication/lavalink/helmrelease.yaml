@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/lavalink
-              tag: 4.2.2@sha256:10bd431f58bb3b6a4ef031ce38869729f4aa72b77e3ef0c75a296b2e3c367752
+              tag: 4.2.2@sha256:9ed1be3fb90ca60be76c9311161de70cd30b8b2e5b20b4588fb1b6ffaea35386
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000

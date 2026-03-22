@@ -192,8 +192,7 @@ configs:
             respondingTimeouts:
               readTimeout: "30m"
           http:
-            tls:
-              certResolver: "letsencrypt"
+            tls: {}
             encodedCharacters:
               allowEncodedSlash: false
               allowEncodedQuestionMark: false

@@ -26,17 +26,6 @@ spec:
               # Server
               SERVER_ADDRESS: "0.0.0.0"
               SERVER_PORT: &port 2333
-              # Plugins
-              LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
-              LAVALINK_PLUGINS_1_DEPENDENCY: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0"
-              LAVALINK_PLUGINS_2_DEPENDENCY: "com.dunctebot:skybot-lavalink-plugin:1.7.0"
-              LAVALINK_PLUGINS_3_DEPENDENCY: "com.github.topi314.lavasearch:lavasearch-plugin:1.0.0"
-              LAVALINK_PLUGINS_4_DEPENDENCY: "dev.lavalink.youtube:youtube-plugin:1.3.0"
-              LAVALINK_PLUGINS_5_DEPENDENCY: "com.github.topi314.lavalyrics:lavalyrics-plugin:1.0.0"
-              LAVALINK_PLUGINS_6_DEPENDENCY: "me.rohank05:lavalink-filter-plugin:0.0.4"
-              LAVALINK_PLUGINS_6_REPOSITORY: "https://jitpack.io"
-              LAVALINK_PLUGINS_7_DEPENDENCY: "com.github.esmBot:lava-xm-plugin:v0.2.3"
-              LAVALINK_PLUGINS_7_REPOSITORY: "https://jitpack.io"
               # Built-in sources
               LAVALINK_SERVER_SOURCES_BANDCAMP: "true"
               LAVALINK_SERVER_SOURCES_HTTP: "true"
@@ -69,57 +58,6 @@ spec:
               LAVALINK_SERVER_USESEEKGHOSTING: "true"
               LAVALINK_SERVER_YOUTUBEPLAYLISTLOADLIMIT: "100"
               LAVALINK_SERVER_YOUTUBESEARCHENABLED: "true"
-              # YouTube plugin
-              PLUGINS_YOUTUBE_ENABLED: "true"
-              PLUGINS_YOUTUBE_CLIENTS_0: MUSIC
-              PLUGINS_YOUTUBE_CLIENTS_1: ANDROID
-              PLUGINS_YOUTUBE_CLIENTS_2: WEB
-              PLUGINS_YOUTUBE_CLIENTS_3: TVHTML5EMBEDDED
-              PLUGINS_YOUTUBE_CLIENTS_4: ANDROID_LITE
-              PLUGINS_YOUTUBE_CLIENTS_5: ANDROID_TESTSUITE
-              PLUGINS_YOUTUBE_CLIENTS_6: IOS
-              PLUGINS_YOUTUBE_CLIENTS_7: MEDIA_CONNECT
-              # DuncteBot plugin
-              PLUGINS_DUNCTEBOT_SOURCES_CLYPIT: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_GETYARN: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_MIXCLOUD: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_OCREMIX: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_PORNHUB: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_REDDIT: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_SOUNDGASM: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_TIKTOK: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_TTS: "true"
-              PLUGINS_DUNCTEBOT_TTSLANGUAGE: "en-US"
-              # LavaLyrics
-              PLUGINS_LAVALYRICS_SOURCES_0: youtube
-              PLUGINS_LAVALYRICS_SOURCES_1: deezer
-              # LavaSrc providers (search order)
-              PLUGINS_LAVASRC_PROVIDERS_0: "dzisrc:%ISRC%"
-              PLUGINS_LAVASRC_PROVIDERS_1: "ytmsearch:\"%ISRC%\""
-              PLUGINS_LAVASRC_PROVIDERS_2: "ytsearch:\"%ISRC%\""
-              PLUGINS_LAVASRC_PROVIDERS_3: "dzsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_4: "ytmsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_5: "ytsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_6: "scsearch:%QUERY%"
-              # LavaSrc sources
-              PLUGINS_LAVASRC_SOURCES_DEEZER: "true"
-              PLUGINS_LAVASRC_SOURCES_APPLEMUSIC: "false"
-              PLUGINS_LAVASRC_SOURCES_SPOTIFY: "false"
-              PLUGINS_LAVASRC_SOURCES_YANDEXMUSIC: "false"
-              PLUGINS_LAVASRC_SOURCES_YOUTUBE: "true"
-              PLUGINS_LAVASRC_SOURCES_FLOWERYTTS: "true"
-              # LavaSrc YouTube
-              PLUGINS_LAVASRC_YOUTUBE_COUNTRYCODE: PL
-              # LavaSrc FloweryTTS
-              PLUGINS_LAVASRC_FLOWERYTTS_VOICE: Airon
-              PLUGINS_LAVASRC_FLOWERYTTS_TRANSLATE: "false"
-              PLUGINS_LAVASRC_FLOWERYTTS_SILENCE: "0"
-              PLUGINS_LAVASRC_FLOWERYTTS_SPEED: "1.0"
-              PLUGINS_LAVASRC_FLOWERYTTS_AUDIOFORMAT: mp3
-              # LavaSrc lyrics
-              PLUGINS_LAVASRC_LYRICSSOURCES_SPOTIFY: "false"
-              PLUGINS_LAVASRC_LYRICSSOURCES_DEEZER: "true"
-              PLUGINS_LAVASRC_LYRICSSOURCES_YOUTUBE: "true"
               # Metrics
               METRICS_PROMETHEUS_ENABLED: "false"
               METRICS_PROMETHEUS_ENDPOINT: /metrics

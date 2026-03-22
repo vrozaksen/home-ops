@@ -159,7 +159,7 @@ configs:
         plugins:
           badger:
             moduleName: "github.com/fosrl/badger"
-            version: "v1.3.1"
+            version: "v1.4.0"
           crowdsec:
             moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
             version: v1.5.1

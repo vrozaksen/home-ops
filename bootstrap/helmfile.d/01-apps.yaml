@@ -1,6 +1,10 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/helmfile
 
+repositories:
+  - name: infisical
+    url: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
+
 helmDefaults:
   cleanupOnFail: true
   wait: true
@@ -52,42 +56,46 @@ releases:
           - ../../kubernetes/apps/cert-manager/cert-manager/app/clusterissuers.yaml
           - --wait=true
         showlogs: true
-      - # bitwarden needs its cert so it can come up, othewrise it just stays pending
-        events:
-          - postsync
-        command: kubectl
-        args:
-          - apply
-          - --namespace=external-secrets
-          - --server-side
-          - --field-manager=kustomize-controller
-          - --filename
-          - ../../kubernetes/apps/external-secrets/external-secrets/store/certificate.yaml
-          - --wait=true
     needs:
       - 'kube-system/spegel'
 
-  - name: external-secrets
-    namespace: external-secrets
-    chart: oci://ghcr.io/external-secrets/charts/external-secrets
-    version: 2.1.0
+  - name: infisical-secrets-operator
+    namespace: security
+    chart: infisical/secrets-operator
+    version: 0.10.27
     values:
-      - '../values.yaml.gotmpl'
+      - controllerManager:
+          manager:
+            image:
+              repository: infisical/kubernetes-operator
+              tag: v0.10.27
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: ""
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
     needs:
-      - 'cert-manager/cert-manager'
+      - 'kube-system/spegel'
     hooks:
-      - # Add Helm ownership metadata to existing external-secrets CRDs
+      - # Add Helm ownership metadata to existing infisical CRDs
         events:
           - presync
         command: bash
         args:
           - -c
           - |
-            for crd in $(kubectl get crd | grep external-secrets | awk '{print $1}'); do
+            for crd in $(kubectl get crd | grep infisical | awk '{print $1}'); do
               echo "Adding Helm metadata to $crd..."
               kubectl label crd $crd app.kubernetes.io/managed-by=Helm --overwrite
-              kubectl annotate crd $crd meta.helm.sh/release-name=external-secrets --overwrite
-              kubectl annotate crd $crd meta.helm.sh/release-namespace=external-secrets --overwrite
+              kubectl annotate crd $crd meta.helm.sh/release-name=infisical-secrets-operator --overwrite
+              kubectl annotate crd $crd meta.helm.sh/release-namespace=security --overwrite
             done
         showlogs: true
     force: true
@@ -99,7 +107,7 @@ releases:
     values:
       - '../values.yaml.gotmpl'
     needs:
-      - 'external-secrets/external-secrets'
+      - 'security/infisical-secrets-operator'
 
   - name: flux-instance
     namespace: flux-system

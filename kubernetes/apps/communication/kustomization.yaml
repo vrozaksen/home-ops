@@ -10,6 +10,7 @@ resources:
   - ./continuwuity/ks.yaml
   - ./coturn/ks.yaml
   - ./element-web/ks.yaml
+  - ./lavalink/ks.yaml
   - ./livekit/ks.yaml
   - ./mumble/ks.yaml
   - ./redbot/ks.yaml

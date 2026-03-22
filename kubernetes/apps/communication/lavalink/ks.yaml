@@ -3,22 +3,17 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app redbot
+  name: &app lavalink
 spec:
-  components:
-    - ../../../components/volsync
   dependsOn:
     - name: infisical-operator
       namespace: security
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   interval: 1h
-  path: ./kubernetes/apps/communication/redbot
+  path: ./kubernetes/apps/communication/lavalink
   postBuild:
     substitute:
       APP: *app
       NS: &ns communication
-      VOLSYNC_CAPACITY: 20Gi
   prune: true
   sourceRef:
     kind: GitRepository

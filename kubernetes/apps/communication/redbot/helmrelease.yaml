@@ -22,37 +22,15 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/phasecorex/red-discordbot
-              tag: full-pylav
+              repository: ghcr.io/vrozaksen/red-discordbot
+              tag: 3.5.24@sha256:fb879bddee8822e5fd8a96c24268cf204fc09fe560215522217acf4a68e2fcbe
             env:
               PREFIX: "."
               PREFIX2: "/"
               PREFIX3: "!"
               PREFIX4: ","
-              PUID: "99"
-              PGID: "100"
-              PYLAV__DATA_FOLDER: /data/pylav
-              PYLAV__YAML_CONFIG: /data/pylav/pylav.yaml
-              PYLAV__LOCAL_TRACKS_FOLDER: /data/localtracks
-              PCX_EXTRA_DEPS: "pydantic>=2.11,<2.12 typing_extensions>=4.14 python-Levenshtein"
-              # PostgreSQL connection (CNPG pooler)
-              PYLAV__POSTGRES_HOST: pooler-redbot-rw
-              PYLAV__POSTGRES_PORT: "5432"
-              PYLAV__POSTGRES_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: postgres-redbot-app
-                    key: username
-              PYLAV__POSTGRES_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: postgres-redbot-app
-                    key: password
-              PYLAV__POSTGRES_DB:
-                valueFrom:
-                  secretKeyRef:
-                    name: postgres-redbot-app
-                    key: dbname
+              PUID: &uid 1000
+              PGID: &gid 100
             envFrom:
               - secretRef:
                   name: redbot-secret
@@ -63,173 +41,23 @@ spec:
                 enabled: false
               startup:
                 enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
             resources:
               requests:
                 cpu: 100m
                 memory: 512Mi
               limits:
                 memory: 2Gi
-      lavalink:
-        replicas: 1
-        strategy: Recreate
-        containers:
-          app:
-            image:
-              repository: ghcr.io/pylav/node
-              tag: latest
-            env:
-              _JAVA_OPTIONS: "-Xmx4G"
-              # Server
-              SERVER_ADDRESS: "0.0.0.0"
-              SERVER_PORT: &llport 2155
-              SERVER_COMPRESSION_ENABLED: "false"
-              SERVER_UNDERTOW_THREADS_IO: "32"
-              SERVER_UNDERTOW_THREADS_WORKER: "128"
-              SPRING_MVC_ASYNC_REQUESTTIMEOUT: "-1"
-              # Plugins
-              LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
-              LAVALINK_PLUGINS_1_DEPENDENCY: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0"
-              LAVALINK_PLUGINS_2_DEPENDENCY: "com.dunctebot:skybot-lavalink-plugin:1.7.0"
-              LAVALINK_PLUGINS_3_DEPENDENCY: "com.github.topi314.lavasearch:lavasearch-plugin:1.0.0"
-              LAVALINK_PLUGINS_4_DEPENDENCY: "dev.lavalink.youtube:youtube-plugin:1.3.0"
-              LAVALINK_PLUGINS_5_DEPENDENCY: "com.github.topi314.lavalyrics:lavalyrics-plugin:1.0.0"
-              LAVALINK_PLUGINS_6_DEPENDENCY: "me.rohank05:lavalink-filter-plugin:0.0.4"
-              LAVALINK_PLUGINS_6_REPOSITORY: "https://jitpack.io"
-              LAVALINK_PLUGINS_7_DEPENDENCY: "com.github.esmBot:lava-xm-plugin:v0.2.3"
-              LAVALINK_PLUGINS_7_REPOSITORY: "https://jitpack.io"
-              # Built-in sources
-              LAVALINK_SERVER_SOURCES_BANDCAMP: "true"
-              LAVALINK_SERVER_SOURCES_HTTP: "true"
-              LAVALINK_SERVER_SOURCES_LOCAL: "true"
-              LAVALINK_SERVER_SOURCES_SOUNDCLOUD: "true"
-              LAVALINK_SERVER_SOURCES_TWITCH: "true"
-              LAVALINK_SERVER_SOURCES_VIMEO: "true"
-              LAVALINK_SERVER_SOURCES_YOUTUBE: "false"
-              # Audio filters
-              LAVALINK_SERVER_FILTERS_CHANNELMIX: "true"
-              LAVALINK_SERVER_FILTERS_DISTORTION: "true"
-              LAVALINK_SERVER_FILTERS_EQUALIZER: "true"
-              LAVALINK_SERVER_FILTERS_KARAOKE: "true"
-              LAVALINK_SERVER_FILTERS_LOWPASS: "true"
-              LAVALINK_SERVER_FILTERS_ROTATION: "true"
-              LAVALINK_SERVER_FILTERS_TIMESCALE: "true"
-              LAVALINK_SERVER_FILTERS_TREMOLO: "true"
-              LAVALINK_SERVER_FILTERS_VIBRATO: "true"
-              LAVALINK_SERVER_FILTERS_VOLUME: "true"
-              LAVALINK_SERVER_FILTERS_ECHO: "true"
-              # Server tuning
-              LAVALINK_SERVER_BUFFERDURATIONMS: "400"
-              LAVALINK_SERVER_FRAMEBUFFERDURATIONMS: "1000"
-              LAVALINK_SERVER_GCWARNINGS: "true"
-              LAVALINK_SERVER_OPUSENCODINGQUALITY: "10"
-              LAVALINK_SERVER_PLAYERUPDATEINTERVAL: "30"
-              LAVALINK_SERVER_RESAMPLINGQUALITY: "MEDIUM"
-              LAVALINK_SERVER_SOUNDCLOUDSEARCHENABLED: "true"
-              LAVALINK_SERVER_TRACKSTUCKTHRESHOLDMS: "10000"
-              LAVALINK_SERVER_USESEEKGHOSTING: "true"
-              LAVALINK_SERVER_YOUTUBEPLAYLISTLOADLIMIT: "100"
-              LAVALINK_SERVER_YOUTUBESEARCHENABLED: "true"
-              # YouTube plugin
-              PLUGINS_YOUTUBE_ENABLED: "true"
-              PLUGINS_YOUTUBE_CLIENTS_0: MUSIC
-              PLUGINS_YOUTUBE_CLIENTS_1: ANDROID
-              PLUGINS_YOUTUBE_CLIENTS_2: WEB
-              PLUGINS_YOUTUBE_CLIENTS_3: TVHTML5EMBEDDED
-              PLUGINS_YOUTUBE_CLIENTS_4: ANDROID_LITE
-              PLUGINS_YOUTUBE_CLIENTS_5: ANDROID_TESTSUITE
-              PLUGINS_YOUTUBE_CLIENTS_6: IOS
-              PLUGINS_YOUTUBE_CLIENTS_7: MEDIA_CONNECT
-              # DuncteBot plugin
-              PLUGINS_DUNCTEBOT_SOURCES_CLYPIT: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_GETYARN: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_MIXCLOUD: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_OCREMIX: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_PORNHUB: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_REDDIT: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_SOUNDGASM: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_TIKTOK: "true"
-              PLUGINS_DUNCTEBOT_SOURCES_TTS: "true"
-              PLUGINS_DUNCTEBOT_TTSLANGUAGE: "en-US"
-              # LavaLyrics
-              PLUGINS_LAVALYRICS_SOURCES_0: youtube
-              PLUGINS_LAVALYRICS_SOURCES_1: deezer
-              # LavaSrc providers (search order)
-              PLUGINS_LAVASRC_PROVIDERS_0: "dzisrc:%ISRC%"
-              PLUGINS_LAVASRC_PROVIDERS_1: "ytmsearch:\"%ISRC%\""
-              PLUGINS_LAVASRC_PROVIDERS_2: "ytsearch:\"%ISRC%\""
-              PLUGINS_LAVASRC_PROVIDERS_3: "dzsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_4: "ytmsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_5: "ytsearch:%QUERY%"
-              PLUGINS_LAVASRC_PROVIDERS_6: "scsearch:%QUERY%"
-              # LavaSrc sources
-              PLUGINS_LAVASRC_SOURCES_DEEZER: "true"
-              PLUGINS_LAVASRC_SOURCES_APPLEMUSIC: "false"
-              PLUGINS_LAVASRC_SOURCES_SPOTIFY: "false"
-              PLUGINS_LAVASRC_SOURCES_YANDEXMUSIC: "false"
-              PLUGINS_LAVASRC_SOURCES_YOUTUBE: "true"
-              PLUGINS_LAVASRC_SOURCES_FLOWERYTTS: "true"
-              # LavaSrc YouTube
-              PLUGINS_LAVASRC_YOUTUBE_COUNTRYCODE: PL
-              # LavaSrc FloweryTTS
-              PLUGINS_LAVASRC_FLOWERYTTS_VOICE: Airon
-              PLUGINS_LAVASRC_FLOWERYTTS_TRANSLATE: "false"
-              PLUGINS_LAVASRC_FLOWERYTTS_SILENCE: "0"
-              PLUGINS_LAVASRC_FLOWERYTTS_SPEED: "1.0"
-              PLUGINS_LAVASRC_FLOWERYTTS_AUDIOFORMAT: mp3
-              # LavaSrc lyrics
-              PLUGINS_LAVASRC_LYRICSSOURCES_SPOTIFY: "false"
-              PLUGINS_LAVASRC_LYRICSSOURCES_DEEZER: "true"
-              PLUGINS_LAVASRC_LYRICSSOURCES_YOUTUBE: "true"
-              # Metrics
-              METRICS_PROMETHEUS_ENABLED: "false"
-              METRICS_PROMETHEUS_ENDPOINT: /metrics
-              # Logging
-              LOGGING_FILE_PATH: ./logs/
-              LOGGING_LEVEL_LAVALINK: INFO
-              LOGGING_LEVEL_ROOT: INFO
-              LOGGING_LOGBACK_ROLLINGPOLICY_MAXFILESIZE: 25MB
-              LOGGING_LOGBACK_ROLLINGPOLICY_MAXHISTORY: "7"
-              LOGGING_LOGBACK_ROLLINGPOLICY_TOTALSIZECAP: 1GB
-              LOGGING_REQUEST_ENABLED: "true"
-              LOGGING_REQUEST_INCLUDECLIENTINFO: "true"
-              LOGGING_REQUEST_INCLUDEHEADERS: "false"
-              LOGGING_REQUEST_INCLUDEPAYLOAD: "true"
-              LOGGING_REQUEST_INCLUDEQUERYSTRING: "true"
-              LOGGING_REQUEST_MAXPAYLOADLENGTH: "10000"
-            envFrom:
-              - secretRef:
-                  name: redbot-secret
-            probes:
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  tcpSocket:
-                    port: *llport
-                  initialDelaySeconds: 10
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 30
-              liveness:
-                enabled: false
-              readiness:
-                enabled: false
-            resources:
-              requests:
-                cpu: 200m
-                memory: 2Gi
-              limits:
-                memory: 5Gi
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: false
-        runAsUser: 0
-    service:
-      lavalink:
-        controller: lavalink
-        ports:
-          http:
-            port: *llport
+        runAsNonRoot: true
+        runAsUser: *uid
+        runAsGroup: *gid
+        fsGroup: *gid
+        fsGroupChangePolicy: OnRootMismatch
     persistence:
       data:
         existingClaim: "{{ .Release.Name }}"
@@ -237,15 +65,3 @@ spec:
           redbot:
             app:
               - path: /data
-      lavalink-plugins:
-        type: emptyDir
-        advancedMounts:
-          lavalink:
-            app:
-              - path: /opt/Lavalink/plugins
-      lavalink-logs:
-        type: emptyDir
-        advancedMounts:
-          lavalink:
-            app:
-              - path: /opt/Lavalink/logs

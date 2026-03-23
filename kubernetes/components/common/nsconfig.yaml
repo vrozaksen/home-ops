@@ -1,0 +1,5 @@
+---
+namespace:
+  - path: spec/managedKubeSecretReferences/secretNamespace
+    kind: InfisicalSecret
+    create: true

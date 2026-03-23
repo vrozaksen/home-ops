@@ -25,71 +25,63 @@ spec:
             env:
               QBT_WEBUI_PORT: &port 80
               QBT_TORRENTING_PORT: &torrentPort 54535
-              QBT_Preferences__WebUI__AlternativeUIEnabled: true
               QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
               QBT_Preferences__WebUI__AuthSubnetWhitelist: |-
                 10.69.0.0/16, 10.10.0.0/24
               QBT_Preferences__WebUI__LocalHostAuth: false
-              QBT_Preferences__WebUI__RootFolder: /addons/VueTorrent
               QBT_Preferences__WebUI__UseUPNP: false
-            # probes:
-            #   liveness: &probes
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /api/v2/app/version
-            #         port: *port
-            #       initialDelaySeconds: 30
-            #       periodSeconds: 10
-            #       timeoutSeconds: 1
-            #       failureThreshold: 3
-            #   readiness: *probes
-            #   startup:
-            #     enabled: true
-            #     spec:
-            #       failureThreshold: 30
-            #       periodSeconds: 10
+            probes:
+              liveness:
+                enabled: true
+                spec:
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
             securityContext:
-              runAsUser: 1000
-              runAsGroup: 100
-              runAsNonRoot: true
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 400m
-                memory: 1536Mi
+                cpu: 100m
               limits:
                 memory: 4Gi
-          vuetorrent:
-            dependsOn: app
-            image:
-              repository: registry.k8s.io/git-sync/git-sync
-              tag: v4.6.0
-            args:
-              - --repo=https://github.com/WDaan/VueTorrent
-              - --ref=latest-release
-              - --period=86400s
-              - --root=/addons
-            resources:
-              requests:
-                cpu: 10m
-                memory: 96Mi
-              limits:
-                memory: 192Mi
+    defaultPodOptions:
+      terminationGracePeriodSeconds: 300
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        primary: true
+        ports:
+          http:
+            port: *port
+      bittorrent:
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: 10.10.0.41
+        externalTrafficPolicy: Local
         ports:
-          http:
-            primary: true
-            port: *port
-          bittorrent:
-            enabled: true
+          bittorrent-tcp:
             port: *torrentPort
             protocol: TCP
     route:
@@ -102,6 +94,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
@@ -111,14 +107,5 @@ spec:
         path: /mnt/user/data/torrents
         globalMounts:
           - path: /downloads
-      addons:
+      tmp:
         type: emptyDir
-        globalMounts:
-          - path: /addons
-      tmpfs:
-        type: emptyDir
-        advancedMounts:
-          qbittorrent:
-            app:
-              - path: /tmp
-                subPath: tmp

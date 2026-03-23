@@ -106,7 +106,7 @@ spec:
         livenessProbe:
           mon:
             probe:
-              timeoutSeconds: 15
+              timeoutSeconds: 30
       storage:
         useAllNodes: false
         nodes:

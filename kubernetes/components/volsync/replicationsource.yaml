@@ -3,26 +3,32 @@
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationSource
 metadata:
-  name: "${APP}"
+  name: ${APP}
 spec:
-  sourcePVC: "${APP}"
+  sourcePVC: ${APP}
   trigger:
-    schedule: "0 * * * *"
+    schedule: 0 */12 * * *
   kopia:
     accessModes:
-      - "${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}"
+      - ${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}  # Use ReadOnlyMany for CephFS
     compression: zstd-fastest
     copyMethod: Snapshot
     moverSecurityContext:
       runAsUser: ${VOLSYNC_PUID:=1000}
       runAsGroup: ${VOLSYNC_PGID:=100}
       fsGroup: ${VOLSYNC_PGID:=100}
+    moverVolumes:
+      - mountPath: repository
+        volumeSource:
+          nfs:
+            path: /mnt/blaze/volsync-kopia
+            server: aincrad.home.vzkn.eu
     parallelism: 2
-    repository: "${APP}-volsync-secret"
+    repository: ${APP}-volsync-secret
     retain:
       hourly: 24
       daily: 10
       weekly: 5
       monthly: 3
-    storageClassName: "${VOLSYNC_STORAGECLASS:=ceph-block}"
-    volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:=csi-ceph-blockpool}"
+    storageClassName: ${VOLSYNC_STORAGECLASS:=ceph-block}
+    volumeSnapshotClassName: ${VOLSYNC_SNAPSHOTCLASS:=csi-ceph-blockpool}

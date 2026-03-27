@@ -30,6 +30,10 @@ spec:
       image:
         tag: 1.10.3
       nativeMode:
+        enabled: false
+      networkPolicy:
+        enabled: false
+      prometheusRule:
         enabled: true
       nodeSelector:
         topology.kubernetes.io/zone: worker
@@ -67,6 +71,7 @@ spec:
               - --site-id=lonely-northern-pika
               - --target-hostname=10.10.0.91
               - --deny-countries=RU,CN,KP,IR,BY,KZ,UZ,TM,TJ,KG,AM,AZ,SY,IQ,SA,KW,BH,QA,AE,OM,YE,AF,PK,BD,MM,MN
+              - --enable-service
             restartPolicy: Always
             resources:
               limits:
@@ -98,5 +103,5 @@ spec:
         pingInterval: 60s
         service:
           enabled: false
-        hostNetwork: true
-        useNativeInterface: true
+        # hostNetwork: true
+        # useNativeInterface: true

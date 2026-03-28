@@ -12,7 +12,6 @@ integration:
     gluetun:
       url: http://localhost:8000
       timeout: 1000
-      api_key: ${GLUETUN_API_KEY}
 metrics:
   enabled: true
   url: /metrics

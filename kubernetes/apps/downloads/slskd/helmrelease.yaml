@@ -31,8 +31,6 @@ spec:
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
-              - secretRef:
-                  name: slskd-vpn-secret
             probes:
               liveness: &probes
                 enabled: true

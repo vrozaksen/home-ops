@@ -66,6 +66,7 @@ spec:
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
               HEALTH_VPN_DURATION_INITIAL: 30s
               DOT_PROVIDERS: quad9
+              FIREWALL_INPUT_PORTS: "80"
               PUID: "1000"
               PGID: "100"
             envFrom:

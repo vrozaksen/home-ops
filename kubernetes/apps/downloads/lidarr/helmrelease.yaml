@@ -50,6 +50,7 @@ spec:
               # LinuxServer K8s compat
               PUID: "1000"
               PGID: "100"
+              S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
               S6_READ_ONLY_ROOT: "1"
               LSIO_READ_ONLY_FS: "1"
               LSIO_NON_ROOT_USER: "1"

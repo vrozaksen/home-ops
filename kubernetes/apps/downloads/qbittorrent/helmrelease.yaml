@@ -30,28 +30,30 @@ spec:
                 10.69.0.0/16, 10.10.0.0/24
               QBT_Preferences__WebUI__LocalHostAuth: false
               QBT_Preferences__WebUI__UseUPNP: false
-            # probes:
-            #   liveness:
-            #     enabled: true
-            #     spec:
-            #       periodSeconds: 30
-            #       timeoutSeconds: 5
-            #       failureThreshold: 5
-            #   readiness:
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /api/v2/app/version
-            #         port: *port
-            #       periodSeconds: 10
-            #       timeoutSeconds: 5
-            #       failureThreshold: 5
-            #   startup:
-            #     enabled: true
-            #     spec:
-            #       failureThreshold: 30
-            #       periodSeconds: 10
+              QBT_Preferences__WebUI__AlternativeUIEnabled: false
+              QBT_Preferences__WebUI__RootFolder: ""
+            probes:
+              liveness:
+                enabled: true
+                spec:
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -70,7 +72,7 @@ spec:
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
     service:
-      app:
+      qbittorrent:
         primary: true
         ports:
           http:
@@ -96,7 +98,7 @@ spec:
             namespace: network
         rules:
           - backendRefs:
-              - identifier: app
+              - identifier: qbittorrent
                 port: *port
     persistence:
       config:

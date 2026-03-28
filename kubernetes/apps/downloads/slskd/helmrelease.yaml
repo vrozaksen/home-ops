@@ -65,6 +65,9 @@ spec:
               VPN_PORT_FORWARDING: "on"
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
               HEALTH_VPN_DURATION_INITIAL: 30s
+              DOT_PROVIDERS: quad9
+              PUID: "1000"
+              PGID: "100"
             envFrom:
               - secretRef:
                   name: slskd-vpn-secret
@@ -72,10 +75,10 @@ spec:
               runAsNonRoot: false
               runAsUser: 0
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false
               capabilities:
                 add:
-                  - "NET_ADMIN"
+                  - NET_ADMIN
             resources:
               requests:
                 cpu: 10m

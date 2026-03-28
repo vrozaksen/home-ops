@@ -8,6 +8,8 @@ spec:
   components:
     - ../../../components/nfs-scaler
   dependsOn:
+    - name: lidarr
+      namespace: downloads
     - name: slskd
       namespace: downloads
   interval: 1h

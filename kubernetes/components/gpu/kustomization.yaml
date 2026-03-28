@@ -15,10 +15,3 @@ patches:
         value:
           - name: intel-gpu-resource-driver
             namespace: kube-system
-  - target:
-      version: v1
-      kind: Namespace
-    patch: |-
-      - op: add
-        path: /metadata/labels/resource.kubernetes.io~1admin-access
-        value: "true"

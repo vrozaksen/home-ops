@@ -41,11 +41,7 @@ spec:
                   failureThreshold: 5
               readiness:
                 enabled: true
-                custom: true
                 spec:
-                  httpGet:
-                    path: /api/v2/app/version
-                    port: *port
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 5

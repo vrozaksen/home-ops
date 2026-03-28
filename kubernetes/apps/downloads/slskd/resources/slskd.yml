@@ -4,6 +4,14 @@ directories:
   incomplete: /soulseek/incomplete
 flags:
   no_version_check: true
+integration:
+  vpn:
+    enabled: true
+    port_forwarding: true
+    polling_interval: 2500
+    gluetun:
+      url: http://localhost:8000
+      timeout: 1000
 metrics:
   enabled: true
   url: /metrics

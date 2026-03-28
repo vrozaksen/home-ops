@@ -13,6 +13,8 @@ spec:
       namespace: security
     - name: keda
       namespace: observability
+    - name: lidarr
+      namespace: downloads
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

@@ -17,6 +17,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      NS: games
       VOLSYNC_CAPACITY: 20Gi
       VOLSYNC_PUID: "1000"
       VOLSYNC_PGID: "1000"

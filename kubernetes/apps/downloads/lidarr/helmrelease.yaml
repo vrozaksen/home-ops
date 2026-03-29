@@ -124,6 +124,12 @@ spec:
         path: /mnt/user/data/deemix
         globalMounts:
           - path: /deemix
+      torrents:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/torrents
+        globalMounts:
+          - path: /downloads
       tmp:
         type: emptyDir
         globalMounts:

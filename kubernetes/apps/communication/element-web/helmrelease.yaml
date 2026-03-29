@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: vectorim/element-web
-              tag: v1.12.12
+              tag: v1.12.13
             probes:
               liveness: &probes
                 enabled: true

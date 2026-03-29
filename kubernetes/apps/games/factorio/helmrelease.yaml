@@ -41,7 +41,10 @@ spec:
               limits:
                 cpu: 8
                 memory: 8Gi
-          filebrowser:
+      filebrowser:
+        strategy: Recreate
+        containers:
+          app:
             image:
               repository: filebrowser/filebrowser
               tag: v2.53.1
@@ -80,6 +83,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
+        controller: factorio
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations:
@@ -91,7 +95,10 @@ spec:
           gameudp:
             port: *port
             protocol: UDP
-          filebrowser:
+      filebrowser:
+        controller: filebrowser
+        ports:
+          http:
             port: *fbPort
     route:
       filebrowser:
@@ -102,7 +109,7 @@ spec:
             namespace: network
         rules:
           - backendRefs:
-              - name: *app
+              - identifier: filebrowser
                 port: *fbPort
     persistence:
       data:
@@ -111,7 +118,8 @@ spec:
           factorio:
             app:
               - path: /factorio
-            filebrowser:
+          filebrowser:
+            app:
               - path: /db
                 subPath: filebrowser
               - path: /srv/factorio

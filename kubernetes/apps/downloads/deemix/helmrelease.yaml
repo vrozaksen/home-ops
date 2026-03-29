@@ -38,6 +38,8 @@ spec:
                   failureThreshold: 3
               readiness: *probes
             securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities: {drop: ["ALL"]}

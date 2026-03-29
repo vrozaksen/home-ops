@@ -64,7 +64,7 @@ spec:
               SERVER_COUNTRIES: Netherlands
               VPN_PORT_FORWARDING: "on"
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
-              DNS_UPSTREAM_RESOLVERS: "9.9.9.9"
+              DNS_UPSTREAM_RESOLVERS: cloudflare
               HEALTH_SUCCESS_WAIT_DURATION: 10s
               FIREWALL_INPUT_PORTS: "80"
               PUID: "1000"

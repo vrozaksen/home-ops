@@ -64,7 +64,7 @@ spec:
               VPN_SERVICE_PROVIDER: protonvpn
               VPN_TYPE: wireguard
               SERVER_COUNTRIES: Netherlands
-              DNS_UPSTREAM_RESOLVERS: "1.1.1.1"
+              DNS_UPSTREAM_RESOLVERS: cloudflare
               HEALTH_SUCCESS_WAIT_DURATION: 10s
               FIREWALL_INPUT_PORTS: "6595"
               PUID: "1000"

@@ -118,6 +118,12 @@ spec:
         path: /mnt/user/data/soulseek
         globalMounts:
           - path: /soulseek
+      deemix:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data/deemix
+        globalMounts:
+          - path: /deemix
       tmp:
         type: emptyDir
         globalMounts:

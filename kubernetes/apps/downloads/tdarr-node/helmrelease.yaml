@@ -17,7 +17,7 @@ spec:
           node:
             image:
               repository: ghcr.io/haveagitgat/tdarr_node
-              tag: 2.64.02@sha256:ac2486f5e3f6d2b0f6517e0c6b0a0cf6d2c75dc584d385d025a04613d4d34cae
+              tag: 2.66.01@sha256:e85f51aa6af864dcf6576e85c4025c8451b375f59051bc30f84189ca8704b15d
             env:
               serverIP: aincrad.home.vzkn.eu
               serverPort: 8266

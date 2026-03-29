@@ -40,14 +40,16 @@ spec:
             securityContext:
               runAsNonRoot: false
               runAsUser: 0
-              allowPrivilegeEscalation: false
+              allowPrivilegeEscalation: true
               readOnlyRootFilesystem: false
               capabilities:
                 drop:
                   - "ALL"
                 add:
-                  - "SETUID"
-                  - "SETGID"
+                  - CHOWN
+                  - FOWNER
+                  - SETUID
+                  - SETGID
             resources:
               requests:
                 cpu: 10m

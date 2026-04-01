@@ -62,7 +62,7 @@ releases:
   - name: infisical-secrets-operator
     namespace: security
     chart: infisical/secrets-operator
-    version: 0.10.27
+    version: 0.10.29
     values:
       - controllerManager:
           manager:

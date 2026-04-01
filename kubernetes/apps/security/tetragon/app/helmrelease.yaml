@@ -41,7 +41,7 @@ spec:
       enabled: true
       image:
         repository: quay.io/cilium/tetragon
-        tag: v1.6.0
+        tag: v1.6.1
 
       # Enhanced observability
       debug: false

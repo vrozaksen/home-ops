@@ -10,7 +10,7 @@ resources:
   - ./atuin/ks.yaml
   - ./it-tools/ks.yaml
   - ./nextcloud/ks.yaml
-  - ./rxresume/ks.yaml
+  # - ./rxresume/ks.yaml
   # - ./screego/ks.yaml
   - ./searxng/ks.yaml
   # - ./teamspeak/ks.yaml

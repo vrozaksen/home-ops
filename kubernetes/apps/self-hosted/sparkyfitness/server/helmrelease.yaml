@@ -40,6 +40,17 @@ spec:
                   secretKeyRef:
                     name: postgres-sparkyfitness-app
                     key: password
+              # App DB user (same CNPG user — it owns the database)
+              SPARKY_FITNESS_APP_DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sparkyfitness-app
+                    key: username
+              SPARKY_FITNESS_APP_DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sparkyfitness-app
+                    key: password
               # App config
               SPARKY_FITNESS_FRONTEND_URL: https://fitness.vzkn.eu
               SPARKY_FITNESS_DISABLE_SIGNUP: "true"

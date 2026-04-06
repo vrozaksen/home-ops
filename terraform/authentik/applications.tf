@@ -26,6 +26,7 @@ locals {
     "pgadmin",
     "qui",
     "rxresume",
+    "sparkyfitness",
     "unraid",
   ]
 
@@ -321,6 +322,22 @@ module "oauth2-rxresume" {
   client_id          = local.parsed_secrets["rxresume"].client_id
   client_secret      = local.parsed_secrets["rxresume"].client_secret
   redirect_uris      = ["https://rxresume.${var.cluster_domain}/api/auth/oauth2/callback/custom"]
+}
+
+module "oauth2-sparkyfitness" {
+  source             = "./oauth2_application"
+  name               = "SparkyFitness"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sparkyfitness.png"
+  launch_url         = "https://fitness.${var.cluster_domain}"
+  description        = "Fitness tracker"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.users.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["sparkyfitness"].client_id
+  client_secret      = local.parsed_secrets["sparkyfitness"].client_secret
+  redirect_uris      = ["https://fitness.${var.cluster_domain}/api/auth/callback/oidc"]
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

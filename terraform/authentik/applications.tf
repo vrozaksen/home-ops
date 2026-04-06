@@ -337,7 +337,7 @@ module "oauth2-sparkyfitness" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["sparkyfitness"].client_id
   client_secret      = local.parsed_secrets["sparkyfitness"].client_secret
-  redirect_uris      = ["https://fitness.${var.cluster_domain}/api/auth/callback/oidc"]
+  redirect_uris      = ["https://fitness.${var.cluster_domain}/api/auth/sso/callback/authentik"]
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

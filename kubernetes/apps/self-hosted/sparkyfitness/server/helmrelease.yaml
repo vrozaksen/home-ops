@@ -53,7 +53,7 @@ spec:
                     key: password
               # App config
               SPARKY_FITNESS_FRONTEND_URL: https://fitness.vzkn.eu
-              SPARKY_FITNESS_DISABLE_SIGNUP: "true"
+              SPARKY_FITNESS_DISABLE_SIGNUP: "false"
               SPARKY_FITNESS_DISABLE_EMAIL_LOGIN: "true"
               SPARKY_FITNESS_FORCE_EMAIL_LOGIN: "true"
               NODE_ENV: production

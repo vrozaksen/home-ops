@@ -327,7 +327,7 @@ module "oauth2-rxresume" {
 module "oauth2-sparkyfitness" {
   source             = "./oauth2_application"
   name               = "SparkyFitness"
-  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sparkyfitness.png"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/sparky-fitness.png"
   launch_url         = "https://fitness.${var.cluster_domain}"
   description        = "Fitness tracker"
   newtab             = true

@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sparkyfitness-server
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      server:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/codewithcj/sparkyfitness-server
+              tag: v0.16.5.6@sha256:329f1351a66c85079b147abd58ad5974056a9c4ffc5f9fbea64ab5fadeaef607
+            env:
+              # Database
+              SPARKY_FITNESS_DB_HOST: pooler-sparkyfitness-rw
+              SPARKY_FITNESS_DB_PORT: "5432"
+              SPARKY_FITNESS_DB_NAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sparkyfitness-app
+                    key: dbname
+              SPARKY_FITNESS_DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sparkyfitness-app
+                    key: username
+              SPARKY_FITNESS_DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sparkyfitness-app
+                    key: password
+              # App config
+              SPARKY_FITNESS_FRONTEND_URL: https://fitness.vzkn.eu
+              SPARKY_FITNESS_DISABLE_SIGNUP: "true"
+              NODE_ENV: production
+              # OIDC
+              SPARKY_FITNESS_OIDC_AUTH_ENABLED: "true"
+              SPARKY_FITNESS_OIDC_ISSUER_URL: https://sso.vzkn.eu/application/o/sparkyfitness/
+              SPARKY_FITNESS_OIDC_PROVIDER_SLUG: authentik
+              SPARKY_FITNESS_OIDC_PROVIDER_NAME: Authentik
+              SPARKY_FITNESS_OIDC_SCOPE: "openid email profile"
+              SPARKY_FITNESS_OIDC_AUTO_REGISTER: "true"
+              SPARKY_FITNESS_OIDC_TOKEN_AUTH_METHOD: client_secret_post
+              # Garmin microservice
+              GARMIN_MICROSERVICE_URL: http://sparkyfitness-garmin:8000
+            envFrom:
+              - secretRef:
+                  name: sparkyfitness-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 3010
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
+    service:
+      app:
+        controller: server
+        ports:
+          http:
+            port: *port
+    persistence:
+      uploads:
+        existingClaim: sparkyfitness
+        globalMounts:
+          - path: /app/uploads

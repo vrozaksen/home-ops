@@ -1,0 +1,82 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sparkyfitness-server
+spec:
+  components:
+    - ../../../../components/cnpg/initdb
+    - ../../../../components/volsync
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/sparkyfitness/server
+  postBuild:
+    substitute:
+      APP: sparkyfitness
+      NS: &ns self-hosted
+      CNPG_SIZE: 5Gi
+      CNPG_VERSION: "18.3-system-trixie"
+      VOLSYNC_CAPACITY: 5Gi
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sparkyfitness-frontend
+spec:
+  dependsOn:
+    - name: sparkyfitness-server
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/sparkyfitness/frontend
+  postBuild:
+    substitute:
+      APP: sparkyfitness
+      NS: &ns self-hosted
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sparkyfitness-garmin
+spec:
+  dependsOn:
+    - name: sparkyfitness-server
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/sparkyfitness/garmin
+  postBuild:
+    substitute:
+      APP: sparkyfitness
+      NS: &ns self-hosted
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../infisicalsecret.yaml
+  - ./helmrelease.yaml
+patches:
+  - target:
+      kind: Cluster
+      name: postgres-sparkyfitness
+    patch: |-
+      - op: add
+        path: /spec/bootstrap/initdb/postInitApplicationSQL
+        value:
+          - CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+          - CREATE EXTENSION IF NOT EXISTS pgcrypto;
+          - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;

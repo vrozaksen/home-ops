@@ -54,6 +54,8 @@ spec:
               # App config
               SPARKY_FITNESS_FRONTEND_URL: https://fitness.vzkn.eu
               SPARKY_FITNESS_DISABLE_SIGNUP: "true"
+              SPARKY_FITNESS_DISABLE_EMAIL_LOGIN: "true"
+              SPARKY_FITNESS_FORCE_EMAIL_LOGIN: "true"
               NODE_ENV: production
               # OIDC
               SPARKY_FITNESS_OIDC_AUTH_ENABLED: "true"
@@ -63,6 +65,8 @@ spec:
               SPARKY_FITNESS_OIDC_SCOPE: "openid email profile"
               SPARKY_FITNESS_OIDC_AUTO_REGISTER: "true"
               SPARKY_FITNESS_OIDC_TOKEN_AUTH_METHOD: client_secret_post
+              SPARKY_FITNESS_OIDC_ADMIN_GROUP: admin
+              SPARKY_FITNESS_OIDC_AUTO_REDIRECT: "true"
               # Garmin microservice
               GARMIN_MICROSERVICE_URL: http://sparkyfitness-garmin:8000
             envFrom:

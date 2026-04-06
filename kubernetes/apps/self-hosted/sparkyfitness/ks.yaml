@@ -33,6 +33,7 @@ spec:
                 - CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
                 - CREATE EXTENSION IF NOT EXISTS pgcrypto;
                 - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+                - GRANT EXECUTE ON FUNCTION pg_stat_statements_reset(oid, oid, bigint, boolean) TO sparkyfitness;
       target:
         kind: Cluster
         name: postgres-${APP}

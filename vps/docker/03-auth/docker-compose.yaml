@@ -2,7 +2,7 @@
 name: auth
 services:
   authentik-proxy:
-    image: ghcr.io/goauthentik/proxy:2026.2.1@sha256:578b13a69df3869c8c721ce3e87658f7ce4440661c5042cf30d2ee90cacdfe6d
+    image: ghcr.io/goauthentik/proxy:2026.2.2@sha256:c5d94719cf629d1b4a06475450f71a5aacdf49f7c1003caad42da32e3aa28234
     container_name: authentik-proxy
     restart: unless-stopped
     deploy:

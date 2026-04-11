@@ -48,7 +48,7 @@ spec:
           app:
             image:
               repository: filebrowser/filebrowser
-              tag: v2.53.1
+              tag: v2.63.2
             env:
               FB_NOAUTH: true
               FB_PORT: &fbPort 80

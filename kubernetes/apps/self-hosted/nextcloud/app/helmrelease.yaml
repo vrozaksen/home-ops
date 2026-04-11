@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 9.0.5
+    tag: 9.0.3
   url: oci://ghcr.io/nextcloud/helm/nextcloud
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -229,7 +229,7 @@ spec:
       # Sidecar: Notify Push (high-performance notifications)
       extraSidecarContainers:
         - name: notify-push
-          image: nextcloud:33.0.2-fpm-alpine
+          image: nextcloud:33.0.0-fpm-alpine
           command:
             - /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push
             - /var/www/html/config/config.php

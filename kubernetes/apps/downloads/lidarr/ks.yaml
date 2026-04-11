@@ -6,7 +6,7 @@ metadata:
   name: &app lidarr
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     # - ../../../components/ext-auth
     - ../../../components/nfs-scaler
     - ../../../components/volsync

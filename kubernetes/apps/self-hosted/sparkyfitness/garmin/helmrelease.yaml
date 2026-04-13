@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: ghcr.io/codewithcj/sparkyfitness-garmin
-              tag: v0.16.5.6@sha256:a706fc197a4672282469871bf82f6125f6fbff18c79a578676e6b0c73f553702
+              tag: v0.16.5.7@sha256:ae0b73e54ddd06fc24c9aebcaddce1d5b9b4e39876884b1a1da6001f7f2658a3
             env:
               SPARKY_FITNESS_DB_HOST: pooler-sparkyfitness-rw
               SPARKY_FITNESS_DB_PORT: "5432"

@@ -37,11 +37,11 @@ spec:
                   name: "{{ .Release.Name }}-secret"
             resources:
               requests:
-                cpu: 100m
-                memory: 1Gi
+                cpu: 1
+                memory: 2Gi
               limits:
-                cpu: 2
-                memory: 8Gi
+                cpu: 4
+                memory: 16Gi
       filebrowser:
         strategy: Recreate
         containers:

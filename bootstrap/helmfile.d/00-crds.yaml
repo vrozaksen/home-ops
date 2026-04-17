@@ -26,7 +26,7 @@ releases:
   - name: infisical-secrets-operator
     namespace: security
     chart: infisical/secrets-operator
-    version: 0.10.29
+    version: 0.10.32
 
   - name: envoy-gateway
     namespace: network

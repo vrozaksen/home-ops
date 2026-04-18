@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: crd-schema-publisher
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 2026.415.145511
+  url: oci://ghcr.io/sholdee/charts/crd-schema-publisher
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: crd-schema-publisher
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: crd-schema-publisher
+  values:
+    fullnameOverride: crd-schema-publisher
+    mode: controller
+    strategy:
+      type: Recreate
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+    extraVolumes:
+      - name: caddy-config
+        configMap:
+          name: crd-schema-publisher-caddyfile
+      - name: caddy-tmp
+        emptyDir: {}
+    extraContainers:
+      - name: caddy
+        image: caddy:2.11.2@sha256:1e40b251ca9639ead7b5cd2cedcc8765adfbabb99450fe23f130eefabf50f4bc
+        ports:
+          - containerPort: 80
+            protocol: TCP
+            name: http
+        volumeMounts:
+          - name: output
+            mountPath: /srv
+            readOnly: true
+          - name: caddy-config
+            mountPath: /etc/caddy
+          - name: caddy-tmp
+            mountPath: /config/caddy
+            subPath: conf
+          - name: caddy-tmp
+            mountPath: /data/caddy
+            subPath: data
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            memory: 64Mi
+        livenessProbe: &caddy-probe
+          httpGet:
+            path: /
+            port: http
+        readinessProbe: *caddy-probe
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+            add: ["NET_BIND_SERVICE"]
+    extraObjects:
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: crd-schema-publisher-caddyfile
+        data:
+          Caddyfile: |
+            :80 {
+                log {
+                    output stdout
+                    format json
+                }
+                root * /srv
+                file_server browse
+            }
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          name: crd-schema-publisher-caddy
+        spec:
+          selector:
+            app.kubernetes.io/name: crd-schema-publisher
+            app.kubernetes.io/instance: crd-schema-publisher
+          ports:
+            - protocol: TCP
+              port: 80
+              name: http
+          type: ClusterIP

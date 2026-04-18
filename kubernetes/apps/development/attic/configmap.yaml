@@ -38,7 +38,5 @@ data:
     interval = "12 hours"
     default-retention-period = "0s"
 
+    # [jwt.signing] populated at runtime from ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64 env
     [jwt]
-
-    [jwt.signing]
-    # HS256 secret via ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64 env

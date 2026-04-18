@@ -119,18 +119,18 @@ spec:
           UPDATE_AVATAR: true
         service:
           REGISTER_EMAIL_CONFIRM: true
-          DISABLE_REGISTRATION: false
+          DISABLE_REGISTRATION: true
           ENABLE_NOTIFY_MAIL: true
-          ENABLE_CAPTCHA: true
-          REQUIRE_CAPTCHA_FOR_LOGIN: true
-          REQUIRE_EXTERNAL_REGISTRATION_CAPTCHA: true
+          ENABLE_CAPTCHA: false
+          REQUIRE_CAPTCHA_FOR_LOGIN: false
+          REQUIRE_EXTERNAL_REGISTRATION_CAPTCHA: false
           # CAPTCHA_TYPE: cfturnstile
           DEFAULT_KEEP_EMAIL_PRIVATE: true
           DEFAULT_ALLOW_CREATE_ORGANIZATION: true
           DEFAULT_ENABLE_TIMETRACKING: true
           ENABLE_USER_HEATMAP: true
           AUTO_WATCH_NEW_REPOS: true
-          SHOW_REGISTRATION_BUTTON: true
+          SHOW_REGISTRATION_BUTTON: false
           VALID_SITE_URL_SCHEMES: https
           EXPLORE.REQUIRE_SIGNIN_VIEW: false  # Allow anonymous explore
         qos:

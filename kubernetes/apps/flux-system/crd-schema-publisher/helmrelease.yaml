@@ -28,12 +28,6 @@ spec:
     mode: controller
     strategy:
       type: Recreate
-    resources:
-      requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        memory: 256Mi
     extraVolumes:
       - name: caddy-config
         configMap:

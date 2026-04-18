@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: attic-config
+data:
+  server.toml: |
+    listen = "[::]:8080"
+    api-endpoint = "https://cache.vzkn.eu/"
+    substituter-endpoint = "https://cache.vzkn.eu/"
+    allowed-hosts = ["cache.vzkn.eu"]
+    require-proof-of-possession = true
+    soft-delete-caches = true
+    max-nar-info-size = 1048576
+
+    [database]
+    # url via ATTIC_SERVER_DATABASE_URL env
+    heartbeat = true
+
+    [storage]
+    type = "s3"
+    region = "eu-central-1"
+    bucket = "attic"
+    endpoint = "https://api.s3.vzkn.eu"
+
+    # Changing chunking params after uploads exist breaks dedup for existing NARs.
+    [chunking]
+    nar-size-threshold = 131072
+    min-size = 65536
+    avg-size = 131072
+    max-size = 262144
+
+    [compression]
+    type = "zstd"
+    level = 8
+
+    [garbage-collection]
+    interval = "12 hours"
+    default-retention-period = "0s"
+
+    [jwt]
+
+    [jwt.signing]
+    # HS256 secret via ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64 env

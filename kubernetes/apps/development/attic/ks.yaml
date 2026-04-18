@@ -6,7 +6,7 @@ metadata:
   name: &app attic
 spec:
   components:
-    - ../../../../components/cnpg/initdb
+    - ../../../components/cnpg/initdb
   dependsOn:
     - name: infisical-operator
       namespace: security

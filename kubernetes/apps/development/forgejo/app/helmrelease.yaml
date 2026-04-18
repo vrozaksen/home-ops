@@ -249,16 +249,16 @@ spec:
               name: forgejo-secret
               key: SECRET_KEY
         # Service
-        - name: GITEA__SERVICE__CF_TURNSTILE_SITEKEY
-          valueFrom:
-            secretKeyRef:
-              name: forgejo-secret
-              key: CF_TURNSTILE_SITEKEY
-        - name: GITEA__SERVICE__CF_TURNSTILE_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: forgejo-secret
-              key: CF_TURNSTILE_SECRET
+        # - name: GITEA__SERVICE__CF_TURNSTILE_SITEKEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: forgejo-secret
+        #       key: CF_TURNSTILE_SITEKEY
+        # - name: GITEA__SERVICE__CF_TURNSTILE_SECRET
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: forgejo-secret
+        #       key: CF_TURNSTILE_SECRET
         # Mailer
         - name: GITEA__MAILER__SMTP_ADDR
           valueFrom:

@@ -34,7 +34,7 @@ spec:
     fullnameOverride: tekton-operator
     installCRDs: true
     operator:
-      autoInstallComponents: false
+      autoInstallComponents: true
       defaultTargetNamespace: tekton-pipelines
       resources:
         requests:

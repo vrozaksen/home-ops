@@ -31,6 +31,7 @@ spec:
   targetNamespace: tekton-operator
   storageNamespace: tekton-operator
   values:
+    fullnameOverride: tekton-operator
     installCRDs: true
     operator:
       autoInstallComponents: false

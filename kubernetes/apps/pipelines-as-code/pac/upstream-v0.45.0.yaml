@@ -50,10 +50,14 @@ rules:
   # of the pipelines-as-code-info ConfigMap even if they don't
   # have access to the other resources present in the
   # installed namespace.
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    resourceNames: ["pipelines-as-code-info"]
-    verbs: ["get"]
+  - apiGroups:
+      - ""
+    resources:
+      - "configmaps"
+    resourceNames:
+      - "pipelines-as-code-info"
+    verbs:
+      - "get"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -132,9 +136,14 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - ""
+    resources:
+      - "configmaps"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -163,21 +172,42 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: [""]
-    resources: ["namespaces"]
-    verbs: ["create"]
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "delete"]
-  - apiGroups: ["pipelinesascode.tekton.dev"]
-    resources: ["repositories"]
-    verbs: ["get", "create", "list"]
-  - apiGroups: ["tekton.dev"]
-    resources: ["pipelineruns"]
-    verbs: ["get", "list", "create", "patch"]
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create"]
+  - apiGroups:
+      - ""
+    resources:
+      - "namespaces"
+    verbs:
+      - "create"
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "delete"
+  - apiGroups:
+      - "pipelinesascode.tekton.dev"
+    resources:
+      - "repositories"
+    verbs:
+      - "get"
+      - "create"
+      - "list"
+  - apiGroups:
+      - "tekton.dev"
+    resources:
+      - "pipelineruns"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "patch"
+  - apiGroups:
+      - ""
+    resources:
+      - "events"
+    verbs:
+      - "create"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -231,12 +261,26 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
+  - apiGroups:
+      - ""
+    resources:
+      - "configmaps"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -265,24 +309,56 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "create", "update", "delete"]
-  - apiGroups: ["pipelinesascode.tekton.dev"]
-    resources: ["repositories"]
-    verbs: ["get", "list", "update", "watch"]
-  - apiGroups: ["tekton.dev"]
-    resources: ["pipelineruns"]
-    verbs: ["get", "delete", "list", "watch", "update", "patch"]
-  - apiGroups: ["tekton.dev"]
-    resources: ["taskruns"]
-    verbs: ["get", "list"]
-  - apiGroups: [""]
-    resources: ["pods/log"]
-    verbs: ["get"]
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create", "update", "patch"]
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "create"
+      - "update"
+      - "delete"
+  - apiGroups:
+      - "pipelinesascode.tekton.dev"
+    resources:
+      - "repositories"
+    verbs:
+      - "get"
+      - "list"
+      - "update"
+      - "watch"
+  - apiGroups:
+      - "tekton.dev"
+    resources:
+      - "pipelineruns"
+    verbs:
+      - "get"
+      - "delete"
+      - "list"
+      - "watch"
+      - "update"
+      - "patch"
+  - apiGroups:
+      - "tekton.dev"
+    resources:
+      - "taskruns"
+    verbs:
+      - "get"
+      - "list"
+  - apiGroups:
+      - ""
+    resources:
+      - "pods/log"
+    verbs:
+      - "get"
+  - apiGroups:
+      - ""
+    resources:
+      - "events"
+    verbs:
+      - "create"
+      - "update"
+      - "patch"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -294,9 +370,9 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 subjects:
-- kind: ServiceAccount
-  name: pipelines-as-code-watcher
-  namespace: pipelines-as-code
+  - kind: ServiceAccount
+    name: pipelines-as-code-watcher
+    namespace: pipelines-as-code
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -336,22 +412,45 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["list", "watch"]
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "update"]
-    resourceNames: ["pipelines-as-code-webhook-certs"]
+  - apiGroups:
+      - ""
+    resources:
+      - "configmaps"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "list"
+      - "watch"
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "update"
+    resourceNames:
+      - "pipelines-as-code-webhook-certs"
     # The webhook daemon makes a reconciliation loop on webhook-certs. Whenever
     # the secret changes it updates the webhook configurations with the certificates
     # stored in the secret.
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
     # webhook uses leases for leader election
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -381,20 +480,35 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 rules:
-  - apiGroups: ["pipelinesascode.tekton.dev"]
-    resources: ["repositories"]
-    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - "pipelinesascode.tekton.dev"
+    resources:
+      - "repositories"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
     # The webhook performs a reconciliation on this resource and continuously
     # updates configuration.
-  - apiGroups: ["admissionregistration.k8s.io"]
-    resources: ["validatingwebhookconfigurations"]
-    verbs: ["list", "watch"]
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - "validatingwebhookconfigurations"
+    verbs:
+      - "list"
+      - "watch"
     # When there are changes to the configs or secrets, knative updates the validating webhook config
     # with the updated certificates or the refreshed set of rules.
-  - apiGroups: ["admissionregistration.k8s.io"]
-    resources: ["validatingwebhookconfigurations"]
-    verbs: ["get", "update", "delete"]
-    resourceNames: ["validation.pipelinesascode.tekton.dev"]
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - "validatingwebhookconfigurations"
+    verbs:
+      - "get"
+      - "update"
+      - "delete"
+    resourceNames:
+      - "validation.pipelinesascode.tekton.dev"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -406,9 +520,9 @@ metadata:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: pipelines-as-code
 subjects:
-- kind: ServiceAccount
-  name: pipelines-as-code-webhook
-  namespace: pipelines-as-code
+  - kind: ServiceAccount
+    name: pipelines-as-code-webhook
+    namespace: pipelines-as-code
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -1286,7 +1400,8 @@ metadata:
     app.kubernetes.io/version: "v0.45.0"
     app.kubernetes.io/part-of: pipelines-as-code
 webhooks:
-  - admissionReviewVersions: ["v1"]
+  - admissionReviewVersions:
+      - "v1"
     clientConfig:
       service:
         name: pipelines-as-code-webhook
@@ -1653,25 +1768,25 @@ spec:
           image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-watcher:v0.45.0"
           imagePullPolicy: Always
           env:
-          - name: CONFIG_LOGGING_NAME
-            value: pac-config-logging
-          - name: SYSTEM_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          - name: METRICS_DOMAIN
-            value: tekton.dev/pipelinesascode
-          - name: CONFIG_OBSERVABILITY_NAME
-            value: pipelines-as-code-config-observability
-          - name: CONFIG_LEADERELECTION_NAME
-            value: pac-watcher-config-leader-election
-          - name: KUBERNETES_MIN_VERSION
-            value: "v1.28.0"
+            - name: CONFIG_LOGGING_NAME
+              value: pac-config-logging
+            - name: SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: METRICS_DOMAIN
+              value: tekton.dev/pipelinesascode
+            - name: CONFIG_OBSERVABILITY_NAME
+              value: pipelines-as-code-config-observability
+            - name: CONFIG_LEADERELECTION_NAME
+              value: pac-watcher-config-leader-election
+            - name: KUBERNETES_MIN_VERSION
+              value: "v1.28.0"
           ports:
-          - name: probes
-            containerPort: 8080
-          - name: metrics
-            containerPort: 9090
+            - name: probes
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -1719,10 +1834,10 @@ metadata:
     app: pipelines-as-code-watcher
 spec:
   ports:
-  - name: http-metrics
-    port: 9090
-    protocol: TCP
-    targetPort: 9090
+    - name: http-metrics
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
   selector:
     app.kubernetes.io/name: watcher
     app.kubernetes.io/component: watcher

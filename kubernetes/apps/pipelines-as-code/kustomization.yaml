@@ -1,11 +1,11 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# Note: pipelines-as-code Namespace is created by upstream PAC yaml
+# (loaded by the tekton-pac Flux Kustomization), so no namespace.yaml here.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: development
+namespace: pipelines-as-code
 components:
   - ../../components/common
 resources:
-  - ./namespace.yaml
-  - ./attic/ks.yaml
-  - ./forgejo/ks.yaml
+  - ./ks.yaml

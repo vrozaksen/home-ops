@@ -12,5 +12,8 @@
 #         value: <task-name>
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: shared-tasks
+components:
+  - ../../components/common
 resources:
   - ./namespace.yaml

@@ -32,7 +32,8 @@ spec:
   storageNamespace: tekton-operator
   values:
     fullnameOverride: tekton-operator
-    installCRDs: true
+    # CRDs managed via kustomize (./upstream-crds-v0.79.0.yaml) — chart ships only a subset.
+    installCRDs: false
     operator:
       autoInstallComponents: true
       defaultTargetNamespace: tekton-pipelines

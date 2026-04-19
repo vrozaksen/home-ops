@@ -1,4 +1,9 @@
 ---
+# TektonConfig drives the whole stack via profile=all:
+# https://tekton.dev/docs/operator/tektonconfig/
+#   - installs TektonPipeline, TektonTrigger, TektonChain, TektonDashboard
+#   - skips TektonResult (managed separately — custom CNPG + S3 backend)
+#   - TektonAddon/SCCConfig omitted (OpenShift-only)
 apiVersion: operator.tekton.dev/v1alpha1
 kind: TektonConfig
 metadata:
@@ -8,14 +13,18 @@ spec:
   targetNamespace: tekton-pipelines
 
   pipeline:
+    # Feature flags — https://tekton.dev/docs/operator/tektonpipeline/
     enable-api-fields: stable
+    enable-bundles-resolver: true
+    enable-cluster-resolver: true
+    enable-git-resolver: true
+    enable-hub-resolver: true
+    enable-step-actions: true
+    enable-provenance-in-status: true
 
-    # Timeouts (minutes) - 3h for safe nix builds
+    # Defaults
     default-timeout-minutes: 180
     default-service-account: default
-
-    # Default workspace binding - every PipelineRun/TaskRun without explicit workspace
-    # binding gets a 1Gi ceph-block PVC (deleted with the run).
     default-task-run-workspace-binding: |
       volumeClaimTemplate:
         spec:
@@ -24,8 +33,6 @@ spec:
           resources:
             requests:
               storage: 1Gi
-
-    # Default pod template applied to every TaskRun pod unless overridden
     default-pod-template: |
       securityContext:
         runAsNonRoot: true
@@ -35,18 +42,12 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 
-    # Resolvers — how Pipeline/Task refs are resolved
-    enable-git-resolver: true
-    enable-bundles-resolver: true
-    enable-cluster-resolver: true
-    enable-hub-resolver: true
-
-    # Safety
+    # Security
     require-git-ssh-secret-known-hosts: true
     set-security-context: true
     disable-creds-init: false
 
-    # Performance + HA (3-node cluster, leader election across replicas)
+    # HA + performance across 3-node cluster
     performance:
       disable-ha: false
       replicas: 3
@@ -57,8 +58,8 @@ spec:
 
     # Prometheus metrics
     metrics.pipelinerun.duration-type: histogram
-    metrics.taskrun.duration-type: histogram
     metrics.pipelinerun.level: pipeline
+    metrics.taskrun.duration-type: histogram
     metrics.taskrun.level: task
     metrics.count.enable-reason: true
 
@@ -70,31 +71,37 @@ spec:
 
   chain:
     disabled: false
-    # --- OCI artifact signing (Kaniko/Buildah tasks produce IMAGE_URL/IMAGE_DIGEST) ---
+    # OCI artifact signing (Kaniko/Buildah tasks produce IMAGE_URL/IMAGE_DIGEST)
     artifacts.oci.signer: x509
     artifacts.oci.storage: oci
     artifacts.oci.format: simplesigning
-    # --- TaskRun attestations (SLSA v1 provenance) ---
+    # SLSA v1 provenance attestations
     artifacts.taskrun.signer: x509
     artifacts.taskrun.storage: tekton
     artifacts.taskrun.format: slsa/v2alpha3
-    # --- PipelineRun attestations ---
     artifacts.pipelinerun.signer: x509
     artifacts.pipelinerun.storage: tekton
     artifacts.pipelinerun.format: slsa/v2alpha3
-    # --- Keyless signing via Sigstore Fulcio (uses ServiceAccount token) ---
+    # Keyless signing via Sigstore Fulcio (ServiceAccount token identity)
     signers.x509.fulcio.enabled: true
     signers.x509.fulcio.address: https://fulcio.sigstore.dev
     signers.x509.fulcio.issuer: https://kubernetes.default.svc
     signers.x509.fulcio.provider: kubernetes
-    # --- Transparency log (Rekor) ---
+    # Transparency log (Rekor)
     transparency.enabled: true
     transparency.url: https://rekor.sigstore.dev
+
+  # TektonResult managed via standalone CR (custom CNPG + S3). Disable auto-install.
+  result:
+    disabled: true
 
   hub:
     disabled: true
 
+  # Job-based pruner (cron). Event-based tektonpruner cannot coexist — pick one.
+  # Job-based is simpler and battle-tested.
   pruner:
+    disabled: false
     schedule: "0 3 * * *"
     keep: 50
     resources:

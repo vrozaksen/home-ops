@@ -8,4 +8,5 @@ namespace: pipelines-as-code
 components:
   - ../../components/common
 resources:
+  - ./namespace.yaml
   - ./ks.yaml

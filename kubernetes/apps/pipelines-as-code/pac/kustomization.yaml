@@ -11,6 +11,16 @@ kind: Kustomization
 resources:
   - ./upstream-v0.45.0.yaml
 patches:
+  # Namespace is managed by cluster-apps (apps/pipelines-as-code/namespace.yaml), drop it from upstream
+  - target:
+      kind: Namespace
+      name: pipelines-as-code
+    patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: pipelines-as-code
   - target:
       kind: ConfigMap
       name: pipelines-as-code

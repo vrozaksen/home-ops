@@ -31,7 +31,7 @@ metadata:
   name: &app tekton-results
 spec:
   components:
-    - ../../../../components/cnpg/initdb
+    - ../../../components/cnpg/initdb
   interval: 1h
   path: ./kubernetes/apps/tekton-pipelines/results
   dependsOn:

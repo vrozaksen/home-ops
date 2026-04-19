@@ -7,7 +7,7 @@ spec:
   discoveryFilter: "vrozaksen/*"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:43.110.14@sha256:5ad62b62d23991703565a9e8b22883b1897049d27924ef1e3a677e8b67926515
+  image: ghcr.io/renovatebot/renovate:43.132.1@sha256:684b6497e1f06dc0ef8e769bf35faf61a6a3243f9cfdd6fd8ffe542d6ca9bd57
   schedule: "0 * * * *"
   parallelism: 3
   secretRef: renovate-token

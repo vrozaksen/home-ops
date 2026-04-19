@@ -7,6 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./tekton/namespace.yaml
   - ./attic/ks.yaml
   - ./forgejo/ks.yaml
   - ./tekton/ks.yaml

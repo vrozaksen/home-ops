@@ -72,25 +72,23 @@ spec:
 
   chain:
     disabled: false
+    # Local x509 signing — Chain auto-generates signing key in
+    # `tekton-chains/signing-secrets` secret on first reconcile.
     # OCI artifact signing (Kaniko/Buildah tasks produce IMAGE_URL/IMAGE_DIGEST)
     artifacts.oci.signer: x509
     artifacts.oci.storage: oci
     artifacts.oci.format: simplesigning
-    # SLSA v1 provenance attestations
+    # SLSA v1 provenance attestations stored in Tekton Results
     artifacts.taskrun.signer: x509
     artifacts.taskrun.storage: tekton
     artifacts.taskrun.format: slsa/v2alpha3
     artifacts.pipelinerun.signer: x509
     artifacts.pipelinerun.storage: tekton
     artifacts.pipelinerun.format: slsa/v2alpha3
-    # Keyless signing via Sigstore Fulcio (ServiceAccount token identity)
-    signers.x509.fulcio.enabled: true
-    signers.x509.fulcio.address: https://fulcio.sigstore.dev
-    signers.x509.fulcio.issuer: https://kubernetes.default.svc
-    signers.x509.fulcio.provider: kubernetes
-    # Transparency log (Rekor)
-    transparency.enabled: true
-    transparency.url: https://rekor.sigstore.dev
+    # Keyless signing (Sigstore Fulcio/Rekor) omitted — requires OIDC-enabled
+    # SA tokens with specific audience. Allowed providers:
+    # "", google, spiffe, github, filesystem (NOT "kubernetes"). Enable later
+    # when OIDC projected tokens + Fulcio trust setup is ready.
 
   # TektonResult managed via standalone CR (custom CNPG + S3). Disable auto-install.
   result:

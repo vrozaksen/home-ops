@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/operator.tekton.dev/tektonconfig_v1alpha1.json
 # TektonConfig drives the whole stack via profile=all:
 # https://tekton.dev/docs/operator/tektonconfig/
 #   - installs TektonPipeline, TektonTrigger, TektonChain, TektonDashboard
@@ -95,8 +96,9 @@ spec:
   result:
     disabled: true
 
-  hub:
-    disabled: true
+  # Hub: no `disabled` field in schema. TektonHub is opt-in — CR never created,
+  # so no need to disable. `hub` field in TektonConfig is only for params/options
+  # passed to an existing TektonHub.
 
   # Job-based pruner (cron). Event-based tektonpruner cannot coexist — pick one.
   # Job-based is simpler and battle-tested.

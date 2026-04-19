@@ -32,30 +32,30 @@ spec:
             envFrom:
               - secretRef:
                   name: attic-secret
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: &port 8080
-                  initialDelaySeconds: 10
-                  periodSeconds: 10
-                  timeoutSeconds: 3
-                  failureThreshold: 3
-              readiness: *probes
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 5
-                  timeoutSeconds: 3
-                  failureThreshold: 30
+            # probes:
+            #   liveness: &probes
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /
+            #         port: &port 8080
+            #       initialDelaySeconds: 10
+            #       periodSeconds: 10
+            #       timeoutSeconds: 3
+            #       failureThreshold: 3
+            #   readiness: *probes
+            #   startup:
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /
+            #         port: *port
+            #       initialDelaySeconds: 0
+            #       periodSeconds: 5
+            #       timeoutSeconds: 3
+            #       failureThreshold: 30
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

@@ -6,6 +6,7 @@ locals {
     "harbor",
     "rxresume",
     "sentry",
+    "tekton-results-logs",
     "tfstate-mikrotik-terraform"
   ]
 }

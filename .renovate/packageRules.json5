@@ -7,6 +7,12 @@
       "matchDatasources": ["terraform-provider"],
       "versioning": "terraform",
       "matchPackagePatterns": [".*"]
+    },
+    {
+      "description": "Tekton operator uses prefixed git tags (tekton-operator-X.Y.Z)",
+      "matchManagers": ["flux"],
+      "matchDepNames": ["tektoncd/operator"],
+      "extractVersion": "^tekton-operator-(?<version>.+)$"
     }
   ]
 }

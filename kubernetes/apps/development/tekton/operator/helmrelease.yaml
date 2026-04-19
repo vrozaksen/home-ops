@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/gitrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tekton-operator
+spec:
+  interval: 1h
+  url: https://github.com/tektoncd/operator
+  ref:
+    tag: tekton-operator-0.79.0
+  ignore: |
+    /*
+    !/charts/tekton-operator
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tekton-operator
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: ./charts/tekton-operator
+      sourceRef:
+        kind: GitRepository
+        name: tekton-operator
+  install:
+    createNamespace: true
+  targetNamespace: tekton-operator
+  storageNamespace: tekton-operator
+  values:
+    installCRDs: true
+    operator:
+      autoInstallComponents: false
+      defaultTargetNamespace: tekton-pipelines
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+    webhook:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    service:
+      createServiceMonitor: true

@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# Namespace holding reusable Tasks referenced by Pipelines via cluster resolver:
+#   taskRef:
+#     resolver: cluster
+#     params:
+#       - name: kind
+#         value: task
+#       - name: namespace
+#         value: shared-tasks
+#       - name: name
+#         value: <task-name>
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./namespace.yaml

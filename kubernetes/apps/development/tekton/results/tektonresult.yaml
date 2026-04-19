@@ -1,0 +1,17 @@
+---
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonResult
+metadata:
+  name: result
+spec:
+  targetNamespace: tekton-pipelines
+  is_external_db: true
+  db_host: postgres-tekton-results-rw.tekton-pipelines.svc.cluster.local
+  db_port: 5432
+  db_secret_name: postgres-tekton-results-app
+  db_secret_user_key: username
+  db_secret_password_key: password
+  db_enable_auto_migration: true
+  logs_type: S3
+  secret_name: tekton-results-s3-logs
+  auth_disable: true

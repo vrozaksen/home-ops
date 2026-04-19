@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/servicemonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tekton-pipelines-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: controller
+    app.kubernetes.io/part-of: tekton-pipelines
+spec:
+  endpoints:
+    - interval: 30s
+      port: http-metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - tekton-pipelines
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: controller
+      app.kubernetes.io/part-of: tekton-pipelines
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/servicemonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: controller
+    app.kubernetes.io/part-of: tekton-triggers
+spec:
+  endpoints:
+    - interval: 30s
+      port: http-metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - tekton-pipelines
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: controller
+      app.kubernetes.io/part-of: tekton-triggers
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/servicemonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tekton-chains-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-chains
+spec:
+  endpoints:
+    - interval: 30s
+      port: http-metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - tekton-pipelines
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tekton-chains

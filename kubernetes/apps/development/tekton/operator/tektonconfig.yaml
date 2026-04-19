@@ -1,0 +1,102 @@
+---
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonConfig
+metadata:
+  name: config
+spec:
+  profile: all
+  targetNamespace: tekton-pipelines
+
+  pipeline:
+    enable-api-fields: stable
+
+    # Timeouts (minutes) - 3h for safe nix builds
+    default-timeout-minutes: 180
+    default-service-account: default
+
+    # Default workspace binding - every PipelineRun/TaskRun without explicit workspace
+    # binding gets a 1Gi ceph-block PVC (deleted with the run).
+    default-task-run-workspace-binding: |
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          storageClassName: ceph-block
+          resources:
+            requests:
+              storage: 1Gi
+
+    # Default pod template applied to every TaskRun pod unless overridden
+    default-pod-template: |
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+
+    # Resolvers — how Pipeline/Task refs are resolved
+    enable-git-resolver: true
+    enable-bundles-resolver: true
+    enable-cluster-resolver: true
+    enable-hub-resolver: true
+
+    # Safety
+    require-git-ssh-secret-known-hosts: true
+    set-security-context: true
+    disable-creds-init: false
+
+    # Performance + HA (3-node cluster, leader election across replicas)
+    performance:
+      disable-ha: false
+      replicas: 3
+      buckets: 10
+      threads-per-controller: 4
+      kube-api-qps: 10.0
+      kube-api-burst: 20
+
+    # Prometheus metrics
+    metrics.pipelinerun.duration-type: histogram
+    metrics.taskrun.duration-type: histogram
+    metrics.pipelinerun.level: pipeline
+    metrics.taskrun.level: task
+    metrics.count.enable-reason: true
+
+  trigger:
+    disabled: false
+
+  dashboard:
+    readonly: false
+
+  chain:
+    disabled: false
+    # --- OCI artifact signing (Kaniko/Buildah tasks produce IMAGE_URL/IMAGE_DIGEST) ---
+    artifacts.oci.signer: x509
+    artifacts.oci.storage: oci
+    artifacts.oci.format: simplesigning
+    # --- TaskRun attestations (SLSA v1 provenance) ---
+    artifacts.taskrun.signer: x509
+    artifacts.taskrun.storage: tekton
+    artifacts.taskrun.format: slsa/v2alpha3
+    # --- PipelineRun attestations ---
+    artifacts.pipelinerun.signer: x509
+    artifacts.pipelinerun.storage: tekton
+    artifacts.pipelinerun.format: slsa/v2alpha3
+    # --- Keyless signing via Sigstore Fulcio (uses ServiceAccount token) ---
+    signers.x509.fulcio.enabled: true
+    signers.x509.fulcio.address: https://fulcio.sigstore.dev
+    signers.x509.fulcio.issuer: https://kubernetes.default.svc
+    signers.x509.fulcio.provider: kubernetes
+    # --- Transparency log (Rekor) ---
+    transparency.enabled: true
+    transparency.url: https://rekor.sigstore.dev
+
+  hub:
+    disabled: true
+
+  pruner:
+    schedule: "0 3 * * *"
+    keep: 50
+    resources:
+      - taskrun
+      - pipelinerun

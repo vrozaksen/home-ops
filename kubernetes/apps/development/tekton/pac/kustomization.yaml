@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# PAC vendored from github.com/tektoncd/pipelines-as-code releases.
+# When Renovate opens a PR bumping the version below, re-download the YAML:
+#   V=<newVersion>; curl -sL "https://github.com/tektoncd/pipelines-as-code/releases/download/$V/release.k8s.yaml" -o upstream-$V.yaml && git rm upstream-v0.45.0.yaml
+# Then update the resources: entry and merge.
+# renovate: datasource=github-releases depName=tektoncd/pipelines-as-code
+#   pacVersion: v0.45.0
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./upstream-v0.45.0.yaml
+patches:
+  - target:
+      kind: ConfigMap
+      name: pipelines-as-code
+      namespace: pipelines-as-code
+    patch: |-
+      - op: replace
+        path: /data/tekton-dashboard-url
+        value: https://tekton.vzkn.eu
+      - op: replace
+        path: /data/application-name
+        value: Tekton CI

@@ -193,7 +193,9 @@ spec:
           ENABLE_HARD_LINE_BREAK_IN_COMMENTS: true
           ENABLE_MATH: true
         webhook:
-          ALLOWED_HOST_LIST: external  # Allow webhooks to external hosts only
+          # external = public internet; private = RFC1918 (10.x/172.16.x/192.168.x),
+          # covers K8s Service ClusterIPs (10.96.0.0/12) so Forgejo → PAC internal DNS works.
+          ALLOWED_HOST_LIST: external,private
           SKIP_TLS_VERIFY: false
           DELIVER_TIMEOUT: 10  # 10 seconds webhook timeout
         migrations:

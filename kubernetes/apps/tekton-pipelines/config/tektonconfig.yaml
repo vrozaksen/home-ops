@@ -91,9 +91,19 @@ spec:
     # "", google, spiffe, github, filesystem (NOT "kubernetes"). Enable later
     # when OIDC projected tokens + Fulcio trust setup is ready.
 
-  # TektonResult managed via standalone CR (custom CNPG + S3). Disable auto-install.
+  # TektonResult auto-installed by operator with custom CNPG + S3 backend.
   result:
-    disabled: true
+    disabled: false
+    is_external_db: true
+    db_host: postgres-tekton-results-rw.tekton-pipelines.svc.cluster.local
+    db_port: 5432
+    db_secret_name: postgres-tekton-results-app
+    db_secret_user_key: username
+    db_secret_password_key: password
+    db_enable_auto_migration: true
+    logs_type: S3
+    secret_name: tekton-results-s3-logs
+    auth_disable: true
 
   # Hub: no `disabled` field in schema. TektonHub is opt-in — CR never created,
   # so no need to disable. `hub` field in TektonConfig is only for params/options

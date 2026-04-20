@@ -28,12 +28,19 @@ spec:
     - name: clone
       image: alpine/git:2.52.0
       workingDir: $(workspaces.output.path)
+      # Pass safe.directory via env vars — avoids writing $HOME/.gitconfig which
+      # fails on read-only rootfs (we keep runtime as non-root to respect
+      # TektonConfig's default security context).
+      env:
+        - name: GIT_CONFIG_COUNT
+          value: "1"
+        - name: GIT_CONFIG_KEY_0
+          value: safe.directory
+        - name: GIT_CONFIG_VALUE_0
+          value: "*"
       script: |-
         #!/bin/sh
         set -eu
-        # Workspace volume may be owned by a different UID than the runtime user;
-        # git refuses to operate on dubiously-owned dirs since CVE-2022-24765.
-        git config --global --add safe.directory "$(workspaces.output.path)"
         git init -q .
         git remote add origin "$(params.url)"
         if [ "$(params.depth)" != "0" ]; then

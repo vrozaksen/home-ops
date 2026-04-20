@@ -33,6 +33,7 @@ spec:
       securityContext:
         privileged: true
         runAsUser: 0
+        runAsNonRoot: false
       env:
         - name: ATTIC_CACHE_PUBLIC_KEY
           valueFrom:

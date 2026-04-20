@@ -18,6 +18,10 @@ spec:
   steps:
     - name: push
       image: docker.io/nixos/nix:2.34.6
+      securityContext:
+        # nixos/nix writes to /etc/nix and /nix/store, needs root.
+        runAsUser: 0
+        runAsNonRoot: false
       env:
         - name: ATTIC_TOKEN
           valueFrom:

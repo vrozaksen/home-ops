@@ -28,7 +28,7 @@ spec:
               RCON_PORT: &rconPort 27015
               SAVE_NAME: nullius
               UPDATE_MODS_ON_START: true
-              UPDATE_IGNORE: nullius
+              # UPDATE_IGNORE: nullius
               CONSOLE_LOG_LOCATION: /factorio/console.log
               DLC_SPACE_AGE: false
               MODS: /factorio/mods

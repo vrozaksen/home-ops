@@ -15,7 +15,8 @@ spec:
 
   pipeline:
     # Feature flags — https://tekton.dev/docs/operator/tektonpipeline/
-    enable-api-fields: stable
+    # beta required for taskRef.resolver (cluster/git/bundles/hub)
+    enable-api-fields: beta
     enable-bundles-resolver: true
     enable-cluster-resolver: true
     enable-git-resolver: true

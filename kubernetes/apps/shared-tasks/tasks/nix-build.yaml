@@ -40,9 +40,18 @@ spec:
             secretKeyRef:
               name: attic-cache-public-key
               key: ATTIC_CACHE_PUBLIC_KEY
+        # libgit2 (embedded in nix) honors these for safe.directory checks
+        - name: GIT_CONFIG_COUNT
+          value: "1"
+        - name: GIT_CONFIG_KEY_0
+          value: safe.directory
+        - name: GIT_CONFIG_VALUE_0
+          value: "*"
       script: |-
         #!/bin/sh
         set -eu
+        # Ensure workspace files are owned by us (fsGroup ≠ runAsUser otherwise)
+        chown -R 0:0 "$(workspaces.source.path)"
         mkdir -p /etc/nix
         cat > /etc/nix/nix.conf <<EOF
         experimental-features = nix-command flakes

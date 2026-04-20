@@ -31,6 +31,9 @@ spec:
       script: |-
         #!/bin/sh
         set -eu
+        # Workspace volume may be owned by a different UID than the runtime user;
+        # git refuses to operate on dubiously-owned dirs since CVE-2022-24765.
+        git config --global --add safe.directory "$(workspaces.output.path)"
         git init -q .
         git remote add origin "$(params.url)"
         if [ "$(params.depth)" != "0" ]; then

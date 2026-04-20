@@ -3,9 +3,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./dnsendpoint.yaml
+  - ./repository.yaml
   - ./infisicalsecret.yaml
-  - ./helmrelease.yaml
-  - ./httproute.yaml
-  - ./tekton-serviceaccount.yaml
-  - ./tekton-git-basic-auth.yaml

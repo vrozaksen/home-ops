@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/secrets.infisical.com/infisicalsecret_v1alpha1.json
+# basic-auth Secret for git-clone. Tekton reads tekton.dev/git-0 annotation and
+# injects credentials into git operations when ServiceAccount references this secret.
+apiVersion: secrets.infisical.com/v1alpha1
+kind: InfisicalSecret
+metadata:
+  name: forgejo-git-basic-auth
+spec:
+  hostAPI: https://eu.infisical.com/api
+  syncConfig:
+    resyncInterval: 1m
+  authentication:
+    universalAuth:
+      secretsScope:
+        projectSlug: vzkn-eu-v2-zn
+        envSlug: prod
+        secretsPath: /kubernetes/development/tekton/forgejo-git
+      credentialsRef:
+        secretName: infisical-credentials
+        secretNamespace: security
+  managedKubeSecretReferences:
+    - secretName: forgejo-git-basic-auth
+      secretNamespace: development
+      secretType: kubernetes.io/basic-auth
+      template:
+        includeAllSecrets: false
+        metadata:
+          annotations:
+            tekton.dev/git-0: https://forgejo.vzkn.eu
+        data:
+          username: '{{ .FORGEJO_USERNAME.Value }}'
+          password: '{{ .FORGEJO_PAT.Value }}'

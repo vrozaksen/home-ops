@@ -17,3 +17,4 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./ks.yaml

@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/pipelinesascode.tekton.dev/repository_v1alpha1.json
+# PAC Repository CR — binds a Forgejo repo to in-cluster Tekton. When PAC
+# receives a webhook from Forgejo, it looks up the Repository by URL, validates
+# HMAC with webhook.secret, then creates PipelineRuns defined in .tekton/ of the repo.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: nix-config
+spec:
+  url: https://forgejo.vzkn.eu/vrozaksen/nix-config
+  git_provider:
+    type: forgejo
+    url: https://forgejo.vzkn.eu
+    secret:
+      name: nix-config-pac-secret
+      key: provider.token
+    webhook_secret:
+      name: nix-config-pac-secret
+      key: webhook.secret

@@ -10,3 +10,4 @@ components:
 resources:
   - ./namespace.yaml
   - ./ks.yaml
+  - ./repos/nix-config/ks.yaml

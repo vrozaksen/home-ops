@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/tekton.dev/task_v1.json
+# Push store paths to Attic binary cache. Expects ATTIC_TOKEN from
+# `attic-push-secret` Secret in the PipelineRun's ns.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: attic-push
+spec:
+  description: Login to Attic and push store paths.
+  params:
+    - name: cache-name
+      default: main
+    - name: cache-url
+      default: https://cache.vzkn.eu
+    - name: store-paths
+      description: Newline-separated store paths to push
+  steps:
+    - name: push
+      image: docker.io/nixos/nix:2.34.6
+      env:
+        - name: ATTIC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: attic-push-secret
+              key: ATTIC_TOKEN
+      script: |-
+        #!/bin/sh
+        set -eu
+        mkdir -p /etc/nix
+        echo 'experimental-features = nix-command flakes' > /etc/nix/nix.conf
+        nix profile install nixpkgs#attic-client
+        attic login "$(params.cache-name)" "$(params.cache-url)" "$ATTIC_TOKEN"
+        echo "$(params.store-paths)" | xargs attic push "$(params.cache-name)"

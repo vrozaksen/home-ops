@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/tekton.dev/task_v1.json
+# Build a Nix flake with cache.vzkn.eu as primary substituter.
+#
+# Requirements on the PipelineRun side:
+#   - privileged: true (nix sandbox uses unshare)
+#   - Secret `attic-cache-public-key` in the PipelineRun's ns (InfisicalSecret)
+#
+# Alternative if privileged is not acceptable: add `--option sandbox false` to
+# the nix build call. Slower but non-privileged.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: nix-build
+spec:
+  description: Build a flake output and print its store path(s).
+  params:
+    - name: flake-ref
+      description: "Flake ref to build, e.g. '.#nixosConfigurations.host.config.system.build.toplevel'"
+    - name: cache-substituter
+      description: Primary substituter URL
+      default: https://cache.vzkn.eu/main
+  workspaces:
+    - name: source
+      description: Flake source dir (typically from git-clone output)
+  results:
+    - name: store-paths
+      description: Newline-separated store paths produced by the build
+  steps:
+    - name: build
+      image: docker.io/nixos/nix:2.34.6
+      workingDir: $(workspaces.source.path)
+      securityContext:
+        privileged: true
+        runAsUser: 0
+      env:
+        - name: ATTIC_CACHE_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: attic-cache-public-key
+              key: ATTIC_CACHE_PUBLIC_KEY
+      script: |-
+        #!/bin/sh
+        set -eu
+        mkdir -p /etc/nix
+        cat > /etc/nix/nix.conf <<EOF
+        experimental-features = nix-command flakes
+        substituters = $(params.cache-substituter) https://cache.nixos.org
+        trusted-public-keys = $ATTIC_CACHE_PUBLIC_KEY cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+        EOF
+        nix build --no-link --print-out-paths "$(params.flake-ref)" \
+          | tee $(results.store-paths.path)

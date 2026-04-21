@@ -6,3 +6,5 @@ resources:
   - ./infisicalsecret.yaml
   - ./token-refresh.yaml
   - ./home-ops.yaml
+  - ./infisicalsecret-forgejo.yaml
+  - ./forgejo.yaml

@@ -1,0 +1,37 @@
+---
+apiVersion: renovate-operator.mogenius.com/v1alpha1
+kind: RenovateJob
+metadata:
+  name: forgejo
+spec:
+  # Empty discoveryFilter = all repos we have access to (all user repos + orgs)
+  provider:
+    name: forgejo
+    endpoint: https://forgejo.vzkn.eu
+  image: ghcr.io/renovatebot/renovate:43.110.14@sha256:5ad62b62d23991703565a9e8b22883b1897049d27924ef1e3a677e8b67926515
+  schedule: "0 * * * *"
+  parallelism: 3
+  secretRef: renovate-forgejo-token
+  extraEnv:
+    - name: LOG_LEVEL
+      value: info
+    - name: RENOVATE_PLATFORM_COMMIT
+      value: "true"
+    - name: RENOVATE_AUTODISCOVER
+      value: "true"
+    # Needed to resolve `github>` preset extends + bump datasource rate limits
+    # when scanning Forgejo repos. renovate-token secret is refreshed every 30m
+    # by the token-refresh CronJob.
+    - name: GITHUB_COM_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: renovate-token
+          key: GITHUB_COM_TOKEN
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  webhook:
+    enabled: true
+    authentication:
+      enabled: false

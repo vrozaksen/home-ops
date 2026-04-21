@@ -42,6 +42,9 @@ spec:
     - name: cve-scan
       description: Run vulnix CVE scan against closure
       default: "true"
+    - name: validate
+      description: Whether to run the validate step (skip for faster first-cold runs)
+      default: "true"
   workspaces:
     - name: source
       description: Flake source dir (typically from git-clone output)
@@ -107,6 +110,23 @@ spec:
         #!/bin/sh
         set -eu
 
+        if [ "$(params.validate)" != "true" ]; then
+          echo "Validate skipped (params.validate=$(params.validate))"
+          echo "skipped" > $(results.closure-size-mib.path)
+          echo "skipped" > $(results.cve-count.path)
+          exit 0
+        fi
+
+        # Helper: format bytes → "X.Y GiB (Z MiB)" using pure shell arithmetic
+        # (nixos/nix image has busybox but awk not in PATH during script run).
+        human_size() {
+          bytes="$1"
+          mib=$((bytes / 1048576))
+          gib_int=$((bytes / 1073741824))
+          gib_frac=$(( (bytes / 10737418) % 100 ))
+          printf '%d.%02d GiB (%d MiB)' "$gib_int" "$gib_frac" "$mib"
+        }
+
         echo "=== Built store paths ==="
         cat $(results.store-paths.path)
         echo ""
@@ -119,12 +139,11 @@ spec:
           bytes=$(nix path-info --closure-size --json "$path" 2>/dev/null \
             | grep -oE '"closureSize":[0-9]+' | head -1 | cut -d: -f2)
           if [ -n "$bytes" ]; then
-            human=$(echo "$bytes" | awk '{printf "%.2f GiB (%.0f MiB)", $1/1024/1024/1024, $1/1024/1024}')
-            echo "$path  →  $human"
+            echo "$path  →  $(human_size "$bytes")"
             [ "$path" = "$first_path" ] && total_bytes="$bytes"
           fi
         done < $(results.store-paths.path)
-        closure_mib=$(echo "$total_bytes" | awk '{printf "%d", $1/1024/1024}')
+        closure_mib=$((total_bytes / 1048576))
         echo "$closure_mib" > $(results.closure-size-mib.path)
 
         # Budget enforcement

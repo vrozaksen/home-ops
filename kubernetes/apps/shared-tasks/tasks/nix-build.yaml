@@ -1,10 +1,14 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/tekton.dev/task_v1.json
-# Build a Nix flake with cache.vzkn.eu as primary substituter.
+# Build a Nix flake and push the resulting store paths to Attic.
+#
+# Both steps run in the same pod so they share /nix/store — nix-build populates
+# it, attic-push reads from it. Separating into different Tasks would spawn
+# separate pods with empty /nix/store each, breaking push.
 #
 # Requirements on the PipelineRun side:
 #   - privileged: true (nix sandbox uses unshare)
-#   - Secret `attic-cache-public-key` in the PipelineRun's ns (InfisicalSecret)
+#   - Secrets `attic-cache-public-key` + `attic-push-secret` in PipelineRun's ns
 #
 # Alternative if privileged is not acceptable: add `--option sandbox false` to
 # the nix build call. Slower but non-privileged.
@@ -13,27 +17,50 @@ kind: Task
 metadata:
   name: nix-build
 spec:
-  description: Build a flake output and print its store path(s).
+  description: Build a flake output and push resulting store paths to Attic.
   params:
     - name: flake-ref
       description: "Flake ref to build, e.g. '.#nixosConfigurations.host.config.system.build.toplevel'"
     - name: cache-substituter
       description: Primary substituter URL
       default: https://cache.vzkn.eu/main
+    - name: cache-name
+      description: Attic cache name for push
+      default: main
+    - name: cache-url
+      description: Attic server URL for push
+      default: https://cache.vzkn.eu
+    - name: push
+      description: Whether to push built paths to Attic after build
+      default: "true"
+    - name: max-closure-gib
+      description: Fail if closure size > this many GiB (0 = no limit)
+      default: "8"
+    - name: max-lock-age-days
+      description: Warn if flake.lock older than this (0 = no check)
+      default: "30"
+    - name: cve-scan
+      description: Run vulnix CVE scan against closure
+      default: "true"
   workspaces:
     - name: source
       description: Flake source dir (typically from git-clone output)
   results:
     - name: store-paths
       description: Newline-separated store paths produced by the build
+    - name: closure-size-mib
+      description: Total closure size in MiB (first path only)
+    - name: cve-count
+      description: Number of CVEs found by vulnix (or "skipped")
+  stepTemplate:
+    image: docker.io/nixos/nix:2.34.6
+    securityContext:
+      privileged: true
+      runAsUser: 0
+      runAsNonRoot: false
   steps:
     - name: build
-      image: docker.io/nixos/nix:2.34.6
       workingDir: $(workspaces.source.path)
-      securityContext:
-        privileged: true
-        runAsUser: 0
-        runAsNonRoot: false
       env:
         - name: ATTIC_CACHE_PUBLIC_KEY
           valueFrom:
@@ -73,3 +100,147 @@ spec:
         EOF
         nix build --no-link --print-out-paths "$(params.flake-ref)" \
           | tee $(results.store-paths.path)
+
+    - name: validate
+      workingDir: $(workspaces.source.path)
+      script: |-
+        #!/bin/sh
+        set -eu
+
+        echo "=== Built store paths ==="
+        cat $(results.store-paths.path)
+        echo ""
+
+        echo "=== Closure size ==="
+        first_path=$(head -1 $(results.store-paths.path))
+        total_bytes=0
+        while read -r path; do
+          [ -z "$path" ] && continue
+          bytes=$(nix path-info --closure-size --json "$path" 2>/dev/null \
+            | grep -oE '"closureSize":[0-9]+' | head -1 | cut -d: -f2)
+          if [ -n "$bytes" ]; then
+            human=$(echo "$bytes" | awk '{printf "%.2f GiB (%.0f MiB)", $1/1024/1024/1024, $1/1024/1024}')
+            echo "$path  →  $human"
+            [ "$path" = "$first_path" ] && total_bytes="$bytes"
+          fi
+        done < $(results.store-paths.path)
+        closure_mib=$(echo "$total_bytes" | awk '{printf "%d", $1/1024/1024}')
+        echo "$closure_mib" > $(results.closure-size-mib.path)
+
+        # Budget enforcement
+        max_gib="$(params.max-closure-gib)"
+        if [ "$max_gib" != "0" ]; then
+          max_mib=$((max_gib * 1024))
+          if [ "$closure_mib" -gt "$max_mib" ]; then
+            echo ""
+            echo "❌ Closure ${closure_mib} MiB exceeds budget ${max_mib} MiB (${max_gib} GiB)"
+            echo "   Something pulled in unwanted deps. Use 'nix why-depends' to investigate."
+            exit 1
+          fi
+        fi
+        echo ""
+
+        echo "=== NixOS toplevel sanity ==="
+        has_toplevel=0
+        while read -r path; do
+          [ -z "$path" ] && continue
+          case "$path" in
+            *nixos-system-*)
+              has_toplevel=1
+              echo "Checking: $path"
+              [ -x "$path/activate" ] || { echo "❌ MISSING activate script"; exit 1; }
+              [ -d "$path/kernel-modules" ] || echo "⚠️  no kernel-modules dir (non-standard build?)"
+              [ -f "$path/nixos-version" ] && echo "  version: $(cat $path/nixos-version)"
+              echo "  ✓ activate script present"
+              ;;
+          esac
+        done < $(results.store-paths.path)
+        [ "$has_toplevel" = "1" ] || echo "(not a NixOS toplevel, skipping activate check)"
+        echo ""
+
+        echo "=== SUID/SGID audit ==="
+        suid_count=0
+        while read -r path; do
+          [ -z "$path" ] && continue
+          found=$(find "$path" -xdev \( -perm -4000 -o -perm -2000 \) -type f 2>/dev/null | head -20)
+          if [ -n "$found" ]; then
+            echo "$found"
+            suid_count=$((suid_count + $(echo "$found" | wc -l)))
+          fi
+        done < $(results.store-paths.path)
+        echo "Total SUID/SGID binaries: $suid_count (informational)"
+        echo ""
+
+        echo "=== Flake lock freshness ==="
+        max_age="$(params.max-lock-age-days)"
+        if [ "$max_age" != "0" ] && [ -f flake.lock ]; then
+          # lastModified from nixpkgs input — best-effort parse
+          last_mod=$(grep -A 3 '"nixpkgs"' flake.lock | grep '"lastModified"' | head -1 \
+            | grep -oE '[0-9]+')
+          if [ -n "$last_mod" ]; then
+            now=$(date +%s)
+            age_days=$(( (now - last_mod) / 86400 ))
+            echo "flake.lock nixpkgs: ${age_days} days old (budget: ${max_age})"
+            if [ "$age_days" -gt "$max_age" ]; then
+              echo "⚠️  flake.lock stale — consider 'nix flake update'"
+            else
+              echo "✓ within freshness budget"
+            fi
+          else
+            echo "(could not parse flake.lock)"
+          fi
+        fi
+        echo ""
+
+        echo "=== CVE scan (vulnix) ==="
+        if [ "$(params.cve-scan)" = "true" ]; then
+          nix profile add nixpkgs#vulnix >/dev/null 2>&1 || true
+          if command -v vulnix >/dev/null 2>&1; then
+            # vulnix exits non-zero if CVEs found — capture and don't fail
+            set +e
+            vulnix --json $(head -1 $(results.store-paths.path)) > /tmp/vulnix.json 2>/dev/null
+            rc=$?
+            set -e
+            if [ -f /tmp/vulnix.json ]; then
+              count=$(grep -oE '"cve":"CVE-[0-9-]+"' /tmp/vulnix.json | sort -u | wc -l)
+              echo "$count" > $(results.cve-count.path)
+              echo "Found $count unique CVE(s) in closure"
+              if [ "$count" -gt 0 ]; then
+                echo "First 20 CVEs:"
+                grep -oE '"cve":"CVE-[0-9-]+"' /tmp/vulnix.json | sort -u | head -20
+                echo ""
+                echo "⚠️  Review CVEs — run 'nix flake update' or pin fixes in overlay."
+              fi
+            else
+              echo "skipped" > $(results.cve-count.path)
+              echo "vulnix run failed (rc=$rc), skipping"
+            fi
+          else
+            echo "skipped" > $(results.cve-count.path)
+            echo "vulnix unavailable, skipping"
+          fi
+        else
+          echo "skipped" > $(results.cve-count.path)
+          echo "CVE scan disabled via param"
+        fi
+        echo ""
+
+        echo "=== All validations passed ==="
+
+    - name: push
+      env:
+        - name: ATTIC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: attic-push-secret
+              key: ATTIC_TOKEN
+      script: |-
+        #!/bin/sh
+        set -eu
+        if [ "$(params.push)" != "true" ]; then
+          echo "Push disabled, skipping."
+          exit 0
+        fi
+        nix profile add nixpkgs#attic-client
+        attic login "$(params.cache-name)" "$(params.cache-url)" "$ATTIC_TOKEN"
+        xargs attic push "$(params.cache-name)" < $(results.store-paths.path)

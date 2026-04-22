@@ -36,7 +36,7 @@ spec:
       description: Fail if closure size > this many GiB (0 = no limit)
       # 30 covers desktop (~20-25 GiB with Steam/LibreOffice/etc). Servers
       # override to "4" or "8" via PipelineRun params for tighter check.
-      default: "30"
+      default: "0"
     - name: max-lock-age-days
       description: Warn if flake.lock older than this (0 = no check)
       default: "30"

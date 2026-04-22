@@ -89,10 +89,10 @@ spec:
         connections:
           requireMsgr2: true
       resources:
-        # Only CPU requests specified - memory uses Rook defaults:
-        # mon: 1Gi request, 2Gi limit (fixes RocksDB compaction issues)
-        # mgr: 512Mi request, 1Gi limit
-        # osd: 4Gi request, 4Gi limit
+        # mon/mgr: cpu-only override, memory uses Rook defaults
+        # osd: full spec pinned to existing deployment — ceph-pool-single
+        # (size:1) blocks ok-to-stop, so any drift here deadlocks the OSD
+        # rolling update and spams prepare jobs every reconcile
         mgr:
           requests:
             cpu: 125m
@@ -101,7 +101,10 @@ spec:
             cpu: 250m
         osd:
           requests:
-            cpu: 250m
+            cpu: 500m
+            memory: 2560Mi
+          limits:
+            memory: 6Gi
       healthCheck:
         livenessProbe:
           mon:

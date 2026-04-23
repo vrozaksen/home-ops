@@ -4,7 +4,7 @@ kind: RenovateJob
 metadata:
   name: forgejo
 spec:
-  # Empty discoveryFilter = all repos we have access to (all user repos + orgs)
+  discoveryFilter: "vrozaksen/*"
   provider:
     name: forgejo
     endpoint: https://forgejo.vzkn.eu

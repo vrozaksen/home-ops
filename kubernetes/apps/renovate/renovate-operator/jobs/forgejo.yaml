@@ -19,6 +19,8 @@ spec:
       value: "true"
     - name: RENOVATE_AUTODISCOVER
       value: "true"
+    - name: RENOVATE_AUTODISCOVER_FILTER
+      value: "vrozaksen/*"
     # Needed to resolve `github>` preset extends + bump datasource rate limits
     # when scanning Forgejo repos. renovate-token secret is refreshed every 30m
     # by the token-refresh CronJob.

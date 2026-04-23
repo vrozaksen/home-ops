@@ -1,0 +1,171 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Claude PR Review
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  classify:
+    name: Claude Review - Classify
+    # Only Renovate PRs, and skip if the PR carries a review/skip label
+    if: |
+      github.event.pull_request.user.login == 'repo-killer[bot]'
+        && !contains(github.event.pull_request.labels.*.name, 'review/skip')
+    runs-on: ubuntu-latest
+    outputs:
+      kind: ${{ steps.classify.outputs.kind }}
+      model: ${{ steps.classify.outputs.model }}
+      source: ${{ steps.classify.outputs.source }}
+    steps:
+      - name: Classify PR by labels
+        id: classify
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+
+          # Semver tier drives both the prompt and the model (cost vs depth).
+          if printf '%s' "$LABELS" | grep -q '"type/major"'; then
+            kind=major
+            model=claude-opus-4-7
+          elif printf '%s' "$LABELS" | grep -q '"type/minor"'; then
+            kind=minor
+            model=claude-sonnet-4-6
+          elif printf '%s' "$LABELS" | grep -q '"type/patch"'; then
+            kind=patch
+            model=claude-haiku-4-5-20251001
+          else
+            # No semver label => digest bump, lockfile maintenance, etc. Treat as patch.
+            kind=patch
+            model=claude-haiku-4-5-20251001
+          fi
+
+          # Source hint so the prompt can specialise (helm chart, container image, terraform, etc.)
+          source=generic
+          for s in helm container github-action terraform docker-compose; do
+            if printf '%s' "$LABELS" | grep -q "\"renovate/$s\""; then
+              source="$s"
+              break
+            fi
+          done
+
+          echo "kind=$kind" | tee -a "$GITHUB_OUTPUT"
+          echo "model=$model" | tee -a "$GITHUB_OUTPUT"
+          echo "source=$source" | tee -a "$GITHUB_OUTPUT"
+
+  review:
+    name: Claude Review - ${{ needs.classify.outputs.kind }}
+    needs: classify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Generate Token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3  # v3.1.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: Checkout PR
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Install Claude Code CLI
+        run: sudo npm install -g @anthropic-ai/claude-code
+
+      - name: Assemble context
+        id: context
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/claude
+
+          # PR metadata
+          gh pr view "$PR_NUMBER" --json title,body,labels,files \
+            > /tmp/claude/pr.json
+
+          # Unified diff, capped so we don't blow up the token budget on huge renames
+          gh pr diff "$PR_NUMBER" \
+            | head -c 200000 \
+            > /tmp/claude/pr.diff
+
+      - name: Run Claude review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          KIND: ${{ needs.classify.outputs.kind }}
+          MODEL: ${{ needs.classify.outputs.model }}
+          SOURCE: ${{ needs.classify.outputs.source }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          {
+            cat ".github/claude/prompts/${KIND}.md"
+            echo
+            echo "---"
+            echo "## PR #${PR_NUMBER}: ${PR_TITLE}"
+            echo "Renovate source: ${SOURCE}"
+            echo
+            echo "### Metadata"
+            echo '```json'
+            cat /tmp/claude/pr.json
+            echo '```'
+            echo
+            echo "### Diff"
+            echo '```diff'
+            cat /tmp/claude/pr.diff
+            echo '```'
+          } > /tmp/claude/input.md
+
+          claude --print \
+            --model "$MODEL" \
+            --permission-mode plan \
+            --allowed-tools "Read,Grep,Glob,WebFetch,Bash(gh api:*),Bash(gh release:*),Bash(helm show:*),Bash(helm template:*)" \
+            < /tmp/claude/input.md \
+            > /tmp/claude/review.md
+
+      - name: Post review comment
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0  # v3.0.4
+        with:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          header: claude-pr-review
+          path: /tmp/claude/review.md
+
+  success:
+    if: ${{ !cancelled() }}
+    needs:
+      - review
+    name: Claude Review - Success
+    runs-on: ubuntu-latest
+    steps:
+      - name: Any jobs failed?
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1
+
+      - name: All jobs passed or skipped?
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: echo "All jobs passed or skipped" && echo "${{ toJSON(needs.*.result) }}"

@@ -52,7 +52,7 @@ services:
       - 80:80
 
   traefik:
-    image: docker.io/traefik:v3.6.11@sha256:acfc80650104f0194a15f73dc1648f517561bc1645391a15705332a064cfc33c
+    image: docker.io/traefik:v3.6.14@sha256:4cda3393930dceff030e144b46260e96e1337c9cfaa4fed81c90cb8f4d498f57
     container_name: traefik
     restart: unless-stopped
     deploy:

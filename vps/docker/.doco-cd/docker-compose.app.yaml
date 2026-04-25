@@ -8,7 +8,7 @@ secrets:
 services:
   doco-cd:
     container_name: doco-cd
-    image: ghcr.io/kimdre/doco-cd:0.76.0@sha256:ef0df49fca5ccaa4c4e01e13bf99d15609c093dd08f53f0c94dacac2a72ed4bd
+    image: ghcr.io/kimdre/doco-cd:0.82.2@sha256:b3e3c28c7690e1f3cb7ad5cdbf2cecf34965a40ef3e89bf55bb21f221f1c0a20
     restart: unless-stopped
     environment:
       GIT_ACCESS_TOKEN_FILE: /run/secrets/gh_token

@@ -58,6 +58,16 @@
       "minimumGroupSize": 2
     },
     {
+      "description": ["Tekton Pipelines-as-Code Group"],
+      "groupName": "tekton-pac",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/tektoncd/pipelines-as-code/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Talos Group"],
       "groupName": "talos",
       "matchDatasources": ["docker"],

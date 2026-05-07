@@ -17,7 +17,7 @@ spec:
       description: Newline-separated store paths to push
   steps:
     - name: push
-      image: docker.io/nixos/nix:2.34.6
+      image: docker.io/nixos/nix:2.34.7
       securityContext:
         # nixos/nix writes to /etc/nix and /nix/store, needs root.
         runAsUser: 0

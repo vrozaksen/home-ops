@@ -58,7 +58,7 @@ spec:
       description: Number of CVEs found by vulnix (or "skipped")
   steps:
     - name: build
-      image: docker.io/nixos/nix:2.34.6
+      image: docker.io/nixos/nix:2.34.7
       workingDir: $(workspaces.source.path)
       securityContext:
         privileged: true

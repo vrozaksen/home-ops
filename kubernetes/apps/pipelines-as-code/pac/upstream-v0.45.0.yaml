@@ -1765,7 +1765,7 @@ spec:
       serviceAccountName: pipelines-as-code-watcher
       containers:
         - name: pac-watcher
-          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-watcher:v0.45.0"
+          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-watcher:v0.46.0"
           imagePullPolicy: Always
           env:
             - name: CONFIG_LOGGING_NAME

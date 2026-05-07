@@ -1615,7 +1615,7 @@ spec:
       serviceAccountName: pipelines-as-code-controller
       containers:
         - name: pac-controller
-          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-controller:v0.45.0"
+          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-controller:v0.46.0"
           imagePullPolicy: Always
           ports:
             - name: api

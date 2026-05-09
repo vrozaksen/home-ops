@@ -28,7 +28,7 @@ spec:
       manager:
         image:
           repository: infisical/kubernetes-operator
-          tag: v0.10.32
+          tag: v0.10.33
         resources:
           requests:
             cpu: 10m

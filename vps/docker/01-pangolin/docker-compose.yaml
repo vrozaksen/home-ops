@@ -24,7 +24,7 @@ services:
       retries: 15
 
   gerbil:
-    image: ghcr.io/fosrl/gerbil:1.3.0@sha256:7d9732af74c5851dde4b39a69a0c5d25b2f86a44464ebe0a4f116280914a8b56
+    image: ghcr.io/fosrl/gerbil:1.3.1@sha256:b16a722d5603fa74acd3e1deb86cea0b8330d015ab5325dc41e44108fe6f29c9
     container_name: gerbil
     restart: unless-stopped
     deploy:

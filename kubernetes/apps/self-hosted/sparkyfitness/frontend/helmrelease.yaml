@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/codewithcj/sparkyfitness-frontend
-              tag: v0.16.5.7@sha256:c57a0a07b3470bd0c280d63d02b45adfe7360441b396e9bd445d7b0d22823356
+              tag: v0.16.6.1@sha256:9a52fc95e96375d86990a036aa8ffebd9de8866c8601e3f2d27a483f8e102166
             env:
               SPARKY_FITNESS_SERVER_HOST: sparkyfitness-server.self-hosted
               SPARKY_FITNESS_SERVER_PORT: "3010"

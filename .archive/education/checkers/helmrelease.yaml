@@ -19,7 +19,7 @@ spec:
         containers:
           app:
             image:
-              repository: forgejo.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-4
+              repository: git.vzkn.eu/ahe-computer-science-s5/oop2-checkers-stage-4
               tag: &version 2026.1.10
             env:
               BASE_URL: "https://checkers.vzkn.eu"

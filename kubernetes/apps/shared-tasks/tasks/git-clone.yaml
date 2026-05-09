@@ -11,7 +11,7 @@ spec:
   description: Clone a git repository into the output workspace.
   params:
     - name: url
-      description: Git repository URL (e.g. https://forgejo.vzkn.eu/vrozaksen/nix-config)
+      description: Git repository URL (e.g. https://git.vzkn.eu/vrozaksen/nix-config)
     - name: revision
       description: Commit, branch, or tag
       default: main

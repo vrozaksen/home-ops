@@ -8,10 +8,10 @@ kind: Repository
 metadata:
   name: nix-config
 spec:
-  url: https://forgejo.vzkn.eu/vrozaksen/nix-config
+  url: https://git.vzkn.eu/vrozaksen/nix-config
   git_provider:
     type: forgejo
-    url: https://forgejo.vzkn.eu
+    url: https://git.vzkn.eu
     secret:
       name: nix-config-pac-secret
       key: provider.token

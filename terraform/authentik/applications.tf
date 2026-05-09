@@ -349,7 +349,7 @@ module "oauth2-forgejo" {
   source             = "./oauth2_application"
   name               = "Forgejo"
   icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/forgejo.png"
-  launch_url         = "https://forgejo.${var.cluster_domain}"
+  launch_url         = "https://git.${var.cluster_domain}"
   description        = "Git forge"
   newtab             = true
   group              = "Development"
@@ -358,7 +358,7 @@ module "oauth2-forgejo" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["forgejo"].client_id
   client_secret      = local.parsed_secrets["forgejo"].client_secret
-  redirect_uris      = ["https://forgejo.${var.cluster_domain}/user/oauth2/Authentik/callback"]
+  redirect_uris      = ["https://git.${var.cluster_domain}/user/oauth2/Authentik/callback"]
 }
 
 # module "oauth2-harbor" {

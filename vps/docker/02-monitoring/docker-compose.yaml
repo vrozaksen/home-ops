@@ -49,7 +49,7 @@ services:
       - monitoring
 
   prometheus:
-    image: quay.io/prometheus/prometheus:v3.10.0@sha256:7571a304e67fbd794be02422b13627dc7de822152f74e99e2bef95d29eceecde
+    image: quay.io/prometheus/prometheus:v3.11.3@sha256:c0b857aead0d5793aa566adb8f49a9983d6f6031652098759d521a330cfa050f
     container_name: prometheus
     restart: unless-stopped
     deploy:

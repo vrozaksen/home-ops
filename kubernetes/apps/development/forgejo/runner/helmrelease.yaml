@@ -3,148 +3,238 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app forgejo-runner
+  name: forgejo-runner
 spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
   values:
-    controllers:
-      forgejo-runner:
-        type: statefulset
-        podDisruptionBudget:
-          minAvailable: 1
-        annotations:
-          reloader.stakater.com/auto: "true"
-        initContainers:
-          register:
-            image:
-              repository: code.forgejo.org/forgejo/runner
-              tag: 12.10.1@sha256:3d49075f9115054ae2485d8cea2819296a904dfd4f00017285168028615d8533
-            command:
-              - "sh"
-              - "-c"
-              - >
-                if [ ! -f /data/.runner ]; then
-                  echo "Registering runner...";
-                  forgejo-runner register --no-interactive \
-                    --token $(RUNNER_TOKEN) \
-                    --name $(RUNNER_NAME) \
-                    --instance $(FORGEJO_INSTANCE_URL) \
-                    --labels "$(LABELS)";
-                else
-                  echo "Runner already registered, skipping.";
-                fi
-            env:
-              FORGEJO_INSTANCE_URL: http://forgejo-http.development.svc.cluster.local:3000
-              LABELS: "ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-latest"
-            envFrom:
-              - secretRef:
-                  name: forgejo-runner-secret
-        containers:
-          daemon:
-            image:
-              repository: docker
-              tag: 29.4.1-dind-rootless@sha256:b195ea3784d101abfe1ac68a47f95bcde74bb7ea4e4e8d277d29bc2661a6ae0e
-            securityContext:
-              privileged: true
-            resources:
-              requests:
-                cpu: 10m
-                memory: 1Gi
-              limits:
-                memory: 4Gi
-            env:
-              - name: DOCKER_TLS_CERTDIR
-                value: /certs
-          app:
-            image:
-              repository: code.forgejo.org/forgejo/runner
-              tag: 12.10.1@sha256:3d49075f9115054ae2485d8cea2819296a904dfd4f00017285168028615d8533
-            resources:
-              requests:
-                cpu: 10m
-                memory: 384Mi
-              limits:
-                memory: 768Mi
-            command:
-              - "sh"
-              - "-c"
-              - "while ! nc -z localhost 2376 </dev/null; do echo 'waiting for docker daemon...'; sleep 5; done; forgejo-runner --config /config/config.yaml daemon"
-            env:
-              - name: DOCKER_HOST
-                value: tcp://localhost:2376
-              - name: DOCKER_CERT_PATH
-                value: /certs/client
-              - name: DOCKER_TLS_VERIFY
-                value: "1"
-        statefulset:
-          volumeClaimTemplates:
-            - name: data
-              globalMounts:
-                - path: /data
-              accessMode: "ReadWriteOnce"
-              size: 10Gi
-    defaultPodOptions:
-      priorityClassName: cluster-low
-      securityContext:
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
-    service:
-      app:
-        controller: *app
-        ports:
-          http:
-            port: 45315
     configMaps:
       config:
+        suffix: config
         data:
-          config.yaml: |
-            log:
-              level: info
-
-            runner:
-              file: .runner
-              capacity: 1
-              envs:
-                CLEEB: true
-                DOCKER_HOST: tcp://127.0.0.1:2376
-                DOCKER_TLS_VERIFY: 1
-                DOCKER_CERT_PATH: /certs/client
-              env_file: .env
-              timeout: 3h
-              insecure: false
-              fetch_timeout: 5s
-              fetch_interval: 2s
-              labels: []
-
+          runner.yaml: |-
             cache:
               enabled: true
-              dir: ""
-              host: ""
-              port: 0
-
+              dir: /data/cache
             container:
-              network: "host"
-              enable_ipv6: false
-              privileged: false
-              options: "-v /certs/client:/certs/client"
-              workdir_parent:
-              valid_volumes:
-                - /certs/client
-              docker_host: ""
-
+              docker_host: "-"
+              workdir_parent: shared/workdir
             host:
-              workdir_parent:
-
+              workdir_parent: /data/act
+            kubernetes:
+              namespace: development
+              poll_timeout: 10m
+            log:
+              level: info
+            plugins:
+              k8s:
+                address: unix:///plugin/forgejo-runner-k8s.sock
+                options:
+                  namespace: development
+                  poll_timeout: 10m
+                  labels: "app.kubernetes.io/name=forgejo-runner-instance,app.kubernetes.io/instance=env-${ENV_ID}"
+            runner:
+              capacity: 2
+              file: /persistent/.runner
+              labels:
+                - ubuntu-latest:k8s:/config/podspec-default.yaml
+                - ubuntu-24.04:k8s:/config/podspec-default.yaml
+                - default:k8s:/config/podspec-default.yaml
+                - docker:k8s:/config/podspec-dind.yaml
+              timeout: 3h
+          podspec-default.yaml: |-
+            containers:
+              - env:
+                  - name: DEBIAN_FRONTEND
+                    value: noninteractive
+                image: ghcr.io/catthehacker/ubuntu:act-latest
+                imagePullPolicy: IfNotPresent
+                name: main
+                resources:
+                  limits:
+                    memory: 2Gi
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi
+            restartPolicy: Never
+          podspec-dind.yaml: |-
+            initContainers:
+              - name: dind
+                image: docker:29-dind
+                securityContext:
+                  privileged: true
+                restartPolicy: Always
+                env:
+                  - name: DOCKER_TLS_CERTDIR
+                    value: /certs
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi
+                  limits:
+                    memory: 4Gi
+                volumeMounts:
+                  - name: docker-storage
+                    mountPath: /var/lib/docker
+                  - name: docker-certs
+                    mountPath: /certs
+                readinessProbe:
+                  exec:
+                    command:
+                      - sh
+                      - -c
+                      - test -f /certs/client/ca.pem && test -f /certs/client/cert.pem && test -f /certs/client/key.pem
+                  initialDelaySeconds: 2
+                  periodSeconds: 1
+            containers:
+              - env:
+                  - name: DEBIAN_FRONTEND
+                    value: noninteractive
+                  - name: DOCKER_HOST
+                    value: tcp://localhost:2376
+                  - name: DOCKER_TLS_VERIFY
+                    value: "1"
+                  - name: DOCKER_CERT_PATH
+                    value: /certs/client
+                image: ghcr.io/catthehacker/ubuntu:act-latest
+                imagePullPolicy: IfNotPresent
+                name: main
+                resources:
+                  limits:
+                    memory: 2Gi
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi
+                volumeMounts:
+                  - name: docker-certs
+                    mountPath: /certs
+                    readOnly: true
+            volumes:
+              - name: docker-storage
+                emptyDir: {}
+              - name: docker-certs
+                emptyDir: {}
+            restartPolicy: Never
+    controllers:
+      forgejo-runner:
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          automountServiceAccountToken: true
+          labels:
+            app.kubernetes.io/component: forgejo-runner
+          securityContext:
+            fsGroup: 100
+            fsGroupChangePolicy: OnRootMismatch
+            runAsGroup: 100
+            runAsNonRoot: true
+            runAsUser: 1000
+        containers:
+          runner:
+            image:
+              repository: git.erwanleboucher.dev/eleboucher/runner
+              tag: 12.10.1@sha256:0a8ef9dd41a4c29903db8f9f125b20e58e2ccb5c3c539beb1e02db139d7cf7a2
+            command:
+              - sh
+              - -ec
+              - |
+                exec /bin/forgejo-runner daemon \
+                  --config /config/runner.yaml \
+                  --url "http://forgejo-http:3000" \
+                  --uuid "$(cat /etc/forgejo-runner-secret/uuid)" \
+                  --token-url file:///etc/forgejo-runner-secret/token
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: true
+          k8s-plugin:
+            image:
+              repository: git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
+              tag: 12.10.0@sha256:c1b8145843d9e2f48ad6c7053e3aab184bea189cc868ba7f0ac6b34a905464d5
+            args:
+              - --listen
+              - unix:///plugin/forgejo-runner-k8s.sock
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    defaultPodOptions:
+      priorityClassName: cluster-low
     persistence:
       config:
         type: configMap
         identifier: config
         globalMounts:
-          - path: /config/config.yaml
-            subPath: config.yaml
-            readOnly: true
-      certs:
+          - path: /config
+      plugin:
         type: emptyDir
+        globalMounts:
+          - path: /plugin
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /data
+            subPath: data
+          - path: /tmp
+            subPath: tmp
+      runner-secret:
+        type: secret
+        name: forgejo-runner-secret
+        globalMounts:
+          - path: /etc/forgejo-runner-secret
+            readOnly: true
+    rbac:
+      bindings:
+        forgejo-runner:
+          type: RoleBinding
+          roleRef:
+            identifier: forgejo-runner
+          subjects:
+            - identifier: forgejo-runner
+      roles:
+        forgejo-runner:
+          type: Role
+          rules:
+            - apiGroups:
+                - ""
+              resources:
+                - pods
+              verbs:
+                - list
+                - watch
+                - create
+                - get
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - pods/exec
+              verbs:
+                - create
+                - get
+            - apiGroups:
+                - ""
+              resources:
+                - pods/log
+              verbs:
+                - list
+                - watch
+                - get
+    serviceAccount:
+      forgejo-runner: {}

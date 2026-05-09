@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: forgejo-runner
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: forgejo-runner
+  enableDefaultDeny:
+    ingress: true
+  egress:
+    - # Forgejo server
+      toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: forgejo
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "3000"
+    - # Forgejo (External URL)
+      toFQDNs:
+        - matchName: git.vzkn.eu
+    - # Internet egress (HTTPS)
+      toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "443"

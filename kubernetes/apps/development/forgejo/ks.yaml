@@ -6,18 +6,17 @@ metadata:
   name: &app forgejo
 spec:
   components:
+    - ../../../../components/anubis
     - ../../../../components/cnpg/restore
     - ../../../../components/dragonfly
     - ../../../../components/volsync
   dependsOn:
-    - name: cloudnative-pg
-      namespace: database
-    - name: plugin-barman-cloud
-      namespace: database
     - name: dragonfly-operator
       namespace: database
     - name: infisical-operator
       namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
     - name: priority-classes
       namespace: flux-system
   healthCheckExprs:
@@ -39,6 +38,7 @@ spec:
       VOLSYNC_CAPACITY: 50Gi
       VOLSYNC_STORAGECLASS: ceph-block
       VOLSYNC_ACCESSMODES: ReadWriteOnce
+      ANUBIS_TARGET: "http://forgejo-http.development.svc.cluster.local:3000"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -53,8 +53,6 @@ kind: Kustomization
 metadata:
   name: &app forgejo-runner
 spec:
-  components:
-    - ../../../../components/volsync
   dependsOn:
     - name: forgejo
   interval: 1h
@@ -63,9 +61,6 @@ spec:
     substitute:
       APP: *app
       NS: &ns development
-      VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_STORAGECLASS: ceph-block
-      VOLSYNC_ACCESSMODES: ReadWriteOnce
   prune: true
   sourceRef:
     kind: GitRepository

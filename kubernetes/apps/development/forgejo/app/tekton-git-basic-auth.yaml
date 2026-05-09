@@ -27,7 +27,7 @@ spec:
         includeAllSecrets: false
         metadata:
           annotations:
-            tekton.dev/git-0: https://forgejo.vzkn.eu
+            tekton.dev/git-0: https://git.vzkn.eu
         data:
           username: '{{ .FORGEJO_USERNAME.Value }}'
           password: '{{ .FORGEJO_PAT.Value }}'

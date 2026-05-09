@@ -3,23 +3,22 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app bambu-studio
+  name: &app bambuddy
 spec:
   components:
-    # - ../../../components/ext-auth
     - ../../../components/volsync
   dependsOn:
-    - name: authentik
+    - name: infisical-operator
       namespace: security
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
-  path: ./kubernetes/apps/home-automation/bambu-studio
+  path: ./kubernetes/apps/home-automation/bambuddy
   postBuild:
     substitute:
       APP: *app
       NS: &ns home-automation
-      VOLSYNC_CAPACITY: 20Gi
+      VOLSYNC_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

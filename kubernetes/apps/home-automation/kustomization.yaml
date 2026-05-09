@@ -7,6 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./bambu-studio/ks.yaml
+  - ./bambuddy/ks.yaml
   - ./home-assistant/ks.yaml
   - ./zigbee/ks.yaml

@@ -16,15 +16,6 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        pod:
-          annotations:
-            k8s.v1.cni.cncf.io/networks: |
-              [{
-                "name":"multus-iot",
-                "namespace": "network",
-                "ips": ["10.20.0.50/24"],
-                "mac": "2e:a0:10:20:00:50"
-              }]
         containers:
           app:
             image:

@@ -10,8 +10,6 @@ spec:
   dependsOn:
     - name: mosquitto
       namespace: database
-    - name: multus-networks
-      namespace: network
   interval: 1h
   path: ./kubernetes/apps/home-automation/home-assistant
   postBuild:

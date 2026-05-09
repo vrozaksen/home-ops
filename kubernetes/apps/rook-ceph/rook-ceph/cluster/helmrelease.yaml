@@ -43,6 +43,9 @@ spec:
           - name: envoy-internal
             namespace: network
     cephClusterSpec:
+      # Required: ceph-pool-single (size:1) makes ok-to-stop fail for all OSDs,
+      # blocking rolling updates forever. CNPG handles replication so this is safe.
+      skipUpgradeChecks: true
       mon:
         count: 5
         allowMultiplePerNode: false  # Max 1 mon per node - forces distribution

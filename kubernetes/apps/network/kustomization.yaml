@@ -12,6 +12,5 @@ resources:
   - ./envoy-gateway/ks.yaml
   - ./mikrotik-cert-sync/ks.yaml
   - ./mikrotik-dns/ks.yaml
-  - ./multus/ks.yaml
   - ./newt/ks.yaml
   - ./ovh-dns/ks.yaml

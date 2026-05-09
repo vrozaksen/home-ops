@@ -12,6 +12,14 @@ spec:
   values:
     controllers:
       bambuddy:
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |
+              [{
+                "name":"multus-iot",
+                "namespace": "network",
+                "ips": ["10.20.0.51/24"]
+              }]
         containers:
           app:
             image:

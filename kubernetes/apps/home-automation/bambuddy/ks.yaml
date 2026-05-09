@@ -10,6 +10,8 @@ spec:
   dependsOn:
     - name: infisical-operator
       namespace: security
+    - name: multus-networks
+      namespace: network
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

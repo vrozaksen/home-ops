@@ -9,7 +9,7 @@ tasks:
     cmds:
       - infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- talhelper genconfig
     preconditions:
-      - infisical secrets list --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap
+      - infisical secrets --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --plain --silent
       - test -f talconfig.yaml
       - test -f talsecret.yaml
       - which talhelper

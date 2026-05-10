@@ -68,8 +68,10 @@ spec:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
-            drop: ["ALL"]
-            add: ["NET_BIND_SERVICE"]
+            drop:
+              - "ALL"
+            add:
+              - "NET_BIND_SERVICE"
     extraObjects:
       - apiVersion: v1
         kind: ConfigMap
@@ -82,7 +84,7 @@ spec:
                     output stdout
                     format json
                 }
-                root * /srv
+                root * /srv/current
                 file_server browse
             }
       - apiVersion: v1

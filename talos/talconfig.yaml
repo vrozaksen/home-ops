@@ -204,6 +204,7 @@ patches:
   - "@./patches/global/machine-sysctls.yaml"  # Network Tweaks
   # - "@./patches/global/machine-sysfs.yaml"   # CPU Power
   - "@./patches/global/machine-time.yaml"  # NTP
+  - "@./patches/global/machine-tcpprobe.yaml"  # TCP probe for gateway DNS
   - "@./patches/global/machine-watchdog.yaml"  # Hardware Watchdog
 
 # Controller patches

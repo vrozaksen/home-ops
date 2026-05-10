@@ -1,0 +1,8 @@
+---
+apiVersion: v1alpha1
+kind: TCPProbeConfig
+name: gateway-dns
+interval: 5s
+failureThreshold: 3
+endpoint: 10.10.0.1:53
+timeout: 5s

@@ -6,7 +6,7 @@ metadata:
   name: &app renovate-operator
 spec:
   components:
-    - ../../../components/dragonfly
+    - ../../../../components/dragonfly
   dependsOn:
     - name: dragonfly-operator
       namespace: database

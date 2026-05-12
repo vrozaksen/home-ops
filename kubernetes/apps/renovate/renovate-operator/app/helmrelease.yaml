@@ -47,7 +47,7 @@ spec:
         issuerUrl: https://sso.vzkn.eu/application/o/renovate/
         clientId: "${RENOVATE_CLIENT_ID}"
         existingSecret: renovate-operator-oidc
-        secretKey: client-secret
+        secretKey: RENOVATE_CLIENT_SECRET
         redirectUrl: https://renovate.vzkn.eu/auth/callback
     valkey:
       enabled: false

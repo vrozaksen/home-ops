@@ -58,9 +58,29 @@
       "minimumGroupSize": 2
     },
     {
+      "description": ["Tetragon Group"],
+      "groupName": "tetragon",
+      "matchDatasources": ["docker", "helm"],
+      "matchPackageNames": ["/tetragon/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
+      "description": ["Tekton Operator Group"],
+      "groupName": "tekton-operator",
+      "matchDatasources": ["github-releases", "github-tags"],
+      "matchPackageNames": ["/tektoncd/operator/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Tekton Pipelines-as-Code Group"],
       "groupName": "tekton-pac",
-      "matchDatasources": ["docker"],
+      "matchDatasources": ["docker", "github-releases"],
       "matchPackageNames": ["/tektoncd/pipelines-as-code/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"

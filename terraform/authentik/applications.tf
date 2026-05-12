@@ -25,6 +25,7 @@ locals {
     "pangolin",
     "pgadmin",
     "qui",
+    "renovate",
     "rxresume",
     "sparkyfitness",
     "unraid",
@@ -838,6 +839,22 @@ module "oauth2-pgadmin" {
   client_id          = local.parsed_secrets["pgadmin"].client_id
   client_secret      = local.parsed_secrets["pgadmin"].client_secret
   redirect_uris      = ["https://pgadmin.${var.cluster_domain}/oauth2/authorize"]
+}
+
+module "oauth2-renovate" {
+  source             = "./oauth2_application"
+  name               = "Renovate"
+  icon_url           = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/renovate.png"
+  launch_url         = "https://renovate.${var.cluster_domain}"
+  description        = "Dependency update automation"
+  newtab             = true
+  group              = "Infrastructure"
+  auth_groups        = [authentik_group.admin.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["renovate"].client_id
+  client_secret      = local.parsed_secrets["renovate"].client_secret
+  redirect_uris      = ["https://renovate.${var.cluster_domain}/auth/callback"]
 }
 
 # module "proxy-kopia" {

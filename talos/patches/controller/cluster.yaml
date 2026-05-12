@@ -5,6 +5,9 @@ cluster:
     extraArgs:
       enable-aggregator-routing: true
       feature-gates: PersistentVolumeClaimUnusedSinceTime=true
+      # Faster pod eviction from unreachable nodes (default: 300s)
+      default-not-ready-toleration-seconds: "60"
+      default-unreachable-toleration-seconds: "60"
       # OIDC authentication for Headlamp
       oidc-issuer-url: https://sso.vzkn.eu/application/o/headlamp/
       oidc-client-id: headlamp
@@ -20,6 +23,8 @@ cluster:
     advertisedSubnets:
       - "10.10.0.0/24"
     extraArgs:
+      auto-compaction-mode: periodic
+      auto-compaction-retention: "5m"
       listen-metrics-urls: http://0.0.0.0:2381
       quota-backend-bytes: 4294967296  # 4 GiB
   proxy:

@@ -4,7 +4,8 @@ kind: RenovateJob
 metadata:
   name: home-ops
 spec:
-  discoveryFilter: "vrozaksen/*"
+  discoveryFilters:
+    - "vrozaksen/*"
   provider:
     name: github
   image: ghcr.io/renovatebot/renovate:43.169.4@sha256:e81453dc609791dc3565f084b9c413261e76fb2976d1ec24ba44569026ecfa14

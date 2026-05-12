@@ -37,3 +37,24 @@ spec:
     config:
       deleteSuccessfulJobs: true
       jobTTLSecondsAfterFinished: 3600
+      globalParallelismLimit: 4
+      logStorage:
+        mode: memory
+      forwardCacheToJobs: true
+    valkey:
+      enabled: false
+      existingSecret: renovate-operator-valkey
+      existingSecretKey: valkey-url
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+      dashboard:
+        enabled: true
+        labels:
+          grafana_dashboard: "true"
+        grafanaDashboard:
+          allowCrossNamespaceImport: true
+          instanceSelector:
+            matchLabels:
+              grafana.internal/instance: grafana

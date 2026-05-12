@@ -104,6 +104,9 @@ spec:
                   periodSeconds: 5
                   timeoutSeconds: 5
                   failureThreshold: 30
+            resizePolicy:
+              - resourceName: memory
+                restartPolicy: RestartContainer
             resources:
               requests:
                 cpu: 200m

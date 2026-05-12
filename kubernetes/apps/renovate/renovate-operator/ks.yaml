@@ -22,6 +22,9 @@ spec:
   postBuild:
     substitute:
       APP: *app
+    substituteFrom:
+      - kind: Secret
+        name: renovate-operator-oidc
   prune: true
   sourceRef:
     kind: GitRepository

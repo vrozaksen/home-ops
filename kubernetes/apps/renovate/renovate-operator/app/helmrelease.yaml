@@ -41,6 +41,14 @@ spec:
       logStorage:
         mode: memory
       forwardCacheToJobs: true
+    auth:
+      oidc:
+        enabled: true
+        issuerUrl: https://sso.vzkn.eu/application/o/renovate/
+        clientId: "${RENOVATE_CLIENT_ID}"
+        existingSecret: renovate-operator-oidc
+        secretKey: client-secret
+        redirectUrl: https://renovate.vzkn.eu/auth/callback
     valkey:
       enabled: false
       existingSecret: renovate-operator-valkey
@@ -58,3 +66,9 @@ spec:
           instanceSelector:
             matchLabels:
               grafana.internal/instance: grafana
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi

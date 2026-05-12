@@ -124,7 +124,8 @@ spec:
           subjects:
             - identifier: gatus
     serviceAccount:
-      gatus: {}
+      gatus:
+        automountServiceAccountToken: true
     persistence:
       config-file:
         type: configMap

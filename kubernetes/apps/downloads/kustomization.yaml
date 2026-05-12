@@ -8,7 +8,6 @@ components:
 resources:
   - ./namespace.yaml
   # - ./bazarr/ks.yaml
-  # - ./dispatcharr/ks.yaml
   - ./flaresolverr/ks.yaml
   - ./lidarr/ks.yaml
   # - ./metube/ks.yaml
@@ -19,6 +18,4 @@ resources:
   # - ./recyclarr/ks.yaml
   - ./slskd/ks.yaml
   - ./sonarr/ks.yaml
-  # - ./soularr/ks.yaml  # replaced by Lidarr.Plugin.Slskd
-  # - ./tdarr-node/ks.yaml
   - ./webhook/ks.yaml

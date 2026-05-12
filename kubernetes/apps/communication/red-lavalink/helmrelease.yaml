@@ -46,6 +46,9 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities: {drop: ["ALL"]}
+            resizePolicy:
+              - resourceName: memory
+                restartPolicy: RestartContainer
             resources:
               requests:
                 cpu: 200m

@@ -22,6 +22,16 @@
       "minimumGroupSize": 3
     },
     {
+      "description": ["Infisical Operator Group"],
+      "groupName": "infisical-operator",
+      "matchDatasources": ["docker", "helm"],
+      "matchPackageNames": ["/infisical/", "/secrets-operator/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Kubernetes Group"],
       "groupName": "kubernetes",
       "matchDatasources": ["docker"],

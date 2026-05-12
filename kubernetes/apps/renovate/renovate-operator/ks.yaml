@@ -25,6 +25,7 @@ spec:
     substituteFrom:
       - kind: Secret
         name: renovate-operator-oidc
+        optional: true
   prune: true
   sourceRef:
     kind: GitRepository

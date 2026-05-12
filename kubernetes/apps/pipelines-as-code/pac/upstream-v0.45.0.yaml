@@ -1615,7 +1615,7 @@ spec:
       serviceAccountName: pipelines-as-code-controller
       containers:
         - name: pac-controller
-          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-controller:v0.45.0"
+          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-controller:v0.46.0"
           imagePullPolicy: Always
           ports:
             - name: api
@@ -1765,7 +1765,7 @@ spec:
       serviceAccountName: pipelines-as-code-watcher
       containers:
         - name: pac-watcher
-          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-watcher:v0.45.0"
+          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-watcher:v0.46.0"
           imagePullPolicy: Always
           env:
             - name: CONFIG_LOGGING_NAME
@@ -1889,7 +1889,7 @@ spec:
       serviceAccountName: pipelines-as-code-webhook
       containers:
         - name: pac-webhook
-          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-webhook:v0.45.0"
+          image: "ghcr.io/tektoncd/pipelines-as-code/pipelines-as-code-webhook:v0.46.0"
           env:
             - name: CONFIG_LOGGING_NAME
               value: pac-config-logging

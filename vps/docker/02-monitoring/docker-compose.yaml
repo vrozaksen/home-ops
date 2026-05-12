@@ -74,7 +74,7 @@ services:
       - pangolin
 
   dozzle:
-    image: docker.io/amir20/dozzle:v10.1.2@sha256:ca18ce13851bb5b39b4296df498eeedc59849e833a6dc43e94cb04435435a9f2
+    image: docker.io/amir20/dozzle:v10.5.3@sha256:1cc972250626553009ddacbdf1f5725b681cdcbabe551fec69cd728882ffbc58
     container_name: dozzle
     restart: unless-stopped
     deploy:

@@ -97,9 +97,14 @@ spec:
         - name: hooks
           mountPath: /docker-entrypoint-hooks.d/before-starting
 
+      # Disable chart's built-in redis.config.php (it relies on REDIS_HOST env which triggers
+      # the entrypoint to write /usr/local/etc/php/conf.d/redis-session.ini — fails on UID 1000)
+      defaultConfigs:
+        redis.config.php: false
+
       # PHP configuration files
       configs:
-        # Redis cache (Dragonfly)
+        # Redis cache (Dragonfly) - hardcoded host, no env dependency
         redis.config.php: |-
           <?php
           $CONFIG = array (

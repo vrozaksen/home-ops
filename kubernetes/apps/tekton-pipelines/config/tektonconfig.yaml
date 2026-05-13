@@ -114,7 +114,9 @@ spec:
   pruner:
     disabled: false
     schedule: "0 3 * * *"
-    keep: 50
+    # Prune anything older than 48h. Keeps disk usage bounded — orphan
+    # workspace PVCs (ownerRef → PipelineRun) get GC'd with the run.
+    keep-since: 2880
     resources:
       - taskrun
       - pipelinerun

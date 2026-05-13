@@ -3,6 +3,14 @@
     "siderolabs-docs": {
       "type": "remote",
       "url": "https://docs.siderolabs.com/mcp"
+    },
+    "flux-operator": {
+      "type": "stdio",
+      "command": "flux-operator-mcp",
+      "args": ["serve"],
+      "env": {
+        "KUBECONFIG": "${PWD}/kubeconfig"
+      }
     }
   }
 }

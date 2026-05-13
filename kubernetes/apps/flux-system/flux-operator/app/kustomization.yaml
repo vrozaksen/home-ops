@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
-  - ./httproute.yaml
   - ./networkpolicy.yaml

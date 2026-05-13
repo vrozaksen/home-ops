@@ -35,6 +35,17 @@ spec:
       create: true
     web:
       baseURL: https://flux.vzkn.eu
+      httpRoute:
+        enabled: true
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: infrastructure
+            conditions: ["[STATUS] == 404"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        hostnames:
+          - flux.vzkn.eu
       auth:
         type: oidc
         oidc:

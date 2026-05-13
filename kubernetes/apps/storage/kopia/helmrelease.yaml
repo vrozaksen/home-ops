@@ -27,7 +27,6 @@ spec:
                   name: "{{ .Release.Name }}-secret"
             args:
               - --without-password
-              - --allow-extremely-dangerous-unauthenticated-server-on-the-network
             probes:
               liveness: &probes
                 enabled: true

@@ -71,13 +71,25 @@ spec:
             description: Last database backup failed
             summary: Checks for failed backups
           expr: |-
-            delta(cnpg_collector_last_failed_backup_timestamp[25h]) > 0
+            delta(barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp[25h]) > 0
           for: 1m
           labels:
             severity: warning
-            # - alert: DatabaseNoBackup # seems broken with plugin-barman-cloud, only updates for manual backups, not scheduled ones
-            #   annotations:
-            #     description: No database backup within the last 48 hours
-            #     summary: Checks for recent database backups
-            #   expr: |-
-            #     (cnpg_collector_last_available_backup_timestamp != 0) and (time() - cnpg_collector_last_available_backup_timestamp > 172800)
+        - alert: DatabaseNoBackup
+          annotations:
+            description: No database backup within the last 48 hours for {{ $labels.pod }}
+            summary: Checks for recent database backups
+          expr: |-
+            (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp > 0) and (time() - barman_cloud_cloudnative_pg_io_last_available_backup_timestamp > 172800)
+          for: 5m
+          labels:
+            severity: warning
+        - alert: ReplicaFailingReplication
+          annotations:
+            description: Replica {{ $labels.pod }} is not streaming from primary (WAL receiver down)
+            summary: Replica has stopped replicating — may need PVC rebuild
+          expr: |-
+            cnpg_pg_replication_in_recovery > cnpg_pg_replication_is_wal_receiver_up
+          for: 5m
+          labels:
+            severity: warning

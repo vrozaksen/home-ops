@@ -163,8 +163,6 @@ spec:
         - 10.69.0.0/16
   http2:
     onInvalidMessage: TerminateStream
-    keepaliveInterval: 30s
-    keepaliveTimeout: 5s
   http3: {}
   # Required for Collabora WebSocket paths with encoded URLs
   path:

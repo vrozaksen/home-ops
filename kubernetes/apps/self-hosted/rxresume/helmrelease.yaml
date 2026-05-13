@@ -25,9 +25,6 @@ spec:
               NODE_ENV: "production"
               # URLs
               APP_URL: https://rxresume.vzkn.eu
-              PRINTER_APP_URL: http://localhost:3000
-              # Printer (Browserless Chromium sidecar on port 3001)
-              PRINTER_ENDPOINT: ws://localhost:3001?token=rxresume-printer
               # S3 Storage
               S3_ENDPOINT: https://api.s3.vzkn.eu
               S3_BUCKET: rxresume
@@ -76,49 +73,6 @@ spec:
                 memory: 320Mi
               limits:
                 memory: 640Mi
-          browserless:
-            image:
-              repository: ghcr.io/browserless/chromium
-              tag: v2.46.0
-            env:
-              PORT: "3001"
-              TOKEN: rxresume-printer
-              TIMEOUT: "60000"
-              CONCURRENT: "10"
-              HEALTH: "true"
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /config?token=rxresume-printer
-                    port: 3001
-                  initialDelaySeconds: 10
-                  periodSeconds: 30
-                  timeoutSeconds: 5
-                  failureThreshold: 3
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /config?token=rxresume-printer
-                    port: 3001
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities: {drop: ["ALL"]}
-            resources:
-              requests:
-                cpu: 100m
-                memory: 1Gi
-              limits:
-                memory: 2Gi
     service:
       app:
         ports:
@@ -141,7 +95,6 @@ spec:
           rxresume:
             app:
               - path: /tmp
-                subPath: app-tmp
-            browserless:
-              - path: /tmp
-                subPath: browserless-tmp
+                subPath: tmp
+              - path: /app/data
+                subPath: data

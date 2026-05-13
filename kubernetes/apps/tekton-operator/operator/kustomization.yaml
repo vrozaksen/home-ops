@@ -1,14 +1,41 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
-# Tekton operator CRDs vendored from upstream release.yaml (Helm chart installCRDs=true
-# ships an incomplete subset — 10 of 13 CRDs — causing operator informers to fail).
-# Refresh when the operator version bumps:
-#   V=v0.79.1; curl -sL "https://github.com/tektoncd/operator/releases/download/$V/release.yaml" \
-#     | yq 'select(.kind == "CustomResourceDefinition")' > upstream-crds-$V.yaml
-# renovate: datasource=github-releases depName=tektoncd/operator
-#   operatorVersion: v0.79.1
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./upstream-crds-v0.79.1.yaml
-  - ./helmrelease.yaml
+  # https://github.com/tektoncd/operator/releases
+  # renovate: depName=tektoncd/operator datasource=github-releases
+  - https://github.com/tektoncd/operator/releases/download/v0.79.1/release.yaml
+patches:
+  - target:
+      kind: Deployment
+      name: tekton-operator
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+      - op: add
+        path: /spec/template/spec/containers/1/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+  - target:
+      kind: Deployment
+      name: tekton-operator-webhook
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 128Mi

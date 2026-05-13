@@ -7,11 +7,11 @@ metadata:
 spec:
   interval: 1h
   path: ./kubernetes/apps/tekton-operator/operator
-  healthCheckExprs:
-    - apiVersion: helm.toolkit.fluxcd.io/v2
-      kind: HelmRelease
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: tekton-operator
+      namespace: tekton-operator
   prune: true
   retryInterval: 2m
   sourceRef:

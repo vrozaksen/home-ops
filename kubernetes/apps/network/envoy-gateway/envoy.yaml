@@ -14,6 +14,7 @@ spec:
       envoyDeployment:
         replicas: 2
         pod:
+          priorityClassName: system-cluster-critical
           topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
@@ -22,8 +23,7 @@ spec:
                 matchLabels:
                   gateway.envoyproxy.io/owning-gateway-namespace: network
         container:
-          image: mirror.gcr.io/envoyproxy/envoy:v1.38.0
-          # imageRepository: mirror.gcr.io/envoyproxy/envoy
+          image: mirror.gcr.io/envoyproxy/envoy:distroless-v1.38.0
           resources:
             requests:
               cpu: 30m
@@ -163,6 +163,9 @@ spec:
         - 10.69.0.0/16
   http2:
     onInvalidMessage: TerminateStream
+    connectionKeepalive:
+      interval: 30s
+      timeout: 5s
   http3: {}
   # Required for Collabora WebSocket paths with encoded URLs
   path:

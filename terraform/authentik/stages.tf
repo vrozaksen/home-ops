@@ -1,13 +1,14 @@
 ## Captcha stage (hCaptcha — invisible mode, no Google)
 resource "authentik_stage_captcha" "hcaptcha" {
-  name                = "captcha-hcaptcha"
-  public_key          = local.hcaptcha_site_key
-  private_key         = local.hcaptcha_secret_key
-  js_url              = "https://js.hcaptcha.com/1/api.js"
-  api_url             = "https://api.hcaptcha.com/siteverify"
-  interactive         = false
-  score_min_threshold = 0
-  score_max_threshold = 0.5
+  name                   = "captcha-hcaptcha"
+  public_key             = local.hcaptcha_site_key
+  private_key            = local.hcaptcha_secret_key
+  js_url                 = "https://js.hcaptcha.com/1/api.js"
+  api_url                = "https://api.hcaptcha.com/siteverify"
+  interactive            = false
+  score_min_threshold    = -1
+  score_max_threshold    = -1
+  error_on_invalid_score = false
 }
 
 ## Auth setup stages

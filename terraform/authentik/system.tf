@@ -9,7 +9,7 @@ resource "authentik_system_settings" "settings" {
   default_user_change_username = false
   gdpr_compliance              = true
   impersonation                = true
-  event_retention              = "days=365"
+  event_retention              = "days=30"
 
   footer_links = [
     {
@@ -120,20 +120,6 @@ resource "authentik_outpost" "ldap" {
   })
 }
 
-# VPS Proxy Outpost — deployed as Docker container on VPS (no K8s service connection)
-resource "authentik_outpost" "vps_proxy" {
-  name               = "vps-proxy"
-  type               = "proxy"
-  protocol_providers = [
-    module.proxy-dozzle.id,
-    module.proxy-traefik-dashboard.id,
-  ]
-  config = jsonencode({
-    authentik_host          = "https://sso.${var.cluster_domain}"
-    authentik_host_insecure = false
-    log_level               = "info"
-  })
-}
 
 # ## Proxy Outpost - DISABLED: Envoy Gateway ext-auth issue (Location header not forwarded)
 # resource "authentik_outpost" "proxyoutpost" {

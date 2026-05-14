@@ -89,10 +89,10 @@ docker run --rm caddy:2 caddy hash-password --plaintext "$PASS"  # → BIFROST_M
    - HTTPS for `*.vzkn.eu` → `envoy-external.network.svc.cluster.local:443`
    - SSH on `ssh.git.vzkn.eu:22` → `forgejo-ssh.development.svc.cluster.local:22`
 6. **GitHub webhook** (optional, makes deploys instant instead of 1h poll):
-   - URL: `https://bifrost-doco-cd.vzkn.eu/webhook/$DOCOCD_WEBHOOK_SECRET`
+   - URL: `https://bifrost-doco-cd.vzkn.eu/v1/webhook`
    - Content type: `application/json`
-   - Secret: `$DOCOCD_API_SECRET` (X-Doco-Cd header)
-   - Events: push
+   - Secret: `$DOCOCD_WEBHOOK_SECRET`
+   - Events: just the push event
 
 ## Adding new TCP services through towonel
 

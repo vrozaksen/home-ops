@@ -5,12 +5,15 @@ kind: Kustomization
 metadata:
   name: flux-instance
 spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: flux-instance
   dependsOn:
     - name: flux-operator
       namespace: flux-system
   interval: 1h
   path: ./kubernetes/apps/flux-system/flux-instance/app
-  prune: true
+  prune: false  # Never delete this
   sourceRef:
     kind: GitRepository
     name: flux-system

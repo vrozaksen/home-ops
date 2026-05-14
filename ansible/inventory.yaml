@@ -4,4 +4,3 @@ all:
     bifrost:
       ansible_host: bifrost.vzkn.eu
       ansible_user: debian
-      ansible_ssh_private_key_file: ~/.ssh/bifrost

@@ -1,7 +1,8 @@
 ---
+name: bifrost
 working_dir: ./docker/bifrost
-auto_discover: true
-auto_discover_opts:
+auto_discovery:
+  enabled: true
   depth: 1
   delete: true
 reconciliation:

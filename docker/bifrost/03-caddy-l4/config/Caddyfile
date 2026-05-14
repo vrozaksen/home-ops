@@ -71,12 +71,15 @@ bifrost-gatus.vzkn.eu {
 }
 
 bifrost.vzkn.eu {
-	@metrics path /metrics
-	basic_auth @metrics {
-		prometheus {$BIFROST_METRICS_BCRYPT}
+	handle /metrics {
+		basic_auth {
+			prometheus {$BIFROST_METRICS_BCRYPT}
+		}
+		reverse_proxy node-exporter:9100
 	}
-	reverse_proxy @metrics node-exporter:9100
-	respond 404
+	handle {
+		respond 404
+	}
 }
 
 tunnel.vzkn.eu {

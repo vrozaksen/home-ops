@@ -5,6 +5,5 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
-  - ./scaledobject.yaml
 generatorOptions:
   disableNameSuffixHash: true

@@ -7,12 +7,10 @@ metadata:
 spec:
   components:
     # - ../../../components/ext-auth
-    - ../../../components/nfs-scaler
+    - ../../../components/zeroscaler
   dependsOn:
     - name: authentik
       namespace: security
-    - name: keda
-      namespace: observability
     - name: lidarr
       namespace: downloads
     - name: rook-ceph-cluster

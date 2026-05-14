@@ -8,12 +8,12 @@ spec:
   components:
     - ../../../components/cnpg/restore
     # - ../../../components/ext-auth
-    - ../../../components/nfs-scaler
+    - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
     - name: authentik
       namespace: security
-    - name: keda
+    - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph

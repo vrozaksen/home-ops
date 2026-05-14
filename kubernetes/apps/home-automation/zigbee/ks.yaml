@@ -8,17 +8,21 @@ spec:
   components:
     # - ../../../components/ext-auth
     - ../../../components/volsync
+    - ../../../components/zeroscaler
   dependsOn:
     - name: authentik
       namespace: security
     - name: mosquitto
       namespace: database
+    - name: prometheus-adapter
+      namespace: observability
   interval: 1h
   path: ./kubernetes/apps/home-automation/zigbee
   postBuild:
     substitute:
       APP: *app
       NS: &ns home-automation
+      ZEROSCALER_JOB_NAME: slzb_probe
   prune: true
   sourceRef:
     kind: GitRepository

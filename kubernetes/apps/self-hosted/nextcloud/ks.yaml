@@ -8,15 +8,15 @@ spec:
   components:
     - ../../../../components/cnpg/restore  # PostgreSQL cluster
     - ../../../../components/dragonfly  # Redis cache (nextcloud-dragonfly)
-    - ../../../../components/nfs-scaler  # Scale down on NFS mount issues
+    - ../../../../components/zeroscaler  # Scale down on NFS mount issues
     - ../../../../components/volsync  # Backup config/apps volume
   dependsOn:
-    - name: cloudnative-pg
+    - name: dragonfly-operator
       namespace: database
     - name: plugin-barman-cloud
       namespace: database
-    - name: dragonfly-operator
-      namespace: database
+    - name: prometheus-adapter
+      namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph
   healthCheckExprs:

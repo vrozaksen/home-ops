@@ -7,10 +7,10 @@ metadata:
 spec:
   components:
     - ../../../components/gpu
-    - ../../../components/nfs-scaler
+    - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
-    - name: keda
+    - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph

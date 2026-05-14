@@ -7,10 +7,12 @@ metadata:
 spec:
   components:
     # - ../../../components/ext-auth
-    - ../../../components/nfs-scaler
+    - ../../../components/zeroscaler
   dependsOn:
     - name: authentik
       namespace: security
+    - name: prometheus-adapter
+      namespace: observability
     - name: volsync
       namespace: storage
   interval: 1h

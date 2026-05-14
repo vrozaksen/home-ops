@@ -29,6 +29,7 @@ kind: Probe
 metadata:
   name: nfs
 spec:
+  jobName: nfs_probe
   module: tcp_connect
   prober:
     url: blackbox-exporter.observability.svc.cluster.local:9115
@@ -36,6 +37,21 @@ spec:
     staticConfig:
       static:
         - aincrad.home.vzkn.eu:2049
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/probe_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: slzb
+spec:
+  jobName: slzb_probe
+  module: icmp
+  prober:
+    url: blackbox-exporter.observability.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - slzb.home.vzkn.eu
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/probe_v1.json
 apiVersion: monitoring.coreos.com/v1

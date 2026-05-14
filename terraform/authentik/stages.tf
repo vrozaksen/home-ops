@@ -1,12 +1,14 @@
-## Captcha stage (Cloudflare Turnstile)
-# resource "authentik_stage_captcha" "turnstile" {
-#   name        = "captcha-turnstile"
-#   public_key  = local.turnstile_site_key
-#   private_key = local.turnstile_secret_key
-#   js_url      = "https://challenges.cloudflare.com/turnstile/v0/api.js"
-#   api_url     = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-#   interactive = true
-# }
+## Captcha stage (hCaptcha — invisible mode, no Google)
+resource "authentik_stage_captcha" "hcaptcha" {
+  name                = "captcha-hcaptcha"
+  public_key          = local.hcaptcha_site_key
+  private_key         = local.hcaptcha_secret_key
+  js_url              = "https://js.hcaptcha.com/1/api.js"
+  api_url             = "https://api.hcaptcha.com/siteverify"
+  interactive         = false
+  score_min_threshold = 0
+  score_max_threshold = 0.5
+}
 
 ## Auth setup stages
 

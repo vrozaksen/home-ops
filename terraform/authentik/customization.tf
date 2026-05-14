@@ -1,19 +1,3 @@
-## Reputation policy — brute force protection
-## Score -1 per failed login; blocked when score drops below threshold
-## Resets on successful login; can be manually cleared in Admin → Events → Reputation
-resource "authentik_policy_reputation" "brute-force" {
-  name           = "brute-force-protection"
-  check_ip       = true
-  check_username = true
-  threshold      = -5
-}
-
-resource "authentik_policy_binding" "authentication-reputation" {
-  target = authentik_flow.authentication.uuid
-  policy = authentik_policy_reputation.brute-force.id
-  order  = 0
-}
-
 
 resource "authentik_policy_password" "password-complexity" {
   name             = "password-complexity"

@@ -4,7 +4,7 @@ cluster:
   apiServer:
     extraArgs:
       enable-aggregator-routing: true
-      feature-gates: PersistentVolumeClaimUnusedSinceTime=true
+      feature-gates: PersistentVolumeClaimUnusedSinceTime=true,HPAScaleToZero=true
       # Faster pod eviction from unreachable nodes (default: 300s)
       default-not-ready-toleration-seconds: "60"
       default-unreachable-toleration-seconds: "60"

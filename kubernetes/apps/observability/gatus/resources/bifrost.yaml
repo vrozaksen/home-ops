@@ -24,9 +24,8 @@ endpoints:
   # if the cluster gatus stops pushing (independent alert path).
   - name: bifrost | heartbeat push
     group: vps
-    url: https://bifrost-gatus.vzkn.eu/api/v1/endpoints/home_heartbeat/external?token=${BIFROST_HEARTBEAT_TOKEN}
+    url: https://bifrost-gatus.vzkn.eu/api/v1/endpoints/home_heartbeat/external?token=${BIFROST_HEARTBEAT_TOKEN}&success=true&duration=1ms
     method: POST
-    body: '{"success": true, "duration": "1ms"}'
     interval: 1m
     ui:
       hide-url: true

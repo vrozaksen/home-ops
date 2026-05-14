@@ -18,6 +18,14 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: bifrost-gatus.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
+    - dnsName: bifrost-doco-cd.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
     - dnsName: external.vzkn.eu
       recordType: A
       targets:

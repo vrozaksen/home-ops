@@ -91,10 +91,12 @@
             name:
               - ufw
               - ipset
+              - cron
               - fail2ban
               - unattended-upgrades
               - apt-listchanges
               - mmdb-bin  # mmdblookup for geo-block
+              - python3-maxminddb  # iterate MMDB tree → CIDR lists
               - jq
               - curl
             state: present
@@ -342,10 +344,17 @@
             mode: "0644"
 
         - name: CrowdSec apt repository
-          ansible.builtin.apt_repository:
-            repo: deb [signed-by=/etc/apt/keyrings/crowdsec.asc] https://packagecloud.io/crowdsec/crowdsec/any any main
-            filename: crowdsec
+          ansible.builtin.deb822_repository:
+            name: crowdsec
+            types: deb
+            uris: https://packagecloud.io/crowdsec/crowdsec/any
+            suites: any
+            components: main
+            signed_by: /etc/apt/keyrings/crowdsec.asc
             state: present
+
+        - name: Update apt cache
+          ansible.builtin.apt:
             update_cache: true
 
         - name: Install host firewall bouncer

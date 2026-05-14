@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Walk GeoLite2-Country MMDB and print CIDRs for the given ISO country codes.
+
+Usage:  extract-country-cidrs.py /path/to/GeoLite2-Country.mmdb RU CN KP
+Output: TAB-separated `family<TAB>cidr` lines, family ∈ {v4, v6}.
+"""
+import sys
+import maxminddb
+
+def main():
+    if len(sys.argv) < 3:
+        sys.stderr.write("usage: %s <mmdb> <ISO> [<ISO> ...]\n" % sys.argv[0])
+        sys.exit(2)
+    db_path = sys.argv[1]
+    countries = {c.upper() for c in sys.argv[2:]}
+    with maxminddb.open_database(db_path) as reader:
+        for network, record in reader:
+            iso = (record or {}).get("country", {}).get("iso_code")
+            if iso in countries:
+                family = "v6" if network.version == 6 else "v4"
+                print("%s\t%s" % (family, network))
+
+if __name__ == "__main__":
+    main()

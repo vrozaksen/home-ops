@@ -1,6 +1,6 @@
 #!/bin/bash
-# MaxMind GeoLite2-Country-CSV based country block.
-# Builds an ipset from country ISO codes and links it into iptables.
+# MaxMind GeoLite2-Country (MMDB) based country block.
+# Walks the MMDB via Python, builds v4/v6 ipsets, links via iptables/ip6tables chains.
 set -euo pipefail
 
 if [[ -z "${1:-}" ]]; then
@@ -12,7 +12,8 @@ COUNTRIES="$1"
 IPSET_NAME="countries-blocked"
 LOCK_FILE="/var/run/geo-block.lock"
 LOG_FILE="/var/log/geo-block.log"
-MAXMIND_DIR="/opt/maxmind"
+MAXMIND_DB="/opt/maxmind/GeoLite2-Country.mmdb"
+EXTRACT_PY="/opt/geo-block/extract-country-cidrs.py"
 WORK_DIR="/opt/geo-block/work"
 INITIALIZED="/opt/geo-block/.initialized"
 
@@ -23,72 +24,51 @@ log() {
 exec 200>"$LOCK_FILE"
 flock -n 200 || { log "another instance running, exit"; exit 0; }
 
-# Resolve newest CSV bundle dir (geoipupdate writes versioned subdirs)
-CSV_BUNDLE=$(find "${MAXMIND_DIR}" -maxdepth 1 -type d -name 'GeoLite2-Country-CSV_*' | sort -r | head -1)
-if [[ -z "$CSV_BUNDLE" ]]; then
-    log "ERROR: GeoLite2-Country-CSV bundle not found in ${MAXMIND_DIR}. geoipupdate not run yet?"
+if [[ ! -f "$MAXMIND_DB" ]]; then
+    log "ERROR: $MAXMIND_DB missing — geoipupdate didn't run yet?"
     exit 1
 fi
-
-LOCATIONS="${CSV_BUNDLE}/GeoLite2-Country-Locations-en.csv"
-BLOCKS_V4="${CSV_BUNDLE}/GeoLite2-Country-Blocks-IPv4.csv"
-BLOCKS_V6="${CSV_BUNDLE}/GeoLite2-Country-Blocks-IPv6.csv"
-
-for f in "$LOCATIONS" "$BLOCKS_V4" "$BLOCKS_V6"; do
-    [[ -f "$f" ]] || { log "ERROR: $f missing"; exit 1; }
-done
+if [[ ! -x "$EXTRACT_PY" ]]; then
+    log "ERROR: $EXTRACT_PY missing — ansible didn't deploy it?"
+    exit 1
+fi
 
 mkdir -p "$WORK_DIR"
+V4_FILE="${WORK_DIR}/blocked.v4"
+V6_FILE="${WORK_DIR}/blocked.v6"
+: > "$V4_FILE"
+: > "$V6_FILE"
 
-# Build geoname_id list for blocked countries
-GEONAMES=""
-for c in $COUNTRIES; do
-    gid=$(awk -F, -v iso="$c" '$5==iso { print $1; exit }' "$LOCATIONS")
-    if [[ -z "$gid" ]]; then
-        log "WARN: no geoname_id found for ISO ${c}"
-        continue
-    fi
-    log "${c} → geoname_id=${gid}"
-    GEONAMES+="${gid} "
-done
+# Walk MMDB once, split into v4/v6 files
+python3 "$EXTRACT_PY" "$MAXMIND_DB" $COUNTRIES | \
+    awk -F'\t' -v v4="$V4_FILE" -v v6="$V6_FILE" \
+        '$1=="v4" { print $2 >> v4 } $1=="v6" { print $2 >> v6 }'
 
-if [[ -z "${GEONAMES// }" ]]; then
-    log "ERROR: no resolved geoname_ids, aborting"
-    exit 1
-fi
+V4_COUNT=$(wc -l < "$V4_FILE")
+V6_COUNT=$(wc -l < "$V6_FILE")
+log "extracted ${V4_COUNT} IPv4 + ${V6_COUNT} IPv6 CIDRs for: ${COUNTRIES}"
 
-# Extract CIDRs (column 2 = country_geoname_id, column 3 = registered_country_geoname_id)
-CIDR_FILE="${WORK_DIR}/blocked.cidrs"
-: > "${CIDR_FILE}"
-for gid in $GEONAMES; do
-    awk -F, -v g="$gid" 'NR>1 && ($2==g || $3==g) { print $1 }' "$BLOCKS_V4" >> "${CIDR_FILE}"
-    awk -F, -v g="$gid" 'NR>1 && ($2==g || $3==g) { print $1 }' "$BLOCKS_V6" >> "${CIDR_FILE}.v6"
-done
-
-V4_COUNT=$(wc -l < "${CIDR_FILE}")
-V6_COUNT=$(wc -l < "${CIDR_FILE}.v6")
-log "extracted ${V4_COUNT} IPv4 + ${V6_COUNT} IPv6 CIDRs"
-
-# Rebuild ipsets atomically (v4 + v6 separate sets)
+# Build temp ipsets, atomically swap with live ones
 TEMP_V4="${IPSET_NAME}-v4-tmp"
 TEMP_V6="${IPSET_NAME}-v6-tmp"
-ipset create -exist "${IPSET_NAME}-v4" hash:net family inet hashsize 32768 maxelem 1048576
+ipset create -exist "${IPSET_NAME}-v4" hash:net family inet  hashsize 32768 maxelem 1048576
 ipset create -exist "${IPSET_NAME}-v6" hash:net family inet6 hashsize 32768 maxelem 1048576
-ipset create "${TEMP_V4}" hash:net family inet hashsize 32768 maxelem 1048576
-ipset create "${TEMP_V6}" hash:net family inet6 hashsize 32768 maxelem 1048576
+ipset destroy "${TEMP_V4}" 2>/dev/null || true
+ipset destroy "${TEMP_V6}" 2>/dev/null || true
+ipset create  "${TEMP_V4}" hash:net family inet  hashsize 32768 maxelem 1048576
+ipset create  "${TEMP_V6}" hash:net family inet6 hashsize 32768 maxelem 1048576
 
-xargs -a "${CIDR_FILE}"   -n1 -I{} ipset add "${TEMP_V4}" {} 2>/dev/null || true
-xargs -a "${CIDR_FILE}.v6" -n1 -I{} ipset add "${TEMP_V6}" {} 2>/dev/null || true
+xargs -a "$V4_FILE" -n1 -I{} ipset add "${TEMP_V4}" {} 2>/dev/null || true
+xargs -a "$V6_FILE" -n1 -I{} ipset add "${TEMP_V6}" {} 2>/dev/null || true
 
 ipset swap "${TEMP_V4}" "${IPSET_NAME}-v4"
 ipset swap "${TEMP_V6}" "${IPSET_NAME}-v6"
 ipset destroy "${TEMP_V4}"
 ipset destroy "${TEMP_V6}"
 
-# iptables / ip6tables drop rules
+# Wire up iptables / ip6tables
 iptables  -N GEO_BLOCK_CHAIN  2>/dev/null || true
 ip6tables -N GEO_BLOCK_CHAIN6 2>/dev/null || true
-
 iptables  -F GEO_BLOCK_CHAIN
 ip6tables -F GEO_BLOCK_CHAIN6
 

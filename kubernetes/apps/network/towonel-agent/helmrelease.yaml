@@ -34,7 +34,7 @@ spec:
               tag: 0.0.23
             env:
               RUST_LOG: info
-              TOWONEL_AGENT_SERVICES: '[{"hostname":"*.vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"}]'
+              TOWONEL_AGENT_SERVICES: '[{"hostname":"*.vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"},{"hostname":"vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"}]'
               TOWONEL_AGENT_TCP_SERVICES: '[{"name":"forgejo-ssh","origin":"forgejo-ssh.development.svc.cluster.local:22","listen_port":22}]'
             envFrom:
               - secretRef:

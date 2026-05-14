@@ -16,7 +16,7 @@
     "**/.archive/**"
   ],
   "docker-compose": {
-    managerFilePatterns: ["/vps/docker/.+/docker-compose\\.ya?ml$/"]
+    managerFilePatterns: ["/docker/bifrost/.+/docker-compose\\.ya?ml$/"]
   },
   flux: {
     managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"]

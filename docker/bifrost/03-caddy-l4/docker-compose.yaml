@@ -3,13 +3,17 @@ name: caddy-l4
 
 services:
   caddy:
-    # renovate: datasource=docker depName=ghcr.io/bjw-s-labs/caddy-l4
-    image: ghcr.io/bjw-s-labs/caddy-l4:2.11.2
+    # renovate: datasource=docker depName=ghcr.io/vrozaksen/caddy-l4-ovh
+    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.2
     container_name: caddy-l4
     restart: unless-stopped
     environment:
       CADDY_ACME_EMAIL: ${TOWONEL_ACME_EMAIL}
       BIFROST_METRICS_BCRYPT: ${BIFROST_METRICS_BCRYPT}
+      OVH_ENDPOINT: ovh-eu
+      OVH_APPLICATION_KEY: ${OVH_APPLICATION_KEY}
+      OVH_APPLICATION_SECRET: ${OVH_APPLICATION_SECRET}
+      OVH_CONSUMER_KEY: ${OVH_CONSUMER_KEY}
       VPS_LOCAL_HOSTS: >-
         bifrost.vzkn.eu
         bifrost-doco-cd.vzkn.eu

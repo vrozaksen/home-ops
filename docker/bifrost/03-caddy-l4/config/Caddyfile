@@ -3,6 +3,14 @@
 	http_port 8080
 	https_port 8443
 
+	# DNS-01 ACME via OVH (works through layer4 indirection)
+	acme_dns ovh {
+		endpoint {$OVH_ENDPOINT}
+		application_key {$OVH_APPLICATION_KEY}
+		application_secret {$OVH_APPLICATION_SECRET}
+		consumer_key {$OVH_CONSUMER_KEY}
+	}
+
 	layer4 {
 		:443 {
 			@local tls sni {$VPS_LOCAL_HOSTS}

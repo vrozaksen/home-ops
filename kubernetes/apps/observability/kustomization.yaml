@@ -18,9 +18,3 @@ resources:
   - ./victoria-logs/ks.yaml
   # Exporters
   - ./exporters
-configMapGenerator:
-  - name: gatus-configmap
-    files:
-      - ./gatus/config.yaml
-generatorOptions:
-  disableNameSuffixHash: true

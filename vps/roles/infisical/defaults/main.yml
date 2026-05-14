@@ -1,5 +1,0 @@
----
-# Overridden by group_vars/all.yml
-infisical_project: ""
-infisical_env: "prod"
-infisical_path: "/vps"

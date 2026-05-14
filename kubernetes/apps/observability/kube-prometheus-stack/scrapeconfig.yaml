@@ -65,8 +65,5 @@ spec:
         - bifrost.vzkn.eu:443
       labels:
         instance: bifrost
-  metricsPath: /federate
-  params:
-    "match[]":
-      - '{job=~".+"}'
-  honorLabels: true
+        job: node-exporter
+  metricsPath: /metrics

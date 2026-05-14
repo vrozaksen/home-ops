@@ -1,0 +1,51 @@
+---
+name: caddy-l4
+
+services:
+  caddy:
+    # renovate: datasource=docker depName=ghcr.io/bjw-s-labs/caddy-l4
+    image: ghcr.io/bjw-s-labs/caddy-l4:2.11.2
+    container_name: caddy-l4
+    restart: unless-stopped
+    environment:
+      CADDY_ACME_EMAIL: ${TOWONEL_ACME_EMAIL}
+      BIFROST_METRICS_BCRYPT: ${BIFROST_METRICS_BCRYPT}
+      VPS_LOCAL_HOSTS: >-
+        bifrost.vzkn.eu
+        bifrost-doco-cd.vzkn.eu
+        bifrost-gatus.vzkn.eu
+        tunnel.vzkn.eu
+        twnl.vzkn.eu
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy-data:
+  caddy-config:
+
+configs:
+  caddyfile:
+    file: ./config/Caddyfile
+
+networks:
+  default:
+    name: edge
+    external: true

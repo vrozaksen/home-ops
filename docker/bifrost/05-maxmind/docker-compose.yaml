@@ -1,0 +1,34 @@
+---
+name: maxmind
+
+services:
+  geoipupdate:
+    # renovate: datasource=docker depName=ghcr.io/maxmind/geoipupdate
+    image: ghcr.io/maxmind/geoipupdate:v7.1.1
+    container_name: geoipupdate
+    restart: unless-stopped
+    environment:
+      GEOIPUPDATE_ACCOUNT_ID: ${MAXMIND_USER_ID}
+      GEOIPUPDATE_LICENSE_KEY: ${MAXMIND_LICENSE_KEY}
+      GEOIPUPDATE_EDITION_IDS: GeoLite2-Country GeoLite2-Country-CSV GeoLite2-ASN
+      GEOIPUPDATE_FREQUENCY: "72"  # hours between updates (MaxMind policy: max 4x/day)
+      GEOIPUPDATE_PRESERVE_FILE_TIMES: "1"
+      GEOIPUPDATE_VERBOSE: "1"
+    volumes:
+      - /opt/maxmind:/usr/share/GeoIP
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+        reservations:
+          memory: 16m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+networks:
+  default:
+    name: edge
+    external: true

@@ -1,0 +1,12 @@
+---
+name: home/whitelist
+description: "Whitelist private networks and known good IPs"
+whitelist:
+  reason: "private/known IPs"
+  ip:
+    - 127.0.0.1
+  cidr:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 100.89.0.0/16

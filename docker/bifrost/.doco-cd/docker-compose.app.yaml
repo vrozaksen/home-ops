@@ -1,0 +1,69 @@
+---
+# Not managed by doco-cd (it can't manage itself).
+# Ansible copies this to /opt/doco-cd/docker-compose.yaml and runs `docker compose up`.
+name: doco-cd
+
+secrets:
+  infisical_client_secret:
+    file: /opt/doco-cd/secrets/infisical_client_secret
+  api_secret:
+    file: /opt/doco-cd/secrets/api_secret
+  webhook_secret:
+    file: /opt/doco-cd/secrets/webhook_secret
+
+services:
+  doco-cd:
+    # renovate: datasource=docker depName=ghcr.io/kimdre/doco-cd
+    image: ghcr.io/kimdre/doco-cd:0.88.0
+    container_name: doco-cd
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: info
+      HTTP_PORT: 8880
+      DEPLOY_CONFIG_BASE_DIR: ./docker/bifrost/
+      TZ: Europe/Warsaw
+      POLL_CONFIG: |-
+        - url: https://github.com/vrozaksen/home-ops.git
+          reference: main
+          interval: 3600
+      SECRET_PROVIDER: infisical
+      SECRET_PROVIDER_SITE_URL: https://eu.infisical.com
+      SECRET_PROVIDER_CLIENT_ID: ${INFISICAL_CLIENT_ID}
+      SECRET_PROVIDER_CLIENT_SECRET_FILE: /run/secrets/infisical_client_secret
+      API_SECRET_FILE: /run/secrets/api_secret
+      WEBHOOK_SECRET_FILE: /run/secrets/webhook_secret
+    secrets:
+      - infisical_client_secret
+      - api_secret
+      - webhook_secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - data:/data
+    healthcheck:
+      test:
+        - CMD
+        - /doco-cd
+        - healthcheck
+      start_period: 15s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  data:
+
+networks:
+  default:
+    name: edge
+    external: true

@@ -1,0 +1,106 @@
+#!/bin/bash
+# MaxMind GeoLite2-Country-CSV based country block.
+# Builds an ipset from country ISO codes and links it into iptables.
+set -euo pipefail
+
+if [[ -z "${1:-}" ]]; then
+    echo "Usage: $0 <ISO codes space-separated>  e.g. $0 RU CN KP" >&2
+    exit 1
+fi
+
+COUNTRIES="$1"
+IPSET_NAME="countries-blocked"
+LOCK_FILE="/var/run/geo-block.lock"
+LOG_FILE="/var/log/geo-block.log"
+MAXMIND_DIR="/opt/maxmind"
+WORK_DIR="/opt/geo-block/work"
+INITIALIZED="/opt/geo-block/.initialized"
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE" >&2
+}
+
+exec 200>"$LOCK_FILE"
+flock -n 200 || { log "another instance running, exit"; exit 0; }
+
+# Resolve newest CSV bundle dir (geoipupdate writes versioned subdirs)
+CSV_BUNDLE=$(find "${MAXMIND_DIR}" -maxdepth 1 -type d -name 'GeoLite2-Country-CSV_*' | sort -r | head -1)
+if [[ -z "$CSV_BUNDLE" ]]; then
+    log "ERROR: GeoLite2-Country-CSV bundle not found in ${MAXMIND_DIR}. geoipupdate not run yet?"
+    exit 1
+fi
+
+LOCATIONS="${CSV_BUNDLE}/GeoLite2-Country-Locations-en.csv"
+BLOCKS_V4="${CSV_BUNDLE}/GeoLite2-Country-Blocks-IPv4.csv"
+BLOCKS_V6="${CSV_BUNDLE}/GeoLite2-Country-Blocks-IPv6.csv"
+
+for f in "$LOCATIONS" "$BLOCKS_V4" "$BLOCKS_V6"; do
+    [[ -f "$f" ]] || { log "ERROR: $f missing"; exit 1; }
+done
+
+mkdir -p "$WORK_DIR"
+
+# Build geoname_id list for blocked countries
+GEONAMES=""
+for c in $COUNTRIES; do
+    gid=$(awk -F, -v iso="$c" '$5==iso { print $1; exit }' "$LOCATIONS")
+    if [[ -z "$gid" ]]; then
+        log "WARN: no geoname_id found for ISO ${c}"
+        continue
+    fi
+    log "${c} → geoname_id=${gid}"
+    GEONAMES+="${gid} "
+done
+
+if [[ -z "${GEONAMES// }" ]]; then
+    log "ERROR: no resolved geoname_ids, aborting"
+    exit 1
+fi
+
+# Extract CIDRs (column 2 = country_geoname_id, column 3 = registered_country_geoname_id)
+CIDR_FILE="${WORK_DIR}/blocked.cidrs"
+: > "${CIDR_FILE}"
+for gid in $GEONAMES; do
+    awk -F, -v g="$gid" 'NR>1 && ($2==g || $3==g) { print $1 }' "$BLOCKS_V4" >> "${CIDR_FILE}"
+    awk -F, -v g="$gid" 'NR>1 && ($2==g || $3==g) { print $1 }' "$BLOCKS_V6" >> "${CIDR_FILE}.v6"
+done
+
+V4_COUNT=$(wc -l < "${CIDR_FILE}")
+V6_COUNT=$(wc -l < "${CIDR_FILE}.v6")
+log "extracted ${V4_COUNT} IPv4 + ${V6_COUNT} IPv6 CIDRs"
+
+# Rebuild ipsets atomically (v4 + v6 separate sets)
+TEMP_V4="${IPSET_NAME}-v4-tmp"
+TEMP_V6="${IPSET_NAME}-v6-tmp"
+ipset create -exist "${IPSET_NAME}-v4" hash:net family inet hashsize 32768 maxelem 1048576
+ipset create -exist "${IPSET_NAME}-v6" hash:net family inet6 hashsize 32768 maxelem 1048576
+ipset create "${TEMP_V4}" hash:net family inet hashsize 32768 maxelem 1048576
+ipset create "${TEMP_V6}" hash:net family inet6 hashsize 32768 maxelem 1048576
+
+xargs -a "${CIDR_FILE}"   -n1 -I{} ipset add "${TEMP_V4}" {} 2>/dev/null || true
+xargs -a "${CIDR_FILE}.v6" -n1 -I{} ipset add "${TEMP_V6}" {} 2>/dev/null || true
+
+ipset swap "${TEMP_V4}" "${IPSET_NAME}-v4"
+ipset swap "${TEMP_V6}" "${IPSET_NAME}-v6"
+ipset destroy "${TEMP_V4}"
+ipset destroy "${TEMP_V6}"
+
+# iptables / ip6tables drop rules
+iptables  -N GEO_BLOCK_CHAIN  2>/dev/null || true
+ip6tables -N GEO_BLOCK_CHAIN6 2>/dev/null || true
+
+iptables  -F GEO_BLOCK_CHAIN
+ip6tables -F GEO_BLOCK_CHAIN6
+
+iptables  -A GEO_BLOCK_CHAIN  -m set --match-set "${IPSET_NAME}-v4" src -j DROP
+ip6tables -A GEO_BLOCK_CHAIN6 -m set --match-set "${IPSET_NAME}-v6" src -j DROP
+
+for chain in INPUT FORWARD DOCKER-USER; do
+    iptables  -C $chain -j GEO_BLOCK_CHAIN  2>/dev/null || iptables  -I $chain -j GEO_BLOCK_CHAIN
+done
+for chain in INPUT FORWARD; do
+    ip6tables -C $chain -j GEO_BLOCK_CHAIN6 2>/dev/null || ip6tables -I $chain -j GEO_BLOCK_CHAIN6
+done
+
+touch "${INITIALIZED}"
+log "geo-block complete: ${V4_COUNT} v4 / ${V6_COUNT} v6 CIDRs active"

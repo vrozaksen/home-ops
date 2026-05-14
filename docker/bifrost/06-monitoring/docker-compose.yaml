@@ -1,0 +1,38 @@
+---
+name: monitoring
+
+services:
+  node-exporter:
+    # renovate: datasource=docker depName=quay.io/prometheus/node-exporter
+    image: quay.io/prometheus/node-exporter:v1.11.1
+    container_name: node-exporter
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+)($$|/)
+      - --collector.netclass.ignored-devices=^(veth.*)$$
+      - --no-collector.btrfs
+      - --web.listen-address=0.0.0.0:9100
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+networks:
+  default:
+    name: edge
+    external: true

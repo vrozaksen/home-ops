@@ -1,0 +1,18 @@
+---
+working_dir: ./docker/bifrost
+auto_discover: true
+auto_discover_opts:
+  depth: 1
+  delete: true
+reconciliation:
+  enabled: true
+  interval: 3600
+external_secrets:
+  TOWONEL_ACME_EMAIL: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/TOWONEL_ACME_EMAIL
+  TOWONEL_INVITE_HASH_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/TOWONEL_INVITE_HASH_KEY
+  GATUS_PUSHOVER_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/GATUS_PUSHOVER_TOKEN
+  GATUS_PUSHOVER_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/GATUS_PUSHOVER_KEY
+  BIFROST_HEARTBEAT_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/BIFROST_HEARTBEAT_TOKEN
+  BIFROST_METRICS_BCRYPT: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/BIFROST_METRICS_BCRYPT
+  MAXMIND_USER_ID: da94b011-9a7d-408b-92d9-55be47efe750:prod:/shared/maxmind/MAXMIND_USER_ID
+  MAXMIND_LICENSE_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/shared/maxmind/MAXMIND_LICENSE_KEY

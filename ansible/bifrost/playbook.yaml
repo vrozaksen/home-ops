@@ -1,0 +1,435 @@
+---
+- name: Bootstrap bifrost VPS
+  hosts: bifrost
+  become: true
+  gather_facts: false
+  vars:
+    host_ssh_port: 22222
+    infisical_project: da94b011-9a7d-408b-92d9-55be47efe750
+    infisical_env: prod
+    infisical_vps_path: /vps/bifrost
+    infisical_shared_path: /shared
+    blocked_countries:
+      - RU
+      - CN
+      - KP
+      - IR
+      - BY
+      - CU
+
+  tasks:
+    - name: Check host connectivity
+      ansible.builtin.ping:
+
+    - name: Set hostname
+      tags:
+        - bootstrap
+      ansible.builtin.hostname:
+        name: bifrost
+
+    - name: Fetch bootstrap secrets from Infisical
+      tags:
+        - always
+      ansible.builtin.shell: >
+        infisical secrets get {{ item.key }}
+        --projectId {{ infisical_project }}
+        --env {{ infisical_env }}
+        --path {{ item.path }}
+        --plain 2>/dev/null || echo ""
+      delegate_to: localhost
+      become: false
+      check_mode: false
+      changed_when: false
+      no_log: true
+      loop:
+        - {key: INFISICAL_DOCOCD_CLIENT_ID, path: "{{ infisical_vps_path }}"}
+        - {key: INFISICAL_DOCOCD_CLIENT_SECRET, path: "{{ infisical_vps_path }}"}
+        - {key: DOCOCD_API_SECRET, path: "{{ infisical_vps_path }}"}
+        - {key: DOCOCD_WEBHOOK_SECRET, path: "{{ infisical_vps_path }}"}
+        - {key: CROWDSEC_API_KEY, path: "{{ infisical_vps_path }}"}
+        - {key: MAXMIND_USER_ID, path: "{{ infisical_shared_path }}/maxmind"}
+        - {key: MAXMIND_LICENSE_KEY, path: "{{ infisical_shared_path }}/maxmind"}
+      register: secrets_raw
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Set secret facts
+      tags:
+        - always
+      ansible.builtin.set_fact:
+        "{{ item.item.key | lower }}": "{{ item.stdout | default('', true) }}"
+      loop: "{{ secrets_raw.results }}"
+      loop_control:
+        label: "{{ item.item.key }}"
+      no_log: true
+
+    - name: Validate required secrets
+      ansible.builtin.fail:
+        msg: "Required secret '{{ item }}' is empty in Infisical"
+      when: lookup('vars', item | lower) == ""
+      loop:
+        - INFISICAL_DOCOCD_CLIENT_ID
+        - INFISICAL_DOCOCD_CLIENT_SECRET
+        - DOCOCD_API_SECRET
+        - DOCOCD_WEBHOOK_SECRET
+        - MAXMIND_USER_ID
+        - MAXMIND_LICENSE_KEY
+      no_log: true
+
+    - name: Install system packages
+      tags:
+        - packages
+      block:
+        - name: Install Docker
+          ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
+          args:
+            executable: /bin/bash
+            creates: /usr/bin/docker
+
+        - name: Install apt packages
+          ansible.builtin.apt:
+            name:
+              - ufw
+              - ipset
+              - fail2ban
+              - unattended-upgrades
+              - apt-listchanges
+              - mmdb-bin  # mmdblookup for geo-block
+              - jq
+              - curl
+            state: present
+            update_cache: true
+
+    - name: SSH hardening
+      tags:
+        - hardening
+        - ssh
+      block:
+        - name: Move SSH socket to host port
+          ansible.builtin.replace:
+            path: /usr/lib/systemd/system/ssh.socket
+            regexp: '^(ListenStream=.+):\d+$'
+            replace: '\1:{{ host_ssh_port }}'
+          notify:
+            - Reload systemd daemon
+            - Restart ssh.socket
+
+        - name: Harden sshd_config
+          ansible.builtin.copy:
+            dest: /etc/ssh/sshd_config.d/99-hardening.conf
+            content: |
+              PermitRootLogin no
+              PasswordAuthentication no
+              KbdInteractiveAuthentication no
+              MaxAuthTries 3
+              LoginGraceTime 20
+              X11Forwarding no
+              AllowAgentForwarding no
+              ClientAliveInterval 300
+              ClientAliveCountMax 2
+              AllowUsers debian
+            owner: root
+            group: root
+            mode: "0644"
+          notify: Restart ssh.socket
+
+    - name: Sysctl hardening
+      tags:
+        - hardening
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-hardening.conf
+        content: |
+          net.ipv4.tcp_syncookies = 1
+          net.ipv4.tcp_max_syn_backlog = 2048
+          net.ipv4.tcp_synack_retries = 2
+          net.ipv4.conf.all.accept_redirects = 0
+          net.ipv6.conf.all.accept_redirects = 0
+          net.ipv4.conf.all.send_redirects = 0
+          net.ipv4.conf.all.accept_source_route = 0
+          net.ipv6.conf.all.accept_source_route = 0
+          net.ipv4.conf.all.log_martians = 1
+          net.ipv4.icmp_echo_ignore_broadcasts = 1
+          net.ipv4.tcp_rfc1337 = 1
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Apply sysctl
+
+    - name: Configure fail2ban
+      tags:
+        - hardening
+        - fail2ban
+      ansible.builtin.template:
+        src: jail.local.j2
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart fail2ban
+
+    - name: Configure unattended-upgrades
+      tags:
+        - hardening
+      block:
+        - name: Auto-upgrades periodic
+          ansible.builtin.copy:
+            dest: /etc/apt/apt.conf.d/20auto-upgrades
+            content: |
+              APT::Periodic::Update-Package-Lists "1";
+              APT::Periodic::Unattended-Upgrade "1";
+              APT::Periodic::AutocleanInterval "7";
+            owner: root
+            group: root
+            mode: "0644"
+
+        - name: 50unattended-upgrades config
+          ansible.builtin.template:
+            src: 50unattended-upgrades.j2
+            dest: /etc/apt/apt.conf.d/50unattended-upgrades
+            owner: root
+            group: root
+            mode: "0644"
+
+    - name: Firewall
+      tags:
+        - firewall
+      block:
+        - name: Allow firewall ports
+          community.general.ufw:
+            rule: allow
+            port: "{{ item.port }}"
+            proto: "{{ item.protocol | default('tcp') }}"
+            comment: "{{ item.comment }}"
+          loop:
+            - {port: 22, comment: "SSH (forgejo passthrough via towonel-hub)"}
+            - {port: "{{ host_ssh_port }}", comment: "Host SSH"}
+            - {port: 80, comment: "HTTP"}
+            - {port: 443, comment: "HTTPS",}
+
+        - name: Enable UFW
+          community.general.ufw:
+            state: enabled
+            policy: deny
+
+    - name: Docker
+      tags:
+        - docker
+      community.docker.docker_network:
+        name: edge
+        driver: bridge
+        state: present
+
+    - name: Filesystem layout
+      tags:
+        - filesystem
+      block:
+        - name: /opt/towonel (uid 10001)
+          ansible.builtin.file:
+            path: /opt/towonel
+            state: directory
+            owner: 10001
+            group: 10001
+            mode: "0755"
+
+        - name: /opt/maxmind (geoipupdate cache)
+          ansible.builtin.file:
+            path: /opt/maxmind
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+    - name: Doco-cd bootstrap
+      tags:
+        - doco-cd
+      block:
+        - name: Create dirs
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            mode: "0700"
+          loop:
+            - /opt/doco-cd
+            - /opt/doco-cd/secrets
+
+        - name: Write doco-cd secrets (file-mounted)
+          ansible.builtin.copy:
+            dest: "/opt/doco-cd/secrets/{{ item.name }}"
+            content: "{{ item.value }}"
+            owner: root
+            group: root
+            mode: "0600"
+          no_log: true
+          loop:
+            - {name: infisical_client_secret, value: "{{ infisical_dococd_client_secret }}"}
+            - {name: api_secret, value: "{{ dococd_api_secret }}"}
+            - {name: webhook_secret, value: "{{ dococd_webhook_secret }}",}
+
+        - name: Write doco-cd env (only INFISICAL_CLIENT_ID)
+          ansible.builtin.copy:
+            dest: /opt/doco-cd/.env
+            content: |
+              INFISICAL_CLIENT_ID={{ infisical_dococd_client_id }}
+            owner: root
+            group: root
+            mode: "0600"
+          no_log: true
+
+        - name: Copy doco-cd compose
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/bifrost/.doco-cd/docker-compose.app.yaml"
+            dest: /opt/doco-cd/docker-compose.yaml
+            owner: root
+            group: root
+            mode: "0600"
+
+        - name: Bring up doco-cd
+          ansible.builtin.shell: |
+            cd /opt/doco-cd && docker compose --env-file .env up -d --pull always
+          args:
+            executable: /bin/bash
+          when: not ansible_check_mode
+
+        - name: Wait for doco-cd healthy
+          ansible.builtin.command: >
+            docker inspect --format={{ '{{' }}.State.Health.Status{{ '}}' }} doco-cd
+          register: doco_cd_health
+          until: doco_cd_health.stdout == "healthy"
+          retries: 30
+          delay: 10
+          changed_when: false
+          when: not ansible_check_mode
+
+    - name: CrowdSec firewall bouncer (host)
+      tags:
+        - crowdsec
+      block:
+        - name: Wait for crowdsec LAPI
+          ansible.builtin.wait_for:
+            host: 127.0.0.1
+            port: 8088
+            timeout: 180
+
+        - name: Register firewall bouncer (idempotent)
+          ansible.builtin.shell: |
+            set -e
+            if docker exec crowdsec cscli bouncers list -o json | jq -e '.[] | select(.name=="firewall")' >/dev/null; then
+              echo "ALREADY_REGISTERED"
+            else
+              docker exec crowdsec cscli bouncers add firewall --key "{{ crowdsec_api_key }}"
+            fi
+          register: bouncer_reg
+          changed_when: "'ALREADY_REGISTERED' not in bouncer_reg.stdout"
+          when: crowdsec_api_key != ""
+
+        - name: Register CAPI (community blocklist)
+          ansible.builtin.shell: |
+            docker exec crowdsec cscli capi status >/dev/null 2>&1 \
+              || docker exec crowdsec cscli capi register
+          register: capi_reg
+          changed_when: "'Successfully' in capi_reg.stdout"
+
+        - name: /etc/apt/keyrings exists
+          ansible.builtin.file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: "0755"
+
+        - name: CrowdSec apt key
+          ansible.builtin.get_url:
+            url: https://packagecloud.io/crowdsec/crowdsec/gpgkey
+            dest: /etc/apt/keyrings/crowdsec.asc
+            mode: "0644"
+
+        - name: CrowdSec apt repository
+          ansible.builtin.apt_repository:
+            repo: deb [signed-by=/etc/apt/keyrings/crowdsec.asc] https://packagecloud.io/crowdsec/crowdsec/any any main
+            filename: crowdsec
+            state: present
+            update_cache: true
+
+        - name: Install host firewall bouncer
+          ansible.builtin.apt:
+            name: crowdsec-firewall-bouncer-iptables
+            state: present
+
+        - name: Render bouncer config
+          ansible.builtin.template:
+            src: crowdsec-firewall-bouncer.yaml.j2
+            dest: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+            owner: root
+            group: root
+            mode: "0600"
+          when: crowdsec_api_key != ""
+          notify: Restart crowdsec-firewall-bouncer
+
+        - name: Enable + start bouncer
+          ansible.builtin.systemd:
+            name: crowdsec-firewall-bouncer
+            enabled: true
+            state: started
+
+    - name: MaxMind geo-block
+      tags:
+        - geo-block
+      block:
+        - name: /opt/geo-block directory
+          ansible.builtin.file:
+            path: /opt/geo-block
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Render geo-block script
+          ansible.builtin.template:
+            src: update-country-blocks.sh.j2
+            dest: /opt/geo-block/update-country-blocks.sh
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Initial geo-block run (after geoipupdate container has fetched DB)
+          ansible.builtin.shell:
+            cmd: /opt/geo-block/update-country-blocks.sh "{{ blocked_countries | join(' ') }}"
+            creates: /opt/geo-block/.initialized
+          # Will skip silently if /opt/maxmind/GeoLite2-Country.mmdb doesn't exist yet
+          failed_when: false
+
+        - name: Weekly geo-block refresh
+          ansible.builtin.cron:
+            name: GeoIP country block weekly refresh
+            minute: "0"
+            hour: "3"
+            weekday: "0"
+            job: /opt/geo-block/update-country-blocks.sh {{ blocked_countries | join(' ') }} >> /var/log/geo-block.log 2>&1
+
+        - name: Geo-block on reboot
+          ansible.builtin.cron:
+            name: GeoIP country block restore on reboot
+            special_time: reboot
+            job: /opt/geo-block/update-country-blocks.sh {{ blocked_countries | join(' ') }} >> /var/log/geo-block.log 2>&1
+
+  handlers:
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart ssh.socket
+      ansible.builtin.service:
+        name: ssh.socket
+        state: restarted
+
+    - name: Apply sysctl
+      ansible.builtin.command: sysctl --system
+      changed_when: false
+
+    - name: Restart fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+
+    - name: Restart crowdsec-firewall-bouncer
+      ansible.builtin.service:
+        name: crowdsec-firewall-bouncer
+        state: restarted

@@ -67,10 +67,8 @@ spec:
   targets:
     staticConfig:
       static:
-        - https://pangolin.vzkn.eu
-        - https://bifrost.vzkn.eu
-        - https://dozzle.vzkn.eu
-        - https://traefik.vzkn.eu
+        - https://bifrost-gatus.vzkn.eu
+        - https://twnl.vzkn.eu
         - https://sso.vzkn.eu
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/probe_v1.json
@@ -87,4 +85,4 @@ spec:
   targets:
     staticConfig:
       static:
-        - pangolin.vzkn.eu
+        - bifrost.vzkn.eu

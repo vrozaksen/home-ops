@@ -41,6 +41,9 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               GATUS_WEB_PORT: &port 80
+            envFrom:
+              - secretRef:
+                  name: gatus-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -132,7 +135,7 @@ spec:
         type: configMap
         name: "{{ .Release.Name }}-configmap"
         globalMounts:
-          - path: /config/buddy.yaml
-            subPath: buddy.yaml
           - path: /config/config.yaml
             subPath: config.yaml
+          - path: /config/config-bifrost.yaml
+            subPath: bifrost.yaml

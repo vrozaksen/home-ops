@@ -14,43 +14,6 @@ resource "authentik_policy_binding" "authentication-reputation" {
   order  = 0
 }
 
-## GeoIP policy — block high-risk countries (same list as bifrost VPS iptables)
-resource "authentik_policy_geoip" "block-countries" {
-  name      = "block-countries"
-  countries = ["RU", "CN", "KP", "IR", "BY", "CU"]
-
-  check_impossible_travel = true
-  impossible_tolerance_km = 500
-  check_history_distance  = true
-  history_login_count     = 5
-  history_max_distance_km = 1000
-}
-
-resource "authentik_policy_binding" "authentication-block-countries" {
-  target = authentik_flow.authentication.uuid
-  policy = authentik_policy_geoip.block-countries.id
-  order  = 1
-  negate = true # match = deny (countries list acts as blocklist)
-}
-
-## GeoIP policy — block GAFAM ASNs (same list as CrowdSec on bifrost)
-resource "authentik_policy_geoip" "block-gafam-asn" {
-  name = "block-gafam-asn"
-  asns = [
-    15169, 396982,     # Google
-    714, 6185,         # Apple
-    32934, 63293,      # Meta
-    16509, 14618,      # Amazon
-    8075, 8068, 3598,  # Microsoft
-  ]
-}
-
-resource "authentik_policy_binding" "authentication-block-gafam" {
-  target = authentik_flow.authentication.uuid
-  policy = authentik_policy_geoip.block-gafam-asn.id
-  order  = 2
-  negate = true # match = deny
-}
 
 resource "authentik_policy_password" "password-complexity" {
   name             = "password-complexity"

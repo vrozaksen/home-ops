@@ -45,11 +45,6 @@ spec:
                 memory: 64Mi
               limits:
                 memory: 256Mi
-            # Caddy binary has file capabilities (cap_net_bind_service+ep);
-            # allowPrivilegeEscalation=false would EPERM on execve. Caddy also
-            # writes to /tmp, /config, /data during startup — readOnlyRootFilesystem breaks it.
-            securityContext:
-              capabilities: {drop: ["ALL"]}
 
     service:
       app:

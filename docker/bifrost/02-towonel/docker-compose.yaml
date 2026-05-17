@@ -34,6 +34,12 @@ services:
       TOWONEL_EDGE_TLS_CERT_DIR: /data/certs
       TOWONEL_EDGE_TLS_ACME_EMAIL: ${TOWONEL_ACME_EMAIL}
       TOWONEL_EDGE_TLS_HTTP_LISTEN_ADDR: 0.0.0.0:8081
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+      - "5349:5349/tcp"
+      - "64738:64738/tcp"
+      - "64738:64738/udp"
     healthcheck:
       test:
         - CMD

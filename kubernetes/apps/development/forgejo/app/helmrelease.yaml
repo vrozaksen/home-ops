@@ -55,10 +55,7 @@ spec:
       http:
         port: 3000
       ssh:
-        type: LoadBalancer
         port: &sshPort 22
-        loadBalancerIP: 10.10.0.51
-        externalTrafficPolicy: Local
 
     resources:
       requests:

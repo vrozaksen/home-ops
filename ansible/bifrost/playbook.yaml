@@ -206,7 +206,12 @@
             - {port: 22, comment: "SSH (forgejo passthrough via towonel-hub)"}
             - {port: "{{ host_ssh_port }}", comment: "Host SSH"}
             - {port: 80, comment: "HTTP"}
-            - {port: 443, comment: "HTTPS",}
+            - {port: 443, comment: "HTTPS"}
+            - {port: 3478, protocol: tcp, comment: "TURN/TCP (stunner passthrough via towonel-hub)"}
+            - {port: 3478, protocol: udp, comment: "TURN/UDP (stunner passthrough via towonel-hub)"}
+            - {port: 5349, protocol: tcp, comment: "TURNS/TCP TLS (stunner passthrough via towonel-hub)"}
+            - {port: 64738, protocol: tcp, comment: "Mumble control (passthrough via towonel-hub)"}
+            - {port: 64738, protocol: udp, comment: "Mumble voice (passthrough via towonel-hub)",}
 
         - name: Enable UFW
           community.general.ufw:

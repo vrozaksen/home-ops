@@ -60,11 +60,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     service:
       app:
-        type: LoadBalancer
-        externalTrafficPolicy: Local
         annotations:
-          lbipam.cilium.io/ips: 10.10.0.50
-          external-dns.alpha.kubernetes.io/hostname: mumble.vzkn.eu
           gatus.home-operations.com/endpoint: |-
             group: communication
         ports:

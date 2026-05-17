@@ -88,46 +88,10 @@ spec:
         ports:
           http:
             port: *port
-      livekit-rtc:
-        controller: livekit
-        type: LoadBalancer
-        externalTrafficPolicy: Local
-        annotations:
-          lbipam.cilium.io/ips: 10.10.0.54
-        ports:
+            primary: true
           rtc-tcp:
             port: 7881
             protocol: TCP
-          rtc-udp-1:
-            port: 50100
-            protocol: UDP
-          rtc-udp-2:
-            port: 50101
-            protocol: UDP
-          rtc-udp-3:
-            port: 50102
-            protocol: UDP
-          rtc-udp-4:
-            port: 50103
-            protocol: UDP
-          rtc-udp-5:
-            port: 50104
-            protocol: UDP
-          rtc-udp-6:
-            port: 50105
-            protocol: UDP
-          rtc-udp-7:
-            port: 50106
-            protocol: UDP
-          rtc-udp-8:
-            port: 50107
-            protocol: UDP
-          rtc-udp-9:
-            port: 50108
-            protocol: UDP
-          rtc-udp-10:
-            port: 50109
-            protocol: UDP
       jwt-service:
         controller: jwt-service
         ports:

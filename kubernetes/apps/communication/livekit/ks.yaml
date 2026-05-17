@@ -12,6 +12,8 @@ spec:
       namespace: communication
     - name: dragonfly-operator
       namespace: database
+    - name: stunner-config
+      namespace: network
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly

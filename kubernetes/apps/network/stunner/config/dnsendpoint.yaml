@@ -3,10 +3,10 @@
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
-  name: mumble
+  name: stunner
 spec:
   endpoints:
-    - dnsName: "mumble.vzkn.eu"
+    - dnsName: turn.vzkn.eu
       recordType: CNAME
       targets:
         - "tunnel.vzkn.eu"

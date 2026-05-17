@@ -11,5 +11,5 @@ resources:
   - ./it-tools/ks.yaml
   - ./nextcloud/ks.yaml
   # - ./rxresume/ks.yaml
-  # - ./screego/ks.yaml
+  - ./screego/ks.yaml
   - ./searxng/ks.yaml

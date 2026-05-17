@@ -9,4 +9,4 @@ spec:
     - dnsName: livekit.vzkn.eu
       recordType: CNAME
       targets:
-        - "ipv4.vzkn.eu"
+        - "tunnel.vzkn.eu"

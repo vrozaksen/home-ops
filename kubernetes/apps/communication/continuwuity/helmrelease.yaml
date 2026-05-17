@@ -65,7 +65,7 @@ spec:
               CONTINUWUITY_DNS_CACHE_ENTRIES: "1000000"
               CONTINUWUITY_DNS_TIMEOUT: "60"
               CONTINUWUITY_IP_LOOKUP_STRATEGY: "1"
-              # TURN (coturn)
+              # TURN (stunner)
               CONTINUWUITY_TURN_URIS: '["turn:turn.vzkn.eu:3478?transport=udp","turn:turn.vzkn.eu:3478?transport=tcp","turns:turn.vzkn.eu:5349?transport=tcp"]'
               CONTINUWUITY_TURN_SECRET_FILE: "/secrets/turn-secret"
               CONTINUWUITY_TURN_TTL: "86400"

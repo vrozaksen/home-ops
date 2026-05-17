@@ -67,6 +67,13 @@ spec:
             image:
               repository: ghcr.io/qdm12/gluetun
               tag: v3.41.1@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -c
+                    - "(ip rule del table 51820; ip -6 rule del table 51820) || true"
             env:
               VPN_SERVICE_PROVIDER: protonvpn
               VPN_TYPE: wireguard

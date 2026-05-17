@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: ghcr.io/continuwuity/continuwuity
-              tag: v0.5.9
+              tag: v0.5.9-maxperf
             env:
               # Config file (for settings that can't be set via env vars)
               CONTINUWUITY_CONFIG: "/config/continuwuity.toml"
@@ -40,6 +40,7 @@ spec:
               # Registration disabled - LDAP only
               CONTINUWUITY_ALLOW_REGISTRATION: "false"
               CONTINUWUITY_ALLOW_GUEST_REGISTRATION: "false"
+              CONTINUWUITY_NEW_USER_DISPLAYNAME_SUFFIX: ""
               # LDAP (Authentik)
               CONTINUWUITY_LDAP__ENABLE: "true"
               CONTINUWUITY_LDAP__LDAP_ONLY: "true"
@@ -52,6 +53,18 @@ spec:
               CONTINUWUITY_LDAP__NAME_ATTRIBUTE: "displayName"
               # Security
               CONTINUWUITY_ALLOW_PUBLIC_ROOM_DIRECTORY_OVER_FEDERATION: "false"
+              CONTINUWUITY_LOCKDOWN_PUBLIC_ROOM_DIRECTORY: "true"
+              CONTINUWUITY_REQUIRE_AUTH_FOR_PROFILE_REQUESTS: "true"
+              CONTINUWUITY_ALLOW_LEGACY_MEDIA: "true"
+              # RocksDB (zstd compression saves significant disk space for Matrix DB)
+              CONTINUWUITY_ROCKSDB_COMPRESSION_ALGO: "zstd"
+              CONTINUWUITY_ROCKSDB_COMPRESSION_LEVEL: "32767"
+              CONTINUWUITY_ROCKSDB_BOTTOMMOST_COMPRESSION_LEVEL: "32767"
+              CONTINUWUITY_ROCKSDB_BOTTOMMOST_COMPRESSION: "true"
+              # DNS (federation does heavy DNS lookups)
+              CONTINUWUITY_DNS_CACHE_ENTRIES: "1000000"
+              CONTINUWUITY_DNS_TIMEOUT: "60"
+              CONTINUWUITY_IP_LOOKUP_STRATEGY: "1"
               # TURN (coturn)
               CONTINUWUITY_TURN_URIS: '["turn:turn.vzkn.eu:3478?transport=udp","turn:turn.vzkn.eu:3478?transport=tcp","turns:turn.vzkn.eu:5349?transport=tcp"]'
               CONTINUWUITY_TURN_SECRET_FILE: "/secrets/turn-secret"

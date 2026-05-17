@@ -1,7 +1,6 @@
 locals {
   buckets = [
     "attic",
-    "bluesky",
     "cnpg",
     "forgejo",
     "harbor",

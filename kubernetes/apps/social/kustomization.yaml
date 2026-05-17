@@ -7,6 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./bluesky/ks.yaml
   - ./gotosocial/ks.yaml
   - ./phanpy/ks.yaml

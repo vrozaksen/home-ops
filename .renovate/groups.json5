@@ -76,6 +76,16 @@
         "commitMessageTopic": "{{{groupName}}} group"
       },
       "minimumGroupSize": 2
+    },
+    {
+      "description": ["Towonel Group (agent + hub)"],
+      "groupName": "towonel",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/towonel-agent/", "/towonel-node/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
     }
   ]
 }

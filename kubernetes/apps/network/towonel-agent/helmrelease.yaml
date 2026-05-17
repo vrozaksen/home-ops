@@ -30,8 +30,9 @@ spec:
         containers:
           app:
             image:
+              # renovate: datasource=docker depName=git.erwanleboucher.dev/eleboucher/towonel-agent
               repository: git.erwanleboucher.dev/eleboucher/towonel-agent
-              tag: 0.0.23
+              tag: 0.0.29
             env:
               RUST_LOG: info
               TOWONEL_AGENT_SERVICES: '[{"hostname":"*.vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"},{"hostname":"vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"}]'

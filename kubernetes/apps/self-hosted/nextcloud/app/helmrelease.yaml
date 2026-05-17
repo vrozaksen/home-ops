@@ -54,6 +54,11 @@ spec:
       existingSecret:
         enabled: true
         secretName: &secret nextcloud-secret
+        # Chart hard-wires SMTP_HOST/NAME/PASSWORD env from this secret when
+        # mail.enabled=true. Underscores match the keys in Infisical.
+        smtpHostKey: smtp_host
+        smtpUsernameKey: smtp_username
+        smtpPasswordKey: smtp_password
 
       # SMTP configuration (via smtp-relay in network namespace)
       mail:
@@ -61,7 +66,6 @@ spec:
         fromAddress: noreply
         domain: vzkn.eu
         smtp:
-          host: smtp-relay.network.svc.cluster.local
           port: 25
           secure: ""
           authtype: ""

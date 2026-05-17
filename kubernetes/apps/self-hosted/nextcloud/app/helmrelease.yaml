@@ -20,6 +20,7 @@ metadata:
   name: nextcloud
 spec:
   interval: 1h
+  timeout: 15m
   chartRef:
     kind: OCIRepository
     name: nextcloud

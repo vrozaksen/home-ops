@@ -48,6 +48,12 @@ spec:
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
       - --label-filter=!external-dns/exclude
+      # Default managedRecordTypes is [A AAAA CNAME]; explicitly include TXT
+      # so user-defined TXT records (e.g. ATProto _atproto.*) are synced.
+      - --managed-record-types=A
+      - --managed-record-types=AAAA
+      - --managed-record-types=CNAME
+      - --managed-record-types=TXT
     triggerLoopOnEvent: true
     policy: sync
     sources:

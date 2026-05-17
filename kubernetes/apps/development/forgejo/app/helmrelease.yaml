@@ -207,6 +207,7 @@ spec:
           DEFAULT_UI_LOCATION: Europe/Warsaw
         federation:
           ENABLED: true
+          SHARE_USER_STATISTICS: true
         ui:
           DEFAULT_THEME: forgejo-auto
           SHOW_USER_EMAIL: false

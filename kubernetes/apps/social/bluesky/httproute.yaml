@@ -27,3 +27,10 @@ spec:
             allowOrigins:
               - "*"
             maxAge: 86400
+        # PNA header for browsers accessing PDS from public origin (bsky.app)
+        # when split-DNS resolves bluesky.vzkn.eu to a private LAN IP
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            add:
+              - name: Access-Control-Allow-Private-Network
+                value: "true"

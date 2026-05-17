@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bluesky
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+    controllers:
+      bluesky:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-keys:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/haileyok/cocoon
+              repository: ghcr.io/haileyok/cocoon
+              tag: latest
+            command:
+              - /bin/sh
+              - -c
+              - |
+                [ -f /keys/rotation.key ] || /cocoon create-rotation-key --out /keys/rotation.key
+                [ -f /keys/jwk.key ] || /cocoon create-private-jwk --out /keys/jwk.key
+            env: &env
+              TZ: "Europe/Warsaw"
+              COCOON_CONTACT_EMAIL: "vrozaksen@protonmail.com"
+              COCOON_DID: "did:web:bluesky.vzkn.eu"
+              COCOON_HOSTNAME: "bluesky.vzkn.eu"
+              COCOON_JWK_PATH: /keys/jwk.key
+              COCOON_RELAYS: "https://bsky.network"
+              COCOON_ROTATION_KEY_PATH: /keys/rotation.key
+            envFrom: &envFrom
+              - secretRef:
+                  name: bluesky-secret
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/haileyok/cocoon
+              repository: ghcr.io/haileyok/cocoon
+              tag: latest
+            workingDir: /data/cocoon
+            env:
+              <<: *env
+              COCOON_DB_TYPE: postgres
+              COCOON_DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-bluesky-app
+                    key: uri
+              COCOON_S3_BLOBSTORE_ENABLED: "true"
+              COCOON_S3_BUCKET: bluesky
+              COCOON_S3_ENDPOINT: "https://api.s3.vzkn.eu"
+              COCOON_S3_REGION: eu-central-1
+              # SMTP (relay via maddy in network namespace, no auth needed in-cluster)
+              COCOON_SMTP_HOST: smtp-relay.network.svc.cluster.local
+              COCOON_SMTP_PORT: "25"
+              COCOON_SMTP_EMAIL: "noreply@vzkn.eu"
+              COCOON_SMTP_NAME: "Bluesky"
+            envFrom: *envFrom
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /xrpc/_health
+                    port: 8080
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+            securityContext: *securityContext
+
+    service:
+      app:
+        controller: bluesky
+        ports:
+          http:
+            port: 8080
+
+    persistence:
+      data:
+        existingClaim: bluesky
+        advancedMounts:
+          bluesky:
+            app:
+              - path: /data/cocoon
+                subPath: data
+              - path: /keys
+                subPath: keys
+            init-keys:
+              - path: /keys
+                subPath: keys
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

@@ -19,6 +19,7 @@ locals {
   oidc_apps = [
     "flux",
     "forgejo",
+    "gotosocial",
     "grafana",
     "headlamp",
     "nextcloud",
@@ -321,6 +322,22 @@ module "oauth2-rxresume" {
   client_id          = local.parsed_secrets["rxresume"].client_id
   client_secret      = local.parsed_secrets["rxresume"].client_secret
   redirect_uris      = ["https://rxresume.${var.cluster_domain}/api/auth/oauth2/callback/custom"]
+}
+
+module "oauth2-gotosocial" {
+  source             = "./oauth2_application"
+  name               = "GoToSocial"
+  icon_url           = "https://raw.githubusercontent.com/superseriousbusiness/gotosocial/main/web/assets/logo.png"
+  launch_url         = "https://gts.${var.cluster_domain}"
+  description        = "ActivityPub microblog"
+  newtab             = true
+  group              = "Home"
+  auth_groups        = [authentik_group.users.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["gotosocial"].client_id
+  client_secret      = local.parsed_secrets["gotosocial"].client_secret
+  redirect_uris      = ["https://gts.${var.cluster_domain}/auth/callback"]
 }
 
 module "oauth2-sparkyfitness" {

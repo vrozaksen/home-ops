@@ -107,19 +107,37 @@
         - hardening
         - ssh
       block:
-        - name: Move SSH socket to host port
-          ansible.builtin.replace:
-            path: /usr/lib/systemd/system/ssh.socket
-            regexp: '^(ListenStream=.+):\d+$'
-            replace: '\1:{{ host_ssh_port }}'
+        # Drop-in lives in /etc/, so apt won't overwrite it on openssh-server upgrades
+        # (unlike editing /usr/lib/systemd/system/ssh.socket directly).
+        - name: Ensure ssh.socket drop-in directory exists
+          ansible.builtin.file:
+            path: /etc/systemd/system/ssh.socket.d
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Move SSH socket to host port (drop-in)
+          ansible.builtin.copy:
+            dest: /etc/systemd/system/ssh.socket.d/override.conf
+            content: |
+              [Socket]
+              ListenStream=
+              ListenStream={{ host_ssh_port }}
+            owner: root
+            group: root
+            mode: "0644"
           notify:
             - Reload systemd daemon
-            - Restart ssh.socket
+            - Restart sshd
 
         - name: Harden sshd_config
           ansible.builtin.copy:
             dest: /etc/ssh/sshd_config.d/99-hardening.conf
             content: |
+              # Port is ignored in socket-activated mode (FD comes from ssh.socket),
+              # but acts as belt-and-suspenders if sshd is ever launched standalone.
+              Port {{ host_ssh_port }}
               PermitRootLogin no
               PasswordAuthentication no
               KbdInteractiveAuthentication no
@@ -133,7 +151,7 @@
             owner: root
             group: root
             mode: "0644"
-          notify: Restart ssh.socket
+          notify: Restart sshd
 
     - name: Sysctl hardening
       tags:
@@ -429,10 +447,17 @@
       ansible.builtin.systemd:
         daemon_reload: true
 
-    - name: Restart ssh.socket
-      ansible.builtin.service:
-        name: ssh.socket
+    # Debian 13 here runs ssh.service standalone (not socket-activated), so we
+    # restart the service. ssh.socket drop-in stays in place as belt-and-suspenders
+    # for systems where socket activation is enabled.
+    # Fire-and-forget: restarting sshd kills ansible's own SSH session, so we
+    # don't wait for the return code (async=5, poll=0).
+    - name: Restart sshd
+      ansible.builtin.systemd:
+        name: ssh.service
         state: restarted
+      async: 5
+      poll: 0
 
     - name: Apply sysctl
       ansible.builtin.command: sysctl --system

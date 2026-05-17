@@ -49,23 +49,21 @@ spec:
         runAsGroup: 100
         runAsNonRoot: true
 
-      # Admin credentials and SMTP from ExternalSecret
+      # Admin credentials from ExternalSecret
       existingSecret:
         enabled: true
         secretName: &secret nextcloud-secret
-        smtpHostKey: smtp_host
-        smtpUsernameKey: smtp_username
-        smtpPasswordKey: smtp_password
 
-      # SMTP configuration
+      # SMTP configuration (via smtp-relay in network namespace)
       mail:
         enabled: true
-        fromAddress: admin
+        fromAddress: noreply
         domain: vzkn.eu
         smtp:
-          port: 587
-          secure: starttls
-          authtype: LOGIN
+          host: smtp-relay.network.svc.cluster.local
+          port: 25
+          secure: ""
+          authtype: ""
 
       # Environment variables
       extraEnv:

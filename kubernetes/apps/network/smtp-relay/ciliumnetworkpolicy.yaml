@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: smtp-relay
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: smtp-relay
+  enableDefaultDeny:
+    ingress: true
+    egress: true
+  ingress:
+    - # Allow SMTP submission only from explicit apps (namespace + app name match)
+      fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: social
+            app.kubernetes.io/name: gotosocial
+        - matchLabels:
+            io.kubernetes.pod.namespace: social
+            app.kubernetes.io/name: bluesky
+        - matchLabels:
+            io.kubernetes.pod.namespace: development
+            app.kubernetes.io/name: forgejo
+        - matchLabels:
+            io.kubernetes.pod.namespace: self-hosted
+            app.kubernetes.io/name: nextcloud
+        - matchLabels:
+            io.kubernetes.pod.namespace: self-hosted
+            app.kubernetes.io/name: rxresume
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: authentik
+        - matchLabels:
+            io.kubernetes.pod.namespace: sentry
+            app.kubernetes.io/name: sentry
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "25"
+  egress:
+    - # DNS resolution (CoreDNS)
+      toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": kube-system
+            "k8s:k8s-app": kube-dns
+      toPorts:
+        - ports:
+            - protocol: UDP
+              port: "53"
+            - protocol: TCP
+              port: "53"
+    - # Upstream SMTP submission (Proton)
+      toFQDNs:
+        - matchName: smtp.protonmail.ch
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "587"

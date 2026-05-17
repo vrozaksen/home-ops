@@ -53,6 +53,19 @@ spec:
             secretKeyRef:
               name: *pg
               key: password
+        # SMTP (via smtp-relay in network namespace, no auth needed in-cluster)
+        - name: AUTHENTIK_EMAIL__HOST
+          value: smtp-relay.network.svc.cluster.local
+        - name: AUTHENTIK_EMAIL__PORT
+          value: "25"
+        - name: AUTHENTIK_EMAIL__USE_TLS
+          value: "false"
+        - name: AUTHENTIK_EMAIL__USE_SSL
+          value: "false"
+        - name: AUTHENTIK_EMAIL__TIMEOUT
+          value: "10"
+        - name: AUTHENTIK_EMAIL__FROM
+          value: noreply@vzkn.eu
       envFrom:
         - secretRef:
             name: authentik-secret

@@ -164,15 +164,13 @@ spec:
     #   from: ""
     mail:
       backend: smtp
-      useTls: true
+      useTls: false
       useSsl: false
-      username: "admin@vzkn.eu"
+      username: ""
       password: ""
-      existingSecret: sentry-secret
-      existingSecretKey: mail-password
-      port: 587
-      host: "smtp.protonmail.ch"
-      from: "admin@vzkn.eu"
+      port: 25
+      host: "smtp-relay.network.svc.cluster.local"
+      from: "noreply@vzkn.eu"
 
     # OpenAI for Sentry AI features (disabled - uncomment when needed)
     # openai:

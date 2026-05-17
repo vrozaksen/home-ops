@@ -167,9 +167,10 @@ spec:
           REQUIRE_SIGNIN_VIEW: false
         mailer:
           ENABLED: true
-          PROTOCOL: smtp+starttls
-          SMTP_PORT: 587
-          FROM: admin@vzkn.eu
+          PROTOCOL: smtp
+          SMTP_ADDR: smtp-relay.network.svc.cluster.local
+          SMTP_PORT: 25
+          FROM: noreply@vzkn.eu
         storage:
           STORAGE_TYPE: minio
           MINIO_ENDPOINT: api.s3.vzkn.eu
@@ -272,21 +273,6 @@ spec:
             secretKeyRef:
               name: forgejo-secret
               key: SECRET_KEY
-        - name: GITEA__MAILER__SMTP_ADDR
-          valueFrom:
-            secretKeyRef:
-              name: forgejo-secret
-              key: SMTP_ADDR
-        - name: GITEA__MAILER__USER
-          valueFrom:
-            secretKeyRef:
-              name: forgejo-secret
-              key: USER
-        - name: GITEA__MAILER__PASSWD
-          valueFrom:
-            secretKeyRef:
-              name: forgejo-secret
-              key: PASSWD
         - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:

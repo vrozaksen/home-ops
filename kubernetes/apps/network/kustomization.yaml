@@ -13,5 +13,6 @@ resources:
   - ./mikrotik-cert-sync/ks.yaml
   - ./mikrotik-dns/ks.yaml
   - ./ovh-dns/ks.yaml
+  - ./smtp-relay/ks.yaml
   - ./stunner/ks.yaml
   - ./towonel-agent/ks.yaml

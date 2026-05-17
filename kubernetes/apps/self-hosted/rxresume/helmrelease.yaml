@@ -30,6 +30,10 @@ spec:
               S3_BUCKET: rxresume
               S3_REGION: eu-central-1
               S3_FORCE_PATH_STYLE: "true"
+              # SMTP (via smtp-relay in network namespace, no auth needed in-cluster)
+              SMTP_HOST: smtp-relay.network.svc.cluster.local
+              SMTP_PORT: "25"
+              SMTP_FROM: Reactive Resume <noreply@vzkn.eu>
               # Database
               DATABASE_URL:
                 valueFrom:

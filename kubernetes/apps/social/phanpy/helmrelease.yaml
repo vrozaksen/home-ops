@@ -11,6 +11,7 @@ spec:
     name: app-template
   values:
     defaultPodOptions:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -41,12 +42,13 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 16Mi
-              limits:
                 memory: 64Mi
+              limits:
+                memory: 256Mi
+            # Caddy binary has file capabilities (cap_net_bind_service+ep);
+            # allowPrivilegeEscalation=false would EPERM on execve. Caddy also
+            # writes to /tmp, /config, /data during startup — readOnlyRootFilesystem breaks it.
             securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
               capabilities: {drop: ["ALL"]}
 
     service:

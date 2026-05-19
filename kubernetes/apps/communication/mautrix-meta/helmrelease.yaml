@@ -1,0 +1,142 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mautrix-meta
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      mautrix-meta:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          bootstrap:
+            image:
+              repository: dock.mau.dev/mautrix/meta
+              tag: v0.2605.0
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - |
+                set -e
+                cp /template/config.yaml /shared/config.yaml
+                chmod 600 /shared/config.yaml
+                if [ ! -f /data/registration.yaml ]; then
+                  echo "Generating registration.yaml..."
+                  /usr/bin/mautrix-meta -g -c /shared/config.yaml -r /data/registration.yaml
+                  echo "Done."
+                else
+                  echo "registration.yaml already exists, skipping."
+                fi
+            env:
+              MAUTRIX_META_DATABASE__URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-mautrix-meta-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: mautrix-meta-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=dock.mau.dev/mautrix/meta
+              repository: dock.mau.dev/mautrix/meta
+              tag: v0.2605.0
+            command:
+              - "/usr/bin/mautrix-meta"
+            args:
+              - "-c"
+              - "/shared/config.yaml"
+              - "-r"
+              - "/data/registration.yaml"
+            env:
+              MAUTRIX_META_DATABASE__URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-mautrix-meta-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: mautrix-meta-secret
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 29319
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 29319
+                  initialDelaySeconds: 2
+                  periodSeconds: 5
+                  timeoutSeconds: 3
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 384Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1337
+        runAsGroup: 1337
+        fsGroup: 1337
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    service:
+      app:
+        controller: mautrix-meta
+        ports:
+          http:
+            port: 29319
+
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - path: /data
+            subPath: data
+      shared:
+        type: emptyDir
+        globalMounts:
+          - path: /shared
+      template:
+        type: configMap
+        name: mautrix-meta-config
+        advancedMounts:
+          mautrix-meta:
+            bootstrap:
+              - path: /template
+                readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

@@ -10,6 +10,7 @@ resources:
   - ./continuwuity/ks.yaml
   - ./element-web/ks.yaml
   - ./livekit/ks.yaml
+  - ./mautrix-meta/ks.yaml
   - ./mautrix-signal/ks.yaml
   - ./mumble/ks.yaml
   - ./red-lavalink/ks.yaml

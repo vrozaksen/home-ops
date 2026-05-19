@@ -13,6 +13,14 @@
       "matchManagers": ["flux"],
       "matchDepNames": ["tektoncd/operator"],
       "extractVersion": "^tekton-operator-(?<version>.+)$"
+    },
+    {
+      "description": "Bambuddy uses 4-segment versions (0.2.4.2) — needs loose versioning; skip beta tags",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/maziggy/bambuddy"],
+      "versioning": "loose",
+      "ignoreUnstable": true,
+      "allowedVersions": "!/b\\d+$/"
     }
   ]
 }

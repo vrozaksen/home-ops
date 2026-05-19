@@ -197,15 +197,6 @@ spec:
             ),
           );
 
-        # Notify Push - high performance notifications
-        notify_push.config.php: |-
-          <?php
-          $CONFIG = array (
-            'notify_push' => array(
-              'base_endpoint' => 'https://cloud.vzkn.eu/push',
-            ),
-          );
-
       # PHP settings
       phpConfigs:
         uploadLimit.ini: |
@@ -214,39 +205,6 @@ spec:
           max_input_time = 3600
           max_execution_time = 3600
           memory_limit = 512M
-
-      # Sidecar: Notify Push (high-performance notifications)
-      extraSidecarContainers:
-        - name: notify-push
-          image: nextcloud:33.0.3-fpm-alpine
-          command:
-            - /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push
-            - /var/www/html/config/config.php
-          args:
-            - --port
-            - "7867"
-          env:
-            - name: NEXTCLOUD_URL
-              value: http://localhost:8080
-            - name: PORT
-              value: "7867"
-          ports:
-            - name: push
-              containerPort: 7867
-              protocol: TCP
-          resources:
-            requests:
-              cpu: 10m
-              memory: 96Mi
-            limits:
-              memory: 192Mi
-          volumeMounts:
-            - name: nextcloud-main
-              mountPath: /var/www/html
-              readOnly: true
-            - name: nextcloud-data
-              mountPath: /var/www/data
-              readOnly: true
 
     # Database - CloudNative-PG (auto-generated secret)
     internalDatabase:
@@ -323,25 +281,6 @@ spec:
 
     # Extra manifests
     extraManifests:
-      # Service for notify_push sidecar
-      - |
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: nextcloud-push
-          labels:
-            app.kubernetes.io/name: {{ include "nextcloud.name" . }}
-            app.kubernetes.io/instance: {{ .Release.Name }}
-        spec:
-          type: ClusterIP
-          ports:
-            - name: push
-              port: 7867
-              targetPort: 7867
-              protocol: TCP
-          selector:
-            app.kubernetes.io/name: {{ include "nextcloud.name" . }}
-            app.kubernetes.io/instance: {{ .Release.Name }}
       # Hook to sync DB password from CNPG secret to config.php
       - |
         apiVersion: v1

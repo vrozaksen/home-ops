@@ -71,19 +71,3 @@ spec:
               - name: Strict-Transport-Security
                 value: max-age=31536000; includeSubDomains
       backendRefs: *backendRef
-
-    # Notify Push (high-performance notifications)
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /push/
-      filters:
-        - type: ResponseHeaderModifier
-          responseHeaderModifier:
-            add:
-              - name: Strict-Transport-Security
-                value: max-age=31536000; includeSubDomains
-      backendRefs:
-        - name: nextcloud-push
-          namespace: self-hosted
-          port: 7867

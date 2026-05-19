@@ -33,7 +33,7 @@ spec:
             cpu: 45m
             memory: 512Mi
           limits:
-            memory: 1Gi
+            memory: 2Gi
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
       tolerations:

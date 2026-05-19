@@ -1,0 +1,45 @@
+---
+# Strategic merge patch — adds spec.patches to each cluster-* Flux Kustomization,
+# which in turn applies HelmRelease defaults to every child Kustomization
+# (cert-manager, dragonfly-operator, etc.) managed by cluster-core / -platform / -apps.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: not-used  # selected via patches[].target in kustomization.yaml
+  namespace: flux-system
+spec:
+  patches:
+    - patch: |-
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: _
+        spec:
+          deletionPolicy: WaitForTermination
+          patches:
+            - patch: |-
+                apiVersion: helm.toolkit.fluxcd.io/v2
+                kind: HelmRelease
+                metadata:
+                  name: _
+                spec:
+                  install:
+                    crds: CreateReplace
+                    strategy:
+                      name: RetryOnFailure
+                  rollback:
+                    cleanupOnFail: true
+                  upgrade:
+                    cleanupOnFail: true
+                    crds: CreateReplace
+                    strategy:
+                      name: RemediateOnFailure
+                    remediation:
+                      remediateLastFailure: true
+                      retries: 2
+              target:
+                group: helm.toolkit.fluxcd.io
+                kind: HelmRelease
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization

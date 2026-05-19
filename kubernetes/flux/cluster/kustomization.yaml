@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./cluster-core.yaml
+  - ./cluster-platform.yaml
+  - ./cluster-apps.yaml
+patches:
+  - path: patches/child-defaults.yaml
+    target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: cluster-(core|platform|apps)

@@ -10,3 +10,5 @@ spec:
   eventSources:
     - kind: GitRepository
       name: flux-system
+    - kind: Kustomization
+      name: "*"

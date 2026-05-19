@@ -104,6 +104,18 @@ spec:
     serviceMonitor:
       enabled: true
     logLevel: warn
+    livenessProbe:
+      httpGet:
+        path: /
+        port: http
+      timeoutSeconds: 5
+      failureThreshold: 5
+    readinessProbe:
+      httpGet:
+        path: /api/v2/health
+        port: http
+      timeoutSeconds: 5
+      failureThreshold: 5
     resources:
       requests:
         cpu: 15m

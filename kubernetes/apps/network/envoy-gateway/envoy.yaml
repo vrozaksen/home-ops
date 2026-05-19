@@ -63,6 +63,7 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       client:
         dns-resolver: tcp://9.9.9.9:53
+        timeout: 30s
       group: external
 spec:
   gatewayClassName: envoy

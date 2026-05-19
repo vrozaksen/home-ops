@@ -125,7 +125,7 @@ spec:
         name: mautrix-signal-config
         advancedMounts:
           mautrix-signal:
-            copy-config:
+            bootstrap:
               - path: /template
                 readOnly: true
       tmp:

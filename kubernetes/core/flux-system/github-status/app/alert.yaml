@@ -8,5 +8,5 @@ spec:
   providerRef:
     name: github-status
   eventSources:
-    - kind: Kustomization
-      name: "*"
+    - kind: GitRepository
+      name: flux-system

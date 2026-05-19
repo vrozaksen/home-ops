@@ -6,6 +6,11 @@ metadata:
   name: cluster-apps
   namespace: flux-system
 spec:
+  commonMetadata:
+    labels:
+      home-ops.io/layer: apps
+  dependsOn:
+    - name: cluster-platform
   deletionPolicy: WaitForTermination
   interval: 1h
   path: ./kubernetes/apps

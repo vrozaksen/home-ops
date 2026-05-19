@@ -6,6 +6,11 @@ metadata:
   name: cluster-platform
   namespace: flux-system
 spec:
+  commonMetadata:
+    labels:
+      home-ops.io/layer: platform
+  dependsOn:
+    - name: cluster-core
   deletionPolicy: WaitForTermination
   interval: 1h
   path: ./kubernetes/platform

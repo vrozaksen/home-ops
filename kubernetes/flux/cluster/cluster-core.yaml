@@ -6,6 +6,9 @@ metadata:
   name: cluster-core
   namespace: flux-system
 spec:
+  commonMetadata:
+    labels:
+      home-ops.io/layer: core
   deletionPolicy: WaitForTermination
   interval: 1h
   path: ./kubernetes/core

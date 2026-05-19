@@ -9,13 +9,11 @@ spec:
     - ../../../components/dragonfly
     - ../../../components/cnpg/restore
   dependsOn:
+    - name: dragonfly-operator
+      namespace: database
     - name: infisical-operator
       namespace: security
-    - name: cloudnative-pg
-      namespace: database
     - name: plugin-barman-cloud
-      namespace: database
-    - name: dragonfly-operator
       namespace: database
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1

@@ -14,8 +14,6 @@ spec:
       namespace: database
     - name: kafka
       namespace: sentry
-    - name: cloudnative-pg
-      namespace: database
     - name: plugin-barman-cloud
       namespace: database
   healthCheckExprs:

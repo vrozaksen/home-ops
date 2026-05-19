@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tofu-controller
+spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
+  interval: 1h
+  path: ./kubernetes/core/flux-system/tofu-controller/controller
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: flux-system
+  wait: false
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tofu-controller-terraforms
+spec:
+  dependsOn:
+    - name: tofu-controller
+      namespace: flux-system
+  interval: 1h
+  path: ./kubernetes/core/flux-system/tofu-controller/terraform
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: flux-system
+  wait: false

@@ -104,23 +104,29 @@ function wait_for_nodes() {
 function apply_namespaces() {
     log info "Applying namespaces"
 
-    local -r apps_dir="${ROOT_DIR}/kubernetes/apps"
+    local -r layer_dirs=(
+        "${ROOT_DIR}/kubernetes/core"
+        "${ROOT_DIR}/kubernetes/platform"
+        "${ROOT_DIR}/kubernetes/apps"
+    )
 
-    if [[ ! -d "${apps_dir}" ]]; then
-        log error "Directory does not exist" "directory" "${apps_dir}"
-    fi
-
-    find "${apps_dir}" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | while IFS= read -r namespace; do
-        if kubectl get namespace "${namespace}" &>/dev/null; then
-            log info "Namespace is up-to-date" "namespace" "${namespace}"
-            continue
+    for layer_dir in "${layer_dirs[@]}"; do
+        if [[ ! -d "${layer_dir}" ]]; then
+            log error "Directory does not exist" "directory" "${layer_dir}"
         fi
 
-        if ! kubectl create namespace "${namespace}" --dry-run=client --output=yaml | kubectl apply --server-side --filename - &>/dev/null; then
-            log error "Failed to apply namespace" "namespace" "${namespace}"
-        fi
+        find "${layer_dir}" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | while IFS= read -r namespace; do
+            if kubectl get namespace "${namespace}" &>/dev/null; then
+                log info "Namespace is up-to-date" "namespace" "${namespace}"
+                continue
+            fi
 
-        log info "Namespace applied successfully" "namespace" "${namespace}"
+            if ! kubectl create namespace "${namespace}" --dry-run=client --output=yaml | kubectl apply --server-side --filename - &>/dev/null; then
+                log error "Failed to apply namespace" "namespace" "${namespace}"
+            fi
+
+            log info "Namespace applied successfully" "namespace" "${namespace}"
+        done
     done
 }
 

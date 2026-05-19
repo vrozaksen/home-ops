@@ -53,7 +53,7 @@ releases:
           - --server-side
           - --field-manager=kustomize-controller
           - --filename
-          - ../../kubernetes/apps/cert-manager/cert-manager/app/clusterissuers.yaml
+          - ../../kubernetes/core/cert-manager/cert-manager/app/clusterissuers.yaml
           - --wait=true
         showlogs: true
     needs:

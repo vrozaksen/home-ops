@@ -96,7 +96,7 @@ docker run --rm caddy:2 caddy hash-password --plaintext "$PASS"  # → BIFROST_M
 
 ## Adding new TCP services through towonel
 
-Edit `kubernetes/apps/network/towonel-agent/helmrelease.yaml` →
+Edit `kubernetes/core/network/towonel-agent/helmrelease.yaml` →
 `TOWONEL_AGENT_TCP_SERVICES`. Allow the port in UFW
 (`ansible/bifrost/playbook.yaml` → Firewall block) and expose it on `02-towonel`
 (`ports: - <port>:<port>`).

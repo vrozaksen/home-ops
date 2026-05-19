@@ -290,7 +290,7 @@ spec:
 
 ### Example 3: Large database with custom tuning
 ```yaml
-# kubernetes/apps/security/authentik/ks.yaml
+# kubernetes/platform/security/authentik/ks.yaml
 spec:
   components:
     - ../../../components/cnpg/restore

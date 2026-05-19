@@ -73,7 +73,7 @@ Edit your app's `ks.yaml` to add a `patches` section:
 **Option A: Recover to specific timestamp (most common)**
 
 ```yaml
-# kubernetes/apps/development/forgejo/ks.yaml
+# kubernetes/platform/development/forgejo/ks.yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -261,7 +261,7 @@ kubectl exec -n development postgres-forgejo-1 -- psql -U app -d app -c \
 **IMPORTANT:** Remove the `patches` section from ks.yaml to prevent PITR on next recreate.
 
 ```bash
-# Edit kubernetes/apps/development/forgejo/ks.yaml
+# Edit kubernetes/platform/development/forgejo/ks.yaml
 # Remove the entire patches section you added in Step 3
 
 # Example: Remove these lines:
@@ -271,7 +271,7 @@ kubectl exec -n development postgres-forgejo-1 -- psql -U app -d app -c \
 #       ...
 
 # Commit the change
-git add kubernetes/apps/development/forgejo/ks.yaml
+git add kubernetes/platform/development/forgejo/ks.yaml
 git commit -m "Remove PITR patch after successful recovery"
 git push
 ```

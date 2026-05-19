@@ -37,6 +37,7 @@ spec:
               GTS_LANDING_PAGE_USER: "vrozaksen"
               GTS_METRICS_ENABLED: "true"
               GTS_TRUSTED_PROXIES: "127.0.0.1/32,::1,10.69.0.0/16,10.100.0.0/16"
+              GTS_HTTP_CLIENT_ALLOW_IPS: "10.10.0.91/32,10.69.0.0/16,10.96.0.0/12"
               GTS_ACCOUNTS_ALLOW_CUSTOM_CSS: "true"
               OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
               OTEL_METRICS_PRODUCERS: prometheus

@@ -115,10 +115,7 @@ spec:
   deletionPolicy: WaitForTermination
   interval: 1h
   path: ./kubernetes/apps
-  # MIGRATION: temporarily disabled to prevent cascade-delete of namespaces
-  # moved to cluster-core/cluster-platform. Re-enable in follow-up commit
-  # once `flux get ks -A` shows cluster-core and cluster-platform Ready.
-  prune: false
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

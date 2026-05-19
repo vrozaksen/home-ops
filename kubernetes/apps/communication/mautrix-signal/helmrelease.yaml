@@ -1,0 +1,95 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mautrix-signal
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      mautrix-signal:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=dock.mau.dev/mautrix/signal
+              repository: dock.mau.dev/mautrix/signal
+              tag: v0.2605.0
+            command:
+              - "/usr/bin/mautrix-signal"
+            args:
+              - "-c"
+              - "/config/config.yaml"
+              - "-r"
+              - "/data/registration.yaml"
+            env:
+              MAUTRIX_SIGNAL_DATABASE__URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-mautrix-signal-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: mautrix-signal-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 29328
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 384Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1337
+        runAsGroup: 1337
+        fsGroup: 1337
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    service:
+      app:
+        controller: mautrix-signal
+        ports:
+          http:
+            port: 29328
+
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - path: /data
+            subPath: data
+      config:
+        type: configMap
+        name: mautrix-signal-config
+        globalMounts:
+          - path: /config
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

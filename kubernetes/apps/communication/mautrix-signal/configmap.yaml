@@ -1,0 +1,157 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mautrix-signal-config
+data:
+  config.yaml: |-
+    env_config_prefix: MAUTRIX_SIGNAL_
+
+    network:
+        displayname_template: '{{or .ProfileName .PhoneNumber "Unknown user"}}'
+        use_contact_avatars: false
+        sync_contacts_on_startup: true
+        use_outdated_profiles: false
+        number_in_topic: false
+        device_name: mautrix-signal
+        note_to_self_avatar: mxc://maunium.net/REBIVrqjZwmaWpssCZpBlmlL
+        location_format: 'https://www.openstreetmap.org/?mlat=%[1]s&mlon=%[2]s'
+        disappear_view_once: false
+        extev_polls: false
+
+    bridge:
+        command_prefix: '!sig'
+        personal_filtering_spaces: true
+        private_chat_portal_meta: true
+        bridge_status_notices: errors
+        unknown_error_auto_reconnect: null
+        unknown_error_max_auto_reconnects: 10
+        bridge_matrix_leave: false
+        bridge_notices: false
+        tag_only_on_create: true
+        only_bridge_tags: [m.favourite, m.lowpriority]
+        mute_only_on_create: true
+        deduplicate_matrix_messages: false
+        cross_room_replies: false
+        revert_failed_state_changes: false
+        kick_matrix_users: true
+        enable_send_state_requests: false
+        phone_numbers_in_profile: false
+        cleanup_on_logout:
+            enabled: false
+        relay:
+            enabled: false
+            admin_only: true
+            prefer_default: true
+            allow_bridge: true
+            default_relays: []
+        permissions:
+            "*": relay
+            vzkn.eu: user
+            "@vrozaksen:vzkn.eu": admin
+        management_room_text: {}
+        backfill:
+            enabled: true
+            max_initial_messages: 50
+            max_catchup_messages: 500
+            unread_hours_threshold: 720
+            threads:
+                max_initial_messages: 50
+        outgoing_message_re_checkpoints: false
+
+    logging:
+        min_level: info
+        writers:
+            - type: stdout
+              format: json
+
+    matrix:
+        message_status_events: false
+        delivery_receipts: false
+        message_error_notices: true
+        sync_direct_chat_list: false
+        federate_rooms: true
+        upload_file_threshold: 5242880
+
+    provisioning:
+        prefix: /_matrix/provision
+        # shared_secret set via MAUTRIX_SIGNAL_PROVISIONING__SHARED_SECRET
+        shared_secret: placeholder
+        debug_endpoints: false
+        enable_session_transfers: false
+
+    direct_media:
+        enabled: false
+
+    public_media:
+        enabled: false
+
+    backfill:
+        enabled: true
+
+    double_puppet:
+        secrets: {}
+
+    encryption:
+        allow: true
+        default: true
+        appservice: false
+        require: false
+        allow_key_sharing: true
+        plaintext_mentions: false
+        delete_keys:
+            delete_outbound_on_ack: false
+            dont_store_outbound: false
+            ratchet_on_decrypt: false
+            delete_fully_used_on_decrypt: false
+            delete_prev_on_new_session: false
+            delete_on_device_delete: false
+            periodically_delete_expired: false
+            delete_outdated_inbound: false
+        verification_levels:
+            receive: unverified
+            send: unverified
+            share: cross-signed-tofu
+        rotation:
+            enable_custom: false
+            milliseconds: 604800000
+            messages: 100
+            disable_device_change_key_rotation: false
+        # pickle_key set via MAUTRIX_SIGNAL_ENCRYPTION__PICKLE_KEY
+        pickle_key: placeholder
+
+    homeserver:
+        address: http://continuwuity.communication.svc.cluster.local:8080
+        domain: vzkn.eu
+        software: standard
+        status_endpoint: null
+        message_send_checkpoint_endpoint: null
+        async_media: false
+        websocket: false
+        ping_interval_seconds: 0
+
+    appservice:
+        address: http://mautrix-signal.communication.svc.cluster.local:29328
+        public_address: null
+        hostname: 0.0.0.0
+        port: 29328
+        id: signal
+        bot:
+            username: signalbot
+            displayname: Signal Bridge Bot
+            avatar: mxc://maunium.net/wPJgTQbZOtpBFmDNkiNEMDUp
+        # as_token / hs_token set via MAUTRIX_SIGNAL_APPSERVICE__{AS,HS}_TOKEN
+        as_token: placeholder
+        hs_token: placeholder
+        ephemeral_events: true
+        async_transactions: false
+
+    database:
+        type: postgres
+        # uri set via MAUTRIX_SIGNAL_DATABASE__URI from postgres-mautrix-signal-app secret
+        uri: placeholder
+        max_open_conns: 20
+        max_idle_conns: 2
+        max_conn_idle_time: null
+        max_conn_lifetime: null

@@ -9,7 +9,8 @@ resources:
   - ./namespace.yaml
   - ./continuwuity/ks.yaml
   - ./element-web/ks.yaml
-  - ./red-lavalink/ks.yaml
   - ./livekit/ks.yaml
+  - ./mautrix-signal/ks.yaml
   - ./mumble/ks.yaml
+  - ./red-lavalink/ks.yaml
   - ./redbot/ks.yaml

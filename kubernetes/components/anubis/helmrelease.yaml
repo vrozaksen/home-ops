@@ -22,6 +22,10 @@ spec:
               - name: allow-api
                 path_regex: ^/api/.*
                 action: ALLOW
+              # ActivityPub / rel="me" verification fetches from fediverse servers
+              - name: allow-fediverse
+                user_agent_regex: "(?i)(Mastodon|Pleroma|GoToSocial|Akkoma|Friendica|Misskey|Iceshrimp|Sharkey|Firefish|Hubzilla|Pixelfed|http\\.rb)"
+                action: ALLOW
               - import: (data)/meta/default-config.yaml
     controllers:
       anubis:

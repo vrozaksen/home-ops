@@ -15,6 +15,39 @@ spec:
         type: deployment
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          bootstrap:
+            image:
+              repository: dock.mau.dev/mautrix/signal
+              tag: v0.2605.0
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - |
+                set -e
+                cp /template/config.yaml /shared/config.yaml
+                chmod 600 /shared/config.yaml
+                if [ ! -f /data/registration.yaml ]; then
+                  echo "Generating registration.yaml..."
+                  /usr/bin/mautrix-signal -g -c /shared/config.yaml -r /data/registration.yaml
+                  echo "Done. Extract via: kubectl exec -n communication deploy/mautrix-signal -c app -- cat /data/registration.yaml"
+                else
+                  echo "registration.yaml already exists, skipping."
+                fi
+            env:
+              MAUTRIX_SIGNAL_DATABASE__URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-mautrix-signal-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: mautrix-signal-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
         containers:
           app:
             image:
@@ -25,7 +58,7 @@ spec:
               - "/usr/bin/mautrix-signal"
             args:
               - "-c"
-              - "/config/config.yaml"
+              - "/shared/config.yaml"
               - "-r"
               - "/data/registration.yaml"
             env:
@@ -83,12 +116,18 @@ spec:
         globalMounts:
           - path: /data
             subPath: data
-      config:
+      shared:
+        type: emptyDir
+        globalMounts:
+          - path: /shared
+      template:
         type: configMap
         name: mautrix-signal-config
-        globalMounts:
-          - path: /config
-            readOnly: true
+        advancedMounts:
+          mautrix-signal:
+            copy-config:
+              - path: /template
+                readOnly: true
       tmp:
         type: emptyDir
         globalMounts:

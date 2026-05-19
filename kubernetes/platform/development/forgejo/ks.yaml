@@ -26,8 +26,8 @@ spec:
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
-      failed: status.phase != 'ready'
-      current: status.phase == 'ready'
+      failed: status.phase != 'Ready'
+      current: status.phase == 'Ready'
   interval: 1h
   path: ./kubernetes/platform/development/forgejo/app
   postBuild:

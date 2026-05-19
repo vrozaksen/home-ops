@@ -15,8 +15,8 @@ spec:
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
-      failed: status.phase != 'ready'
-      current: status.phase == 'ready'
+      failed: status.phase != 'Ready'
+      current: status.phase == 'Ready'
   interval: 1h
   path: ./kubernetes/platform/renovate/renovate-operator/app
   postBuild:

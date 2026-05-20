@@ -9,6 +9,7 @@ resources:
   - ./namespace.yaml
   - ./continuwuity/ks.yaml
   - ./element-web/ks.yaml
+  - ./heisenbridge/ks.yaml
   - ./livekit/ks.yaml
   - ./mautrix-meta/ks.yaml
   - ./mautrix-signal/ks.yaml

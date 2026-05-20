@@ -8,7 +8,7 @@ spec:
     - "vrozaksen/*"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:43.186.1@sha256:8280875e61620606893d1260aa50b6c66c27bfe639ef77cfc8de356a4d7a7018
+  image: ghcr.io/renovatebot/renovate:43.186.8@sha256:f480e76055df41cc182bb02890ae3d8e3779a87a6d22b5629eb0e2c5b930ccf8
   schedule: "0 * * * *"
   parallelism: 3
   secretRef: renovate-token

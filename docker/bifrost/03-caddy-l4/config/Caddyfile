@@ -13,6 +13,12 @@
 
 	layer4 {
 		:443 {
+			@relay tls sni relay.towonel.vzkn.eu
+			route @relay {
+				proxy {
+					upstream iroh-relay:8443
+				}
+			}
 			@local tls sni {$VPS_LOCAL_HOSTS}
 			route @local {
 				proxy {

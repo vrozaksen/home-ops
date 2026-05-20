@@ -21,6 +21,18 @@
       "versioning": "loose",
       "ignoreUnstable": true,
       "allowedVersions": "!/b\\d+$/"
+    },
+    {
+      "description": "Mautrix bridges: pin to v0.YYMM.X scheme (CalVer alias tags vYY.MM.X order INCORRECTLY under semver and would cause downgrades, e.g. v26.02.2 < v0.2605.0 by date but > by semver)",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "dock.mau.dev/mautrix/signal",
+        "dock.mau.dev/mautrix/meta",
+        "dock.mau.dev/mautrix/discord",
+        "dock.mau.dev/mautrix/whatsapp",
+        "dock.mau.dev/mautrix/telegram"
+      ],
+      "allowedVersions": "/^v0\\.\\d+\\.\\d+$/"
     }
   ]
 }

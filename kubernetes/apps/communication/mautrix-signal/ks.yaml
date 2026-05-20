@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     - ../../../components/volsync
   dependsOn:
     - name: continuwuity

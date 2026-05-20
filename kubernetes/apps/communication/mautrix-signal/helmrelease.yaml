@@ -19,7 +19,7 @@ spec:
           bootstrap:
             image:
               repository: dock.mau.dev/mautrix/signal
-              tag: v26.02.2
+              tag: v0.2605.0
             command:
               - "/bin/sh"
               - "-c"
@@ -53,7 +53,7 @@ spec:
             image:
               # renovate: datasource=docker depName=dock.mau.dev/mautrix/signal
               repository: dock.mau.dev/mautrix/signal
-              tag: v26.02.2
+              tag: v0.2605.0
             command:
               - "/usr/bin/mautrix-signal"
             args:

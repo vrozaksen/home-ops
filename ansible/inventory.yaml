@@ -4,3 +4,4 @@ all:
     bifrost:
       ansible_host: bifrost.vzkn.eu
       ansible_user: debian
+      ansible_port: 22222

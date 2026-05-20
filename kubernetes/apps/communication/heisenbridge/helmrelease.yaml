@@ -17,7 +17,7 @@ spec:
           generate-registration:
             image:
               repository: docker.io/hif1/heisenbridge
-              tag: v1.15.4
+              tag: 1.15.4
             command:
               - "/bin/sh"
               - "-c"
@@ -42,7 +42,7 @@ spec:
             image:
               # renovate: datasource=docker depName=docker.io/hif1/heisenbridge
               repository: docker.io/hif1/heisenbridge
-              tag: v1.15.4
+              tag: 1.15.4
             args:
               - "-c"
               - "/data/registration.yaml"

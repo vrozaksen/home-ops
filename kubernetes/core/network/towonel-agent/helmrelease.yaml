@@ -38,7 +38,7 @@ spec:
               TOWONEL_AGENT_SERVICES: '[{"hostname":"*.vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"},{"hostname":"vzkn.eu","origin":"envoy-external.network.svc.cluster.local:443"}]'
               TOWONEL_AGENT_TCP_SERVICES: '[{"name":"forgejo-ssh","origin":"forgejo-ssh.development.svc.cluster.local:22","listen_port":22},{"name":"stunner-turn-tcp","origin":"stunner.network.svc.cluster.local:3478","listen_port":3478},{"name":"stunner-turns-tcp","origin":"stunner.network.svc.cluster.local:5349","listen_port":5349},{"name":"mumble-tcp","origin":"mumble.communication.svc.cluster.local:64738","listen_port":64738}]'
               TOWONEL_AGENT_UDP_SERVICES: '[{"name":"stunner-turn-udp","origin":"stunner.network.svc.cluster.local:3478","listen_port":3478},{"name":"mumble-udp","origin":"mumble.communication.svc.cluster.local:64738","listen_port":64738}]'
-              TOWONEL_IROH_RELAY_URLS: "https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
+              TOWONEL_IROH_RELAY_URLS: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
             envFrom:
               - secretRef:
                   name: towonel-agent-secret

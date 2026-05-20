@@ -34,7 +34,7 @@ services:
       TOWONEL_EDGE_TLS_CERT_DIR: /data/certs
       TOWONEL_EDGE_TLS_ACME_EMAIL: ${TOWONEL_ACME_EMAIL}
       TOWONEL_EDGE_TLS_HTTP_LISTEN_ADDR: 0.0.0.0:8081
-      TOWONEL_IROH_RELAY_URLS: "https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
+      TOWONEL_IROH_RELAY_URLS: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
     ports:
       - "22:22/tcp"
       - "3478:3478/tcp"

@@ -30,6 +30,10 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: relay.towonel.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}
     - dnsName: tunnel.vzkn.eu
       recordType: A
       targets:

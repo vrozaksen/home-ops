@@ -26,10 +26,13 @@ spec:
                 set -e
                 if [ ! -f /data/registration.yaml ]; then
                   echo "Generating registration.yaml for Conduit/Continuwuity..."
+                  # -l sets the URL embedded in registration (heisenbridge uses
+                  # listen-address as the AS callback URL). -c is the output path.
                   heisenbridge --generate-compat \
-                    --owner '@vrozaksen:vzkn.eu' \
-                    -u 'http://heisenbridge.communication.svc.cluster.local:9898' \
-                    /data/registration.yaml
+                    -c /data/registration.yaml \
+                    -l heisenbridge.communication.svc.cluster.local \
+                    -p 9898 \
+                    -o '@vrozaksen:vzkn.eu'
                   echo "Done."
                 else
                   echo "registration.yaml already exists, skipping."

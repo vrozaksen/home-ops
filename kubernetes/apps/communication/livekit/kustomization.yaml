@@ -6,4 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
   - ./dnsendpoint.yaml
+  - ./staticservice.yaml
   - ./udproute.yaml

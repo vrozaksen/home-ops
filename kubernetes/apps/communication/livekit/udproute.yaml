@@ -11,3 +11,6 @@ spec:
   rules:
     - backendRefs:
         - name: livekit
+        - group: stunner.l7mp.io
+          kind: StaticService
+          name: open-internet

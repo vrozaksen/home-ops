@@ -61,7 +61,7 @@ spec:
             "storageDriver": {
               "name": "s3",
               "rootdirectory": "/zot",
-              "region": "garage",
+              "region": "eu-central-1",
               "regionendpoint": "https://api.s3.vzkn.eu",
               "bucket": "zot",
               "secure": true,

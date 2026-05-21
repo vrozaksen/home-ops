@@ -228,6 +228,7 @@
             - {port: 3478, protocol: tcp, comment: "TURN/TCP (stunner passthrough via towonel-hub)"}
             - {port: 3478, protocol: udp, comment: "TURN/UDP (stunner passthrough via towonel-hub)"}
             - {port: 5349, protocol: tcp, comment: "TURNS/TCP TLS (stunner passthrough via towonel-hub)"}
+            - {port: 51820, protocol: udp, comment: "iroh QUIC (towonel-hub direct agent↔edge path)"}
             - {port: 64738, protocol: tcp, comment: "Mumble control (passthrough via towonel-hub)"}
             - {port: 64738, protocol: udp, comment: "Mumble voice (passthrough via towonel-hub)"}
             - {port: 7842, protocol: udp, comment: "iroh-relay QUIC",}

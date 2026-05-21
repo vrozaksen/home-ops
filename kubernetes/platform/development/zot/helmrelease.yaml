@@ -1,0 +1,181 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: zot
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.1.115
+  url: oci://ghcr.io/project-zot/helm-charts/zot
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: zot
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: zot
+  values:
+    replicaCount: 1
+    image:
+      tag: v2.1.17
+
+    strategy:
+      type: Recreate
+
+    service:
+      type: ClusterIP
+      port: 5000
+
+    httproute:
+      enabled: true
+      annotations:
+        gatus.home-operations.com/endpoint: |-
+          group: development
+      parentRefs:
+        - name: envoy-internal
+          namespace: network
+      hostnames:
+        - registry.vzkn.eu
+
+    # Garage S3 is single source of truth; no PVC needed
+    persistence: false
+
+    mountConfig: true
+    configFiles:
+      config.json: |-
+        {
+          "distSpecVersion": "1.1.0",
+          "storage": {
+            "rootDirectory": "/var/lib/registry",
+            "gc": true,
+            "dedupe": true,
+            "storageDriver": {
+              "name": "s3",
+              "rootdirectory": "/zot",
+              "region": "garage",
+              "regionendpoint": "https://api.s3.vzkn.eu",
+              "bucket": "zot",
+              "secure": true,
+              "skipverify": false
+            }
+          },
+          "http": {
+            "address": "0.0.0.0",
+            "port": "5000",
+            "realm": "zot",
+            "auth": {
+              "htpasswd": {
+                "path": "/secret/htpasswd"
+              },
+              "openid": {
+                "providers": {
+                  "oidc": {
+                    "name": "Authentik",
+                    "credentialsFile": "/secret/oidc-credentials.json",
+                    "issuer": "https://sso.vzkn.eu/application/o/zot/",
+                    "scopes": ["openid", "email", "profile"]
+                  }
+                }
+              },
+              "failDelay": 1
+            },
+            "accessControl": {
+              "repositories": {
+                "**": {
+                  "anonymousPolicy": ["read"],
+                  "defaultPolicy": ["read", "create", "update", "delete"]
+                }
+              },
+              "adminPolicy": {
+                "users": ["vrozaksen"],
+                "actions": ["read", "create", "update", "delete"]
+              }
+            }
+          },
+          "log": {
+            "level": "info"
+          },
+          "extensions": {
+            "scrub": {
+              "interval": "24h"
+            },
+            "search": {
+              "enable": true
+            },
+            "metrics": {
+              "enable": true,
+              "prometheus": {
+                "path": "/metrics"
+              }
+            },
+            "ui": {
+              "enable": true
+            }
+          }
+        }
+
+    externalSecrets:
+      - secretName: zot-secret
+        mountPath: /secret
+
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: zot-secret
+            key: AWS_ACCESS_KEY_ID
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: zot-secret
+            key: AWS_SECRET_ACCESS_KEY
+
+    # zot writes scratch to /var/lib/registry; with persistence:false we need writable rootfs OR an emptyDir mount.
+    # Chart doesn't auto-mount emptyDir when persistence:false — use extraVolumeMounts/extraVolumes:
+    extraVolumeMounts:
+      - name: data
+        mountPath: /var/lib/registry
+      - name: tmp
+        mountPath: /tmp
+    extraVolumes:
+      - name: data
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 100
+      fsGroup: 100
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - "ALL"
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: false  # zot metrics endpoint requires basicAuth; defer SM setup
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi

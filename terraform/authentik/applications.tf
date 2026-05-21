@@ -28,6 +28,7 @@ locals {
     "rxresume",
     "sparkyfitness",
     "unraid",
+    "zot",
   ]
 
   parsed_secrets = {
@@ -393,6 +394,22 @@ module "oauth2-forgejo" {
 #   additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
 #   redirect_uris                = ["https://harbor.${var.cluster_domain}/c/oidc/callback"]
 # }
+
+module "oauth2-zot" {
+  source             = "./oauth2_application"
+  name               = "Zot"
+  icon_url           = "https://raw.githubusercontent.com/project-zot/zot/main/docs/assets/logo/zot-logo.svg"
+  launch_url         = "https://registry.${var.cluster_domain}"
+  description        = "Container registry"
+  newtab             = true
+  group              = "Development"
+  auth_groups        = [authentik_group.admin.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["zot"].client_id
+  client_secret      = local.parsed_secrets["zot"].client_secret
+  redirect_uris      = ["https://registry.${var.cluster_domain}/auth/callback/oidc"]
+}
 
 # IT-Tools - PUBLIC (no group restrictions)
 resource "authentik_application" "it-tools" {

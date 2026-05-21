@@ -3,6 +3,7 @@ locals {
     "attic",
     "cnpg",
     "forgejo",
+    "harbor",
     "rxresume",
     "sentry",
     "tekton-results-logs",

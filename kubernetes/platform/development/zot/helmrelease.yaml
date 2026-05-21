@@ -139,16 +139,11 @@ spec:
             name: zot-secret
             key: AWS_SECRET_ACCESS_KEY
 
-    # zot writes scratch to /var/lib/registry; with persistence:false we need writable rootfs OR an emptyDir mount.
-    # Chart doesn't auto-mount emptyDir when persistence:false — use extraVolumeMounts/extraVolumes:
+    # Chart auto-mounts emptyDir on /var/lib/registry; only need /tmp for readOnlyRootFilesystem
     extraVolumeMounts:
-      - name: data
-        mountPath: /var/lib/registry
       - name: tmp
         mountPath: /tmp
     extraVolumes:
-      - name: data
-        emptyDir: {}
       - name: tmp
         emptyDir: {}
 

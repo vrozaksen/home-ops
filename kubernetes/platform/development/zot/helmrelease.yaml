@@ -57,7 +57,7 @@ spec:
           "storage": {
             "rootDirectory": "/var/lib/registry",
             "gc": true,
-            "dedupe": true,
+            "dedupe": false,
             "storageDriver": {
               "name": "s3",
               "rootdirectory": "/zot",
@@ -65,7 +65,8 @@ spec:
               "regionendpoint": "https://api.s3.vzkn.eu",
               "bucket": "zot",
               "secure": true,
-              "skipverify": false
+              "skipverify": false,
+              "forcepathstyle": true
             }
           },
           "http": {

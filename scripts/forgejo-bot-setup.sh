@@ -35,13 +35,11 @@ BOT_EMAIL='renovate@vzkn.eu'
 BOT_TOKEN_NAME='renovate-operator'
 BOT_SCOPES='["write:repository", "read:user", "read:organization", "write:issue"]'
 
-REPOS=(
-  'renovate-config'
-  'vrozaksen'
-  'vzkn-eu'
-  'nix-config'
-  'ahe-oop2'
-)
+# Repos to grant bot Write access. Leave empty to skip the collaborator step
+# (e.g. when you prefer to add collaborators manually in the Forgejo UI).
+# Example:
+#   REPOS=('my-repo' 'another-repo')
+REPOS=()
 OWNER='vrozaksen'
 
 # ------------------------------------------------------------
@@ -173,8 +171,11 @@ BOT_PAT=$(jq -r .sha1 <<<"$PAT_BODY")
 }
 echo "   ✓ PAT generated"
 
-echo "▶ Add bot as collaborator to ${#REPOS[@]} repos..."
-for repo in "${REPOS[@]}"; do
+if [[ ${#REPOS[@]} -eq 0 ]]; then
+  echo "▶ REPOS list empty — skipping collaborator step (add bot manually via UI)"
+else
+  echo "▶ Add bot as collaborator to ${#REPOS[@]} repos..."
+  for repo in "${REPOS[@]}"; do
   HTTP=$(curl -so /dev/null -w '%{http_code}' -X PUT "${H_AUTH[@]}" "${H_JSON[@]}" \
     "$API/repos/$OWNER/$repo/collaborators/$BOT_USERNAME" \
     -d '{"permission": "write"}')
@@ -184,7 +185,8 @@ for repo in "${REPOS[@]}"; do
     404) echo "   ✗ $repo (repo not found — skip)" ;;
     *)   echo "   ✗ $repo (HTTP $HTTP)" ;;
   esac
-done
+  done
+fi
 
 cat <<EOF
 

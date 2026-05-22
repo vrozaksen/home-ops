@@ -105,7 +105,7 @@ graph TD
 
 ## 🌐 Networking
 
-Network infrastructure is managed via Terraform. See [vrozaksen/mikrotik-terraform](https://github.com/vrozaksen/mikrotik-terraform) for details.
+Network infrastructure is managed via Terraform. See [vrozaksen/mikrotik-terraform](https://git.vzkn.eu/vrozaksen/mikrotik-terraform) for details.
 
 ---
 

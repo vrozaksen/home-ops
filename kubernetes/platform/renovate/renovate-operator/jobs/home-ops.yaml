@@ -4,8 +4,14 @@ kind: RenovateJob
 metadata:
   name: home-ops
 spec:
+  # Explicit allowlist: only repos still primary on GitHub.
+  # Forgejo-migrated repos (renovate-config, vrozaksen, vzkn-eu, nix-config, ...)
+  # are scanned by the forgejo RenovateJob — having both jobs scan the same
+  # content (via push-mirror) causes force-push lease conflicts.
   discoveryFilters:
-    - "vrozaksen/*"
+    - "vrozaksen/home-ops"
+    - "vrozaksen/containers"
+    - "vrozaksen/mikrotik-terraform"
   provider:
     name: github
   image: ghcr.io/renovatebot/renovate:43.191.2@sha256:5726d7904e0e31092d75d7a535a07a615fbc3d67c8de4f76daeee21ef6e7953f

@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "siderolabs-docs": {
-      "type": "remote",
+      "type": "http",
       "url": "https://docs.siderolabs.com/mcp"
     },
     "flux-operator": {

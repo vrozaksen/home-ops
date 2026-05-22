@@ -72,5 +72,11 @@ spec:
       # - max_slot_wal_keep_size: Auto-invalidate slot when replica >N behind → forces pg_basebackup rebuild
       wal_keep_size: ${CNPG_WAL_KEEP_SIZE:="1GB"}
       max_slot_wal_keep_size: ${CNPG_MAX_SLOT_WAL_KEEP:="2GB"}
+  resources:
+    requests:
+      cpu: ${CNPG_REQUESTS_CPU:=100m}
+      memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
+    limits:
+      memory: ${CNPG_LIMITS_MEMORY:=2Gi}
   monitoring:
     enablePodMonitor: true

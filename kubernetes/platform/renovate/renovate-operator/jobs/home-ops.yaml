@@ -14,7 +14,7 @@ spec:
     - "vrozaksen/mikrotik-terraform"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:43.191.2@sha256:5726d7904e0e31092d75d7a535a07a615fbc3d67c8de4f76daeee21ef6e7953f
+  image: ghcr.io/renovatebot/renovate:43.194.0@sha256:d6653ef56acbe87e0324695853088da187d7686d925973a0411f260c0e97425c
   schedule: "0 * * * *"
   parallelism: 3
   secretRef: renovate-token

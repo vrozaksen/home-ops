@@ -408,7 +408,7 @@ module "oauth2-zot" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["zot"].client_id
   client_secret      = local.parsed_secrets["zot"].client_secret
-  redirect_uris      = ["https://registry.${var.cluster_domain}/auth/callback/oidc"]
+  redirect_uris      = ["https://registry.${var.cluster_domain}/zot/auth/callback/oidc"]
 }
 
 # IT-Tools - PUBLIC (no group restrictions)

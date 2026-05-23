@@ -24,7 +24,7 @@ spec:
               - --config
               - /etc/atticd/server.toml
             env:
-              ATTIC_SERVER_DATABASE_URL: sqlite:///data/attic.db?mode=rwc&journal_mode=WAL&synchronous=NORMAL
+              ATTIC_SERVER_DATABASE_URL: sqlite:///data/attic.db?mode=rwc
             envFrom:
               - secretRef:
                   name: attic-secret

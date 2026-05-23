@@ -67,7 +67,6 @@ jobs:
             --path /github/workspace/kubernetes/flux/cluster
             --enable-images
             --only-images
-            --skip-release tekton-operator
             --output json
             --output-file images.json
 

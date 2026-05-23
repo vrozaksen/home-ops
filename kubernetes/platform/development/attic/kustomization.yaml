@@ -6,4 +6,4 @@ resources:
   - ./configmap.yaml
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
-  - ./tekton-secret.yaml
+  # - ./tekton-secret.yaml

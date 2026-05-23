@@ -6,5 +6,5 @@ resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml
-  - ./tekton-serviceaccount.yaml
-  - ./tekton-git-basic-auth.yaml
+  # - ./tekton-serviceaccount.yaml
+  # - ./tekton-git-basic-auth.yaml

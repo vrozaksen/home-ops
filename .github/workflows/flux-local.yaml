@@ -56,7 +56,6 @@ jobs:
             --all-namespaces
             --enable-helm
             --path /github/workspace/kubernetes/flux/cluster
-            --skip-release tekton-operator
             --verbose
 
   diff:
@@ -110,7 +109,6 @@ jobs:
             --limit-bytes 10000
             --all-namespaces
             --sources "flux-system"
-            --skip-release tekton-operator
             --output-file diff.patch
 
       - name: Generate Diff

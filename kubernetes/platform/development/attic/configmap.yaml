@@ -7,15 +7,12 @@ data:
   server.toml: |-
     listen = "[::]:8080"
     api-endpoint = "https://cache.vzkn.eu/"
-    substituter-endpoint = "https://cache.vzkn.eu/"
     allowed-hosts = ["cache.vzkn.eu"]
     require-proof-of-possession = true
     soft-delete-caches = true
-    max-nar-info-size = 1048576
 
     [database]
-    # url via ATTIC_SERVER_DATABASE_URL env
-    heartbeat = true
+    # url via ATTIC_SERVER_DATABASE_URL env (sqlite, heartbeat irrelevant)
 
     [storage]
     type = "s3"
@@ -23,19 +20,20 @@ data:
     bucket = "attic"
     endpoint = "https://api.s3.vzkn.eu"
 
-    # Changing chunking params after uploads exist breaks dedup for existing NARs.
+    # Upstream defaults — best dedup ratio across NARs with shared deps.
+    # WARNING: changing these later breaks dedup for existing chunks.
     [chunking]
-    nar-size-threshold = 131072
-    min-size = 65536
-    avg-size = 131072
+    nar-size-threshold = 65536
+    min-size = 16384
+    avg-size = 65536
     max-size = 262144
 
     [compression]
     type = "zstd"
-    level = 8
 
     [garbage-collection]
     interval = "12 hours"
+    # reference-only GC (no time-based eviction)
     default-retention-period = "0s"
 
     # [jwt.signing] populated at runtime from ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64 env

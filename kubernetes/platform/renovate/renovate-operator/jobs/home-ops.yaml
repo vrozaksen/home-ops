@@ -10,7 +10,6 @@ spec:
   # content (via push-mirror) causes force-push lease conflicts.
   discoveryFilters:
     - "vrozaksen/home-ops"
-    - "vrozaksen/containers"
   provider:
     name: github
   image: ghcr.io/renovatebot/renovate:43.195.0@sha256:b2b7df94d797907519d828abc92cd4ac4465200c90bc13dbd344e4a672787105
@@ -26,6 +25,8 @@ spec:
     requests:
       cpu: 100m
       memory: 256Mi
+    limits:
+      memory: 2Gi
   webhook:
     enabled: true
     authentication:

@@ -9,27 +9,18 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/cnpg/restore
     - ../../../../components/volsync
   dependsOn:
     - name: infisical-operator
       namespace: security
-    - name: plugin-barman-cloud
-      namespace: database
     - name: rook-ceph-cluster
       namespace: rook-ceph
-  healthCheckExprs:
-    - apiVersion: postgresql.cnpg.io/v1
-      kind: Cluster
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/social/gotosocial/server
   postBuild:
     substitute:
       APP: *app
       NS: &ns social
-      CNPG_SIZE: 5Gi
       VOLSYNC_CAPACITY: 10Gi
   prune: true
   sourceRef:

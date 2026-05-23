@@ -54,21 +54,10 @@ spec:
               GTS_SMTP_FROM: "noreply@vzkn.eu"
               GTS_SMTP_DISCLOSE_RECIPIENTS: "false"
               # Database
-              GTS_DB_TYPE: postgres
-              GTS_DB_ADDRESS: pooler-gotosocial-rw
-              GTS_DB_PORT: "5432"
-              GTS_DB_DATABASE: gotosocial
-              GTS_DB_TLS_MODE: disable
-              GTS_DB_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: postgres-gotosocial-app
-                    key: username
-              GTS_DB_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: postgres-gotosocial-app
-                    key: password
+              GTS_DB_TYPE: sqlite
+              GTS_DB_ADDRESS: /storage/sqlite.db
+              GTS_DB_SQLITE_JOURNAL_MODE: WAL
+              GTS_DB_SQLITE_SYNCHRONOUS: NORMAL
             envFrom:
               - secretRef:
                   name: gotosocial-secret
@@ -104,9 +93,16 @@ spec:
           metrics:
             port: 9464
 
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
+            interval: 30s
+            path: /metrics
+
     persistence:
       storage:
-        existingClaim: gotosocial
+        existingClaim: "{{ .Release.Name }}"
         globalMounts:
           - path: /storage
             subPath: data
@@ -114,10 +110,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
-
-    serviceMonitor:
-      app:
-        endpoints:
-          - port: metrics
-            interval: 30s
-            path: /metrics

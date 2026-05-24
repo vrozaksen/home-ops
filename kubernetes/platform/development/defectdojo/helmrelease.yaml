@@ -29,10 +29,14 @@ spec:
     # Use external PostgreSQL (CNPG)
     postgresql:
       enabled: false
+      auth:
+        existingSecret: postgres-defectdojo-app
+        secretKeys:
+          userPasswordKey: password
+        username: defectdojo
+        database: defectdojo
     postgresServer: pooler-defectdojo-rw
     postgresPort: 5432
-    # createPostgresqlSecret should be false as we provide credentials via env
-    createPostgresqlSecret: false
 
     # Use Dragonfly via the shared component
     valkey:

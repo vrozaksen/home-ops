@@ -6,3 +6,8 @@ resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml
+
+secretGenerator:
+  - name: defectdojo-valkey-specific
+    literals:
+      - valkey-password=""

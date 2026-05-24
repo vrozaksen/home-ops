@@ -41,6 +41,9 @@ spec:
     # Use Dragonfly via the shared component
     valkey:
       enabled: false
+      auth:
+        existingSecret: defectdojo-valkey-specific
+        existingSecretPasswordKey: valkey-password
     redisServer: defectdojo-dragonfly
     redisPort: 6379
     redisScheme: redis

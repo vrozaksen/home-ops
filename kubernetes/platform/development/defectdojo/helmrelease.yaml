@@ -57,31 +57,6 @@ spec:
             memory: 2Gi
 
       extraEnv:
-        - name: DD_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: defectdojo-secret
-              key: DD_SECRET_KEY
-        # Database credentials from CNPG auto-generated secret
-        - name: DD_DATABASE_NAME
-          valueFrom:
-            secretKeyRef:
-              name: &pg postgres-defectdojo-app
-              key: dbname
-        - name: DD_DATABASE_USER
-          valueFrom:
-            secretKeyRef:
-              name: *pg
-              key: username
-        - name: DD_DATABASE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: *pg
-              key: password
-        # Use PgBouncer pooler for connection pooling
-        - name: DD_DATABASE_HOST
-          value: pooler-defectdojo-rw
-
         # Authentik OIDC
         - name: DD_SOCIAL_AUTH_OIDC_ENABLED
           value: "True"
@@ -90,12 +65,12 @@ spec:
         - name: DD_SOCIAL_AUTH_OIDC_KEY
           valueFrom:
             secretKeyRef:
-              name: defectdojo-secret
+              name: defectdojo
               key: OIDC_CLIENT_ID
         - name: DD_SOCIAL_AUTH_OIDC_SECRET
           valueFrom:
             secretKeyRef:
-              name: defectdojo-secret
+              name: defectdojo
               key: OIDC_CLIENT_SECRET
         - name: DD_SOCIAL_AUTH_REDIRECT_IS_HTTPS
           value: "True"

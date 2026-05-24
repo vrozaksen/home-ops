@@ -6,8 +6,8 @@ metadata:
   name: &app defectdojo
 spec:
   components:
-    - ../../../../components/cnpg/initdb
-    - ../../../../components/dragonfly
+    - ../../../components/cnpg/initdb
+    - ../../../components/dragonfly
   dependsOn:
     - name: dragonfly-operator
       namespace: database

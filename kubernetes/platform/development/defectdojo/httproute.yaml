@@ -17,7 +17,7 @@ spec:
     - backendRefs:
         - name: defectdojo-django
           namespace: development
-          port: 8080
+          port: 80
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:

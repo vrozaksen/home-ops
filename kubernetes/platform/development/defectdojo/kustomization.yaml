@@ -11,3 +11,5 @@ secretGenerator:
   - name: defectdojo-valkey-specific
     literals:
       - valkey-password=""
+    options:
+      disableNameSuffixHash: true

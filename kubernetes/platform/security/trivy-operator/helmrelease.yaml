@@ -28,6 +28,7 @@ spec:
     targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
 
     # -- Exclude system namespaces from scanning
+    # Volsync jobs already filtered via skipResourceByLabels + excludeImages.
     excludeNamespaces: "kube-system,kube-public,kube-node-lease"
 
     operator:
@@ -36,7 +37,8 @@ spec:
       # -- Scan job configuration
       scanJobsConcurrentLimit: 3
       scanJobTTL: ""
-      scanJobTimeout: 5m
+      # 5m too short for large media images (emby ~1.5GB, plex). Bump to 10m.
+      scanJobTimeout: 10m
       scanJobsRetryDelay: 30s  # -- Built-in Trivy server mode
       builtInTrivyServer: true
 
@@ -95,6 +97,7 @@ spec:
       image:
         registry: ghcr.io
         repository: aquasecurity/trivy
+        # renovate: datasource=docker depName=ghcr.io/aquasecurity/trivy
         tag: 0.70.0
 
       # -- Mode: ClientServer uses built-in server

@@ -111,7 +111,13 @@ spec:
               "interval": "24h"
             },
             "search": {
-              "enable": true
+              "enable": true,
+              "cve": {
+                "updateInterval": "24h",
+                "trivy": {
+                  "dbRepository": "ghcr.io/aquasecurity/trivy-db"
+                }
+              }
             },
             "metrics": {
               "enable": true,
@@ -173,6 +179,6 @@ spec:
     resources:
       requests:
         cpu: 50m
-        memory: 128Mi
+        memory: 256Mi  # Trivy DB load adds ~150Mi baseline
       limits:
-        memory: 512Mi
+        memory: 1Gi  # CVE DB updates can spike to ~700Mi

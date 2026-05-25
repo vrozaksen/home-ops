@@ -10,4 +10,4 @@ resources:
   - ./authentik/ks.yaml
   - ./infisical-operator/ks.yaml
   # - ./tetragon/ks.yaml
-  # - ./trivy-operator/ks.yaml
+  - ./trivy-operator/ks.yaml

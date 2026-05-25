@@ -18,7 +18,6 @@
 locals {
   oidc_apps = [
     "flux",
-    "defectdojo",
     "forgejo",
     "gotosocial",
     "grafana",
@@ -377,22 +376,6 @@ module "oauth2-forgejo" {
   client_id          = local.parsed_secrets["forgejo"].client_id
   client_secret      = local.parsed_secrets["forgejo"].client_secret
   redirect_uris      = ["https://git.${var.cluster_domain}/user/oauth2/Authentik/callback"]
-}
-
-module "oauth2-defectdojo" {
-  source             = "./oauth2_application"
-  name               = "DefectDojo"
-  icon_url           = "https://raw.githubusercontent.com/DefectDojo/django-DefectDojo/master/dojo/static/dojo/img/favicon.ico"
-  launch_url         = "https://dd.${var.cluster_domain}"
-  description        = "Security findings aggregator"
-  newtab             = true
-  group              = "Development"
-  auth_groups        = [authentik_group.admin.id]
-  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-  client_id          = local.parsed_secrets["defectdojo"].client_id
-  client_secret      = local.parsed_secrets["defectdojo"].client_secret
-  redirect_uris      = ["https://dd.${var.cluster_domain}/complete/oidc/"]
 }
 
 # module "oauth2-harbor" {

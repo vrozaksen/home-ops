@@ -24,7 +24,11 @@ spec:
               - --config
               - /etc/atticd/server.toml
             env:
-              ATTIC_SERVER_DATABASE_URL: sqlite:///data/attic.db?mode=rwc
+              ATTIC_SERVER_DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-attic-app
+                    key: uri
             envFrom:
               - secretRef:
                   name: attic-secret
@@ -56,6 +60,14 @@ spec:
         runAsGroup: 100
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
+      # Co-locate with postgres-attic primary for sub-ms DB latency
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  cnpg.io/cluster: postgres-attic
+              topologyKey: kubernetes.io/hostname
     service:
       app:
         ports:
@@ -79,10 +91,6 @@ spec:
           - path: /etc/atticd/server.toml
             subPath: server.toml
             readOnly: true
-      data:
-        existingClaim: "{{ .Release.Name }}"
-        globalMounts:
-          - path: /data
       tmp:
         type: emptyDir
         globalMounts:

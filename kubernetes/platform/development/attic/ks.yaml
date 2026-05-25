@@ -6,19 +6,26 @@ metadata:
   name: &app attic
 spec:
   components:
-    - ../../../components/volsync
+    - ../../../components/cnpg/initdb
   dependsOn:
     - name: infisical-operator
       namespace: security
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
+    - name: plugin-barman-cloud
+      namespace: database
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/platform/development/attic
   postBuild:
     substitute:
       APP: *app
       NS: &ns development
-      VOLSYNC_CAPACITY: 1Gi
+      CNPG_REPLICAS: "1"
+      CNPG_SIZE: 2Gi
+      CNPG_STORAGECLASS: ceph-block
   prune: true
   sourceRef:
     kind: GitRepository

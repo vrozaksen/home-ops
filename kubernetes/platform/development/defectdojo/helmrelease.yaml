@@ -77,6 +77,8 @@ spec:
               key: OIDC_CLIENT_SECRET
         - name: DD_SOCIAL_AUTH_REDIRECT_IS_HTTPS
           value: "True"
+        - name: DD_SOCIAL_AUTH_SHOW_LOGIN_FORM
+          value: "False"
         - name: DD_SOCIAL_LOGIN_AUTO_REDIRECT
           value: "True"
 

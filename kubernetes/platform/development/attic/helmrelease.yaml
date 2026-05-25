@@ -11,25 +11,28 @@ spec:
     name: app-template
   values:
     controllers:
+      # HTTP API — horizontally scaled for parallel nix push/pull from CI matrices
       attic:
-        replicas: 1
+        replicas: 2
         strategy: RollingUpdate
         containers:
           app:
-            image:
+            image: &image
               repository: ghcr.io/zhaofengli/attic
               tag: cf7294607583a8d9f06026007da1ced564d43c86@sha256:4781271f8bedc37bdf6c082c468348f277f95e1f368473f7f9f88776142c9660
             command:
               - atticd
               - --config
               - /etc/atticd/server.toml
-            env:
+              - --mode
+              - api-server
+            env: &env
               ATTIC_SERVER_DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
                     name: postgres-attic-app
                     key: uri
-            envFrom:
+            envFrom: &envFrom
               - secretRef:
                   name: attic-secret
             probes:
@@ -43,7 +46,7 @@ spec:
                   periodSeconds: 30
                   timeoutSeconds: 5
               readiness: *probes
-            securityContext:
+            securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: {drop: ["ALL"]}
@@ -53,6 +56,27 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 512Mi
+      # GC — single instance, runs sweep every 12h. No HTTP port, no probes.
+      gc:
+        replicas: 1
+        containers:
+          app:
+            image: *image
+            command:
+              - atticd
+              - --config
+              - /etc/atticd/server.toml
+              - --mode
+              - garbage-collector
+            env: *env
+            envFrom: *envFrom
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -60,16 +84,9 @@ spec:
         runAsGroup: 100
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
-      # Co-locate with postgres-attic primary for sub-ms DB latency
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  cnpg.io/cluster: postgres-attic
-              topologyKey: kubernetes.io/hostname
     service:
       app:
+        controller: attic
         ports:
           http:
             port: 8080

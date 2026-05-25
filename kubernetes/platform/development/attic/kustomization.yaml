@@ -7,3 +7,13 @@ resources:
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
   # - ./tekton-secret.yaml
+patches:
+  # Single-instance CNPG — drop synchronous (sync standby requires instances > 1).
+  # `CNPG_SYNC_METHOD: ""` does NOT work — Flux postBuild substitute uses envsubst
+  # `${VAR:=default}` which falls back to default on empty string too.
+  - target:
+      kind: Cluster
+      name: postgres-attic
+    patch: |-
+      - op: remove
+        path: /spec/postgresql/synchronous

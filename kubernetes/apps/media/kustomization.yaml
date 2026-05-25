@@ -8,6 +8,5 @@ components:
 resources:
   - ./namespace.yaml
   - ./emby/ks.yaml
-  - ./jellystat/ks.yaml
   - ./navidrome/ks.yaml
   - ./seerr/ks.yaml

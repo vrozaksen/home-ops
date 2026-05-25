@@ -202,13 +202,28 @@ CNPG_SYNC_DURABILITY: preferred
 ✅ Near-zero data loss, automatic failover, self-healing
 🎯 Use for: All production apps (authentik, grafana, *arr, etc.)
 
-### Profile 2: Single-node (dev/testing only)
+### Profile 2: Single-node — currently NOT supported by base template
 ```yaml
-CNPG_REPLICAS: '1'
-CNPG_SYNC_METHOD: ''  # Must be empty
+CNPG_REPLICAS: '1'  # rejected by CNPG webhook out-of-the-box
 ```
-❌ No HA, single point of failure
-🎯 Use for: Development, testing, non-critical data
+⚠️ **Gotcha:** `cluster.yaml` always emits a `synchronous` block with `number=1`,
+which the CNPG admission webhook rejects when `instances=1` (`number must be <
+instances`). Setting `CNPG_SYNC_METHOD: ''` does **not** help — Flux postBuild
+uses envsubst `${VAR:=default}` which falls back to the default for empty strings
+too.
+
+Possible future approaches (none currently in tree, none tested):
+- Switch the template to `${CNPG_SYNC_METHOD-any}` (single-dash = accept empty)
+  AND check the CNPG webhook accepts empty `method`
+- Add a sub-Component layered on `initdb`/`restore` that patches out the
+  `synchronous` block — requires verifying that local kustomize patches
+  actually reach a Cluster generated via `spec.components` (a previous attempt
+  appeared not to)
+
+For now: use **3 replicas** (Profile 1) even for "lightweight" workloads, or
+build/test one of the above paths before claiming it works.
+
+🎯 Use for: nothing in production until a tested path exists
 
 ---
 

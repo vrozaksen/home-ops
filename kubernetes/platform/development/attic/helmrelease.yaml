@@ -15,8 +15,11 @@ spec:
       attic:
         replicas: 2
         strategy: RollingUpdate
-        containers:
-          app:
+        initContainers:
+          # db-migrations runs only on Monolithic/DbMigrations modes — explicit
+          # init step so api-server/garbage-collector modes have schema ready.
+          # Idempotent — safe to run on every pod startup.
+          migrate: &migrate
             image: &image
               repository: ghcr.io/zhaofengli/attic
               tag: cf7294607583a8d9f06026007da1ced564d43c86@sha256:4781271f8bedc37bdf6c082c468348f277f95e1f368473f7f9f88776142c9660
@@ -25,7 +28,7 @@ spec:
               - --config
               - /etc/atticd/server.toml
               - --mode
-              - api-server
+              - db-migrations
             env: &env
               ATTIC_SERVER_DATABASE_URL:
                 valueFrom:
@@ -35,6 +38,21 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: attic-secret
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+        containers:
+          app:
+            image: *image
+            command:
+              - atticd
+              - --config
+              - /etc/atticd/server.toml
+              - --mode
+              - api-server
+            env: *env
+            envFrom: *envFrom
             probes:
               liveness: &probes
                 enabled: true
@@ -46,10 +64,7 @@ spec:
                   periodSeconds: 30
                   timeoutSeconds: 5
               readiness: *probes
-            securityContext: &securityContext
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: {drop: ["ALL"]}
+            securityContext: *securityContext
             resources:
               requests:
                 cpu: 50m
@@ -59,6 +74,8 @@ spec:
       # GC — single instance, runs sweep every 12h. No HTTP port, no probes.
       gc:
         replicas: 1
+        initContainers:
+          migrate: *migrate
         containers:
           app:
             image: *image

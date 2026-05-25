@@ -18,6 +18,14 @@ spec:
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
+  patches:
+    # Single instance — drop synchronous block (sync standby requires instances > 1)
+    - target:
+        kind: Cluster
+        name: postgres-attic
+      patch: |
+        - op: remove
+          path: /spec/postgresql/synchronous
   path: ./kubernetes/platform/development/attic
   postBuild:
     substitute:
@@ -25,6 +33,7 @@ spec:
       NS: &ns development
       CNPG_REPLICAS: "1"
       CNPG_SIZE: 2Gi
+      # Single-instance: no app-level replication, use Ceph replica=3 for HA storage
       CNPG_STORAGECLASS: ceph-block
   prune: true
   sourceRef:

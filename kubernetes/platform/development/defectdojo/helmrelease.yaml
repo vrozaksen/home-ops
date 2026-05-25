@@ -61,7 +61,7 @@ spec:
 
       extraEnv:
         # Authentik OIDC
-        - name: DD_SOCIAL_AUTH_OIDC_ENABLED
+        - name: DD_SOCIAL_AUTH_OIDC_AUTH_ENABLED
           value: "True"
         - name: DD_SOCIAL_AUTH_OIDC_OIDC_ENDPOINT
           value: "https://sso.vzkn.eu/application/o/defectdojo/"

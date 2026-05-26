@@ -6,7 +6,7 @@ USER root
 
 # sentry-auth-oidc community plugin (Jeffail fork — most maintained)
 # renovate: datasource=pypi depName=sentry-auth-oidc
-ARG SENTRY_AUTH_OIDC_VERSION=4.1.0
+ARG SENTRY_AUTH_OIDC_VERSION=9.1.1
 
 RUN /usr/local/bin/pip install --no-cache-dir \
         sentry-auth-oidc==${SENTRY_AUTH_OIDC_VERSION}

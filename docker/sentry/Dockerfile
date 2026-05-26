@@ -8,7 +8,7 @@ USER root
 # renovate: datasource=pypi depName=sentry-auth-oidc
 ARG SENTRY_AUTH_OIDC_VERSION=9.1.1
 
-RUN /usr/local/bin/pip install --no-cache-dir \
+RUN /.venv/bin/pip install --no-cache-dir \
         sentry-auth-oidc==${SENTRY_AUTH_OIDC_VERSION}
 
 USER sentry

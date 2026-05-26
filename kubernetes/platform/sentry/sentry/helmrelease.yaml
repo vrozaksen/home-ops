@@ -200,7 +200,7 @@ spec:
           - name: OIDC_SCOPE
             value: "openid email profile"
           - name: OIDC_DOMAIN
-            value: "https://auth.vzkn.eu/application/o/sentry/"
+            value: "https://sso.vzkn.eu/application/o/sentry/"
           - name: OIDC_ISSUER
             value: "Authentik"
       worker:

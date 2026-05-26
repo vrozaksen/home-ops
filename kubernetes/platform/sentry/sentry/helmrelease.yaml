@@ -33,11 +33,7 @@ spec:
     images:
       sentry:
         repository: ghcr.io/vrozaksen/sentry-oidc
-        # Tag format: <sentry-version>-oidc<plugin-version>. Both bumped via
-        # docker/sentry/Dockerfile ARGs; rebuild produces a new unique tag.
-        # Renovate cannot auto-bump this (parses -oidcX.Y.Z as prerelease) —
-        # update manually in the same PR that bumps Dockerfile ARGs.
-        tag: 26.5.0-oidc9.1.1
+        tag: 26.5.0-oidc9.1.1@sha256:8dedd91c7b67851ac0186c2df5c3a87a0a347af261e9431917b5ae4524b33ede
         pullPolicy: IfNotPresent
 
     serviceAccount:

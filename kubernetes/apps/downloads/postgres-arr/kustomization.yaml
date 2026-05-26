@@ -11,7 +11,5 @@ patches:
       name: postgres-\${APP}
 resources:
   - ./cluster
-  - ./clustergenerator.yaml
-  - ./infisicalpushsecret.yaml
   - ./infisicalsecret.yaml
   - ./databases.yaml

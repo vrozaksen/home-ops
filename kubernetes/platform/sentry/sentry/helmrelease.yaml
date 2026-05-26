@@ -272,6 +272,13 @@ spec:
         OIDC_DOMAIN = os.environ.get("OIDC_DOMAIN")
         OIDC_ISSUER = os.environ.get("OIDC_ISSUER", "OIDC")
 
+        # SSRF protection — Sentry blocks outgoing HTTP to private IPs to prevent
+        # internal network scanning. Authentik (sso.vzkn.eu) lives at 10.10.0.91
+        # which is in 10.0.0.0/8 → OIDC token exchange fails with
+        # RestrictedIPAddress. Remove 10.0.0.0/8 from blocklist for cluster-internal
+        # OIDC. Acceptable for solo homelab; review if exposing to other users.
+        SENTRY_DISALLOWED_IPS = [ip for ip in SENTRY_DISALLOWED_IPS if ip != "10.0.0.0/8"]
+
         # GitHub App stub — wired only when env vars present (Phase 5 Forgejo migration)
         if os.environ.get("GITHUB_APP_ID"):
             SENTRY_OPTIONS["github-app.id"] = int(os.environ["GITHUB_APP_ID"])

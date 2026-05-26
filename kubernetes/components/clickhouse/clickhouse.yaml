@@ -1,0 +1,78 @@
+---
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: clickhouse-${APP}
+spec:
+  defaults:
+    templates:
+      podTemplate: pod-template
+      dataVolumeClaimTemplate: data-volume-template
+      logVolumeClaimTemplate: log-volume-template
+      serviceTemplate: service-template
+  configuration:
+    users:
+      ${APP}/k8s_secret_password: ${NS:=${APP}}/clickhouse-${APP}-secret/password
+      ${APP}/networks/ip:
+        - "::/0"
+      ${APP}/profile: default
+      ${APP}/quota: default
+      ${APP}/access_management: "1"
+    profiles:
+      default/allow_experimental_json_type: "1"
+      default/allow_experimental_object_type: "1"
+    clusters:
+      - name: ${APP}
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+  templates:
+    podTemplates:
+      - name: pod-template
+        spec:
+          priorityClassName: ${CH_PRIORITY_CLASS:=cluster-low}
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
+          containers:
+            - name: clickhouse
+              image: clickhouse/clickhouse-server:${CH_VERSION:=24.8.14.39-alpine}
+              resources:
+                requests:
+                  cpu: ${CH_REQUESTS_CPU:=200m}
+                  memory: ${CH_REQUESTS_MEMORY:=1Gi}
+                limits:
+                  memory: ${CH_LIMITS_MEMORY:=4Gi}
+    volumeClaimTemplates:
+      - name: data-volume-template
+        spec:
+          storageClassName: ${CH_STORAGECLASS:=ceph-block}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: ${CH_SIZE:=50Gi}
+      - name: log-volume-template
+        spec:
+          storageClassName: ${CH_STORAGECLASS:=ceph-block}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: ${CH_LOG_SIZE:=5Gi}
+    serviceTemplates:
+      - name: service-template
+        generateName: clickhouse-${APP}
+        spec:
+          ports:
+            - name: http
+              port: 8123
+              targetPort: http
+            - name: tcp
+              port: 9000
+              targetPort: tcp
+          type: ClusterIP

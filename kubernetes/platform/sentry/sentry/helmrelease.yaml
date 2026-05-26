@@ -257,6 +257,21 @@ spec:
         SENTRY_RELAY_OPEN_REGISTRATION = False
         SENTRY_RELAY_WHITELIST_PK = []
 
+        # ====================================================================
+        # sentry-auth-oidc plugin config
+        # Plugin reads via getattr(django.conf.settings, "OIDC_*", None),
+        # NOT os.environ. Env vars from sentry-oidc Secret + web.env are bridged
+        # into Django settings here (sentryConfPy IS the settings module).
+        # Without this bridge: ISSUER=None → provider.name=None → UI crash on
+        # /settings/sentry/auth/ (providerItem.tsx tries .replace() on null).
+        # ====================================================================
+        import os
+        OIDC_CLIENT_ID = os.environ.get("OIDC_CLIENT_ID")
+        OIDC_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET")
+        OIDC_SCOPE = os.environ.get("OIDC_SCOPE", "openid email")
+        OIDC_DOMAIN = os.environ.get("OIDC_DOMAIN")
+        OIDC_ISSUER = os.environ.get("OIDC_ISSUER", "OIDC")
+
         # GitHub App stub — wired only when env vars present (Phase 5 Forgejo migration)
         if os.environ.get("GITHUB_APP_ID"):
             SENTRY_OPTIONS["github-app.id"] = int(os.environ["GITHUB_APP_ID"])

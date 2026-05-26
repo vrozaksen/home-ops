@@ -1,6 +1,6 @@
-# renovate: datasource=docker depName=getsentry/sentry
+# renovate: datasource=docker depName=ghcr.io/getsentry/sentry
 ARG SENTRY_VERSION=26.5.0
-FROM getsentry/sentry:${SENTRY_VERSION}
+FROM ghcr.io/getsentry/sentry:${SENTRY_VERSION}
 
 USER root
 

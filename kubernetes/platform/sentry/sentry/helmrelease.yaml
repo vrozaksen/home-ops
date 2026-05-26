@@ -207,36 +207,12 @@ spec:
             value: "https://auth.vzkn.eu/application/o/sentry/"
           - name: OIDC_ISSUER
             value: "Authentik"
-        resources:
-          requests:
-            cpu: 200m
-            memory: 600Mi
-          limits:
-            memory: 1Gi
       worker:
         replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 400Mi
-          limits:
-            memory: 800Mi
       taskWorker:
         concurrency: 4
-        resources:
-          requests:
-            cpu: 100m
-            memory: 300Mi
-          limits:
-            memory: 600Mi
       taskBroker:
         replicas: 1
-        resources:
-          requests:
-            cpu: 50m
-            memory: 200Mi
-          limits:
-            memory: 400Mi
         persistence:
           enabled: true
           size: 1Gi
@@ -248,21 +224,9 @@ spec:
 
     relay:
       replicas: 1
-      resources:
-        requests:
-          cpu: 50m
-          memory: 200Mi
-        limits:
-          memory: 400Mi
 
     vroom:
       replicas: 1
-      resources:
-        requests:
-          cpu: 100m
-          memory: 400Mi
-        limits:
-          memory: 800Mi
 
     symbolicator:
       enabled: true
@@ -270,23 +234,11 @@ spec:
         replicas: 1
         persistence:
           enabled: false
-        resources:
-          requests:
-            cpu: 100m
-            memory: 400Mi
-          limits:
-            memory: 1Gi
 
     snuba:
       rustConsumer: true
       api:
         replicas: 1
-        resources:
-          requests:
-            cpu: 200m
-            memory: 500Mi
-          limits:
-            memory: 1Gi
 
     uptimeChecker:
       enabled: false

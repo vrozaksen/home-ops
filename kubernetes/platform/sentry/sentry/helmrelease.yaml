@@ -15,30 +15,36 @@ metadata:
   name: sentry
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 30m
   chart:
     spec:
       # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
       chart: sentry
-      version: 28.1.0
+      version: 31.6.0
       sourceRef:
         kind: HelmRepository
         name: sentry
   values:
-    # ============================================================================
-    # Global Configuration
-    # ============================================================================
     profiles:
       - feature-complete
+
+    asHook: false
+
+    images:
+      sentry:
+        repository: ghcr.io/vrozaksen/sentry-oidc
+        # Tag format: <sentry-version>-oidc<plugin-version>. Both bumped via
+        # docker/sentry/Dockerfile ARGs; rebuild produces a new unique tag.
+        # Renovate cannot auto-bump this (parses -oidcX.Y.Z as prerelease) —
+        # update manually in the same PR that bumps Dockerfile ARGs.
+        tag: 26.5.0-oidc9.1.1
+        pullPolicy: IfNotPresent
 
     serviceAccount:
       enabled: true
       create: true
       name: sentry
 
-    priorityClassName: cluster-low
-
-    # Schedule all Sentry components on workers only
     global:
       affinity:
         nodeAffinity:
@@ -54,10 +60,33 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/part-of: sentry
+      priorityClassName: cluster-low
 
-    # ============================================================================
-    # Bundled Services - All Disabled (using external)
-    # ============================================================================
+    user:
+      create: true
+      email: vrozaksen@protonmail.com
+      existingSecret: sentry-secret
+      existingSecretKey: ADMIN_PASSWORD
+
+    auth:
+      register: false
+
+    system:
+      adminEmail: vrozaksen@protonmail.com
+      url: https://sentry.vzkn.eu
+      public: false
+      existingSecret: sentry-secret
+
+    mail:
+      backend: smtp
+      useTls: false
+      useSsl: false
+      username: ""
+      password: ""
+      port: 25
+      host: smtp-relay.network.svc.cluster.local
+      from: noreply@vzkn.eu
+
     postgresql:
       enabled: false
     redis:
@@ -77,12 +106,67 @@ spec:
     pgbouncer:
       enabled: false
 
-    # Gateway API HTTPRoute (chart-managed)
+    externalPostgresql:
+      host: pooler-sentry-rw.sentry.svc.cluster.local
+      port: 5432
+      username: sentry
+      database: sentry
+      existingSecret: postgres-sentry-app
+      existingSecretKeys:
+        password: password
+
+    externalRedis:
+      host: sentry-dragonfly.sentry.svc.cluster.local
+      port: 6379
+      db: 0
+
+    externalClickhouse:
+      host: clickhouse-sentry.sentry.svc.cluster.local
+      tcpPort: 9000
+      httpPort: 8123
+      username: sentry
+      database: default
+      singleNode: true
+      existingSecret: clickhouse-sentry-secret
+      existingSecretKey: password
+
+    externalKafka:
+      cluster:
+        - host: kafka-sentry-kafka-bootstrap.sentry.svc.cluster.local
+          port: 9092
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: SCRAM-SHA-512
+        username: sentry
+        existingSecret: sentry
+        existingSecretKeys:
+          password: password
+      compression:
+        type: lz4
+      message:
+        max:
+          bytes: 50000000
+      socket:
+        timeout:
+          ms: 1000
+      provisioning:
+        enabled: true
+        replicationFactor: 1
+        numPartitions: 1
+        topicctl:
+          clusterName: kafka-sentry
+          environment: production
+          region: vzkn-eu
+
     route:
       main:
         enabled: true
         hostnames:
           - sentry.vzkn.eu
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: services
         parentRefs:
           - name: envoy-external
             namespace: network
@@ -94,309 +178,6 @@ spec:
             namespace: network
             sectionName: http
 
-    # ============================================================================
-    # External Services
-    # ============================================================================
-    # PostgreSQL via CloudNative-PG with PgBouncer pooler
-    externalPostgresql:
-      host: pooler-sentry-rw.sentry.svc.cluster.local
-      port: 5432
-      username: sentry
-      database: sentry
-      existingSecret: postgres-sentry-app
-      existingSecretKeys:
-        password: password
-
-    # Redis via Dragonfly
-    externalRedis:
-      host: sentry-dragonfly.sentry.svc.cluster.local
-      port: 6379
-      db: 0
-
-    # ClickHouse (single node)
-    externalClickhouse:
-      host: clickhouse.sentry.svc.cluster.local
-      tcpPort: 9000
-      httpPort: 8123
-      username: clickhouse
-      database: default
-      singleNode: true
-      existingSecret: sentry-secret
-      existingSecretKey: clickhouse-password
-
-    # Kafka (Confluent KRaft, in sentry namespace)
-    externalKafka:
-      host: kafka.sentry.svc.cluster.local
-      port: 9092
-
-    # ============================================================================
-    # System & Auth Configuration
-    # ============================================================================
-    system:
-      adminEmail: admin@vzkn.eu
-      url: https://sentry.vzkn.eu
-      public: false
-      existingSecret: sentry-secret
-
-    user:
-      create: true
-      email: admin@vzkn.eu
-      existingSecret: sentry-secret
-      existingSecretKey: ADMIN_PASSWORD
-
-    auth:
-      register: false
-
-    # GitHub Integration (configured via sentryConfPy below)
-
-    # NOTE: Temporarily set to dummy to complete Welcome wizard (issue #1990) before setting up SMTP
-    # After wizard completion, change back to smtp
-    # mail:
-    #   backend: dummy
-    #   useTls: false
-    #   useSsl: false
-    #   username: ""
-    #   password: ""
-    #   # existingSecret: sentry-secret
-    #   # existingSecretKey: mail-password
-    #   port: 587
-    #   host: ""
-    #   from: ""
-    mail:
-      backend: smtp
-      useTls: false
-      useSsl: false
-      username: ""
-      password: ""
-      port: 25
-      host: "smtp-relay.network.svc.cluster.local"
-      from: "noreply@vzkn.eu"
-
-    # OpenAI for Sentry AI features (disabled - uncomment when needed)
-    # openai:
-    #   existingSecret: sentry-secret
-    #   existingSecretKey: openai-api-key
-
-    # ============================================================================
-    # Application Configuration
-    # ============================================================================
-    config:
-      sentryConfPy: |
-        CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
-        USE_X_FORWARDED_HOST = True
-        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-        CSRF_COOKIE_SECURE = True
-        SESSION_COOKIE_SECURE = True
-        SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
-        SENTRY_BEACON = False
-        CSRF_TRUSTED_ORIGINS += ["null"]  # For SDK requests without origin
-
-        # Disable external relay registration
-        SENTRY_RELAY_OPEN_REGISTRATION = False
-        SENTRY_RELAY_WHITELIST_PK = []
-
-        # GitHub Integration
-        if os.environ.get("GITHUB_APP_ID"):
-            SENTRY_OPTIONS["github-app.id"] = int(os.environ["GITHUB_APP_ID"])
-            SENTRY_OPTIONS["github-app.name"] = os.environ.get("GITHUB_APP_NAME", "sentry-vzkn-eu")
-            SENTRY_OPTIONS["github-app.client-id"] = os.environ.get("GITHUB_CLIENT_ID", "")
-            SENTRY_OPTIONS["github-app.client-secret"] = os.environ.get("GITHUB_CLIENT_SECRET", "")
-            SENTRY_OPTIONS["github-app.webhook-secret"] = os.environ.get("GITHUB_WEBHOOK_SECRET", "")
-            # Handle private key with escaped newlines
-            private_key = os.environ.get("GITHUB_PRIVATE_KEY", "")
-            SENTRY_OPTIONS["github-app.private-key"] = private_key.replace("\\n", "\n")
-
-        # ===========================================
-        # Feature Flags
-        # ===========================================
-
-        # Search & Discovery
-        SENTRY_FEATURES["organizations:advanced-search"] = True
-        SENTRY_FEATURES["organizations:discover-basic"] = True
-        SENTRY_FEATURES["organizations:discover-query"] = True
-
-        # Alerts & Monitoring
-        SENTRY_FEATURES["organizations:anomaly-detection-alerts"] = True
-        SENTRY_FEATURES["organizations:change-alerts"] = True
-        SENTRY_FEATURES["organizations:crash-rate-alerts"] = True
-        SENTRY_FEATURES["organizations:incidents"] = True
-        SENTRY_FEATURES["organizations:uptime"] = False
-
-        # Performance
-        SENTRY_FEATURES["organizations:performance-view"] = True
-        SENTRY_FEATURES["organizations:performance-trace-explorer"] = True
-        SENTRY_FEATURES["organizations:performance-new-trends"] = True
-        SENTRY_FEATURES["organizations:performance-spans-new-ui"] = True
-        SENTRY_FEATURES["organizations:performance-transaction-summary-cleanup"] = True
-
-        # Profiling - disabled for now (someday)
-        SENTRY_FEATURES["organizations:profiling-view"] = False  # Someday
-        SENTRY_FEATURES["organizations:continuous-profiling"] = False  # Someday
-        SENTRY_FEATURES["organizations:continuous-profiling-beta"] = False  # Someday
-        SENTRY_FEATURES["organizations:continuous-profiling-billing"] = False  # Someday
-        SENTRY_FEATURES["organizations:profiling"] = False  # Someday
-        SENTRY_FEATURES["organizations:profiling-browser"] = False  # Someday
-        SENTRY_FEATURES["organizations:profiling-differential-flamegraph-page"] = False  # Someday
-
-        # Session Replay
-        SENTRY_FEATURES["organizations:session-replay"] = True
-        SENTRY_FEATURES["organizations:session-replay-ui"] = True
-        SENTRY_FEATURES["organizations:session-replay-recording-scrubbing"] = True
-        SENTRY_FEATURES["organizations:replay-playlist-view"] = True
-
-        # Integrations
-        SENTRY_FEATURES["organizations:codecov-integration"] = True
-        SENTRY_FEATURES["organizations:integrations-alert-rule"] = True
-        SENTRY_FEATURES["organizations:integrations-chat-unfurl"] = True
-        SENTRY_FEATURES["organizations:integrations-codeowners"] = True
-        SENTRY_FEATURES["organizations:integrations-event-hooks"] = True
-        SENTRY_FEATURES["organizations:integrations-enterprise-alert-rule"] = True
-        SENTRY_FEATURES["organizations:integrations-enterprise-incident-management"] = True
-        SENTRY_FEATURES["organizations:integrations-incident-management"] = True
-        SENTRY_FEATURES["organizations:integrations-issue-basic"] = True
-        SENTRY_FEATURES["organizations:integrations-issue-sync"] = True
-        SENTRY_FEATURES["organizations:integrations-stacktrace-link"] = True
-        SENTRY_FEATURES["organizations:integrations-ticket-rules"] = True
-
-        # SSO
-        SENTRY_FEATURES["organizations:sso-basic"] = False
-        SENTRY_FEATURES["organizations:sso-saml2"] = True
-        SENTRY_FEATURES["organizations:sso-saml2-slo"] = True
-
-        # Data & Metrics
-        SENTRY_FEATURES["organizations:custom-symbol-sources"] = True
-        SENTRY_FEATURES["organizations:data-forwarding"] = True
-        SENTRY_FEATURES["organizations:event-attachments"] = True
-        SENTRY_FEATURES["organizations:custom-metrics"] = True
-        SENTRY_FEATURES["organizations:dynamic-sampling"] = True
-        SENTRY_FEATURES["organizations:dynamic-sampling-custom"] = True
-        SENTRY_FEATURES["organizations:dynamic-sampling-minimum-sample-rate"] = True
-        SENTRY_FEATURES["organizations:spans-usage-tracking"] = True
-        SENTRY_FEATURES["organizations:on-demand-metrics-prefill"] = True
-        SENTRY_FEATURES["organizations:relay"] = False
-
-        # Teams & Orgs
-        SENTRY_FEATURES["organizations:team-insights"] = True
-        SENTRY_FEATURES["organizations:team-roles"] = True
-
-        # Dashboards
-        SENTRY_FEATURES["organizations:dashboards-basic"] = True
-        SENTRY_FEATURES["organizations:dashboards-edit"] = True
-        SENTRY_FEATURES["organizations:dashboards-global-filters"] = True
-        SENTRY_FEATURES["organizations:dashboards-import"] = True
-        SENTRY_FEATURES["organizations:dashboards-mep"] = True
-        SENTRY_FEATURES["organizations:dashboards-prebuilt-controls"] = True
-
-        # Insights
-        SENTRY_FEATURES["organizations:insight-modules"] = True
-        SENTRY_FEATURES["organizations:starfish-view"] = True
-        SENTRY_FEATURES["organizations:starfish-mobile-appstart"] = True
-
-        # Traces
-        SENTRY_FEATURES["organizations:trace-view-v1"] = True
-        SENTRY_FEATURES["organizations:trace-view-linked-traces"] = True
-
-        # Logs (OurLogs)
-        SENTRY_FEATURES["organizations:ourlogs-enabled"] = True
-        SENTRY_FEATURES["organizations:ourlogs-ingestion"] = True
-        SENTRY_FEATURES["organizations:ourlogs-stats"] = True
-        SENTRY_FEATURES["organizations:ourlogs-replay-ui"] = True
-
-        # Workflow Engine
-        SENTRY_FEATURES["organizations:workflow-engine-ui"] = True
-        SENTRY_FEATURES["organizations:workflow-engine-single-process-workflows"] = True
-
-        # Other
-        SENTRY_FEATURES["organizations:metric-alert-chartcuterie"] = True
-        SENTRY_FEATURES["organizations:span-stats"] = True
-        SENTRY_FEATURES["organizations:issue-views"] = True
-        SENTRY_FEATURES["organizations:escalating-issues-v2"] = True
-        SENTRY_FEATURES["organizations:related-events"] = True
-        SENTRY_FEATURES["organizations:sdk-crash-detection"] = True
-        SENTRY_FEATURES["organizations:suspect-commits-in-emails"] = True
-        SENTRY_FEATURES["organizations:sentry-pride-logo-footer"] = False
-
-        # Projects
-        SENTRY_FEATURES["projects:data-forwarding"] = True
-        SENTRY_FEATURES["projects:rate-limits"] = True
-        SENTRY_FEATURES["projects:custom-inbound-filters"] = True
-        SENTRY_FEATURES["projects:discard-groups"] = True
-        SENTRY_FEATURES["projects:servicehooks"] = True
-
-        # AI/Seer - disabled
-        SENTRY_FEATURES["organizations:gen-ai-features"] = False
-        SENTRY_FEATURES["organizations:autofix-seer-preferences"] = False
-        SENTRY_FEATURES["projects:ai-autofix"] = False
-        SENTRY_FEATURES["organizations:seer-explorer"] = False
-        SENTRY_FEATURES["organizations:seer-autopilot"] = False
-        SENTRY_FEATURES["organizations:seer-based-priority"] = False
-        SENTRY_FEATURES["organizations:seer-coding-agent-integrations"] = False
-        SENTRY_FEATURES["organizations:user-feedback-ai-summaries"] = False
-        SENTRY_FEATURES["organizations:replay-ai-summaries"] = False
-        SENTRY_FEATURES["organizations:gen-ai-explore-traces"] = False
-        SENTRY_FEATURES["organizations:unlimited-auto-triggered-autofix-runs"] = False
-
-        # S3-compatible storage settings for Garage
-        import os
-        os.environ.setdefault("AWS_REQUEST_CHECKSUM_CALCULATION", "when_required")
-        os.environ.setdefault("AWS_RESPONSE_CHECKSUM_VALIDATION", "when_required")
-        # Set AWS credentials from S3_* env vars for boto3
-        if os.environ.get("S3_ACCESS_KEY_ID"):
-            os.environ.setdefault("AWS_ACCESS_KEY_ID", os.environ["S3_ACCESS_KEY_ID"])
-        if os.environ.get("S3_SECRET_ACCESS_KEY"):
-            os.environ.setdefault("AWS_SECRET_ACCESS_KEY", os.environ["S3_SECRET_ACCESS_KEY"])
-
-        # Override filestore options for Garage compatibility
-        SENTRY_OPTIONS["filestore.options"] = {
-            "access_key": os.environ.get("S3_ACCESS_KEY_ID", ""),
-            "secret_key": os.environ.get("S3_SECRET_ACCESS_KEY", ""),
-            "bucket_name": "sentry",
-            "endpoint_url": "https://api.s3.vzkn.eu",
-            "region_name": "eu-central-1",
-            "addressing_style": "path",
-            "signature_version": "s3v4",
-        }
-
-        # =============================================
-        # Storage Backends - use same S3 as filestore
-        # =============================================
-        # Session Replay recordings
-        SENTRY_OPTIONS["replay.storage.backend"] = "sentry.filestore.s3.S3Boto3Storage"
-        SENTRY_OPTIONS["replay.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
-
-        # Chart rendering (alert emails with charts)
-        SENTRY_OPTIONS["chart-rendering.storage.backend"] = "s3"
-        SENTRY_OPTIONS["chart-rendering.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
-
-        # Configurations storage
-        SENTRY_OPTIONS["configurations.storage.backend"] = "s3"
-        SENTRY_OPTIONS["configurations.storage.options"] = SENTRY_OPTIONS.get("filestore.options", {})
-
-        # Control silo filestore
-        SENTRY_OPTIONS["filestore.control.backend"] = "s3"
-        SENTRY_OPTIONS["filestore.control.options"] = SENTRY_OPTIONS.get("filestore.options", {})
-
-      web:
-        httpKeepalive: 15
-        httpChunkedInput: true
-        workers: 3
-        memoryReport: false
-        maxRequests: 100000
-        maxRequestsDelta: 500
-        maxWorkerLifetime: 86400
-        thunderLock: true
-        logXForwardedFor: false
-        bufferSize: 32768
-        limitPost: 209715200
-        disableLogging: true
-        reloadOnRss: 600
-        ignoreSignpipe: true
-        ignoreWriteErrors: true
-        disableWriteException: true
-
-    # ============================================================================
-    # Storage (S3-compatible - Garage)
-    # ============================================================================
     filestore:
       backend: s3
       s3:
@@ -407,68 +188,253 @@ spec:
         accessKeyIDKey: s3-access-key-id
         secretAccessKeyKey: s3-secret-access-key
 
-    # ============================================================================
-    # Sentry Core Components
-    # ============================================================================
     sentry:
       singleOrganization: true
-
-      # Features control component auto-enablement
       features:
         orgSubdomains: false
-        enableProfiling: false  # Auto-disables: vroom, ingestProfiles, profilesConsumer, profiling*Consumer
-        enableSessionReplay: true  # Auto-enables: replaysConsumer, ingestReplayRecordings
-        enableFeedback: true  # Auto-enables: ingestFeedback
-        enableSpan: true  # Auto-enables: processSpans, processSegments
+        enableProfiling: true
+        enableSessionReplay: false
+        enableFeedback: true
+        enableSpan: false
         enableUptime: false
-
-      # Uptime monitoring - disabled
-      uptimeResults:
-        enabled: false
-
-      # ------------------------------------------
-      # Web & API
-      # ------------------------------------------
       web:
-        existingSecretEnv: sentry-github
-        probeInitialDelaySeconds: 180
-        probeFailureThreshold: 20
-        probePeriodSeconds: 30
-        probeTimeoutSeconds: 60
-
-      # ------------------------------------------
-      # Task System (replaces Celery)
-      # ------------------------------------------
+        existingSecretEnv: sentry-oidc
+        replicas: 1
+        env:
+          - name: OIDC_SCOPE
+            value: "openid email profile"
+          - name: OIDC_DOMAIN
+            value: "https://auth.vzkn.eu/application/o/sentry/"
+          - name: OIDC_ISSUER
+            value: "Authentik"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 600Mi
+          limits:
+            memory: 1Gi
+      worker:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 400Mi
+          limits:
+            memory: 800Mi
       taskWorker:
         concurrency: 4
-
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            memory: 600Mi
       taskBroker:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 200Mi
+          limits:
+            memory: 400Mi
         persistence:
           enabled: true
           size: 1Gi
-
-      # ------------------------------------------
-      # Cleanup
-      # ------------------------------------------
+          storageClass: ceph-block
       cleanup:
         days: 90
-
-      # ------------------------------------------
-      # Feedback
-      # ------------------------------------------
       ingestFeedback:
         enabled: true
 
-    # ============================================================================
-    # Snuba (ClickHouse query layer)
-    # ============================================================================
-    snuba:
-      rustConsumer: true
+    relay:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 200Mi
+        limits:
+          memory: 400Mi
 
-    # ============================================================================
-    # Symbolicator (Native crash symbolication)
-    # ============================================================================
+    vroom:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 400Mi
+        limits:
+          memory: 800Mi
+
     symbolicator:
+      enabled: true
       api:
+        replicas: 1
         persistence:
           enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 400Mi
+          limits:
+            memory: 1Gi
+
+    snuba:
+      rustConsumer: true
+      api:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+          limits:
+            memory: 1Gi
+
+    uptimeChecker:
+      enabled: false
+
+    hooks:
+      enabled: true
+      activeDeadlineSeconds: 1800
+
+    config:
+      sentryConfPy: |-
+        CSRF_TRUSTED_ORIGINS = ["https://sentry.vzkn.eu"]
+        USE_X_FORWARDED_HOST = True
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+        CSRF_COOKIE_SECURE = True
+        SESSION_COOKIE_SECURE = True
+        SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+        SENTRY_BEACON = False
+        CSRF_TRUSTED_ORIGINS += ["null"]
+
+        SENTRY_RELAY_OPEN_REGISTRATION = False
+        SENTRY_RELAY_WHITELIST_PK = []
+
+        # GitHub App stub — wired only when env vars present (Phase 5 Forgejo migration)
+        if os.environ.get("GITHUB_APP_ID"):
+            SENTRY_OPTIONS["github-app.id"] = int(os.environ["GITHUB_APP_ID"])
+            SENTRY_OPTIONS["github-app.name"] = os.environ.get("GITHUB_APP_NAME", "sentry-vzkn-eu")
+            SENTRY_OPTIONS["github-app.client-id"] = os.environ.get("GITHUB_CLIENT_ID", "")
+            SENTRY_OPTIONS["github-app.client-secret"] = os.environ.get("GITHUB_CLIENT_SECRET", "")
+            SENTRY_OPTIONS["github-app.webhook-secret"] = os.environ.get("GITHUB_WEBHOOK_SECRET", "")
+            private_key = os.environ.get("GITHUB_PRIVATE_KEY", "")
+            SENTRY_OPTIONS["github-app.private-key"] = private_key.replace("\\n", "\n")
+
+        # ====================================================================
+        # FEATURE FLAGS — audited against Sentry 26.5.0
+        # (src/sentry/features/{permanent,temporary}.py)
+        #
+        # Only flags that either:
+        #  (a) flip the upstream default, OR
+        #  (b) guard against likely future flip of an off-by-default feature
+        #      we don't want silently enabled (AI/Seer, replay, ourlogs).
+        # Anything not listed accepts upstream default. Re-audit on chart bump.
+        # ====================================================================
+
+        # ---- Flip OFF: defaults True upstream, we want False ----
+
+        # Auth: SAML2 default ON (we use OIDC via sentry-auth-oidc plugin in
+        # custom image; env vars from sentry-oidc Secret + web.env block)
+        SENTRY_FEATURES["organizations:sso-saml2"] = False
+
+        # Brand UI we don't use (default True in 26.5.0)
+        SENTRY_FEATURES["organizations:insight-modules"] = False
+        SENTRY_FEATURES["organizations:dashboards-basic"] = False
+        SENTRY_FEATURES["organizations:dashboards-edit"] = False
+
+        # Built-in uptime monitoring (Gatus does this)
+        SENTRY_FEATURES["organizations:uptime"] = False
+
+        # External relay registration (we run only the bundled relay)
+        SENTRY_FEATURES["organizations:relay"] = False
+
+        # Event forwarding to external sinks (not needed)
+        SENTRY_FEATURES["organizations:data-forwarding"] = False
+
+        # Enterprise integrations (large, default True in permanent.py)
+        SENTRY_FEATURES["organizations:integrations-chat-unfurl"] = False
+        SENTRY_FEATURES["organizations:integrations-codeowners"] = False
+        SENTRY_FEATURES["organizations:integrations-enterprise-alert-rule"] = False
+        SENTRY_FEATURES["organizations:integrations-enterprise-incident-management"] = False
+        SENTRY_FEATURES["organizations:integrations-event-hooks"] = False
+        SENTRY_FEATURES["organizations:integrations-incident-management"] = False
+
+        # ---- Flip ON: defaults False upstream, we want True ----
+
+        # Alerting (incidents/anomaly default False in 26.5.0)
+        SENTRY_FEATURES["organizations:incidents"] = True
+        SENTRY_FEATURES["organizations:anomaly-detection-alerts"] = True
+
+        # Profiling — vroxide ADR-0008 toggle (defaults False)
+        SENTRY_FEATURES["organizations:profiling"] = True
+        SENTRY_FEATURES["organizations:profiling-view"] = True
+        SENTRY_FEATURES["organizations:continuous-profiling"] = True
+
+        # Issue Views (saved searches v2, default False)
+        SENTRY_FEATURES["organizations:issue-views"] = True
+
+        # Per-project utilities (defaults False in temporary.py)
+        SENTRY_FEATURES["projects:custom-inbound-filters"] = True
+        SENTRY_FEATURES["projects:discard-groups"] = True
+        SENTRY_FEATURES["projects:servicehooks"] = True
+
+        # ---- Guards: default False today, paranoia against future flip ----
+        # Audit of features/{permanent,temporary}.py at 26.5.0 confirms each
+        # is currently False. NOTE: there are ~25 more seer-* sub-flags
+        # (seer-night-shift, seer-explorer-thinking-blocks, seer-mirror, etc.)
+        # — not enumerating because gen-ai-features=False + seer-{explorer,
+        # autopilot}=False gates the AI plumbing in practice. Re-audit on
+        # chart bump (git diff features/ between releases).
+
+        # Master AI/Seer gates
+        SENTRY_FEATURES["organizations:gen-ai-features"] = False
+        SENTRY_FEATURES["organizations:ai-issue-detection"] = False
+        SENTRY_FEATURES["organizations:autofix-on-explorer"] = False
+        SENTRY_FEATURES["organizations:seer-explorer"] = False
+        SENTRY_FEATURES["organizations:seer-autopilot"] = False
+        SENTRY_FEATURES["organizations:replay-ai-summaries"] = False
+
+        # AI-via-integrations (Claude / GitHub Copilot adapters phone out)
+        SENTRY_FEATURES["organizations:integrations-claude-code"] = False
+        SENTRY_FEATURES["organizations:integrations-github-copilot-agent"] = False
+
+        # External data exfil
+        SENTRY_FEATURES["organizations:codecov-integration"] = False
+
+        # Replay / OurLogs storage explosion sinks
+        SENTRY_FEATURES["organizations:session-replay"] = False
+        SENTRY_FEATURES["organizations:session-replay-ui"] = False
+        SENTRY_FEATURES["organizations:ourlogs-enabled"] = False
+        SENTRY_FEATURES["organizations:ourlogs-ingestion"] = False
+
+        # Server-side sampling rules (could silently drop our events)
+        SENTRY_FEATURES["organizations:dynamic-sampling"] = False
+
+        # Insights/spans (chart consumers spool up if any flip ON)
+        SENTRY_FEATURES["organizations:span-stats"] = False
+        SENTRY_FEATURES["organizations:spans-usage-tracking"] = False
+
+        # Chart rendering in alerts (sentry-internal chartcuterie sidecar)
+        SENTRY_FEATURES["organizations:metric-alert-chartcuterie"] = False
+
+        import os
+        os.environ.setdefault("AWS_REQUEST_CHECKSUM_CALCULATION", "when_required")
+        os.environ.setdefault("AWS_RESPONSE_CHECKSUM_VALIDATION", "when_required")
+        if os.environ.get("S3_ACCESS_KEY_ID"):
+            os.environ.setdefault("AWS_ACCESS_KEY_ID", os.environ["S3_ACCESS_KEY_ID"])
+        if os.environ.get("S3_SECRET_ACCESS_KEY"):
+            os.environ.setdefault("AWS_SECRET_ACCESS_KEY", os.environ["S3_SECRET_ACCESS_KEY"])
+
+        SENTRY_OPTIONS["filestore.options"] = {
+            "access_key": os.environ.get("S3_ACCESS_KEY_ID", ""),
+            "secret_key": os.environ.get("S3_SECRET_ACCESS_KEY", ""),
+            "bucket_name": "sentry",
+            "endpoint_url": "https://api.s3.vzkn.eu",
+            "region_name": "eu-central-1",
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+        }
+
+        SENTRY_OPTIONS["chart-rendering.storage.backend"] = "s3"
+        SENTRY_OPTIONS["chart-rendering.storage.options"] = SENTRY_OPTIONS["filestore.options"]
+        SENTRY_OPTIONS["configurations.storage.backend"] = "s3"
+        SENTRY_OPTIONS["configurations.storage.options"] = SENTRY_OPTIONS["filestore.options"]

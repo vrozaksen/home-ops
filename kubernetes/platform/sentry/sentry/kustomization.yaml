@@ -4,9 +4,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./backendpolicy.yaml
-  - ./dragonfly.yaml
-  - ./infisicalsecret.yaml
   - ./helmrelease.yaml
-  # HTTPRoute now managed by Sentry chart (v28.1.0+)
-  # - ./httproute.yaml
-  - ./securitypolicy.yaml
+  - ./infisicalsecret.yaml

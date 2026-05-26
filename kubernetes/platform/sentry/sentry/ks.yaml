@@ -6,38 +6,54 @@ metadata:
   name: &app sentry
 spec:
   components:
-    - ../../../components/cnpg/restore
+    - ../../../components/cnpg/initdb
+    - ../../../components/clickhouse
+    - ../../../components/dragonfly
+    - ../../../components/kafka
   dependsOn:
-    - name: clickhouse
-      namespace: sentry
+    - name: altinity-clickhouse-operator
+      namespace: database
     - name: dragonfly-operator
       namespace: database
-    - name: kafka
-      namespace: sentry
+    - name: infisical-operator
+      namespace: security
     - name: plugin-barman-cloud
       namespace: database
+    - name: strimzi-kafka-operator
+      namespace: database
   healthCheckExprs:
+    - apiVersion: clickhouse.altinity.com/v1
+      kind: ClickHouseInstallation
+      failed: status.status != 'Completed'
+      current: status.status == 'Completed'
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      failed: status.phase != 'ready'
+      current: status.phase == 'ready'
+    - apiVersion: kafka.strimzi.io/v1beta2
+      kind: Kafka
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-    - apiVersion: dragonflydb.io/v1alpha1
-      kind: Dragonfly
-      failed: status.phase != 'Ready'
-      current: status.phase == 'Ready'
   interval: 1h
   path: ./kubernetes/platform/sentry/sentry
   postBuild:
     substitute:
       APP: *app
-      NS: &ns sentry
+      NS: *app
       CNPG_SIZE: 10Gi
       CNPG_POOLER_MODE: transaction
+      KAFKA_SIZE: 20Gi
+      KAFKA_RETENTION_HOURS: "72"
+      CH_SIZE: 50Gi
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: *ns
-  timeout: 10m
+  targetNamespace: *app
+  timeout: 15m
   wait: false

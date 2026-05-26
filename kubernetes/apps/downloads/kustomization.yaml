@@ -7,15 +7,18 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./bazarr/ks.yaml
+  ### *arr
+  - ./postgres-arr/ks.yaml
+  - ./bazarr/ks.yaml
   - ./flaresolverr/ks.yaml
   - ./lidarr/ks.yaml
-  # - ./metube/ks.yaml
   - ./prowlarr/ks.yaml
-  - ./qbittorrent/ks.yaml
-  - ./qui/ks.yaml
   - ./radarr/ks.yaml
   # - ./recyclarr/ks.yaml
-  - ./slskd/ks.yaml
   - ./sonarr/ks.yaml
   - ./webhook/ks.yaml
+  ### Others
+  # - ./metube/ks.yaml
+  - ./qbittorrent/ks.yaml
+  - ./qui/ks.yaml
+  - ./slskd/ks.yaml

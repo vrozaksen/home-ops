@@ -19,7 +19,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/flaresolverr/flaresolverr
               repository: ghcr.io/flaresolverr/flaresolverr
-              tag: v3.4.6
+              tag: v3.5.0
             probes:
               liveness: &probes
                 enabled: true

@@ -40,7 +40,7 @@ spec:
                         operator: DoesNotExist
           containers:
             - name: clickhouse
-              image: clickhouse/clickhouse-server:${CH_VERSION:=24.8.14.39-alpine}
+              image: clickhouse/clickhouse-server:${CH_VERSION:=25.3.6.56-alpine}
               resources:
                 requests:
                   cpu: ${CH_REQUESTS_CPU:=200m}

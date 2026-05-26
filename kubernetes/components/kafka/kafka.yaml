@@ -1,5 +1,5 @@
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: &name ${APP}
@@ -39,7 +39,7 @@ spec:
                     operator: DoesNotExist
       priorityClassName: ${KAFKA_PRIORITY_CLASS:=cluster-low}
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: kafka-${APP}

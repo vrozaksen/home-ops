@@ -30,7 +30,7 @@ spec:
       kind: Dragonfly
       failed: status.phase != 'ready'
       current: status.phase == 'ready'
-    - apiVersion: kafka.strimzi.io/v1beta2
+    - apiVersion: kafka.strimzi.io/v1
       kind: Kafka
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')

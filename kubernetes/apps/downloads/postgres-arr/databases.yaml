@@ -1,5 +1,6 @@
 ---
 # Per-app databases inside the shared postgres-arr cluster.
+apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
   name: bazarr

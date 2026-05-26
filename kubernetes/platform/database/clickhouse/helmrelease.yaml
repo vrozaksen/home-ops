@@ -28,8 +28,12 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
+    configs:
+      watch:
+        namespaces:
+          include:
+            - ".*"
     operator:
-      watchNamespaces: []
       resources:
         requests:
           cpu: 50m

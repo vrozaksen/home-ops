@@ -21,7 +21,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/foxcpp/maddy
               repository: ghcr.io/foxcpp/maddy
-              tag: 0.9.4
+              tag: 0.9.5
             env:
               SMTP_RELAY_SMTP_PORT: &port 25
             envFrom:

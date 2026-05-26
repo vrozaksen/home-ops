@@ -48,8 +48,8 @@ metadata:
     strimzi.io/kraft: enabled
 spec:
   kafka:
-    version: ${KAFKA_VERSION:=4.0.0}
-    metadataVersion: ${KAFKA_METADATA_VERSION:=4.0-IV3}
+    version: ${KAFKA_VERSION:=4.1.2}
+    metadataVersion: ${KAFKA_METADATA_VERSION:=4.1-IV0}
     listeners:
       - name: plain
         port: 9092

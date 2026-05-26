@@ -54,7 +54,7 @@ spec:
                 name: main
                 resources:
                   limits:
-                    memory: 2Gi
+                    memory: 12Gi
                   requests:
                     cpu: 100m
                     memory: 256Mi

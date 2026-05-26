@@ -138,9 +138,9 @@ spec:
         protocol: SASL_PLAINTEXT
       sasl:
         mechanism: SCRAM-SHA-512
-        username: sentry
-        existingSecret: sentry
+        existingSecret: sentry-sasl
         existingSecretKeys:
+          username: username
           password: password
       compression:
         type: lz4

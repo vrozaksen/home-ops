@@ -8,6 +8,11 @@ metadata:
 spec:
   authentication:
     type: scram-sha-512
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: ${APP}-sasl
+          key: password
   authorization:
     type: simple
     acls:

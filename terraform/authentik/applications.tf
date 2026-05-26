@@ -26,6 +26,7 @@ locals {
     "pgadmin",
     "qui",
     "rxresume",
+    "sentry",
     "sparkyfitness",
     "unraid",
     "zot",
@@ -937,40 +938,26 @@ module "oauth2-unraid" {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SENTRY (SAML - manually configured)
+# SENTRY (OIDC)
 # Namespace: sentry
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Sentry uses SAML authentication configured manually in Sentry UI
-# Uncomment and configure when ready to manage via Terraform
-#
-# resource "authentik_provider_saml" "sentry" {
-#   name               = "Sentry"
-#   authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
-#   acs_url            = "https://sentry.${var.cluster_domain}/saml/acs/<org-slug>/"
-#   issuer             = "https://sso.${var.cluster_domain}"
-#   sp_binding         = "post"
-#   audience           = "https://sentry.${var.cluster_domain}/saml/metadata/<org-slug>/"
-#   signing_kp         = data.authentik_certificate_key_pair.generated.id
-# }
-#
-# resource "authentik_application" "sentry" {
-#   name              = "Sentry"
-#   slug              = "sentry"
-#   group             = "Infrastructure"
-#   protocol_provider = authentik_provider_saml.sentry.id
-#   meta_icon         = "https://raw.githubusercontent.com/getsentry/sentry/master/src/sentry/static/sentry/images/favicon.ico"
-#   meta_description  = "Error tracking"
-#   meta_launch_url   = "https://sentry.${var.cluster_domain}"
-#   open_in_new_tab   = true
-# }
-#
-# resource "authentik_policy_binding" "sentry" {
-#   target = authentik_application.sentry.uuid
-#   group  = authentik_group.admin.id
-#   order  = 0
-# }
+# Sentry
+module "oauth2-sentry" {
+  source             = "./oauth2_application"
+  name               = "Sentry"
+  icon_url           = "https://raw.githubusercontent.com/getsentry/sentry/master/src/sentry/static/sentry/images/favicon.ico"
+  launch_url         = "https://sentry.${var.cluster_domain}"
+  description        = "Error tracking"
+  newtab             = true
+  group              = "Infrastructure"
+  auth_groups        = [authentik_group.admin.id]
+  authorization_flow = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
+  client_id          = local.parsed_secrets["sentry"].client_id
+  client_secret      = local.parsed_secrets["sentry"].client_secret
+  redirect_uris      = ["https://sentry.${var.cluster_domain}/auth/sso/oidc/"]
+}
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DISABLED APPLICATIONS (commented for future use)

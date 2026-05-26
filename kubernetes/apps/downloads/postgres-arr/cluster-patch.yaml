@@ -5,9 +5,13 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: postgres-arr
+  name: postgres-${APP}  # literal — Flux postBuild substitutes ${APP}=arr later
 spec:
   managed:
+    # services preserved from cnpg/base — strategic merge for CRDs without
+    # merge keys replaces the whole `managed` block, so we restate it here.
+    services:
+      disabledDefaultServices: ${CNPG_DISABLED_SERVICES:=['ro', 'r']}
     roles:
       - name: bazarr
         ensure: present

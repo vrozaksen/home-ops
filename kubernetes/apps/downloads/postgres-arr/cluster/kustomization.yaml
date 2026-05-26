@@ -1,0 +1,10 @@
+---
+# Inner layer: just imports the cnpg/initdb component. Renders Cluster + Pooler +
+# ObjectStore + ScheduledBackup. The outer kustomization (postgres-arr/) uses
+# this dir as a `resources:` entry and then applies patches on the rendered output.
+# Why nested: kustomize applies `components:` AFTER `patches:`, so a flat layout
+# can't patch resources brought in by a component.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../../../components/cnpg/initdb

@@ -5,8 +5,8 @@ kind: Kustomization
 metadata:
   name: postgres-arr
 spec:
-  components:
-    - ../../../components/cnpg/initdb
+  # NOTE: components moved to local kustomization.yaml (so patches: can target
+  # the Cluster CR — Flux's spec.components adds resources AFTER local build).
   dependsOn:
     - name: infisical-operator
       namespace: security

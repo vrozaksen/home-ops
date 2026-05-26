@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       qbittorrent:
-        replicas: 1
-        strategy: Recreate
         labels:
         annotations:
           reloader.stakater.com/auto: "true"

@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       red-lavalink:
-        replicas: 1
-        strategy: Recreate
         containers:
           app:
             image:

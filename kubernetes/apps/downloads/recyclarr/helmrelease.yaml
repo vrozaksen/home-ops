@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       recyclarr:
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         type: cronjob

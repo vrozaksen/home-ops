@@ -13,8 +13,6 @@ spec:
     fullnameOverride: *app
     controllers:
       nut-exporter:
-        replicas: 1
-        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

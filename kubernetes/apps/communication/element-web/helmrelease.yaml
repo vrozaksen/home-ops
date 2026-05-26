@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       element-web:
-        replicas: 1
         strategy: RollingUpdate
         containers:
           app:

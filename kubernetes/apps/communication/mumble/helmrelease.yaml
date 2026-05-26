@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       mumble:
-        replicas: 1
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

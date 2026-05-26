@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app factorio
+  name: factorio
 spec:
   interval: 1h
   chartRef:
@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       factorio:
-        replicas: 1
         type: statefulset
         strategy: RollingUpdate
         containers:
@@ -43,7 +42,6 @@ spec:
                 cpu: 2
                 memory: 8Gi
       filebrowser:
-        strategy: Recreate
         containers:
           app:
             image:

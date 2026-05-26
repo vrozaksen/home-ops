@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       livekit:
-        replicas: 1
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -44,7 +42,6 @@ spec:
               limits:
                 memory: 1Gi
       jwt-service:
-        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"

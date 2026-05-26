@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       slskd:
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         pod:

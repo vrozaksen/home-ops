@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       zigbee:
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

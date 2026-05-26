@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       navidrome:
-        replicas: 1
-        strategy: Recreate
         containers:
           app:
             image:

@@ -5,24 +5,19 @@ kind: Kustomization
 metadata:
   name: &app prowlarr
 spec:
-  components:
-    - ../../../components/cnpg/restore
-    # - ../../../components/ext-auth
+  components: []
+  # - ../../../components/ext-auth
   dependsOn:
     - name: authentik
       namespace: security
-  healthCheckExprs:
-    - apiVersion: postgresql.cnpg.io/v1
-      kind: Cluster
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+    - name: postgres-arr
+      namespace: downloads
   interval: 1h
   path: ./kubernetes/apps/downloads/prowlarr
   postBuild:
     substitute:
       APP: *app
       NS: &ns downloads
-      CNPG_SIZE: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

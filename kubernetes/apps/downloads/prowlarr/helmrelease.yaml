@@ -31,23 +31,19 @@ spec:
               PROWLARR__LOG__LEVEL: info
               PROWLARR__SERVER__PORT: &port 80
               PROWLARR__UPDATE__BRANCH: develop
-              PROWLARR__POSTGRES__HOST: pooler-prowlarr-rw
+              PROWLARR__POSTGRES__HOST: pooler-arr-rw
               PROWLARR__POSTGRES__PORT: "5432"
-              PROWLARR__POSTGRES__MAINDB:
+              PROWLARR__POSTGRES__MAINDB: prowlarr
+              PROWLARR__POSTGRES__USER:
                 valueFrom:
                   secretKeyRef:
-                    name: &pg postgres-prowlarr-app
-                    key: dbname
+                    name: &pg postgres-arr-prowlarr-credentials
+                    key: username
               PROWLARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
                     key: password
-              PROWLARR__POSTGRES__USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: username
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

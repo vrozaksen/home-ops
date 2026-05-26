@@ -30,23 +30,19 @@ spec:
               SONARR__LOG__LEVEL: info
               SONARR__SERVER__PORT: &port 80
               SONARR__UPDATE__BRANCH: develop
-              SONARR__POSTGRES__HOST: pooler-sonarr-rw
+              SONARR__POSTGRES__HOST: pooler-arr-rw
               SONARR__POSTGRES__PORT: "5432"
-              SONARR__POSTGRES__MAINDB:
+              SONARR__POSTGRES__MAINDB: sonarr
+              SONARR__POSTGRES__USER:
                 valueFrom:
                   secretKeyRef:
-                    name: &pg postgres-sonarr-app
-                    key: dbname
+                    name: &pg postgres-arr-sonarr-credentials
+                    key: username
               SONARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
                     key: password
-              SONARR__POSTGRES__USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: username
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

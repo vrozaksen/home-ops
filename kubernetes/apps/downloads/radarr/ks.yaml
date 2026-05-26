@@ -6,29 +6,24 @@ metadata:
   name: &app radarr
 spec:
   components:
-    - ../../../components/cnpg/restore
     # - ../../../components/ext-auth
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
     - name: authentik
       namespace: security
+    - name: postgres-arr
+      namespace: downloads
     - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster
       namespace: rook-ceph
-  healthCheckExprs:
-    - apiVersion: postgresql.cnpg.io/v1
-      kind: Cluster
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/downloads/radarr
   postBuild:
     substitute:
       APP: *app
       NS: &ns downloads
-      CNPG_SIZE: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

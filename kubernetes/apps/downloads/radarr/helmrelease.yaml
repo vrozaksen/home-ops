@@ -30,23 +30,19 @@ spec:
               RADARR__LOG__LEVEL: info
               RADARR__SERVER__PORT: &port 80
               RADARR__UPDATE__BRANCH: develop
-              RADARR__POSTGRES__HOST: pooler-radarr-rw
+              RADARR__POSTGRES__HOST: pooler-arr-rw
               RADARR__POSTGRES__PORT: "5432"
-              RADARR__POSTGRES__MAINDB:
+              RADARR__POSTGRES__MAINDB: radarr
+              RADARR__POSTGRES__USER:
                 valueFrom:
                   secretKeyRef:
-                    name: &pg postgres-radarr-app
-                    key: dbname
+                    name: &pg postgres-arr-radarr-credentials
+                    key: username
               RADARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
                     key: password
-              RADARR__POSTGRES__USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: username
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

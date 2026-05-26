@@ -30,23 +30,19 @@ spec:
               LIDARR__LOG__LEVEL: info
               LIDARR__SERVER__PORT: &port 8686
               LIDARR__UPDATE__BRANCH: develop
-              LIDARR__POSTGRES__HOST: pooler-lidarr-rw
+              LIDARR__POSTGRES__HOST: pooler-arr-rw
               LIDARR__POSTGRES__PORT: "5432"
-              LIDARR__POSTGRES__MAINDB:
+              LIDARR__POSTGRES__MAINDB: lidarr
+              LIDARR__POSTGRES__USER:
                 valueFrom:
                   secretKeyRef:
-                    name: &pg postgres-lidarr-app
-                    key: dbname
+                    name: &pg postgres-arr-lidarr-credentials
+                    key: username
               LIDARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: *pg
                     key: password
-              LIDARR__POSTGRES__USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: *pg
-                    key: username
               # LinuxServer K8s compat
               PUID: "1000"
               PGID: "100"

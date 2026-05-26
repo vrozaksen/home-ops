@@ -29,10 +29,12 @@ spec:
     crds: CreateReplace
   values:
     configs:
-      watch:
-        namespaces:
-          include:
-            - ".*"
+      files:
+        config.yaml:
+          watch:
+            namespaces:
+              include:
+                - ".*"
     operator:
       resources:
         requests:

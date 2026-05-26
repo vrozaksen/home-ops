@@ -956,7 +956,7 @@ module "oauth2-sentry" {
   invalidation_flow  = resource.authentik_flow.provider-invalidation.uuid
   client_id          = local.parsed_secrets["sentry"].client_id
   client_secret      = local.parsed_secrets["sentry"].client_secret
-  redirect_uris      = ["https://sentry.${var.cluster_domain}/auth/sso/oidc/"]
+  redirect_uris      = ["https://sentry.${var.cluster_domain}/auth/sso/"]
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

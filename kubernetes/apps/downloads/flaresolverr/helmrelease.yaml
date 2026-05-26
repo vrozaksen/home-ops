@@ -12,15 +12,12 @@ spec:
   values:
     controllers:
       flaresolverr:
-        replicas: 2
-        strategy: RollingUpdate
-        podDisruptionBudget:
-          minAvailable: 1
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
+              # renovate: datasource=docker depName=ghcr.io/flaresolverr/flaresolverr
               repository: ghcr.io/flaresolverr/flaresolverr
               tag: v3.4.6
             probes:

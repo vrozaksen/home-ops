@@ -1,8 +1,14 @@
 ---
 # Per-app databases inside the shared postgres-arr cluster.
-# Owner = `arr` (CNPG-created via initdb bootstrap, secret postgres-arr-app).
-# Apps connect via:
-#   POSTGRES_HOST=pooler-arr-rw, POSTGRES_DATABASE=<this name>, user/pass from postgres-arr-app
+kind: Database
+metadata:
+  name: bazarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: bazarr
+  owner: bazarr
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
@@ -11,27 +17,7 @@ spec:
   cluster:
     name: postgres-arr
   name: lidarr
-  owner: arr
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: sonarr
-spec:
-  cluster:
-    name: postgres-arr
-  name: sonarr
-  owner: arr
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: radarr
-spec:
-  cluster:
-    name: postgres-arr
-  name: radarr
-  owner: arr
+  owner: lidarr
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
@@ -41,14 +27,24 @@ spec:
   cluster:
     name: postgres-arr
   name: prowlarr
-  owner: arr
+  owner: prowlarr
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: bazarr
+  name: radarr
 spec:
   cluster:
     name: postgres-arr
-  name: bazarr
-  owner: arr
+  name: radarr
+  owner: radarr
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: sonarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: sonarr
+  owner: sonarr

@@ -48,6 +48,10 @@ spec:
           containers:
             - name: clickhouse
               image: clickhouse/clickhouse-server:${CH_VERSION:=25.3.6.56-alpine}
+              ports:
+                - name: metrics
+                  containerPort: 9363
+                  protocol: TCP
               resources:
                 requests:
                   cpu: ${CH_REQUESTS_CPU:=200m}

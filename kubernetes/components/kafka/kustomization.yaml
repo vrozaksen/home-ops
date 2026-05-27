@@ -7,3 +7,4 @@ resources:
   - ./kafkauser.yaml
   - ./infisicalsecret.yaml
   - ./metrics-configmap.yaml
+  - ./podmonitor.yaml

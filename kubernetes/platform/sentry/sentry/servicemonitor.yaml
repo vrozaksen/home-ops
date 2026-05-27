@@ -7,8 +7,8 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: sentry
-      role: symbolicator-api
+      app.kubernetes.io/name: sentry
+      app.kubernetes.io/component: symbolicator
   namespaceSelector:
     matchNames:
       - sentry

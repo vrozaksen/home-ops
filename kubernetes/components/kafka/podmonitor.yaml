@@ -3,16 +3,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: clickhouse-${APP}
+  name: kafka-${APP}
 spec:
   selector:
     matchLabels:
-      clickhouse.altinity.com/chi: clickhouse-${APP}
+      strimzi.io/cluster: kafka-${APP}
   namespaceSelector:
     matchNames:
       - ${NS:=${APP}}
   podMetricsEndpoints:
-    - port: metrics
+    - port: tcp-prometheus
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s

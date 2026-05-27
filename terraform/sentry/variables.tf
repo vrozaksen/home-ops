@@ -19,7 +19,7 @@ variable "sentry_url" {
 variable "sentry_organization" {
   type        = string
   description = "Sentry organization slug (from /organizations/<slug>/ in URL)"
-  default     = "sentry"
+  default     = "vzkn"
 }
 
 variable "infisical_workspace_id" {

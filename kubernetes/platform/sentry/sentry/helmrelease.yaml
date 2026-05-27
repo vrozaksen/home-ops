@@ -234,6 +234,16 @@ spec:
             - "ReadWriteOnce"
           storageClassName: ceph-block
           size: 50Gi
+        config: |-
+          cache_dir: "/data"
+          bind: "0.0.0.0:3021"
+          logging:
+            level: "warn"
+          metrics:
+            statsd: "sentry-metrics:9125"
+            prefix: "symbolicator"
+          sentry_dsn: null
+          connect_to_reserved_ips: true
 
     snuba:
       rustConsumer: true

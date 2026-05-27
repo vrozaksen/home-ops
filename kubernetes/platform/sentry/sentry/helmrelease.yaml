@@ -31,25 +31,37 @@ spec:
               kind: Deployment
               name: sentry-symbolicator-api
             patch: |
-              - op: add
-                path: /spec/strategy
-                value:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: sentry-symbolicator-api
+              spec:
+                strategy:
+                  $patch: replace
                   type: Recreate
           - target:
               kind: Deployment
               name: sentry-vroom
             patch: |
-              - op: add
-                path: /spec/strategy
-                value:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: sentry-vroom
+              spec:
+                strategy:
+                  $patch: replace
                   type: Recreate
           - target:
               kind: Deployment
               name: sentry-ingest-profiles
             patch: |
-              - op: add
-                path: /spec/strategy
-                value:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: sentry-ingest-profiles
+              spec:
+                strategy:
+                  $patch: replace
                   type: Recreate
   values:
     profiles:

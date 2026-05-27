@@ -36,9 +36,7 @@ spec:
     sentry:
       dsn: "from-existing-secret"
       environment: production
-      # Watch every namespace — captures OOMKilled, FailedScheduling,
-      # CrashLoopBackOff, ImagePullBackOff etc. across the cluster.
-      watchNamespaces: ""
+      watchNamespaces: "__all__"
       # Catch historical events (last 24h) on restart, not just new ones.
       watchHistorical: "1"
     image:
@@ -58,3 +56,31 @@ spec:
       create: true
     rbac:
       create: true
+      custom_rules:
+        - verbs:
+            - get
+            - list
+            - watch
+          apiGroups:
+            - ""
+          resources:
+            - events
+            - pods
+        - verbs:
+            - get
+            - list
+            - watch
+          apiGroups:
+            - apps
+          resources:
+            - deployments
+            - replicasets
+        - verbs:
+            - get
+            - list
+            - watch
+          apiGroups:
+            - batch
+          resources:
+            - jobs
+            - cronjobs

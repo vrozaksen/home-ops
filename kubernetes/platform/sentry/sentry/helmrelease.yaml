@@ -24,6 +24,33 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: sentry
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: sentry-symbolicator-api
+            patch: |
+              - op: add
+                path: /spec/strategy
+                value:
+                  type: Recreate
+          - target:
+              kind: Deployment
+              name: sentry-vroom
+            patch: |
+              - op: add
+                path: /spec/strategy
+                value:
+                  type: Recreate
+          - target:
+              kind: Deployment
+              name: sentry-ingest-profiles
+            patch: |
+              - op: add
+                path: /spec/strategy
+                value:
+                  type: Recreate
   values:
     profiles:
       - feature-complete

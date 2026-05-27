@@ -1,0 +1,177 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sentry-rules
+spec:
+  groups:
+    - name: sentry-stack-availability
+      interval: 1m
+      rules:
+        - alert: SentryWebDown
+          annotations:
+            summary: "Sentry web has no ready replicas"
+            description: "Deployment sentry-web has 0 ready replicas for 5m. Error ingestion + UI down."
+          expr: |
+            kube_deployment_status_replicas_ready{namespace="sentry", deployment="sentry-web"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            category: sentry
+
+        - alert: SentryComponentRestartLoop
+          annotations:
+            summary: "{{ $labels.pod }} restarting frequently"
+            description: "Pod {{ $labels.pod }} (sentry ns) restarted {{ $value }} times in last 15m — likely CrashLoopBackOff."
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="sentry"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentryRelayDown
+          annotations:
+            summary: "Sentry Relay has no ready replicas"
+            description: "Relay down → no event ingestion. SDK events dropped or buffered client-side."
+          expr: |
+            kube_deployment_status_replicas_ready{namespace="sentry", deployment="sentry-relay"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            category: sentry
+
+        - alert: SentryVroomDown
+          annotations:
+            summary: "Vroom (profiling) has no ready replicas"
+            description: "Profiling ingestion broken — profile envelopes will be dropped by relay."
+          expr: |
+            kube_deployment_status_replicas_ready{namespace="sentry", deployment="sentry-vroom"} == 0
+          for: 10m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentrySymbolicatorDown
+          annotations:
+            summary: "Symbolicator API down"
+            description: "Stack traces won't be symbolicated → vroxide crash reports unreadable."
+          expr: |
+            kube_deployment_status_replicas_ready{namespace="sentry", deployment="sentry-symbolicator-api"} == 0
+          for: 10m
+          labels:
+            severity: warning
+            category: sentry
+
+    - name: sentry-stack-storage
+      interval: 1m
+      rules:
+        - alert: SentryPVCNearFull
+          annotations:
+            summary: "PVC {{ $labels.persistentvolumeclaim }} >80% full"
+            description: "{{ $value | humanizePercentage }} used. Affects symbolicator cache / taskbroker queue."
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes{namespace="sentry"}
+              / kubelet_volume_stats_capacity_bytes{namespace="sentry"}
+            ) > 0.80
+          for: 15m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SymbolicatorCacheNearFull
+          annotations:
+            summary: "Symbolicator cache PVC >90% — restarts will rebuild cache"
+            description: "Cache PVC at {{ $value | humanizePercentage }}. Bump symbolicator.api.persistence.size or accept rebuild cost."
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes{namespace="sentry", persistentvolumeclaim=~".*symbolicator.*"}
+              / kubelet_volume_stats_capacity_bytes{namespace="sentry", persistentvolumeclaim=~".*symbolicator.*"}
+            ) > 0.90
+          for: 30m
+          labels:
+            severity: warning
+            category: sentry
+
+    - name: sentry-stack-database
+      interval: 1m
+      rules:
+        - alert: SentryPostgresReplicationLag
+          annotations:
+            summary: "postgres-sentry replication lag {{ $value }}s"
+            description: "Streaming replica falling behind primary — risk of data loss on failover."
+          expr: |
+            cnpg_pg_replication_lag{cluster="postgres-sentry"} > 30
+          for: 5m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentryPostgresBackupFailed
+          annotations:
+            summary: "postgres-sentry scheduled backup failed"
+            description: "ScheduledBackup last status not Completed. Check `kubectl get backup -n sentry`."
+          expr: |
+            cnpg_collector_last_failed_backup_timestamp{cluster="postgres-sentry"}
+              > cnpg_collector_last_available_backup_timestamp{cluster="postgres-sentry"}
+          for: 1h
+          labels:
+            severity: warning
+            category: sentry
+
+    - name: sentry-stack-kafka
+      interval: 1m
+      rules:
+        - alert: SentryKafkaConsumerLagHigh
+          annotations:
+            summary: "Kafka topic {{ $labels.topic }} consumer {{ $labels.consumergroup }} lag {{ $value }}"
+            description: "Snuba consumer falling behind. Events backlog growing → /issues/ shows stale data."
+          expr: |
+            sum by (topic, consumergroup) (
+              kafka_consumergroup_lag{namespace="sentry"}
+            ) > 100000
+          for: 10m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentryKafkaUnderReplicatedPartitions
+          annotations:
+            summary: "Kafka under-replicated partitions: {{ $value }}"
+            description: "We run 1 broker so URP=0 always; if >0 = broker config drift or topic with RF>1."
+          expr: |
+            sum(kafka_topic_partitions_under_replicated_partition{namespace="sentry"}) > 0
+          for: 5m
+          labels:
+            severity: warning
+            category: sentry
+
+    - name: sentry-stack-clickhouse
+      interval: 1m
+      rules:
+        - alert: SentryClickHouseDiskNearFull
+          annotations:
+            summary: "ClickHouse disk {{ $labels.disk }} >80%"
+            description: "Events table grows fast. Tune retention via SENTRY_OPTIONS or expand PVC."
+          expr: |
+            (
+              1 - clickhouse_disk_free_space_bytes{namespace="sentry"}
+                / clickhouse_disk_total_space_bytes{namespace="sentry"}
+            ) > 0.80
+          for: 15m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentryClickHouseQueryFailures
+          annotations:
+            summary: "ClickHouse query failures: {{ $value }}/min"
+            description: "Snuba reads/writes failing. Check `kubectl logs -n sentry chi-clickhouse-sentry-0-0-0`."
+          expr: |
+            rate(clickhouse_failed_query_total{namespace="sentry"}[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            category: sentry

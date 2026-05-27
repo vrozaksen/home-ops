@@ -5,3 +5,4 @@ kind: Component
 resources:
   - ./clickhouse.yaml
   - ./infisicalsecret.yaml
+  - ./podmonitor.yaml

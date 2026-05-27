@@ -229,7 +229,11 @@ spec:
       api:
         replicas: 1
         persistence:
-          enabled: false
+          enabled: true
+          accessModes:
+            - "ReadWriteOnce"
+          storageClassName: ceph-block
+          size: 50Gi
 
     snuba:
       rustConsumer: true
@@ -242,6 +246,17 @@ spec:
     hooks:
       enabled: true
       activeDeadlineSeconds: 1800
+
+    # ====================================================================
+    # Prometheus exporter — deploys statsd-exporter (port 9125 statsd,
+    # 9102 /metrics). Sentry web/worker/relay/snuba statsd targets it via
+    # SENTRY_METRICS_BACKEND. ServiceMonitor scrapes /metrics → Prom.
+    # ====================================================================
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        scrapeInterval: 30s
 
     config:
       sentryConfPy: |-
@@ -408,3 +423,17 @@ spec:
         SENTRY_OPTIONS["chart-rendering.storage.options"] = SENTRY_OPTIONS["filestore.options"]
         SENTRY_OPTIONS["configurations.storage.backend"] = "s3"
         SENTRY_OPTIONS["configurations.storage.options"] = SENTRY_OPTIONS["filestore.options"]
+
+        # ====================================================================
+        # Internal observability — pipe statsd to chart-deployed statsd-exporter
+        # (release `sentry-metrics` service on port 9125 UDP). statsd-exporter
+        # ServiceMonitor scraped by kube-prometheus → Grafana.
+        # Without this Sentry uses dummy backend — zero internal metrics
+        # exported. Pattern: SENTRY_METRICS_BACKEND from sentry/conf/server.py.
+        # ====================================================================
+        SENTRY_METRICS_BACKEND = "sentry.metrics.statsd.StatsdMetricsBackend"
+        SENTRY_METRICS_OPTIONS = {
+            "host": "sentry-metrics",
+            "port": 9125,
+        }
+        SENTRY_METRICS_SAMPLE_RATE = 1.0

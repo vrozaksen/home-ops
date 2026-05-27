@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: clickhouse-${APP}
+spec:
+  selector:
+    matchLabels:
+      clickhouse.altinity.com/chi: clickhouse-${APP}
+  namespaceSelector:
+    matchNames:
+      - ${NS:=${APP}}
+  podMetricsEndpoints:
+    - targetPort: 9363
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

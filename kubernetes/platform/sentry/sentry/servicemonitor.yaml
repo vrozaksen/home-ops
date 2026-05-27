@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/servicemonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sentry-symbolicator
+spec:
+  selector:
+    matchLabels:
+      app: sentry
+      role: symbolicator-api
+  namespaceSelector:
+    matchNames:
+      - sentry
+  endpoints:
+    - port: sentry
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

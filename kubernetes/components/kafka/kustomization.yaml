@@ -6,3 +6,4 @@ resources:
   - ./kafka.yaml
   - ./kafkauser.yaml
   - ./infisicalsecret.yaml
+  - ./metrics-configmap.yaml

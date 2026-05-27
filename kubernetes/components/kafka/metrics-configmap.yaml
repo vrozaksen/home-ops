@@ -1,0 +1,126 @@
+---
+# JMX Prometheus Exporter rules for Kafka brokers.
+# Strimzi mounts this on each broker pod, JMX-exporter Java agent reads it
+# and exposes /metrics on port 9404. Strimzi auto-creates PodMonitor that
+# scrapes :9404/metrics from pods with strimzi.io/cluster label.
+#
+# Rules sourced from strimzi-kafka-operator examples (strimzi 0.47+):
+# https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/metrics/kafka-metrics.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-${APP}-metrics
+data:
+  kafka-metrics-config.yml: |-
+    # Inspired by kafka-jmx-exporter sample config (Apache 2.0)
+    lowercaseOutputName: true
+    rules:
+      # Special cases and very specific rules
+      - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value
+        name: kafka_server_$1_$2
+        type: GAUGE
+        labels:
+          clientId: "$3"
+          topic: "$4"
+          partition: "$5"
+      - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), brokerHost=(.+), brokerPort=(.+)><>Value
+        name: kafka_server_$1_$2
+        type: GAUGE
+        labels:
+          clientId: "$3"
+          broker: "$4:$5"
+      - pattern: kafka.server<type=(.+), cipher=(.+), protocol=(.+), listener=(.+), networkProcessor=(.+)><>connections
+        name: kafka_server_$1_connections_tls_info
+        type: GAUGE
+        labels:
+          cipher: "$2"
+          protocol: "$3"
+          listener: "$4"
+          networkProcessor: "$5"
+      - pattern: kafka.server<type=(.+), clientSoftwareName=(.+), clientSoftwareVersion=(.+), listener=(.+), networkProcessor=(.+)><>connections
+        name: kafka_server_$1_connections_software
+        type: GAUGE
+        labels:
+          clientSoftwareName: "$2"
+          clientSoftwareVersion: "$3"
+          listener: "$4"
+          networkProcessor: "$5"
+      - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
+        name: kafka_server_$1_$4
+        type: GAUGE
+        labels:
+          listener: "$2"
+          networkProcessor: "$3"
+      - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+)
+        name: kafka_server_$1_$4
+        type: GAUGE
+        labels:
+          listener: "$2"
+          networkProcessor: "$3"
+      # Generic per-second counters
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, topic=(.+)><>Count
+        name: kafka_$1_$2_$3_total
+        type: COUNTER
+        labels:
+          topic: "$4"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, topic=(.+), partition=(.+)><>Count
+        name: kafka_$1_$2_$3_total
+        type: COUNTER
+        labels:
+          topic: "$4"
+          partition: "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*><>Count
+        name: kafka_$1_$2_$3_total
+        type: COUNTER
+      # Quota and client metrics
+      - pattern: kafka.server<type=(.+), user=(.+), client-id=(.+)><>([a-z-]+)
+        name: kafka_server_$1_$4
+        type: GAUGE
+        labels:
+          user: "$2"
+          clientId: "$3"
+      - pattern: kafka.server<type=(.+), client-id=(.+)><>([a-z-]+)
+        name: kafka_server_$1_$3
+        type: GAUGE
+        labels:
+          clientId: "$2"
+      - pattern: kafka.server<type=(.+), user=(.+)><>([a-z-]+)
+        name: kafka_server_$1_$3
+        type: GAUGE
+        labels:
+          user: "$2"
+      # Generic gauges
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), topic=(.+), partition=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          topic: "$4"
+          partition: "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), topic=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          topic: "$4"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Value
+        name: kafka_$1_$2_$3
+        type: GAUGE
+      # Emulate Prometheus-like behaviour for histograms
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)><>Count
+        name: kafka_$1_$2_$3_count
+        type: COUNTER
+        labels:
+          "$4": "$5"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)><>(\d+)thPercentile
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          "$4": "$5"
+          quantile: "0.$6"
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Count
+        name: kafka_$1_$2_$3_count
+        type: COUNTER
+      - pattern: kafka.(\w+)<type=(.+), name=(.+)><>(\d+)thPercentile
+        name: kafka_$1_$2_$3
+        type: GAUGE
+        labels:
+          quantile: "0.$4"

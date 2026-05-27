@@ -73,6 +73,21 @@ spec:
       type: simple
       superUsers:
         - ${APP}
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-${APP}-metrics
+          key: kafka-metrics-config.yml
+  kafkaExporter:
+    topicRegex: ".*"
+    groupRegex: ".*"
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
   entityOperator:
     topicOperator:
       resources:

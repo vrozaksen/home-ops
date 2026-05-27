@@ -21,6 +21,13 @@ spec:
     profiles:
       default/allow_experimental_json_type: "1"
       default/allow_experimental_object_type: "1"
+    settings:
+      prometheus/endpoint: /metrics
+      prometheus/port: "9363"
+      prometheus/metrics: "true"
+      prometheus/events: "true"
+      prometheus/asynchronous_metrics: "true"
+      prometheus/status_info: "true"
     clusters:
       - name: ${APP}
         layout:

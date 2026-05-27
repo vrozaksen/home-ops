@@ -6,3 +6,4 @@ resources:
   - ./authentik.yaml
   - ./garage.yaml
   - ./ocirepository.yaml
+  - ./sentry.yaml

@@ -24,6 +24,10 @@ spec:
         kind: HelmRepository
         name: aqua
   values:
+    extraEnv:
+      - name: TZ
+        value: Europe/Warsaw
+
     # -- Target only specific workloads
     targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
 

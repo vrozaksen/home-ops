@@ -29,6 +29,9 @@ spec:
     replicaCount: 2
     timezone: Europe/Warsaw
     cronJobTimeZone: true
+    ignoredNamespaces:
+      - kube-system
+      - security
     nodeSelector:
       node-role.kubernetes.io/control-plane: ""
     tolerations:

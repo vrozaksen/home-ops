@@ -30,6 +30,8 @@ spec:
       deploymentStrategy:
         type: RollingUpdate
       env:
+        - name: TZ
+          value: Europe/Warsaw
         - name: AUTHENTIK_REDIS__DB
           value: "1"
         - name: AUTHENTIK_POSTGRESQL__DISABLE_SERVER_SIDE_CURSORS

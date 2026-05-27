@@ -29,6 +29,9 @@ spec:
         image:
           repository: infisical/kubernetes-operator
           tag: v0.10.33
+        env:
+          - name: TZ
+            value: Europe/Warsaw
         resources:
           requests:
             cpu: 10m

@@ -57,8 +57,10 @@ data "sentry_all_keys" "this" {
 
 locals {
   # Map of project_slug -> DSN. Filter to "Default" key (auto-created).
+  # Use `dsn["public"]` (map access) — `dsn_public` field is deprecated
+  # in jianyuan/sentry 0.14+ in favor of the dsn map.
   project_dsns = {
     for slug, keys in data.sentry_all_keys.this :
-    slug => [for k in keys.keys : k.dsn_public if k.name == "Default"][0]
+    slug => [for k in keys.keys : k.dsn["public"] if k.name == "Default"][0]
   }
 }

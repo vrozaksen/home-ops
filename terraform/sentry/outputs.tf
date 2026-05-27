@@ -9,8 +9,3 @@ output "team" {
   description = "Default team slug"
   value       = sentry_team.main.slug
 }
-
-output "ci_token_id" {
-  description = "Sentry Organization Auth Token resource ID (for terraform-state diff readability)"
-  value       = sentry_organization_auth_token.ci.id
-}

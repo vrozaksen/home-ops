@@ -29,18 +29,6 @@ spec:
         patches:
           - target:
               kind: Deployment
-              name: sentry-symbolicator-api
-            patch: |
-              apiVersion: apps/v1
-              kind: Deployment
-              metadata:
-                name: sentry-symbolicator-api
-              spec:
-                strategy:
-                  $patch: replace
-                  type: Recreate
-          - target:
-              kind: Deployment
               name: sentry-vroom
             patch: |
               apiVersion: apps/v1
@@ -49,8 +37,8 @@ spec:
                 name: sentry-vroom
               spec:
                 strategy:
-                  $patch: replace
                   type: Recreate
+                  rollingUpdate: null
           - target:
               kind: Deployment
               name: sentry-ingest-profiles
@@ -61,8 +49,8 @@ spec:
                 name: sentry-ingest-profiles
               spec:
                 strategy:
-                  $patch: replace
                   type: Recreate
+                  rollingUpdate: null
   values:
     profiles:
       - feature-complete
@@ -266,9 +254,11 @@ spec:
     symbolicator:
       enabled: true
       api:
+        usedeployment: false
         replicas: 1
         persistence:
           enabled: true
+          existingClaim: sentry-symbolicator-pvc
           accessModes:
             - "ReadWriteOnce"
           storageClassName: ceph-block

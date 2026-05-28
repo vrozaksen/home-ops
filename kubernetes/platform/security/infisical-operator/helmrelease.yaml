@@ -18,7 +18,7 @@ spec:
   chart:
     spec:
       chart: secrets-operator
-      version: 0.10.33
+      version: 0.10.34
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
@@ -28,7 +28,7 @@ spec:
       manager:
         image:
           repository: infisical/kubernetes-operator
-          tag: v0.10.33
+          tag: v0.10.34
         env:
           - name: TZ
             value: Europe/Warsaw

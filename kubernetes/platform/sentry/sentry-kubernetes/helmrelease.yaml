@@ -39,6 +39,12 @@ spec:
       watchNamespaces: "__all__"
       # Catch historical events (last 24h) on restart, not just new ones.
       watchHistorical: "1"
+      # Track every CronJob run as a Sentry Cron Monitor — auto-creates
+      # check-ins per scheduled job (CNPG ScheduledBackup, Volsync
+      # ReplicationSource, Trivy compliance scan, sentry-cleanup). Surfaces
+      # missed/failed runs that today are silent unless restore actually
+      # fails. RBAC for cronjobs.batch already granted in custom_rules.
+      monitorCronjobs: "1"
     image:
       repository: ghcr.io/getsentry/sentry-kubernetes
       tag: latest

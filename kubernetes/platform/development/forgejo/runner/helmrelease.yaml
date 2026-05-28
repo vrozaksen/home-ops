@@ -136,7 +136,7 @@ spec:
           runner:
             image:
               repository: git.erwanleboucher.dev/eleboucher/runner
-              tag: 12.10.1@sha256:0a8ef9dd41a4c29903db8f9f125b20e58e2ccb5c3c539beb1e02db139d7cf7a2
+              tag: 12.10.2@sha256:d5eeafda573012c229b730f5a18437b464d946473478e1f6bd56fd537b881609
             command:
               - sh
               - -ec

@@ -139,6 +139,12 @@ spec:
       # -- Use embedded rego policies for air-gapped support
       useEmbeddedRegoPolicies: "true"
 
+      # -- Skip Debian ssl-cert package's dummy self-signed cert (shipped in
+      # CNPG pgbouncer base image, not actually used — CNPG mounts real TLS
+      # certs via projected volume). Without this, exposed-secret scans fire
+      # 6 false-positive HIGH alerts on every pooler pod.
+      skipFiles: "/etc/ssl/private/ssl-cert-snakeoil.key"
+
       # -- Command type for scanning
       command: image
 

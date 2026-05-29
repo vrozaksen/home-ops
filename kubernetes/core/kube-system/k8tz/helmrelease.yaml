@@ -53,3 +53,18 @@ spec:
         issuerRef:
           name: k8tz-selfsigned
           kind: Issuer
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: MutatingWebhookConfiguration
+              name: k8tz
+            patch: |-
+              - op: replace
+                path: /webhooks/0/objectSelector
+                value:
+                  matchExpressions:
+                    - key: app.kubernetes.io/managed-by
+                      operator: NotIn
+                      values:
+                        - forgejo-runner

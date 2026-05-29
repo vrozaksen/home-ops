@@ -69,6 +69,10 @@ spec:
               "secure": true,
               "skipverify": false,
               "forcepathstyle": true
+            },
+            "cacheDriver": {
+              "name": "boltdb",
+              "rootDir": "/var/lib/registry"
             }
           },
           "http": {

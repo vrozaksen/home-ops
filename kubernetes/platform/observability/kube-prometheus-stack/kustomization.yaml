@@ -7,6 +7,7 @@ resources:
   - ./infisicalsecret.yaml
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
+  - ./prometheusrule.yaml
   - ./scrapeconfig.yaml
   - ./securitypolicy-alertmanager.yaml
   - ./securitypolicy-prometheus.yaml

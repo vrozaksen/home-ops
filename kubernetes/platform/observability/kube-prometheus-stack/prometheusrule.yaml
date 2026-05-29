@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cluster-capacity-rules
+spec:
+  groups:
+    - name: cluster-capacity.rules
+      rules:
+        - alert: NodeMemoryPressure
+          expr: |-
+            (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+          for: 10m
+          annotations:
+            summary: >-
+              Node {{ $labels.instance }} memory >85% for 10m ({{ $value | humanizePercentage }})
+          labels:
+            severity: warning
+
+        - alert: NodeMemoryCritical
+          expr: |-
+            (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.93
+          for: 5m
+          annotations:
+            summary: >-
+              Node {{ $labels.instance }} memory >93% — OOM risk imminent ({{ $value | humanizePercentage }})
+          labels:
+            severity: critical
+
+        - alert: KubeAPIServerHighMemory
+          expr: |-
+            container_memory_working_set_bytes{container="kube-apiserver"} > 3.5e9
+          for: 30m
+          annotations:
+            summary: >-
+              kube-apiserver on {{ $labels.node }} using {{ $value | humanize1024 }}B — Go heap creep, restart pod to release
+          labels:
+            severity: warning

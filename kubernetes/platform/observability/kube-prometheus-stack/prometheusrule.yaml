@@ -30,10 +30,10 @@ spec:
 
         - alert: KubeAPIServerHighMemory
           expr: |-
-            container_memory_working_set_bytes{container="kube-apiserver"} > 3.5e9
-          for: 30m
+            container_memory_working_set_bytes{container="kube-apiserver"} > 6e9
+          for: 15m
           annotations:
             summary: >-
-              kube-apiserver on {{ $labels.node }} using {{ $value | humanize1024 }}B — Go heap creep, restart pod to release
+              kube-apiserver on {{ $labels.node }} using {{ $value | humanize1024 }}B — approaching OOM on 8.8Gi allocatable CP
           labels:
             severity: warning

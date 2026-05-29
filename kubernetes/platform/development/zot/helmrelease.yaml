@@ -46,8 +46,10 @@ spec:
       hostnames:
         - registry.vzkn.eu
 
-    # Garage S3 is single source of truth; no PVC needed
-    persistence: false
+    persistence: true
+    pvc:
+      create: false
+      name: zot
 
     mountConfig: true
     configFiles:

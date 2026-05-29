@@ -5,17 +5,22 @@ kind: Kustomization
 metadata:
   name: &app zot
 spec:
+  components:
+    - ../../../../components/volsync
   dependsOn:
     - name: envoy-gateway
       namespace: network
     - name: infisical-operator
       namespace: security
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   interval: 1h
   path: ./kubernetes/platform/development/zot
   postBuild:
     substitute:
       APP: *app
       NS: &ns development
+      VOLSYNC_CAPACITY: 2Gi
   prune: true
   sourceRef:
     kind: GitRepository

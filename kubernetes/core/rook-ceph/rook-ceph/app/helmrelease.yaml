@@ -25,6 +25,15 @@ spec:
     kind: OCIRepository
     name: rook-ceph
   values:
+    ceph-csi-operator:
+      controllerManager:
+        manager:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
     csi:
       cephFSKernelMountOptions: ms_mode=prefer-crc
       # NOTE: Enable the driver and shapshotter if you want to use CephFS

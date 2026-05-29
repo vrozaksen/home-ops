@@ -1,0 +1,21 @@
+---
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: kubernetes-mcp
+spec:
+  image: ghcr.io/manusa/kubernetes-mcp-server:latest
+  transport: streamable-http
+  mcpPort: 8080
+  args:
+    - --transport
+    - streamable-http
+    - --port
+    - "8080"
+    - --read-only
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  serviceAccount: kubernetes-mcp

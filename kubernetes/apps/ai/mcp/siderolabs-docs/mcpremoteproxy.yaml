@@ -1,0 +1,10 @@
+---
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPRemoteProxy
+metadata:
+  name: siderolabs-docs
+spec:
+  groupRef:
+    name: mcp-tools
+  remoteUrl: https://docs.siderolabs.com/mcp
+  transport: streamable-http

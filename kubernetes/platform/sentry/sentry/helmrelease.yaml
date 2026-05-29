@@ -242,6 +242,7 @@ spec:
           storageClass: ceph-block
       cleanup:
         days: 90
+        schedule: "0 4 * * *"
       ingestFeedback:
         enabled: true
 

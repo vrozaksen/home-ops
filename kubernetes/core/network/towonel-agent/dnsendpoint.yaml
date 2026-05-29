@@ -46,3 +46,7 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: forge.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}

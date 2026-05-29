@@ -3,8 +3,8 @@ name: tunnel
 
 services:
   towonel-hub:
-    # renovate: datasource=docker depName=git.erwanleboucher.dev/eleboucher/towonel-node
-    image: git.erwanleboucher.dev/eleboucher/towonel-node:0.0.43
+    # renovate: datasource=docker depName=codeberg.org/towonel/towonel-node
+    image: codeberg.org/towonel/towonel-node:0.1.14
     container_name: towonel-hub
     restart: unless-stopped
     user: "10001:10001"
@@ -37,6 +37,7 @@ services:
       TOWONEL_IROH_RELAY_URLS: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
     ports:
       - "22:22/tcp"
+      - "2222:2222/tcp"
       - "3478:3478/tcp"
       - "3478:3478/udp"
       - "5349:5349/tcp"

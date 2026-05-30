@@ -8,7 +8,7 @@ terraform {
 
     gitea = {
       source  = "lerentis/gitea"
-      version = "~> 0.13"
+      version = "0.16.0"
     }
   }
 }

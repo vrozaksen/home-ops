@@ -1,0 +1,90 @@
+---
+name: forgejo-runner
+
+services:
+  forgejo-runner-dind:
+    # renovate: datasource=docker depName=docker
+    image: docker.io/library/docker:29-dind
+    container_name: forgejo-runner-dind
+    restart: unless-stopped
+    privileged: true
+    command:
+      - dockerd
+      - -H
+      - tcp://0.0.0.0:2375
+      - --tls=false
+    volumes:
+      - /opt/forgejo-runner/dind-data:/var/lib/docker
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "2.0"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  forgejo-runner:
+    # renovate: datasource=docker depName=data.forgejo.org/forgejo/runner
+    image: data.forgejo.org/forgejo/runner:12
+    container_name: forgejo-runner
+    restart: unless-stopped
+    depends_on:
+      forgejo-runner-dind:
+        condition: service_started
+    environment:
+      DOCKER_HOST: tcp://forgejo-runner-dind:2375
+      FORGEJO_RUNNER_UUID: ${FORGEJO_RUNNER_BIFROST_UUID}
+      FORGEJO_RUNNER_SECRET: ${FORGEJO_RUNNER_BIFROST_SECRET}
+    user: 1001:1001
+    working_dir: /data
+    volumes:
+      - /opt/forgejo-runner/data:/data
+    entrypoint:
+      - sh
+      - -c
+      - |-
+        set -e
+        umask 077
+        printf '%s' "$${FORGEJO_RUNNER_SECRET}" > /data/.token
+        cat > /data/runner-config.yml <<EOF
+        cache:
+          enabled: true
+          dir: /data/cache
+        container:
+          docker_host: tcp://forgejo-runner-dind:2375
+          options: --add-host=forgejo-runner-dind:host-gateway
+          workdir_parent: /data/workdir
+        log:
+          level: info
+        runner:
+          capacity: 2
+          envs:
+            DOCKER_HOST: tcp://forgejo-runner-dind:2375
+          timeout: 3h
+        EOF
+        exec forgejo-runner daemon \
+          --config /data/runner-config.yml \
+          --url https://git.vzkn.eu/ \
+          --uuid "$${FORGEJO_RUNNER_UUID}" \
+          --token-url file:///data/.token \
+          --label "ubuntu-latest:docker://ghcr.io/bjw-s-labs/forgejo-runner:ubuntu-24.04" \
+          --label "default:docker://ghcr.io/bjw-s-labs/forgejo-runner:ubuntu-24.04" \
+          --label "docker:docker://ghcr.io/bjw-s-labs/forgejo-runner:ubuntu-24.04"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: edge
+    external: true

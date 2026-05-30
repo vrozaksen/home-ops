@@ -18,22 +18,20 @@ spec:
     externalURL: https://registry.vzkn.eu
 
     # ─── Exposition ────────────────────────────────────────────────────
-    # Gateway API HTTPRoute via Envoy. TLS termination on Envoy (Gateway).
     expose:
-      type: ingress  # chart calls it "ingress" but generates HTTPRoute via gatewayAPI flag
+      type: route
       tls:
-        enabled: false  # Envoy Gateway terminates
-      ingress:
-        hosts:
-          core: registry.vzkn.eu
-        controller: default
-        className: ""
+        enabled: false
+      route:
         annotations:
           gatus.home-operations.com/endpoint: |-
             group: harbor
-        harbor:
-          # use HTTPRoute via Gateway API (chart 1.19+)
-          ingressClassName: ""
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        hosts:
+          - registry.vzkn.eu
 
     # ─── Storage ───────────────────────────────────────────────────────
     persistence:
@@ -96,12 +94,14 @@ spec:
     # ─── Components ────────────────────────────────────────────────────
     portal:
       replicas: 1
+      revisionHistoryLimit: 3
       resources:
         requests: {cpu: 10m, memory: 64Mi}
         limits: {memory: 128Mi}
 
     core:
       replicas: 1
+      revisionHistoryLimit: 3
       resources:
         requests: {cpu: 50m, memory: 256Mi}
         limits: {memory: 512Mi}
@@ -110,15 +110,18 @@ spec:
 
     jobservice:
       replicas: 1
+      revisionHistoryLimit: 3
       maxJobWorkers: 10
       jobLoggers:
         - stdout
+      loggerSweeperDuration: 14  # days; safe default if you ever switch jobLoggers → file
       resources:
         requests: {cpu: 50m, memory: 256Mi}
         limits: {memory: 512Mi}
 
     registry:
       replicas: 1
+      revisionHistoryLimit: 3
       registry:
         resources:
           requests: {cpu: 50m, memory: 256Mi}
@@ -148,6 +151,7 @@ spec:
 
     exporter:
       replicas: 1
+      revisionHistoryLimit: 3
       resources:
         requests: {cpu: 10m, memory: 64Mi}
         limits: {memory: 128Mi}

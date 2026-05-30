@@ -15,6 +15,11 @@ spec:
       namespace: security
     - name: plugin-barman-cloud
       namespace: database
+  healthChecks:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: postgres-harbor
+      namespace: development
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly

@@ -26,7 +26,7 @@ provider "infisical" {
 data "infisical_secrets" "provider_auth" {
   env_slug     = "prod"
   workspace_id = var.infisical_workspace_id
-  folder_path  = "/kubernetes/apps/development/forgejo"
+  folder_path  = "/kubernetes/development/forgejo"
   # expected key: FORGEJO_TOKEN (admin PAT with repository:write scope)
 }
 

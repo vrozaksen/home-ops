@@ -35,6 +35,7 @@ resource "authentik_provider_oauth2" "this" {
   access_token_validity      = var.access_token_validity
   property_mappings          = concat(data.authentik_property_mapping_provider_scope.scopes.ids, var.additional_property_mappings)
   allowed_redirect_uris      = local.allowed_redirect_uris
+  allowed_grant_types        = var.allowed_grant_types
 }
 
 resource "authentik_application" "this" {

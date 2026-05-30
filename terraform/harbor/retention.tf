@@ -5,11 +5,10 @@ resource "harbor_retention_policy" "private" {
   schedule = "Daily"
 
   rule {
-    n_days_since_last_pull = 0
-    most_recent_x_tags     = 10
-    repo_matching          = "**"
-    tag_matching           = "**"
-    untagged_artifacts     = false
+    most_recently_pushed = 10
+    repo_matching        = "**"
+    tag_matching         = "**"
+    untagged_artifacts   = false
   }
 
   rule {

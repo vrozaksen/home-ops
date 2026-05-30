@@ -21,7 +21,7 @@ locals {
     # ── Common ────────────────────────────────────────────────────────
     "dockerhub"  = { endpoint_url = "https://hub.docker.com",      provider_name = "docker-hub" }
     "ghcr"       = { endpoint_url = "https://ghcr.io",             provider_name = "github" }
-    "quay"       = { endpoint_url = "https://quay.io",             provider_name = "quay" }
+    "quay"       = { endpoint_url = "https://quay.io",             provider_name = "docker-registry" }
     "gcr"        = { endpoint_url = "https://gcr.io",              provider_name = "docker-registry" }
     "mirror-gcr" = { endpoint_url = "https://mirror.gcr.io",       provider_name = "docker-registry" }  # Trivy / CoreDNS / Envoy live here
     "k8s"        = { endpoint_url = "https://registry.k8s.io",     provider_name = "docker-registry" }

@@ -6,9 +6,9 @@ terraform {
       source = "infisical/infisical"
     }
 
-    gitea = {
-      source  = "lerentis/gitea"
-      version = "~> 0.13"
+    forgejo = {
+      source  = "svalabs/forgejo"
+      version = "~> 1.4"
     }
   }
 }
@@ -30,7 +30,7 @@ data "infisical_secrets" "provider_auth" {
   # expected key: FORGEJO_TOKEN (admin PAT with repository:write scope)
 }
 
-provider "gitea" {
-  base_url = var.forgejo_url
-  token    = data.infisical_secrets.provider_auth.secrets["FORGEJO_TOKEN"].value
+provider "forgejo" {
+  host      = var.forgejo_url
+  api_token = data.infisical_secrets.provider_auth.secrets["FORGEJO_TOKEN"].value
 }

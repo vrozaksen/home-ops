@@ -7,8 +7,7 @@ locals {
     "rxresume",
     "sentry",
     "tekton-results-logs",
-    "tfstate-mikrotik-terraform",
-    "zot"
+    "tfstate-mikrotik-terraform"
   ]
 }
 

@@ -34,8 +34,9 @@ spec:
     spegel:
       containerdSock: /run/containerd/containerd.sock
       containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-      # Resolution order per registry: peer → Harbor proxy (additionalMirrorTargets)
-      # → upstream. prependExisting keeps the Talos-managed hosts.toml entries.
+      # Resolution order per registry: peer (Spegel) → Harbor proxy (Talos patch
+      # with override_path) → upstream. Harbor target lives in Talos
+      # machine-registries.yaml, NOT here, because it needs override_path.
       mirroredRegistries:
         - https://docker.io
         - https://ghcr.io
@@ -53,8 +54,6 @@ spec:
         - https://cr.fluentbit.io
         - https://registry.access.redhat.com
         - https://gsoci.azurecr.io
-      additionalMirrorTargets:
-        - https://registry.vzkn.eu
       mirrorResolveRetries: 3
       mirrorResolveTimeout: 30ms
       prependExisting: true

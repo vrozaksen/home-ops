@@ -34,6 +34,12 @@ data "infisical_secrets" "harbor_admin" {
   folder_path  = "/kubernetes/harbor/harbor"
 }
 
+data "infisical_secrets" "oidc" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/terraform/authentik/oidc"
+}
+
 provider "harbor" {
   url      = var.harbor_url
   username = "admin"

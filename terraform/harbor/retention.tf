@@ -35,7 +35,7 @@ resource "harbor_retention_policy" "proxy" {
 }
 
 resource "harbor_garbage_collection" "main" {
-  schedule        = "Daily"
+  schedule        = "Weekly"
   delete_untagged = true
   workers         = 2
 }

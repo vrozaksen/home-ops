@@ -13,19 +13,13 @@ resource "harbor_replication" "containers_to_ghcr" {
   description = "Mirror containers/* to ghcr.io/vrozaksen/* on every push"
   action      = "push"
   registry_id = harbor_registry.ghcr_outbound.registry_id
+  schedule    = "event_based"
 
   filters {
     name = "containers/**"
   }
   filters {
     resource = "image"
-  }
-
-  trigger {
-    type = "event_based"
-    trigger_settings {
-      empty_jobs = false
-    }
   }
 
   override               = true

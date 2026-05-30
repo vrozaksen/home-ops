@@ -5,7 +5,6 @@ locals {
       vulnerability_scanning      = true
       enable_content_trust_cosign = true
       auto_sbom_generation        = true
-      reuse_sys_cve_allowlist     = true
       storage_quota               = 50
     }
     "home-ops" = {
@@ -13,23 +12,33 @@ locals {
       vulnerability_scanning      = true
       enable_content_trust_cosign = true
       auto_sbom_generation        = true
-      reuse_sys_cve_allowlist     = true
       storage_quota               = 10
     }
   }
 
   # URL pattern: registry.vzkn.eu/proxy-<name>/<original-path>
   proxy_registries = {
-    "dockerhub"  = { endpoint_url = "https://hub.docker.com",          provider_name = "docker-hub" }
-    "ghcr"       = { endpoint_url = "https://ghcr.io",                 provider_name = "github" }
-    "quay"       = { endpoint_url = "https://quay.io",                 provider_name = "quay" }
-    "gcr"        = { endpoint_url = "https://gcr.io",                  provider_name = "google-gcr" }
-    "k8s"        = { endpoint_url = "https://registry.k8s.io",         provider_name = "docker-registry" }
-    "ecr-public" = { endpoint_url = "https://public.ecr.aws",          provider_name = "aws-ecr" }
-    "mcr"        = { endpoint_url = "https://mcr.microsoft.com",       provider_name = "docker-registry" }
-    "nvcr"       = { endpoint_url = "https://nvcr.io",                 provider_name = "docker-registry" }
-    "cgr"        = { endpoint_url = "https://cgr.dev",                 provider_name = "docker-registry" }
-    "registry1"  = { endpoint_url = "https://registry1.docker.io",     provider_name = "docker-registry" }
+    # ── Common ────────────────────────────────────────────────────────
+    "dockerhub"  = { endpoint_url = "https://hub.docker.com",      provider_name = "docker-hub" }
+    "ghcr"       = { endpoint_url = "https://ghcr.io",             provider_name = "github" }
+    "quay"       = { endpoint_url = "https://quay.io",             provider_name = "quay" }
+    "gcr"        = { endpoint_url = "https://gcr.io",              provider_name = "google-gcr" }
+    "mirror-gcr" = { endpoint_url = "https://mirror.gcr.io",       provider_name = "docker-registry" }  # Trivy / CoreDNS / Envoy live here
+    "k8s"        = { endpoint_url = "https://registry.k8s.io",     provider_name = "docker-registry" }
+    "ecr-public" = { endpoint_url = "https://public.ecr.aws",      provider_name = "aws-ecr" }
+    "mcr"        = { endpoint_url = "https://mcr.microsoft.com",   provider_name = "docker-registry" }
+    "nvcr"       = { endpoint_url = "https://nvcr.io",             provider_name = "docker-registry" }
+    "cgr"        = { endpoint_url = "https://cgr.dev",             provider_name = "docker-registry" }
+
+    # ── Forgejo / dev / VCS-hosted images ─────────────────────────────
+    "forgejo"    = { endpoint_url = "https://code.forgejo.org",    provider_name = "docker-registry" }  # forgejo server image
+    "codeberg"   = { endpoint_url = "https://codeberg.org",        provider_name = "docker-registry" }  # towonel-agent
+    "eleboucher" = { endpoint_url = "https://git.erwanleboucher.dev", provider_name = "docker-registry" }  # 3rd-party forgejo-runner-k8s-plugin
+
+    # ── App-specific upstreams ────────────────────────────────────────
+    "fluentbit"  = { endpoint_url = "https://cr.fluentbit.io",     provider_name = "docker-registry" }  # fluent-bit official
+    "redhat"     = { endpoint_url = "https://registry.access.redhat.com", provider_name = "docker-registry" }  # UBI minimal base
+    "gsoci"      = { endpoint_url = "https://gsoci.azurecr.io",    provider_name = "docker-registry" }  # giantswarm/silence-operator
   }
 }
 
@@ -41,7 +50,6 @@ resource "harbor_project" "private" {
   vulnerability_scanning      = each.value.vulnerability_scanning
   enable_content_trust_cosign = each.value.enable_content_trust_cosign
   auto_sbom_generation        = each.value.auto_sbom_generation
-  reuse_sys_cve_allowlist     = each.value.reuse_sys_cve_allowlist
   storage_quota               = each.value.storage_quota
 }
 
@@ -56,10 +64,9 @@ resource "harbor_registry" "upstream" {
 resource "harbor_project" "proxy" {
   for_each = local.proxy_registries
 
-  name                    = "proxy-${each.key}"
-  public                  = true
-  registry_id             = harbor_registry.upstream[each.key].registry_id
-  vulnerability_scanning  = false
-  reuse_sys_cve_allowlist = true
-  storage_quota           = 50
+  name                   = "proxy-${each.key}"
+  public                 = true
+  registry_id            = harbor_registry.upstream[each.key].registry_id
+  vulnerability_scanning = false
+  storage_quota          = 50
 }

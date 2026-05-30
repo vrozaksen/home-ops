@@ -16,7 +16,7 @@ output "proxy_projects" {
 output "robot_paths" {
   value = {
     containers     = "/kubernetes/harbor/robots/containers"
-    home-ops       = "/kubernetes/harbor/robots/home-ops"
-    cluster-puller = "/kubernetes/harbor/robots/cluster-puller"
+    home_ops       = "/kubernetes/harbor/robots/home-ops"
+    cluster_puller = "/kubernetes/harbor/robots/cluster-puller"
   }
 }

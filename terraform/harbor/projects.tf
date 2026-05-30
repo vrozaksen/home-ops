@@ -22,10 +22,10 @@ locals {
     "dockerhub"  = { endpoint_url = "https://hub.docker.com",      provider_name = "docker-hub" }
     "ghcr"       = { endpoint_url = "https://ghcr.io",             provider_name = "github" }
     "quay"       = { endpoint_url = "https://quay.io",             provider_name = "quay" }
-    "gcr"        = { endpoint_url = "https://gcr.io",              provider_name = "google-gcr" }
+    "gcr"        = { endpoint_url = "https://gcr.io",              provider_name = "docker-registry" }
     "mirror-gcr" = { endpoint_url = "https://mirror.gcr.io",       provider_name = "docker-registry" }  # Trivy / CoreDNS / Envoy live here
     "k8s"        = { endpoint_url = "https://registry.k8s.io",     provider_name = "docker-registry" }
-    "ecr-public" = { endpoint_url = "https://public.ecr.aws",      provider_name = "aws-ecr" }
+    "ecr-public" = { endpoint_url = "https://public.ecr.aws",      provider_name = "docker-registry" }
     "mcr"        = { endpoint_url = "https://mcr.microsoft.com",   provider_name = "docker-registry" }
     "nvcr"       = { endpoint_url = "https://nvcr.io",             provider_name = "docker-registry" }
     "cgr"        = { endpoint_url = "https://cgr.dev",             provider_name = "docker-registry" }

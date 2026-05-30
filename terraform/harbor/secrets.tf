@@ -1,10 +1,3 @@
-resource "infisical_secret_folder" "robots_root" {
-  environment_slug = "prod"
-  folder_path      = "/kubernetes/harbor"
-  name             = "robots"
-  project_id       = var.infisical_workspace_id
-}
-
 resource "infisical_secret_folder" "robot" {
   for_each = toset(["containers", "home-ops", "cluster-puller"])
 
@@ -12,8 +5,6 @@ resource "infisical_secret_folder" "robot" {
   folder_path      = "/kubernetes/harbor/robots"
   name             = each.key
   project_id       = var.infisical_workspace_id
-
-  depends_on = [infisical_secret_folder.robots_root]
 }
 
 resource "infisical_secret" "containers_ci_name" {

@@ -7,10 +7,14 @@ metadata:
 spec:
   sourcePVC: ${APP}
   trigger:
-    schedule: 0 1,13 * * *
+    schedule: ${VOLSYNC_SCHEDULE:=0 * * * *}
   kopia:
     accessModes:
       - ${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}  # Use ReadOnlyMany for CephFS
+    cacheAccessModes:
+      - ${VOLSYNC_CACHE_ACCESSMODES:=ReadWriteOnce}
+    cacheCapacity: ${VOLSYNC_CACHE_CAPACITY:=5Gi}
+    cacheStorageClassName: ${VOLSYNC_CACHE_STORAGECLASS:=local-hostpath}
     compression: zstd-fastest
     copyMethod: Snapshot
     moverSecurityContext:

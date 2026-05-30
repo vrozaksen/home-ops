@@ -2,10 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: development
+namespace: harbor
 components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./attic/ks.yaml
-  - ./forgejo/ks.yaml
+  - ./harbor/ks.yaml

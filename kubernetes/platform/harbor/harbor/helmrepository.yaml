@@ -1,0 +1,9 @@
+---
+# Harbor publikuje chart tylko przez tradycyjny HelmRepository (nie OCI jeszcze).
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: harbor-charts
+spec:
+  interval: 1h
+  url: https://helm.goharbor.io

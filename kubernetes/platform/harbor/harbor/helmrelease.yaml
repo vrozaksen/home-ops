@@ -1,0 +1,169 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: harbor
+spec:
+  interval: 1h
+  chart:
+    spec:
+      # renovate: registryUrl=https://helm.goharbor.io
+      chart: harbor
+      version: 1.19.1
+      sourceRef:
+        kind: HelmRepository
+        name: harbor-charts
+  values:
+    externalURL: https://registry.vzkn.eu
+
+    # ─── Exposition ────────────────────────────────────────────────────
+    # Gateway API HTTPRoute via Envoy. TLS termination on Envoy (Gateway).
+    expose:
+      type: ingress  # chart calls it "ingress" but generates HTTPRoute via gatewayAPI flag
+      tls:
+        enabled: false  # Envoy Gateway terminates
+      ingress:
+        hosts:
+          core: registry.vzkn.eu
+        controller: default
+        className: ""
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: harbor
+        harbor:
+          # use HTTPRoute via Gateway API (chart 1.19+)
+          ingressClassName: ""
+
+    # ─── Storage ───────────────────────────────────────────────────────
+    persistence:
+      enabled: true
+      resourcePolicy: keep
+      persistentVolumeClaim:
+        registry:
+          existingClaim: ""  # we use S3 for blobs, this PVC unused but chart requires
+          size: 1Gi
+          storageClass: ceph-block
+        jobservice:
+          jobLog:
+            existingClaim: ""
+            size: 1Gi
+            storageClass: ceph-block
+        trivy:
+          existingClaim: ""
+          size: 5Gi  # trivy DB ~1.5GB
+          storageClass: ceph-block
+      imageChartStorage:
+        disableredirect: true  # Garage doesn't support presigned URLs reliably
+        type: s3
+        s3:
+          existingSecret: harbor-secret
+          region: eu-central-1
+          bucket: harbor
+          regionendpoint: https://api.s3.vzkn.eu
+          secure: true
+          v4auth: true
+          rootdirectory: /
+
+    # ─── Existing secret ───────────────────────────────────────────────
+    existingSecretAdminPassword: harbor-secret
+    existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+    existingSecretSecretKey: harbor-secret
+
+    # ─── External Postgres (CNPG) ──────────────────────────────────────
+    database:
+      type: external
+      external:
+        host: postgres-harbor-rw.harbor.svc.cluster.local
+        port: "5432"
+        username: harbor
+        coreDatabase: harbor
+        existingSecret: postgres-harbor-app  # CNPG auto-generated app secret (key: password)
+        sslmode: disable
+      maxIdleConns: 50
+      maxOpenConns: 400
+
+    # ─── External Redis (Dragonfly) ────────────────────────────────────
+    redis:
+      type: external
+      external:
+        addr: harbor-dragonfly:6379
+        coreDatabaseIndex: "0"
+        jobserviceDatabaseIndex: "1"
+        registryDatabaseIndex: "2"
+        trivyAdapterIndex: "5"
+
+    # ─── Components ────────────────────────────────────────────────────
+    portal:
+      replicas: 1
+      resources:
+        requests: {cpu: 10m, memory: 64Mi}
+        limits: {memory: 128Mi}
+
+    core:
+      replicas: 1
+      resources:
+        requests: {cpu: 50m, memory: 256Mi}
+        limits: {memory: 512Mi}
+      # OIDC: enabled via terraform after first boot (admin password login → terraform manages oidc config)
+      xsrfKey: ""
+
+    jobservice:
+      replicas: 1
+      maxJobWorkers: 10
+      jobLoggers:
+        - stdout
+      resources:
+        requests: {cpu: 50m, memory: 256Mi}
+        limits: {memory: 512Mi}
+
+    registry:
+      replicas: 1
+      registry:
+        resources:
+          requests: {cpu: 50m, memory: 256Mi}
+          limits: {memory: 512Mi}
+      controller:
+        resources:
+          requests: {cpu: 10m, memory: 64Mi}
+          limits: {memory: 128Mi}
+      credentials:
+        existingSecret: harbor-secret
+      relativeurls: true
+
+    trivy:
+      enabled: true
+      replicas: 1
+      vulnType: os,library
+      severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+      ignoreUnfixed: false
+      skipUpdate: false
+      skipJavaDBUpdate: false
+      offlineScan: false
+      securityCheck: vuln
+      timeout: 5m0s
+      resources:
+        requests: {cpu: 100m, memory: 512Mi}
+        limits: {cpu: 1, memory: 1Gi}
+
+    exporter:
+      replicas: 1
+      resources:
+        requests: {cpu: 10m, memory: 64Mi}
+        limits: {memory: 128Mi}
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+
+    cache:
+      enabled: true
+      expireHours: 24
+
+    # ─── IPv4 only (cilium dual-stack disabled) ────────────────────────
+    ipFamily:
+      ipv6:
+        enabled: false
+      ipv4:
+        enabled: true

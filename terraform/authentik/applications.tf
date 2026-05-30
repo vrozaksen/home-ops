@@ -25,6 +25,7 @@ locals {
     "nextcloud",
     "pgadmin",
     "qui",
+    "harbor",
     "rxresume",
     "sentry",
     "sparkyfitness",
@@ -379,22 +380,22 @@ module "oauth2-forgejo" {
   redirect_uris      = ["https://git.${var.cluster_domain}/user/oauth2/Authentik/callback"]
 }
 
-# module "oauth2-harbor" {
-#   source                       = "./oauth2_application"
-#   name                         = "Harbor"
-#   icon_url                     = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/harbor.png"
-#   launch_url                   = "https://harbor.${var.cluster_domain}"
-#   description                  = "Container registry"
-#   newtab                       = true
-#   group                        = "Development"
-#   auth_groups                  = [authentik_group.users.id]
-#   authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
-#   invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
-#   client_id                    = local.parsed_secrets["harbor"].client_id
-#   client_secret                = local.parsed_secrets["harbor"].client_secret
-#   additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
-#   redirect_uris                = ["https://harbor.${var.cluster_domain}/c/oidc/callback"]
-# }
+module "oauth2-harbor" {
+  source                       = "./oauth2_application"
+  name                         = "Harbor"
+  icon_url                     = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/refs/heads/main/png/harbor.png"
+  launch_url                   = "https://registry.${var.cluster_domain}"
+  description                  = "Container registry"
+  newtab                       = true
+  group                        = "Development"
+  auth_groups                  = [authentik_group.admin.id]
+  authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
+  client_id                    = local.parsed_secrets["harbor"].client_id
+  client_secret                = local.parsed_secrets["harbor"].client_secret
+  additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
+  redirect_uris                = ["https://registry.${var.cluster_domain}/c/oidc/callback"]
+}
 
 module "oauth2-zot" {
   source             = "./oauth2_application"

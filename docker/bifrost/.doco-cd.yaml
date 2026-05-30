@@ -1,5 +1,6 @@
 ---
 name: bifrost
+reference: refs/heads/main
 working_dir: ./docker/bifrost
 auto_discovery:
   enabled: true

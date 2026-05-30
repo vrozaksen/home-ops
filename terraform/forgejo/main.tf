@@ -7,8 +7,8 @@ terraform {
     }
 
     gitea = {
-      source  = "integrations/gitea"
-      version = "~> 0.6"
+      source  = "lerentis/gitea"
+      version = "~> 0.13"
     }
   }
 }
@@ -23,13 +23,14 @@ provider "infisical" {
   }
 }
 
-data "infisical_secrets" "forgejo" {
+data "infisical_secrets" "provider_auth" {
   env_slug     = "prod"
   workspace_id = var.infisical_workspace_id
   folder_path  = "/kubernetes/apps/development/forgejo"
+  # expected key: FORGEJO_TOKEN (admin PAT with repository:write scope)
 }
 
 provider "gitea" {
   base_url = var.forgejo_url
-  token    = data.infisical_secrets.forgejo.secrets["FORGEJO_TOKEN"].value
+  token    = data.infisical_secrets.provider_auth.secrets["FORGEJO_TOKEN"].value
 }

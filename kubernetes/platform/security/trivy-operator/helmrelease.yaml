@@ -47,9 +47,13 @@ spec:
       builtInTrivyServer: true
 
       # -- Scanner feature flags
-      vulnerabilityScannerEnabled: true
-      vulnerabilityScannerScanOnlyCurrentRevisions: true
-      sbomGenerationEnabled: true
+      # Vulnerability + SBOM scanning offloaded to Harbor (registry-side scan
+      # via Trivy adapter on push, daily re-scan via interrogation_services).
+      # All cluster pulls go through registry.vzkn.eu/proxy-*/* projects so
+      # Harbor has CVE coverage for every image we deploy. Keep config-audit
+      # + exposed-secret here because Harbor does neither.
+      vulnerabilityScannerEnabled: false
+      sbomGenerationEnabled: false
       clusterSbomCacheEnabled: false
 
       configAuditScannerEnabled: true

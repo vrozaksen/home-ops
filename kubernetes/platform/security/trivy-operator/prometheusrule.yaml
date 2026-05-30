@@ -9,28 +9,6 @@ spec:
     - name: trivy-operator
       interval: 1h
       rules:
-        - alert: TrivyCriticalVulnerabilities
-          annotations:
-            summary: "Critical vulnerabilities detected in cluster"
-            description: "{{ $value }} critical vulnerabilities found across the cluster. Review Grafana dashboard or run: kubectl get vulnerabilityreports -A"
-          expr: |
-            sum(trivy_image_vulnerabilities{severity="Critical"}) > 10
-          for: 5m
-          labels:
-            severity: critical
-            category: security
-
-        - alert: TrivyHighVulnerabilities
-          annotations:
-            summary: "High number of high-severity vulnerabilities detected"
-            description: "{{ $value }} high-severity vulnerabilities found across the cluster. Review Grafana dashboard or run: kubectl get vulnerabilityreports -A"
-          expr: |
-            sum(trivy_image_vulnerabilities{severity="High"}) > 50
-          for: 1h
-          labels:
-            severity: warning
-            category: security
-
         - alert: TrivyConfigAuditFailures
           annotations:
             summary: "Configuration audit failures detected"

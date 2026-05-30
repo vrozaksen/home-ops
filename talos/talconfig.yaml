@@ -206,6 +206,7 @@ patches:
   - "@./patches/global/machine-time.yaml"  # NTP
   - "@./patches/global/machine-tcpprobe.yaml"  # TCP probe for gateway DNS
   - "@./patches/global/machine-watchdog.yaml"  # Hardware Watchdog
+  - "@./patches/global/machine-registries.yaml"  # Harbor proxy cache mirrors
 
 # Controller patches
 controlPlane:

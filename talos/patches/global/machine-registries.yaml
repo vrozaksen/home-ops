@@ -1,0 +1,72 @@
+---
+# Containerd mirror endpoints → Harbor proxy cache projects.
+# Spegel prepends its peer endpoint (127.0.0.1:29999) at runtime, so the
+# effective resolution order is: peer → Harbor proxy → upstream.
+# overridePath=true tells containerd to use the endpoint path verbatim.
+machine:
+  registries:
+    mirrors:
+      docker.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-dockerhub
+        overridePath: true
+      ghcr.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-ghcr
+        overridePath: true
+      quay.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-quay
+        overridePath: true
+      gcr.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-gcr
+        overridePath: true
+      registry.k8s.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-k8s
+        overridePath: true
+      public.ecr.aws:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-ecr-public
+        overridePath: true
+      mcr.microsoft.com:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-mcr
+        overridePath: true
+      nvcr.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-nvcr
+        overridePath: true
+      cgr.dev:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-cgr
+        overridePath: true
+      mirror.gcr.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-mirror-gcr
+        overridePath: true
+      code.forgejo.org:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-forgejo
+        overridePath: true
+      codeberg.org:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-codeberg
+        overridePath: true
+      git.erwanleboucher.dev:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-eleboucher
+        overridePath: true
+      cr.fluentbit.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-fluentbit
+        overridePath: true
+      registry.access.redhat.com:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-redhat
+        overridePath: true
+      gsoci.azurecr.io:
+        endpoints:
+          - https://registry.vzkn.eu/v2/proxy-gsoci
+        overridePath: true

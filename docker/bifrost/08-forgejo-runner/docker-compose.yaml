@@ -2,6 +2,18 @@
 name: forgejo-runner
 
 services:
+  forgejo-runner-init:
+    image: docker.io/library/alpine:3.23
+    container_name: forgejo-runner-init
+    restart: "no"
+    user: "0:0"
+    command:
+      - sh
+      - -c
+      - chown -R 1001:1001 /data && chmod 700 /data
+    volumes:
+      - /opt/forgejo-runner/data:/data
+
   forgejo-runner-dind:
     # renovate: datasource=docker depName=docker
     image: docker.io/library/docker:29-dind
@@ -34,6 +46,8 @@ services:
     depends_on:
       forgejo-runner-dind:
         condition: service_started
+      forgejo-runner-init:
+        condition: service_completed_successfully
     environment:
       DOCKER_HOST: tcp://forgejo-runner-dind:2375
       FORGEJO_RUNNER_UUID: ${FORGEJO_RUNNER_BIFROST_UUID}

@@ -88,11 +88,6 @@ variable "redirect_uris" {
   type = list(any)
 }
 
-variable "allowed_grant_types" {
-  type    = list(string)
-  default = ["authorization_code", "refresh_token"]
-}
-
 locals {
   client_id = var.client_id
   client_secret = (

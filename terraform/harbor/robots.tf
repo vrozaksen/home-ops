@@ -1,8 +1,21 @@
 resource "harbor_robot_account" "containers_ci" {
   name        = "containers-ci"
-  description = "CI push token for project 'containers'"
-  level       = "project"
+  description = "CI push token for 'containers' + shared 'cache' projects"
+  level       = "system"
   duration    = -1
+
+  permissions {
+    access {
+      action   = "push"
+      resource = "repository"
+    }
+    access {
+      action   = "pull"
+      resource = "repository"
+    }
+    kind      = "project"
+    namespace = harbor_project.private["cache"].name
+  }
 
   permissions {
     access {

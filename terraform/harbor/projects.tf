@@ -1,5 +1,12 @@
 locals {
   private_projects = {
+    "cache" = {
+      public                      = true
+      vulnerability_scanning      = false
+      enable_content_trust_cosign = false
+      auto_sbom_generation        = false
+      storage_quota               = 30
+    }
     "containers" = {
       public                      = true
       vulnerability_scanning      = true

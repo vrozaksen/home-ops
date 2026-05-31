@@ -5,6 +5,12 @@ data "infisical_secrets" "harbor_robot_containers" {
   folder_path  = "/kubernetes/harbor/robots/containers"
 }
 
+data "infisical_secrets" "harbor_robot_vroxide" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/kubernetes/harbor/robots/vroxide"
+}
+
 # ─── CI-side secrets (BOT_TOKEN + COSIGN_* + PUSHOVER_*) ──────────────
 data "infisical_secrets" "forgejo_actions" {
   env_slug     = "prod"

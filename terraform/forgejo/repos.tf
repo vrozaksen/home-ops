@@ -30,9 +30,22 @@ locals {
       ATTIC_TOKEN = data.infisical_secrets.attic.secrets["PULL_TOKEN"].value
     }
 
-    # vroxide standalone ci.yml also pushes to Attic.
+    # vroxide standalone ci.yml: pushes to Attic for nix cache + Harbor for
+    # signed OCI release artifacts (binaries + SBOM). Cosign key shared with
+    # containers — single signing identity across vzkn-eu org.
     "vroxide" = {
       ATTIC_TOKEN = data.infisical_secrets.attic.secrets["PULL_TOKEN"].value
+
+      REGISTRY_USERNAME = data.infisical_secrets.harbor_robot_vroxide.secrets["HARBOR_ROBOT_NAME"].value
+      REGISTRY_PASSWORD = data.infisical_secrets.harbor_robot_vroxide.secrets["HARBOR_ROBOT_TOKEN"].value
+
+      COSIGN_KEY      = data.infisical_secrets.forgejo_actions.secrets["COSIGN_KEY"].value
+      COSIGN_PASSWORD = data.infisical_secrets.forgejo_actions.secrets["COSIGN_PASSWORD"].value
+
+      BOT_TOKEN = data.infisical_secrets.forgejo_actions.secrets["BOT_TOKEN"].value
+
+      PUSHOVER_USER_KEY  = data.infisical_secrets.forgejo_actions.secrets["PUSHOVER_USER_KEY"].value
+      PUSHOVER_APP_TOKEN = data.infisical_secrets.forgejo_actions.secrets["PUSHOVER_APP_TOKEN"].value
     }
   }
 

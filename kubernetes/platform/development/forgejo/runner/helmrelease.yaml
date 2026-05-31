@@ -62,6 +62,15 @@ spec:
                   requests:
                     cpu: 100m
                     memory: 256Mi
+                volumeMounts:
+                  - name: buildkit-tls
+                    mountPath: /etc/buildkit-tls
+                    readOnly: true
+            volumes:
+              - name: buildkit-tls
+                secret:
+                  secretName: buildkit-client-tls
+                  defaultMode: 0400
             restartPolicy: Never
     controllers:
       forgejo-runner:

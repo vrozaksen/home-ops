@@ -20,6 +20,7 @@ spec:
             app.kubernetes.io/name: *app
           annotations:
             container.apparmor.security.beta.kubernetes.io/app: unconfined
+            container.apparmor.security.beta.kubernetes.io/binfmt: unconfined
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
@@ -48,6 +49,18 @@ spec:
               allowPrivilegeEscalation: false
               capabilities: {drop: ["ALL"]}
               readOnlyRootFilesystem: true
+          binfmt:
+            image:
+              repository: tonistiigi/binfmt
+              tag: qemu-v10.2.1@sha256:d3b963f787999e6c0219a48dba02978769286ff61a5f4d26245cb6a6e5567ea3
+            args:
+              - "--install"
+              - "all"
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              privileged: true
         containers:
           app:
             image:
@@ -61,6 +74,12 @@ spec:
               # native snapshotter — Talos doesn't expose /dev/fuse to pods,
               # so overlayfs/fuse-overlayfs aren't options.
               - --oci-worker-snapshotter=native
+              # mTLS — server cert (DNS SANs cover buildkit Service) +
+              # cluster-local CA. `--tlscacert` enforces client cert auth
+              # automatically (any non-empty CA = mTLS required).
+              - --tlscert=/certs/tls.crt
+              - --tlskey=/certs/tls.key
+              - --tlscacert=/certs/ca.crt
             ports:
               - name: grpc
                 containerPort: 1234
@@ -81,7 +100,7 @@ spec:
                   exec:
                     command:
                       - buildctl
-                      - --addr=tcp://127.0.0.1:1234
+                      - --addr=unix:///run/user/1000/buildkit/buildkitd.sock
                       - debug
                       - workers
                   initialDelaySeconds: 5
@@ -92,7 +111,7 @@ spec:
                 cpu: 200m
                 memory: 1Gi
               limits:
-                memory: 6Gi
+                memory: 12Gi
             securityContext:
               allowPrivilegeEscalation: true
               capabilities:
@@ -101,6 +120,41 @@ spec:
                 add:
                   - "SETUID"
                   - "SETGID"
+      prune:
+        type: cronjob
+        cronjob:
+          schedule: "0 3 * * 0"  # weekly Sunday 03:00
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 2
+          backoffLimit: 1
+        pod:
+          labels:
+            app.kubernetes.io/name: buildkit-prune
+        containers:
+          app:
+            image:
+              repository: moby/buildkit
+              tag: v0.30.0-rootless@sha256:d76eb1caecac5733ef7553c1e90a1b21f1bb218cd1142d3553de0747b4a14ba9
+            command:
+              - buildctl
+              - --addr=tcp://buildkit.development.svc.cluster.local:1234
+              - --tlscacert=/certs/ca.crt
+              - --tlscert=/certs/tls.crt
+              - --tlskey=/certs/tls.key
+              - prune
+              - --keep-storage=20480  # retain 20 GiB
+              - --keep-duration=168h  # retain ≤7 days regardless
+            resources:
+              requests: {cpu: 10m, memory: 32Mi}
+              limits: {memory: 128Mi}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+              readOnlyRootFilesystem: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
     defaultPodOptions:
       priorityClassName: cluster-low
     persistence:
@@ -109,16 +163,58 @@ spec:
         storageClass: ceph-block
         accessMode: ReadWriteOnce
         size: 30Gi
-        globalMounts:
-          - path: /home/user/.local/share/buildkit
+        advancedMounts:
+          buildkit:
+            app:
+              - path: /home/user/.local/share/buildkit
       docker-config:
         type: emptyDir
-        globalMounts:
-          - path: /home/user/.docker
+        advancedMounts:
+          buildkit:
+            app:
+              - path: /home/user/.docker
+            auth:
+              - path: /home/user/.docker
       run:
         type: emptyDir
-        globalMounts:
-          - path: /run/user/1000
+        advancedMounts:
+          buildkit:
+            app:
+              - path: /run/user/1000
+            auth:
+              - path: /run/user/1000
+      tls:
+        type: secret
+        name: buildkit-server-tls
+        defaultMode: 0400
+        advancedMounts:
+          buildkit:
+            app:
+              - path: /certs/tls.crt
+                subPath: tls.crt
+                readOnly: true
+              - path: /certs/tls.key
+                subPath: tls.key
+                readOnly: true
+              - path: /certs/ca.crt
+                subPath: ca.crt
+                readOnly: true
+      tls-client:
+        type: secret
+        name: buildkit-client-tls
+        defaultMode: 0400
+        advancedMounts:
+          prune:
+            app:
+              - path: /certs/tls.crt
+                subPath: tls.crt
+                readOnly: true
+              - path: /certs/tls.key
+                subPath: tls.key
+                readOnly: true
+              - path: /certs/ca.crt
+                subPath: ca.crt
+                readOnly: true
     service:
       app:
         controller: buildkit

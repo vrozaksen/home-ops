@@ -14,6 +14,8 @@ spec:
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/managed-by: forgejo-runner
+        - matchLabels:
+            app.kubernetes.io/name: buildkit-prune
       toPorts:
         - ports:
             - protocol: TCP

@@ -1,0 +1,83 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: buildkit-selfsigned
+spec:
+  selfSigned: {}
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: buildkit-ca
+spec:
+  isCA: true
+  commonName: buildkit-ca
+  secretName: buildkit-ca
+  duration: 87600h  # 10 years
+  renewBefore: 8760h  # 1 year
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: buildkit-selfsigned
+    kind: Issuer
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: buildkit-ca
+spec:
+  ca:
+    secretName: buildkit-ca
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: buildkit-server
+spec:
+  secretName: buildkit-server-tls
+  duration: 2160h  # 90d
+  renewBefore: 360h  # 15d
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - digital signature
+    - key encipherment
+  dnsNames:
+    - buildkit
+    - buildkit.development
+    - buildkit.development.svc
+    - buildkit.development.svc.cluster.local
+  issuerRef:
+    name: buildkit-ca
+    kind: Issuer
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: buildkit-client
+spec:
+  secretName: buildkit-client-tls
+  duration: 2160h
+  renewBefore: 360h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - client auth
+    - digital signature
+    - key encipherment
+  commonName: forgejo-runner
+  issuerRef:
+    name: buildkit-ca
+    kind: Issuer

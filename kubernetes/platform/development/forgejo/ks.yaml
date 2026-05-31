@@ -54,6 +54,8 @@ metadata:
   name: &app forgejo-buildkit
 spec:
   dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
     - name: infisical-operator
       namespace: security
   interval: 1h

@@ -21,6 +21,13 @@ locals {
       auto_sbom_generation        = true
       storage_quota               = 10
     }
+    "vroxide" = {
+      public                      = true
+      vulnerability_scanning      = true
+      enable_content_trust_cosign = true
+      auto_sbom_generation        = true
+      storage_quota               = 10
+    }
   }
 
   # URL pattern: registry.vzkn.eu/proxy-<name>/<original-path>

@@ -66,3 +66,23 @@ resource "harbor_robot_account" "cluster_puller" {
     namespace = "*"
   }
 }
+
+resource "harbor_robot_account" "vroxide_ci" {
+  name        = "vroxide-ci"
+  description = "CI push token for project 'vroxide' (signed OCI release artifacts: binaries + SBOM)"
+  level       = "system"
+  duration    = -1
+
+  permissions {
+    access {
+      action   = "push"
+      resource = "repository"
+    }
+    access {
+      action   = "pull"
+      resource = "repository"
+    }
+    kind      = "project"
+    namespace = harbor_project.private["vroxide"].name
+  }
+}

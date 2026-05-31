@@ -1,5 +1,5 @@
 resource "infisical_secret_folder" "robot" {
-  for_each = toset(["containers", "home-ops", "cluster-puller"])
+  for_each = toset(["containers", "home-ops", "cluster-puller", "vroxide"])
 
   environment_slug = "prod"
   folder_path      = "/kubernetes/harbor/robots"
@@ -63,6 +63,26 @@ resource "infisical_secret" "cluster_puller_token" {
   env_slug     = "prod"
   workspace_id = var.infisical_workspace_id
   folder_path  = "/kubernetes/harbor/robots/cluster-puller"
+
+  depends_on = [infisical_secret_folder.robot]
+}
+
+resource "infisical_secret" "vroxide_ci_name" {
+  name         = "HARBOR_ROBOT_NAME"
+  value        = harbor_robot_account.vroxide_ci.full_name
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/kubernetes/harbor/robots/vroxide"
+
+  depends_on = [infisical_secret_folder.robot]
+}
+
+resource "infisical_secret" "vroxide_ci_token" {
+  name         = "HARBOR_ROBOT_TOKEN"
+  value        = harbor_robot_account.vroxide_ci.secret
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/kubernetes/harbor/robots/vroxide"
 
   depends_on = [infisical_secret_folder.robot]
 }

@@ -47,6 +47,9 @@ spec:
           podspec-default.yaml: |-
             serviceAccountName: forgejo-runner
             automountServiceAccountToken: true
+            securityContext:
+              fsGroup: 1000
+              fsGroupChangePolicy: OnRootMismatch
             containers:
               - env:
                   - name: DEBIAN_FRONTEND
@@ -70,7 +73,7 @@ spec:
               - name: buildkit-tls
                 secret:
                   secretName: buildkit-client-tls
-                  defaultMode: 0400
+                  defaultMode: 0440
             restartPolicy: Never
     controllers:
       forgejo-runner:

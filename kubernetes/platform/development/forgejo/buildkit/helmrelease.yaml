@@ -131,6 +131,9 @@ spec:
         pod:
           labels:
             app.kubernetes.io/name: buildkit-prune
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
         containers:
           app:
             image:
@@ -202,7 +205,7 @@ spec:
       tls-client:
         type: secret
         name: buildkit-client-tls
-        defaultMode: 0400
+        defaultMode: 0440
         advancedMounts:
           prune:
             app:

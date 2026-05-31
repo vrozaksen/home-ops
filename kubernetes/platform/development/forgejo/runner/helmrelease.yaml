@@ -39,6 +39,7 @@ spec:
               capacity: 5
               file: /persistent/.runner
               labels:
+                - cluster:k8s:/config/podspec-default.yaml
                 - ubuntu-latest:k8s:/config/podspec-default.yaml
                 - ubuntu-24.04:k8s:/config/podspec-default.yaml
                 - default:k8s:/config/podspec-default.yaml

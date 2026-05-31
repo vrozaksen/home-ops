@@ -123,7 +123,7 @@ spec:
       prune:
         type: cronjob
         cronjob:
-          schedule: "0 3 * * 0"  # weekly Sunday 03:00
+          schedule: "0 3 * * *"  # daily 03:00
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 2
@@ -162,7 +162,7 @@ spec:
         type: persistentVolumeClaim
         storageClass: ceph-block
         accessMode: ReadWriteOnce
-        size: 30Gi
+        size: 100Gi
         advancedMounts:
           buildkit:
             app:

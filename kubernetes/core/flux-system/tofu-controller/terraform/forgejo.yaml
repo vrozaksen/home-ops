@@ -5,7 +5,8 @@ kind: Terraform
 metadata:
   name: forgejo
 spec:
-  interval: 12h
+  interval: 1h
+  refreshBeforeApply: true
   approvePlan: auto
   backendConfig:
     customConfiguration: |

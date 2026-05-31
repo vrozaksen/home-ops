@@ -18,6 +18,8 @@ spec:
         pod:
           labels:
             app.kubernetes.io/name: *app
+          annotations:
+            container.apparmor.security.beta.kubernetes.io/app: unconfined
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
@@ -92,8 +94,13 @@ spec:
               limits:
                 memory: 6Gi
             securityContext:
-              allowPrivilegeEscalation: false
-              capabilities: {drop: ["ALL"]}
+              allowPrivilegeEscalation: true
+              capabilities:
+                drop:
+                  - "ALL"
+                add:
+                  - "SETUID"
+                  - "SETGID"
     defaultPodOptions:
       priorityClassName: cluster-low
     persistence:

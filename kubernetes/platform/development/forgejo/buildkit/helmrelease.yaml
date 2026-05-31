@@ -29,8 +29,8 @@ spec:
         initContainers:
           auth:
             image:
-              repository: ghcr.io/oci-mirror/busybox
-              tag: "1.37"
+              repository: ghcr.io/home-operations/busybox
+              tag: 1.37.0@sha256:026ed7273270ec08f6902b4ae8334c23b473e5394bec3bbbdbfe580c710d50bc
             command:
               - sh
               - -ec

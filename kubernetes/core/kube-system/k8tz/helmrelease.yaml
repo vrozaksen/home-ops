@@ -30,6 +30,7 @@ spec:
     timezone: Europe/Warsaw
     cronJobTimeZone: true
     ignoredNamespaces:
+      - flux-system
       - kube-system
       - security
     nodeSelector:

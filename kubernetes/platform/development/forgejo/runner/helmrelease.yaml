@@ -45,6 +45,8 @@ spec:
                 - docker:k8s:/config/podspec-default.yaml
               timeout: 3h
           podspec-default.yaml: |-
+            serviceAccountName: forgejo-runner
+            automountServiceAccountToken: true
             containers:
               - env:
                   - name: DEBIAN_FRONTEND

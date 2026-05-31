@@ -3,35 +3,29 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: forgejo-runner
+  name: buildkit
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/managed-by: forgejo-runner
+      app.kubernetes.io/name: buildkit
   enableDefaultDeny:
     ingress: true
-  egress:
-    - # Forgejo server
-      toEndpoints:
+  ingress:
+    - fromEndpoints:
         - matchLabels:
-            app.kubernetes.io/name: forgejo
-      toPorts:
-        - ports:
-            - protocol: TCP
-              port: "3000"
-    - # Forgejo (External URL)
-      toFQDNs:
-        - matchName: git.vzkn.eu
-    - # Buildkit
-      toEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: buildkit
+            app.kubernetes.io/managed-by: forgejo-runner
       toPorts:
         - ports:
             - protocol: TCP
               port: "1234"
-    - # Internet egress (HTTPS)
-      toCIDRSet:
+  egress:
+    - toFQDNs:
+        - matchName: registry.vzkn.eu
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "443"
+    - toCIDRSet:
         - cidr: 0.0.0.0/0
           except:
             - 10.0.0.0/8

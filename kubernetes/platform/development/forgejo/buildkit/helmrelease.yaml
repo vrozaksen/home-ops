@@ -1,0 +1,122 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app buildkit
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      buildkit:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            app.kubernetes.io/name: *app
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: Unconfined
+        initContainers:
+          auth:
+            image:
+              repository: ghcr.io/oci-mirror/busybox
+              tag: "1.37"
+            command:
+              - sh
+              - -ec
+              - |
+                AUTH=$(printf '%s:%s' "$HARBOR_ROBOT_NAME" "$HARBOR_ROBOT_TOKEN" | base64 -w0)
+                printf '{"auths":{"registry.vzkn.eu":{"auth":"%s"}}}\n' "$AUTH" \
+                  > /home/user/.docker/config.json
+                chmod 0600 /home/user/.docker/config.json
+            envFrom:
+              - secretRef:
+                  name: buildkit-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+              readOnlyRootFilesystem: true
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=moby/buildkit
+              repository: moby/buildkit
+              tag: v0.24.1-rootless
+            args:
+              - --addr=tcp://0.0.0.0:1234
+              - --addr=unix:///run/user/1000/buildkit/buildkitd.sock
+              - --oci-worker-no-process-sandbox
+              # native snapshotter — Talos doesn't expose /dev/fuse to pods,
+              # so overlayfs/fuse-overlayfs aren't options.
+              - --oci-worker-snapshotter=native
+            ports:
+              - name: grpc
+                containerPort: 1234
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 1234
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - buildctl
+                      - --addr=tcp://127.0.0.1:1234
+                      - debug
+                      - workers
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 6Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+    defaultPodOptions:
+      priorityClassName: cluster-low
+    persistence:
+      cache:
+        type: persistentVolumeClaim
+        storageClass: ceph-block
+        accessMode: ReadWriteOnce
+        size: 30Gi
+        globalMounts:
+          - path: /home/user/.local/share/buildkit
+      docker-config:
+        type: emptyDir
+        globalMounts:
+          - path: /home/user/.docker
+      run:
+        type: emptyDir
+        globalMounts:
+          - path: /run/user/1000
+    service:
+      app:
+        controller: buildkit
+        ports:
+          grpc:
+            port: 1234
+            targetPort: grpc
+            protocol: TCP

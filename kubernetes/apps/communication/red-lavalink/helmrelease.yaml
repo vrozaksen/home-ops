@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vrozaksen/red-lavalink
-              tag: 3.7.13@sha256:59f79806d959e859f2fbd5e712631c06e4637153ed47c5661095055438f64127
+              tag: 3.7.13@sha256:c40674e8aed99e6ca742611ea5d4c495f8c3846073a3170c4ef9053a84e612df
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000

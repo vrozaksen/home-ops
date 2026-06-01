@@ -16,3 +16,19 @@ spec:
   permissionProfile:
     type: builtin
     name: network
+  env:
+    - name: HOME
+      value: /tmp
+    - name: XDG_CONFIG_HOME
+      value: /tmp
+  podTemplateSpec:
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: lean-ctx
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: data
+              mountPath: /tmp

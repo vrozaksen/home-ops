@@ -3,17 +3,26 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: mcp-lean-ctx
+  name: &app mcp-lean-ctx
 spec:
+  components:
+    - ../../../../components/volsync
   dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
     - name: toolhive-config
       namespace: ai
   interval: 1h
   path: ./kubernetes/apps/ai/mcp/lean-ctx
+  postBuild:
+    substitute:
+      APP: lean-ctx
+      NS: &ns ai
+      VOLSYNC_CAPACITY: 2Gi
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: ai
+  targetNamespace: *ns
   wait: false

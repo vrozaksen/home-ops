@@ -32,7 +32,7 @@ spec:
     targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
 
     # -- Exclude system namespaces from scanning
-    # Volsync jobs already filtered via skipResourceByLabels + excludeImages.
+    # Volsync mover pods already filtered via skipResourceByLabels.
     excludeNamespaces: "kube-system,kube-public,kube-node-lease"
 
     operator:
@@ -50,8 +50,8 @@ spec:
       # Vulnerability + SBOM scanning offloaded to Harbor (registry-side scan
       # via Trivy adapter on push, daily re-scan via interrogation_services).
       # All cluster pulls go through registry.vzkn.eu/proxy-*/* projects so
-      # Harbor has CVE coverage for every image we deploy. Keep config-audit
-      # + exposed-secret here because Harbor does neither.
+      # Harbor has CVE coverage for every image we deploy. Only config-audit /
+      # rbac / infra kept here (in-process, no scan jobs); Harbor does neither.
       vulnerabilityScannerEnabled: false
       sbomGenerationEnabled: false
       clusterSbomCacheEnabled: false
@@ -65,7 +65,7 @@ spec:
 
       clusterComplianceEnabled: false  # Disable for homelab to save resources
 
-      exposedSecretScannerEnabled: true
+      exposedSecretScannerEnabled: false
 
       # -- Report TTLs
       scannerReportTTL: "24h"
@@ -143,12 +143,6 @@ spec:
       # -- Use embedded rego policies for air-gapped support
       useEmbeddedRegoPolicies: "true"
 
-      # -- Skip Debian ssl-cert package's dummy self-signed cert (shipped in
-      # CNPG pgbouncer base image, not actually used — CNPG mounts real TLS
-      # certs via projected volume). Without this, exposed-secret scans fire
-      # 6 false-positive HIGH alerts on every pooler pod.
-      skipFiles: "/etc/ssl/private/ssl-cert-snakeoil.key"
-
       # -- Command type for scanning
       command: image
 
@@ -172,7 +166,6 @@ spec:
       reportRecordFailedChecksOnly: true
 
       # -- Exclusions
-      excludeImages: "quay.io/backube/*"
       skipResourceByLabels: "app.kubernetes.io/created-by=volsync"
 
       # -- Security context for scan jobs

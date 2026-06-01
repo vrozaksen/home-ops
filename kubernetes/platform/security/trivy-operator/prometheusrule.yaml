@@ -22,14 +22,3 @@ spec:
           labels:
             severity: warning
             category: security
-
-        - alert: TrivyExposedSecrets
-          annotations:
-            summary: "Exposed secrets detected in images"
-            description: "{{ $value }} exposed secrets found in namespace {{ $labels.exported_namespace }}. URGENT: Review with: kubectl get exposedsecretreports -n {{ $labels.exported_namespace }}"
-          expr: |
-            sum by (exported_namespace) (trivy_image_exposedsecrets) > 0
-          for: 5m
-          labels:
-            severity: critical
-            category: security

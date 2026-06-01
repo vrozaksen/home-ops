@@ -44,20 +44,8 @@ locals {
       # genuinely-ongoing crashloops (firing every few min) never go idle long
       # enough to close. 48h survives a multi-day node/Ceph incident.
       resolve_age = 48
-      # Drop pure-noise events at INGEST (never create an issue). Trivy's
-      # scan-vulnerabilityreport pods emit chatty INFO log lines that
-      # sentry-kubernetes turns into "errors" when the Job fails (k8tz
-      # double-inject — see the trivy-k8tz fingerprint rule + that incident).
-      # The scan-failure event itself still groups; this only discards the
-      # trivy-java-db DB-init log spam. Inbound filter, glob match on message.
-      filters = {
-        error_messages = [
-          "*Adding schema version to the DB repository*",
-        ]
-      }
       fingerprinting_rules = <<-EOT
         # ── Probe failures (events watcher -> group by deployment) ────────
-        message:"*scan-vulnerabilityreport-*\"k8tz\"*"             -> trivy-k8tz-duplicate-init
         message:"*Startup probe failed*"                            -> startup-probe-failed-{{ tags.deployment_name }}
         message:"*Readiness probe failed*"                          -> readiness-probe-failed-{{ tags.deployment_name }}
 
@@ -135,7 +123,6 @@ locals {
       # No auto-resolve: real desktop panics should persist until triaged,
       # not silently disappear because no new install hit the same bug.
       resolve_age = null
-      filters     = null
       # No fingerprinting rules — Rust panics already group naturally by
       # type+location.
       fingerprinting_rules = ""
@@ -158,7 +145,6 @@ resource "sentry_project" "this" {
   slug                 = each.key
   platform             = each.value.platform
   resolve_age          = each.value.resolve_age
-  filters              = each.value.filters
   fingerprinting_rules = each.value.fingerprinting_rules
 }
 

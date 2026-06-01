@@ -9,11 +9,9 @@ spec:
   transport: streamable-http
   mcpPort: 8080
   args:
-    - --transport
-    - streamable-http
-    - --port
-    - "8080"
+    - --port=8080
     - --read-only
+    - --disable-destructive
   groupRef:
     name: mcp-tools
   permissionProfile:

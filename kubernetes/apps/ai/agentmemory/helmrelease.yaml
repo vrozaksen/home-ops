@@ -32,10 +32,10 @@ spec:
               EMBEDDING_PROVIDER: openai
               OPENAI_EMBEDDING_API_KEY: dummy
               OPENAI_BASE_URL: http://text-embeddings-inference:8080/v1
-              # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap)
-              # Haiku 4.5 — ($0.25/$1.25 per 1M)
-              ANTHROPIC_MODEL: claude-haiku-4-5
-              AGENTMEMORY_AUTO_COMPRESS: "false"
+              # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap $5)
+              ANTHROPIC_MODEL: claude-sonnet-4-6
+              MAX_TOKENS: "4096"
+              AGENTMEMORY_AUTO_COMPRESS: "true"
               GRAPH_EXTRACTION_ENABLED: "true"
               CONSOLIDATION_ENABLED: "true"
               AGENTMEMORY_INJECT_CONTEXT: "true"

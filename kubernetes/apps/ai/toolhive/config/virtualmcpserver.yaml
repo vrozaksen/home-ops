@@ -23,7 +23,7 @@ spec:
         type: oidc
         oidcConfig:
           issuerUrl: https://sso.vzkn.eu/application/o/mcp-gateway/
-          clientId: $(MCP_GATEWAY_CLIENT_ID)
+          clientId: ${MCP_GATEWAY_CLIENT_ID}
           clientSecretRef:
             name: vmcp-authentik-oidc
             key: client-secret

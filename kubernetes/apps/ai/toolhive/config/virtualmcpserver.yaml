@@ -58,9 +58,6 @@ spec:
         - offline_access
   outgoingAuth:
     source: discovered
-  sessionStorage:
-    provider: redis
-    address: dragonfly.database:6379
   podTemplateSpec:
     spec:
       containers:

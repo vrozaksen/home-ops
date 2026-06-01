@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: context7
+spec:
+  image: ghcr.io/stacklok/dockyard/npx/context7:2.2.4
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  secrets:
+    - name: context7-mcp-secret
+      key: CONTEXT7_API_KEY
+      targetEnvName: CONTEXT7_API_KEY

@@ -21,8 +21,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/sentry-forgejo
-              tag: 0.2.0
-              digest: sha256:cedae6c9848ec174aace0df6490167d337802e2cdadde6d3abb866d0d46e6b76
+              tag: 0.2.2
             env:
               PORT: &port 5000
               LOG_LEVEL: INFO

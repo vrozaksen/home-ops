@@ -23,4 +23,4 @@ spec:
   secrets:
     - name: sentry-mcp-secret
       key: SENTRY_AUTH_TOKEN
-      targetEnvName: SENTRY_AUTH_TOKEN
+      targetEnvName: SENTRY_ACCESS_TOKEN

@@ -12,3 +12,4 @@ resources:
   - ./mcp/sentry/ks.yaml
   - ./mcp/kubernetes/ks.yaml
   - ./mcp/forgejo/ks.yaml
+  - ./mcp/nixos/ks.yaml

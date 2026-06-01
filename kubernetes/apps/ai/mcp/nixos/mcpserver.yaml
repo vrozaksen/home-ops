@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: mcp-nixos
+spec:
+  image: registry.vzkn.eu/containers/mcp-nixos@sha256:c6f06c0734e1f1c771d827953893108e074994c2d92bc97e5aa479039808f093
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network

@@ -8,3 +8,5 @@ spec:
   type: inline
   inline:
     issuer: https://mcp.vzkn.eu
+    jwksAllowPrivateIP: true
+    protectedResourceAllowPrivateIP: true

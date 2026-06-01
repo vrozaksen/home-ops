@@ -42,6 +42,14 @@ locals {
         message:"*scan-vulnerabilityreport-*\"k8tz\"*"             -> trivy-k8tz-duplicate-init
         message:"*Startup probe failed*"                            -> startup-probe-failed-{{ tags.deployment_name }}
         message:"*Readiness probe failed*"                          -> readiness-probe-failed-{{ tags.deployment_name }}
+
+        # Sentry's OWN liveness probe is `rm /tmp/health.txt` — a worker thread
+        # recreates the file each loop; on a slow/idle/restarting worker it
+        # isn't there yet and the probe trips. Benign self-noise that fans out
+        # across ~30 sentry-* deployments. Collapse ALL into ONE bucket (single
+        # root cause, NOT a per-deployment signal). MUST precede the generic
+        # Liveness rule below — first match wins.
+        message:"*cannot remove '/tmp/health.txt'*"                 -> sentry-liveness-healthfile-race
         message:"*Liveness probe failed*"                           -> liveness-probe-failed-{{ tags.deployment_name }}
 
         # ── Readiness probe ERRORED (rpc exec into dying container) ───────
@@ -52,7 +60,17 @@ locals {
         # ── CSI / volume mount (node reboot, driver not yet registered) ───
         # Cluster-wide burst, single root cause -> one bucket each.
         message:"*rook-ceph.rbd.csi.ceph.com not found*"            -> csi-rbd-driver-not-registered
+        message:"*CSINode*does not contain driver*rook-ceph.rbd.csi.ceph.com*" -> csi-rbd-driver-not-registered
         message:"*MountVolume.SetUp failed for volume*talos*not registered*" -> projected-volume-not-registered
+
+        # ── Node reboot / drain churn (system-upgrade or manual reboot) ───
+        # On reboot the controller evicts EVERY DaemonSet pod on that node and
+        # RBD volumes detach/reattach — otherwise fans out to 30+ issues. Node
+        # is embedded in the message; the node_name tag is unreliable for
+        # controller-emitted events, so collapse each class to ONE static bucket.
+        message:"*Found failed daemon pod*will try to kill it*"     -> failed-daemon-pod-on-reboot
+        message:"*has been rebooted*boot id*"                       -> node-rebooted
+        message:"*Multi-Attach error for volume*"                   -> multi-attach-on-reboot
 
         # ── Flux / kustomize reconcile churn (not pod events) ─────────────
         message:"*failed early due to stalled resources*"           -> flux-health-check-stalled-{{ tags.kustomization_name }}

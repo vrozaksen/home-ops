@@ -1,16 +1,8 @@
 {
   "mcpServers": {
-    "siderolabs-docs": {
+    "vzkn": {
       "type": "http",
-      "url": "https://docs.siderolabs.com/mcp"
-    },
-    "flux-operator": {
-      "type": "stdio",
-      "command": "flux-operator-mcp",
-      "args": ["serve"],
-      "env": {
-        "KUBECONFIG": "${PWD}/kubeconfig"
-      }
+      "url": "https://mcp.vzkn.eu/mcp"
     }
   }
 }

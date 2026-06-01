@@ -32,9 +32,7 @@ spec:
               EMBEDDING_PROVIDER: openai
               OPENAI_EMBEDDING_API_KEY: dummy
               OPENAI_BASE_URL: http://text-embeddings-inference:8080/v1
-              # LLM via Claude Pro subscription (agent-sdk)
-              AGENTMEMORY_PROVIDER: agent-sdk
-              AGENTMEMORY_ALLOW_AGENT_SDK: "true"
+              # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap)
               AGENTMEMORY_AUTO_COMPRESS: "true"
               GRAPH_EXTRACTION_ENABLED: "true"
               CONSOLIDATION_ENABLED: "true"

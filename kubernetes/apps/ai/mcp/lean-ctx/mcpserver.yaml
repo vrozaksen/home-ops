@@ -13,8 +13,6 @@ spec:
   permissionProfile:
     type: builtin
     name: network
-  externalAuthConfigRef:
-    name: lean-ctx-bearer
   env:
     - name: HOME
       value: /tmp
@@ -28,19 +26,23 @@ spec:
             claimName: lean-ctx
       containers:
         - name: mcp
-          command:
-            - /usr/bin/catatonit
-            - --
-            - /bin/sh
-            - -c
           args:
-            - exec lean-ctx serve --host=0.0.0.0 --port=8080 --auth-token="$LEAN_CTX_AUTH_TOKEN"
-          env:
-            - name: LEAN_CTX_AUTH_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: lean-ctx-mcp-secret
-                  key: LEAN_CTX_AUTH_TOKEN
+            - serve
+            - --port=8081
           volumeMounts:
             - name: data
               mountPath: /tmp
+        - name: socat
+          image: docker.io/alpine/socat:1.8.0.3
+          args:
+            - TCP-LISTEN:8080,bind=0.0.0.0,reuseaddr,fork
+            - TCP:127.0.0.1:8081
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            capabilities:
+              drop:
+                - "ALL"

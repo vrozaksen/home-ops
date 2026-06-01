@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: forgejo-mcp
+spec:
+  image: registry.vzkn.eu/containers/forgejo-mcp:0.1.5
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  env:
+    - name: FORGEJO_URL
+      value: https://git.vzkn.eu
+  secrets:
+    - name: forgejo-mcp-secret
+      key: FORGEJO_TOKEN
+      targetEnvName: FORGEJO_TOKEN

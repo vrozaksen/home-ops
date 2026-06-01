@@ -7,6 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./agentmemory/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
   # MCP servers — Group 1 (upstream images / remote proxies)
@@ -15,8 +16,9 @@ resources:
   - ./mcp/context7/ks.yaml
   - ./mcp/kubernetes/ks.yaml
   # MCP servers — Group 2 (own builds in ~/git/containers)
-  - ./mcp/forgejo/ks.yaml
+  - ./mcp/agentmemory/ks.yaml
   - ./mcp/flux-operator/ks.yaml
+  - ./mcp/forgejo/ks.yaml
+  - ./mcp/lean-ctx/ks.yaml
   - ./mcp/nixos/ks.yaml
   - ./mcp/talos/ks.yaml
-  - ./mcp/lean-ctx/ks.yaml

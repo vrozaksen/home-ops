@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: agentmemory-mcp
+spec:
+  image: registry.vzkn.eu/containers/agentmemory:0.9.24
+  transport: stdio
+  proxyPort: 8080
+  args:
+    - mcp
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  env:
+    - name: AGENTMEMORY_URL
+      value: http://agentmemory:3111
+  secrets:
+    - name: agentmemory-secret
+      key: AGENTMEMORY_SECRET
+      targetEnvName: AGENTMEMORY_SECRET

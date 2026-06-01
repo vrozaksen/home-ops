@@ -5,7 +5,7 @@ kind: MCPServer
 metadata:
   name: mcp-nixos
 spec:
-  image: registry.vzkn.eu/containers/mcp-nixos@sha256:c6f06c0734e1f1c771d827953893108e074994c2d92bc97e5aa479039808f093
+  image: registry.vzkn.eu/containers/mcp-nixos:2.4.3
   transport: stdio
   proxyPort: 8080
   groupRef:

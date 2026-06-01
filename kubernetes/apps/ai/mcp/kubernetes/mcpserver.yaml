@@ -1,10 +1,11 @@
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
 apiVersion: toolhive.stacklok.dev/v1alpha1
 kind: MCPServer
 metadata:
   name: kubernetes-mcp
 spec:
-  image: ghcr.io/manusa/kubernetes-mcp-server:latest
+  image: ghcr.io/containers/kubernetes-mcp-server:v0.0.60
   transport: streamable-http
   mcpPort: 8080
   args:

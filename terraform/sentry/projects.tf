@@ -37,6 +37,13 @@ locals {
     "sentry-internal" = {
       name     = "Sentry Internal"
       platform = "other"
+      # K8s events are inherently transient — a reboot/incident storm goes
+      # quiet within hours but leaves hundreds of stale "unresolved" issues
+      # forever (fingerprinting groups, it does NOT auto-close). Auto-resolve
+      # anything not seen in 48h: clears the backlog and keeps it clean, while
+      # genuinely-ongoing crashloops (firing every few min) never go idle long
+      # enough to close. 48h survives a multi-day node/Ceph incident.
+      resolve_age = 48
       fingerprinting_rules = <<-EOT
         # ── Probe failures (events watcher -> group by deployment) ────────
         message:"*scan-vulnerabilityreport-*\"k8tz\"*"             -> trivy-k8tz-duplicate-init
@@ -114,6 +121,9 @@ locals {
     "vroxide" = {
       name     = "vroxide"
       platform = "rust"
+      # No auto-resolve: real desktop panics should persist until triaged,
+      # not silently disappear because no new install hit the same bug.
+      resolve_age = null
       # No fingerprinting rules — Rust panics already group naturally by
       # type+location.
       fingerprinting_rules = ""
@@ -135,6 +145,7 @@ resource "sentry_project" "this" {
   name                 = each.value.name
   slug                 = each.key
   platform             = each.value.platform
+  resolve_age          = each.value.resolve_age
   fingerprinting_rules = each.value.fingerprinting_rules
 }
 

@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cilium-rules
+spec:
+  groups:
+    - name: cilium-datapath-health
+      interval: 1m
+      rules:
+        - alert: CiliumNodeUnreachable
+          annotations:
+            summary: "Cilium agent on {{ $labels.node }} sees unreachable nodes"
+            description: >-
+              cilium-agent on {{ $labels.node }} reports {{ $value }}
+              unreachable node(s) for 5m — node datapath/connectivity degraded.
+              If it persists after an agent restart, reboot the node
+              (`task talos:reboot-node HOSTNAME={{ $labels.node }}`) to rebuild
+              bpffs BPF maps.
+          expr: |
+            max by (node) (cilium_unreachable_nodes) > 0
+          for: 5m
+          labels:
+            severity: critical
+            category: cilium
+
+        - alert: CiliumHealthEndpointsUnreachable
+          annotations:
+            summary: "Cilium reports unreachable health endpoints"
+            description: >-
+              Cilium sees {{ $value }} unreachable health endpoint(s) for 10m —
+              some node/pod datapath paths are broken.
+          expr: |
+            max(cilium_unreachable_health_endpoints) > 0
+          for: 10m
+          labels:
+            severity: warning
+            category: cilium
+
+        - alert: CiliumNodeConnectivityUnreachable
+          annotations:
+            summary: "Cilium {{ $labels.type }} connectivity unreachable from {{ $labels.node }}"
+            description: >-
+              cilium_node_health_connectivity_status reports unreachable
+              {{ $labels.type }} path(s) from {{ $labels.node }} for 10m.
+          expr: |
+            max by (node, type) (cilium_node_health_connectivity_status{status="unreachable"}) > 0
+          for: 10m
+          labels:
+            severity: warning
+            category: cilium

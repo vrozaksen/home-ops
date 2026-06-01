@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: strimzi-kafka-rules
+spec:
+  groups:
+    - name: strimzi-resource-state
+      interval: 1m
+      rules:
+        - alert: StrimziKafkaNotReady
+          annotations:
+            summary: "Strimzi Kafka {{ $labels.name }} ({{ $labels.resource_namespace }}) is NotReady"
+            description: >-
+              Strimzi Kafka cluster {{ $labels.name }} in namespace
+              {{ $labels.resource_namespace }} has reported NotReady
+              (reason: {{ $labels.reason }}) for 15m. Broker/operators stuck —
+              check entity-operator connectivity, pod scheduling, and node
+              datapath (Cilium BPF lb maps; reboot node if lb-map rot).
+          expr: |
+            strimzi_resource_state{kind="Kafka"} == 0
+          for: 15m
+          labels:
+            severity: critical
+            category: kafka
+
+        - alert: StrimziResourceNotReady
+          annotations:
+            summary: "Strimzi {{ $labels.kind }}/{{ $labels.name }} NotReady"
+            description: >-
+              Strimzi resource {{ $labels.kind }} {{ $labels.name }}
+              ({{ $labels.resource_namespace }}) NotReady
+              (reason: {{ $labels.reason }}) for 30m.
+          expr: |
+            strimzi_resource_state{kind!="Kafka"} == 0
+          for: 30m
+          labels:
+            severity: warning
+            category: kafka

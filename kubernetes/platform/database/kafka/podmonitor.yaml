@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: strimzi-cluster-operator
+spec:
+  namespaceSelector:
+    matchNames:
+      - database
+  selector:
+    matchLabels:
+      strimzi.io/kind: cluster-operator
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

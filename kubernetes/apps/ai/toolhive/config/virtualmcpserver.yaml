@@ -32,6 +32,7 @@ spec:
             - openid
             - profile
             - email
+            - offline_access
   groupRef:
     name: mcp-tools
   telemetryConfigRef:

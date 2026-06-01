@@ -19,6 +19,5 @@ resources:
   - ./mcp/agentmemory/ks.yaml
   - ./mcp/flux-operator/ks.yaml
   - ./mcp/forgejo/ks.yaml
-  - ./mcp/lean-ctx/ks.yaml
   - ./mcp/nixos/ks.yaml
   - ./mcp/talos/ks.yaml

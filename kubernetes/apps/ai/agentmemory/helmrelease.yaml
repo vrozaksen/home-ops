@@ -26,6 +26,8 @@ spec:
             env:
               AGENTMEMORY_DATA_DIR: /data
               III_REST_PORT: "3111"
+              VIEWER_ALLOWED_HOSTS: agentmemory.vzkn.eu
+              VIEWER_ALLOWED_ORIGINS: https://agentmemory.vzkn.eu
             envFrom:
               - secretRef:
                   name: agentmemory-secret

@@ -5,7 +5,7 @@ kind: MCPServer
 metadata:
   name: sentry
 spec:
-  image: registry.vzkn.eu/containers/sentry-mcp:0.35.0
+  image: registry.vzkn.eu/containers/sentry-mcp:0.35.0@sha256:8f5381bdeab6ad978829d49b29d1c6bebd8fe5a9d4bdc32147da27184057e11e
   transport: stdio
   proxyPort: 8080
   groupRef:

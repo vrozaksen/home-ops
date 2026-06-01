@@ -9,4 +9,5 @@ resources:
   - ./namespace.yaml
   - ./toolhive/ks.yaml
   - ./mcp/siderolabs-docs/ks.yaml
+  - ./mcp/sentry/ks.yaml
   - ./mcp/kubernetes/ks.yaml

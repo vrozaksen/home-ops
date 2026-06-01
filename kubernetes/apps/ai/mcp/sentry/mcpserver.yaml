@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: sentry
+spec:
+  image: registry.vzkn.eu/containers/sentry-mcp:0.35.0
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  env:
+    - name: SENTRY_HOST
+      value: sentry.vzkn.eu
+    # SaaS-only skills: seer (AI debugger, commercial Sentry only),
+    # preprod (CI visual regression snapshots, SaaS feature).
+    - name: MCP_DISABLE_SKILLS
+      value: seer,preprod
+  secrets:
+    - name: sentry-mcp-secret
+      key: SENTRY_AUTH_TOKEN
+      targetEnvName: SENTRY_AUTH_TOKEN

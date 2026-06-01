@@ -21,7 +21,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/sentry-forgejo
-              tag: 0.2.2
+              tag: 0.2.3
             env:
               PORT: &port 5000
               LOG_LEVEL: INFO

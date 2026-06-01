@@ -59,6 +59,8 @@ locals {
 
       SENTRY_AUTH_TOKEN = data.infisical_secrets.sentry_ci.secrets["AUTH_TOKEN"].value
 
+      VROXIDE_LOG_RECIPIENT = data.infisical_secrets.vroxide_log.secrets["RECIPIENT"].value
+
       COSIGN_KEY      = data.infisical_secrets.forgejo_actions.secrets["COSIGN_KEY"].value
       COSIGN_PASSWORD = data.infisical_secrets.forgejo_actions.secrets["COSIGN_PASSWORD"].value
 

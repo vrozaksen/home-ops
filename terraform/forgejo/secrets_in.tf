@@ -36,3 +36,11 @@ data "infisical_secrets" "sentry_ci" {
   folder_path  = "/sentry/ci"
   # expected keys: AUTH_TOKEN  (scopes: project:read+write, project:releases)
 }
+
+# ─── vroxide age log recipient (PUBLIC key) ──────────────────────────
+data "infisical_secrets" "vroxide_log" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/vroxide/log"
+  # expected keys: RECIPIENT  (age1… public recipient)
+}

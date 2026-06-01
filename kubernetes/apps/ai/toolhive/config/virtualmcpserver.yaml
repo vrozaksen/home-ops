@@ -26,7 +26,7 @@ spec:
           clientId: ${MCP_GATEWAY_CLIENT_ID}
           clientSecretRef:
             name: vmcp-authentik-oidc
-            key: client-secret
+            key: MCP_GATEWAY_CLIENT_SECRET
           redirectUri: https://mcp.vzkn.eu/oauth/callback
           scopes:
             - openid

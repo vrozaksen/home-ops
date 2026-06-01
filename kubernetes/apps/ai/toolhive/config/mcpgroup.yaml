@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpgroup_v1beta1.json
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPGroup
 metadata:

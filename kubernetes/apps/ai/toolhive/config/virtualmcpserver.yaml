@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
 # External gateway — OIDC via Authentik. mcp.vzkn.eu exposed publicly.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
@@ -68,9 +69,10 @@ spec:
             - name: INSECURE_DISABLE_URL_VALIDATION
               value: "true"
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
 # Internal gateway — anonymous, in-cluster only. For forge pod / AI workloads
 # already inside the trust boundary.
-apiVersion: toolhive.stacklok.dev/v1alpha1
+apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
   name: mcp-gateway-internal

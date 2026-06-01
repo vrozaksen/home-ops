@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: flux-operator-mcp
+spec:
+  image: registry.vzkn.eu/containers/flux-operator-mcp@sha256:7858e1c916cfadf4590f59a45b724ac0d80e45c4c531890eff95af969e1803c5
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  serviceAccount: flux-operator-mcp

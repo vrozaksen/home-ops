@@ -20,10 +20,6 @@ spec:
       value: /tmp
     - name: XDG_CONFIG_HOME
       value: /tmp
-  secrets:
-    - name: lean-ctx-mcp-secret
-      key: LEAN_CTX_AUTH_TOKEN
-      targetEnvName: LEAN_CTX_AUTH_TOKEN
   podTemplateSpec:
     spec:
       volumes:
@@ -39,6 +35,12 @@ spec:
             - -c
           args:
             - exec lean-ctx serve --host=0.0.0.0 --port=8080 --auth-token="$LEAN_CTX_AUTH_TOKEN"
+          env:
+            - name: LEAN_CTX_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: lean-ctx-mcp-secret
+                  key: LEAN_CTX_AUTH_TOKEN
           volumeMounts:
             - name: data
               mountPath: /tmp

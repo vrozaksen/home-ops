@@ -1,0 +1,128 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sentry-forgejo
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      sentry-forgejo:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+        strategy: RollingUpdate
+        type: deployment
+        containers:
+          app:
+            image:
+              repository: registry.vzkn.eu/containers/sentry-forgejo
+              tag: 0.2.0
+              digest: sha256:cedae6c9848ec174aace0df6490167d337802e2cdadde6d3abb866d0d46e6b76
+            env:
+              PORT: &port 5000
+              LOG_LEVEL: INFO
+              SENTRY_URL: https://sentry.vzkn.eu
+              FORGEJO_URL: https://git.vzkn.eu
+              INSTALLATIONS_STORE: /data/installations.json
+              LINKS_STORE: /data/links.json
+              # stacktrace-link: Sentry frame → git.vzkn.eu source line
+              STACKTRACE_MAPPINGS_FILE: /config/mappings.toml
+              # release tracking: Forgejo release.published → Sentry release.
+              # Needs the integration auth token to carry the Release scope.
+              SENTRY_RELEASE_ORG: vzkn
+            envFrom:
+              - secretRef:
+                  name: sentry-forgejo-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 96Mi
+              limits:
+                memory: 256Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    service:
+      app:
+        controller: sentry-forgejo
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: platform
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: sentry-forgejo
+                port: *port
+    persistence:
+      data:
+        existingClaim: sentry-forgejo
+        advancedMounts:
+          sentry-forgejo:
+            app:
+              - path: /data
+      config:
+        type: configMap
+        name: sentry-forgejo-mappings
+        advancedMounts:
+          sentry-forgejo:
+            app:
+              - path: /config/mappings.toml
+                subPath: mappings.toml
+                readOnly: true
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          sentry-forgejo:
+            app:
+              - path: /tmp

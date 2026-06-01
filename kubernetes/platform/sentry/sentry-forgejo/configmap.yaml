@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sentry-forgejo-mappings
+data:
+  mappings.toml: |-
+    # stacktrace-link (Sentry project slug → Forgejo repo + path rewrite) and
+    # release-tracking project picks (reverse: repo → Sentry projects) share
+    # this table. See mappings.example.toml in the app repo for the full schema.
+
+    [[mapping]]
+    project = "vroxide"          # Sentry projectSlug
+    owner = "vrozaksen"
+    repo = "vroxide"
+    branch = "main"
+    # Rust frames usually report crate-relative paths (e.g. src/main.rs), so the
+    # empty roots pass the filename straight through to the repo path. If Sentry
+    # sends absolute build paths instead, set stack_root to the prefix to strip.
+    stack_root = ""
+    source_root = ""

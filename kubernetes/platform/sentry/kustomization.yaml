@@ -9,3 +9,4 @@ resources:
   - ./namespace.yaml
   - ./sentry/ks.yaml
   - ./sentry-kubernetes/ks.yaml
+  - ./sentry-forgejo/ks.yaml

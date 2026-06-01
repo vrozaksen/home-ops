@@ -28,6 +28,15 @@ spec:
               III_REST_PORT: "3111"
               VIEWER_ALLOWED_HOSTS: agentmemory.vzkn.eu,agentmemory-api.vzkn.eu
               VIEWER_ALLOWED_ORIGINS: https://agentmemory.vzkn.eu,https://agentmemory-api.vzkn.eu
+              # Semantic search via lokalne TEI (bge-m3 OpenAI-compat endpoint)
+              OPENAI_API_KEY: dummy
+              OPENAI_BASE_URL: http://text-embeddings-inference:8080/v1
+              # LLM via Claude Pro subscription (agent-sdk fallback, no paid API)
+              AGENTMEMORY_ALLOW_AGENT_SDK: "true"
+              AGENTMEMORY_AUTO_COMPRESS: "true"
+              GRAPH_EXTRACTION_ENABLED: "true"
+              CONSOLIDATION_ENABLED: "true"
+              AGENTMEMORY_INJECT_CONTEXT: "true"
             envFrom:
               - secretRef:
                   name: agentmemory-secret

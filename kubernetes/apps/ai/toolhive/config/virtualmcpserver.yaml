@@ -1,9 +1,36 @@
 ---
+# External gateway — OIDC via Authentik. mcp.vzkn.eu exposed publicly.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
   name: mcp-gateway
 spec:
+  authServerConfig:
+    issuer: https://mcp.vzkn.eu
+    signingKeySecretRefs:
+      - name: vmcp-auth-server-secret
+        key: signing-key
+    hmacSecretRefs:
+      - name: vmcp-auth-server-secret
+        key: hmac-key
+    tokenLifespans:
+      accessTokenLifespan: 1h
+      refreshTokenLifespan: 168h
+      authCodeLifespan: 10m
+    upstreamProviders:
+      - name: authentik
+        type: oidc
+        oidcConfig:
+          issuerUrl: https://sso.vzkn.eu/application/o/mcp-gateway/
+          clientId: $(MCP_GATEWAY_CLIENT_ID)
+          clientSecretRef:
+            name: vmcp-authentik-oidc
+            key: client-secret
+          redirectUri: https://mcp.vzkn.eu/oauth/callback
+          scopes:
+            - openid
+            - profile
+            - email
   groupRef:
     name: mcp-tools
   telemetryConfigRef:
@@ -17,6 +44,46 @@ spec:
       failureHandling:
         healthCheckInterval: 5m
         statusReportingInterval: 5m
+  incomingAuth:
+    type: oidc
+    oidcConfigRef:
+      name: external-oidc
+      audience: https://mcp.vzkn.eu/mcp
+      resourceUrl: https://mcp.vzkn.eu/mcp
+      scopes:
+        - openid
+        - profile
+        - email
+        - offline_access
+  outgoingAuth:
+    source: discovered
+  sessionStorage:
+    provider: redis
+    address: dragonfly.database:6379
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: vmcp
+          env:
+            - name: INSECURE_DISABLE_URL_VALIDATION
+              value: "true"
+---
+# Internal gateway — anonymous, in-cluster only. For forge pod / AI workloads
+# already inside the trust boundary.
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: VirtualMCPServer
+metadata:
+  name: mcp-gateway-internal
+spec:
+  groupRef:
+    name: mcp-tools
+  telemetryConfigRef:
+    name: prometheus
+  config:
+    aggregation:
+      conflictResolution: prefix
+      conflictResolutionConfig:
+        prefixFormat: "{workload}_"
   incomingAuth:
     type: anonymous
   outgoingAuth:

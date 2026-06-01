@@ -5,6 +5,8 @@ kind: Kustomization
 resources:
   - ./mcpgroup.yaml
   - ./virtualmcpserver.yaml
+  - ./mcpconfigoidc.yaml
+  - ./infisicalsecret.yaml
   - ./mcp-telemetry.yaml
   - ./podmonitor.yaml
   - ./httproute.yaml

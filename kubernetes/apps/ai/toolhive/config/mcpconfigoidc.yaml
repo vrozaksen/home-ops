@@ -1,0 +1,15 @@
+---
+# OIDC client config for VirtualMCPServer external — connects to Authentik
+# as upstream IdP.
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPConfigOIDC
+metadata:
+  name: external-oidc
+spec:
+  issuer: https://sso.vzkn.eu/application/o/mcp-gateway/
+  audience: https://mcp.vzkn.eu/mcp
+  scopes:
+    - openid
+    - profile
+    - email
+    - offline_access

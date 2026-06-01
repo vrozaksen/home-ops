@@ -106,7 +106,7 @@ spec:
         registry: ghcr.io
         repository: aquasecurity/trivy
         # renovate: datasource=docker depName=ghcr.io/aquasecurity/trivy
-        tag: 0.70.0
+        tag: 0.71.0
 
       # -- Mode: ClientServer uses built-in server
       mode: ClientServer

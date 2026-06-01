@@ -62,6 +62,8 @@ spec:
     spec:
       containers:
         - name: vmcp
+          args:
+            - --debug
           env:
             - name: INSECURE_DISABLE_URL_VALIDATION
               value: "true"

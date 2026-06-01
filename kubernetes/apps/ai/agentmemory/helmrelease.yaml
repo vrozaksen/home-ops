@@ -28,10 +28,7 @@ spec:
               III_REST_PORT: "3111"
               VIEWER_ALLOWED_HOSTS: agentmemory.vzkn.eu,agentmemory-api.vzkn.eu
               VIEWER_ALLOWED_ORIGINS: https://agentmemory.vzkn.eu,https://agentmemory-api.vzkn.eu
-              # Embeddings via lokalne TEI
-              EMBEDDING_PROVIDER: openai
-              OPENAI_EMBEDDING_API_KEY: dummy
-              OPENAI_BASE_URL: http://text-embeddings-inference:8080/v1
+              AGENTMEMORY_DROP_STALE_INDEX: "true"
               # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap $5)
               ANTHROPIC_MODEL: claude-sonnet-4-6
               MAX_TOKENS: "4096"

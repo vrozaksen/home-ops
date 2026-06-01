@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpexternalauthconfig_v1beta1.json
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPExternalAuthConfig
+metadata:
+  name: lean-ctx-bearer
+spec:
+  type: bearerToken
+  bearerToken:
+    tokenSecretRef:
+      name: lean-ctx-mcp-secret
+      key: LEAN_CTX_AUTH_TOKEN

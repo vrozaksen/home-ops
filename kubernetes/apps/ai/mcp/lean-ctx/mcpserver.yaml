@@ -8,19 +8,22 @@ spec:
   image: registry.vzkn.eu/containers/lean-ctx:3.6.26
   transport: streamable-http
   mcpPort: 8080
-  args:
-    - serve
-    - --port=8080
   groupRef:
     name: mcp-tools
   permissionProfile:
     type: builtin
     name: network
+  externalAuthConfigRef:
+    name: lean-ctx-bearer
   env:
     - name: HOME
       value: /tmp
     - name: XDG_CONFIG_HOME
       value: /tmp
+  secrets:
+    - name: lean-ctx-mcp-secret
+      key: LEAN_CTX_AUTH_TOKEN
+      targetEnvName: LEAN_CTX_AUTH_TOKEN
   podTemplateSpec:
     spec:
       volumes:
@@ -29,6 +32,13 @@ spec:
             claimName: lean-ctx
       containers:
         - name: mcp
+          command:
+            - /usr/bin/catatonit
+            - --
+            - /bin/sh
+            - -c
+          args:
+            - exec lean-ctx serve --host=0.0.0.0 --port=8080 --auth-token="$LEAN_CTX_AUTH_TOKEN"
           volumeMounts:
             - name: data
               mountPath: /tmp

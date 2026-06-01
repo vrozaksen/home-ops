@@ -26,6 +26,7 @@ locals {
     "pgadmin",
     "qui",
     "harbor",
+    "mcp-gateway",
     "rxresume",
     "sentry",
     "sparkyfitness",
@@ -394,6 +395,23 @@ module "oauth2-harbor" {
   client_secret                = local.parsed_secrets["harbor"].client_secret
   additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
   redirect_uris                = ["https://registry.${var.cluster_domain}/c/oidc/callback"]
+}
+
+module "oauth2-mcp-gateway" {
+  source                       = "./oauth2_application"
+  name                         = "MCP Gateway"
+  icon_url                     = "https://avatars.githubusercontent.com/u/182288589?s=200&v=4"
+  launch_url                   = "https://mcp.${var.cluster_domain}"
+  description                  = "Toolhive MCP gateway (aggregated MCP servers for AI CLI clients)"
+  newtab                       = true
+  group                        = "Development"
+  auth_groups                  = [authentik_group.admin.id]
+  authorization_flow           = resource.authentik_flow.provider-authorization-implicit-consent.uuid
+  invalidation_flow            = resource.authentik_flow.provider-invalidation.uuid
+  client_id                    = local.parsed_secrets["mcp-gateway"].client_id
+  client_secret                = local.parsed_secrets["mcp-gateway"].client_secret
+  additional_property_mappings = [authentik_property_mapping_provider_scope.groups.id]
+  redirect_uris                = ["https://mcp.${var.cluster_domain}/oauth/callback"]
 }
 
 

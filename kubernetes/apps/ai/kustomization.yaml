@@ -7,6 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
+  - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
   - ./mcp/siderolabs-docs/ks.yaml
   - ./mcp/sentry/ks.yaml

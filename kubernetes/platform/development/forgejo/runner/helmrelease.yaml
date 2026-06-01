@@ -95,7 +95,7 @@ spec:
           runner:
             image:
               repository: git.erwanleboucher.dev/eleboucher/runner
-              tag: 12.10.1@sha256:0a8ef9dd41a4c29903db8f9f125b20e58e2ccb5c3c539beb1e02db139d7cf7a2
+              tag: 12.10.2@sha256:d5eeafda573012c229b730f5a18437b464d946473478e1f6bd56fd537b881609
             command:
               - sh
               - -ec
@@ -118,7 +118,7 @@ spec:
           k8s-plugin:
             image:
               repository: git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
-              tag: 12.10.0@sha256:c1b8145843d9e2f48ad6c7053e3aab184bea189cc868ba7f0ac6b34a905464d5
+              tag: 12.10.3@sha256:3d2c4c6486400dcd770a7bb296a309ed979d951b168b878316f80f7367887080
             args:
               - --listen
               - unix:///plugin/forgejo-runner-k8s.sock
@@ -194,5 +194,15 @@ spec:
                 - list
                 - watch
                 - get
+            - apiGroups:
+                - batch
+              resources:
+                - jobs
+              verbs:
+                - list
+                - watch
+                - create
+                - get
+                - delete
     serviceAccount:
       forgejo-runner: {}

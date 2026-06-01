@@ -127,9 +127,28 @@ data "sentry_all_keys" "this" {
   project      = each.value.slug
 }
 
+# Spike protection for the vroxide DSN. Unlike the K8s services, vroxide is a
+# desktop binary shipped to many installs — a buggy build could flood the
+# self-hosted backend. We ship a dedicated rate-limited key as vroxide's DSN
+# instead of the unbounded auto-created "Default" key (ADR-0008 BYO-infra).
+resource "sentry_key" "vroxide" {
+  organization = data.sentry_organization.main.slug
+  project      = sentry_project.this["vroxide"].slug
+  name         = "vroxide-desktop"
+
+  rate_limit_window = 60  # seconds
+  rate_limit_count  = 300 # ≤ 300 events / minute / install
+}
+
 locals {
-  project_dsns = {
-    for slug, keys in data.sentry_all_keys.this :
-    slug => [for k in keys.keys : k.dsn["public"] if k.name == "Default"][0]
-  }
+  project_dsns = merge(
+    {
+      for slug, keys in data.sentry_all_keys.this :
+      slug => [for k in keys.keys : k.dsn["public"] if k.name == "Default"][0]
+    },
+    {
+      # vroxide ships the rate-limited key as its DSN (spike protection above).
+      vroxide = sentry_key.vroxide.dsn["public"]
+    },
+  )
 }

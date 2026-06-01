@@ -28,3 +28,11 @@ data "infisical_secrets" "attic" {
   folder_path  = "/kubernetes/development/attic"
   # expected keys: PULL_TOKEN  (push+pull combined)
 }
+
+# ─── Sentry CI auth token (sentry-cli releases + debug-files upload) ──
+data "infisical_secrets" "sentry_ci" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/sentry/ci"
+  # expected keys: AUTH_TOKEN  (scopes: project:read+write, project:releases)
+}

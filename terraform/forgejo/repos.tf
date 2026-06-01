@@ -57,6 +57,8 @@ locals {
       REGISTRY_USERNAME = data.infisical_secrets.harbor_robot_vroxide.secrets["HARBOR_ROBOT_NAME"].value
       REGISTRY_PASSWORD = data.infisical_secrets.harbor_robot_vroxide.secrets["HARBOR_ROBOT_TOKEN"].value
 
+      SENTRY_AUTH_TOKEN = data.infisical_secrets.sentry_ci.secrets["AUTH_TOKEN"].value
+
       COSIGN_KEY      = data.infisical_secrets.forgejo_actions.secrets["COSIGN_KEY"].value
       COSIGN_PASSWORD = data.infisical_secrets.forgejo_actions.secrets["COSIGN_PASSWORD"].value
 

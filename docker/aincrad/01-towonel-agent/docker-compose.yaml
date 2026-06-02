@@ -14,8 +14,8 @@ services:
       TOWONEL_AGENT_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
       TOWONEL_AGENT_SERVICES: >-
         [
-          {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"},
-          {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"}
+          {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"},
+          {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"}
         ]
     deploy:
       resources:

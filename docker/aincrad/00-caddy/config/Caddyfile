@@ -2,6 +2,15 @@
 	# No ACME on the NAS — we serve the cluster's *.vzkn.eu wildcard, synced to
 	# /certs by the host cert-sync script. Each site pins it explicitly below.
 	auto_https off
+
+	servers {
+		listener_wrappers {
+			proxy_protocol {
+				allow 172.16.0.0/12
+			}
+			tls
+		}
+	}
 }
 
 # Proxy by HOST IP:port (not container name) on purpose: Caddy then works the

@@ -24,15 +24,22 @@ services:
       TOWONEL_INVITE_TOKEN: ${TOWONEL_INVITE_TOKEN}
       TOWONEL_AGENT_HEALTH_LISTEN_ADDR: 0.0.0.0:9090
       TOWONEL_AGENT_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
-      # HELD EMPTY until the emby/navidrome config is migrated. Exact-match is
-      # instant on registration — advertising these now would flip EXTERNAL
-      # emby.vzkn.eu to the (empty) NAS while the cluster still has real data.
-      # At cutover, restore:
+      # TEMPORARY STOPGAP. The invite grants emby/music, so the agent CLAIMS
+      # those hostnames on the hub regardless of SERVICES (exact-match wins over
+      # the cluster's *.vzkn.eu). With no origin they 502. So until the NAS
+      # config is migrated, proxy them straight back to the cluster's envoy
+      # (10.10.0.91:443 = envoy-external LB; terminates TLS + has the HTTPRoutes).
+      # Default proxy_protocol = v2, matching what the in-cluster agent sends to
+      # envoy. AT CUTOVER, switch to the NAS Caddy:
       #   [
       #     {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"},
       #     {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"}
       #   ]
-      TOWONEL_AGENT_SERVICES: "[]"
+      TOWONEL_AGENT_SERVICES: >-
+        [
+          {"hostname":"emby.vzkn.eu","origin":"10.10.0.91:443"},
+          {"hostname":"music.vzkn.eu","origin":"10.10.0.91:443"}
+        ]
     healthcheck:
       test:
         - "CMD"

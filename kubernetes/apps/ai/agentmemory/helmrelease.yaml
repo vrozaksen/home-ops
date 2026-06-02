@@ -29,10 +29,14 @@ spec:
               VIEWER_ALLOWED_HOSTS: agentmemory.vzkn.eu,agentmemory-api.vzkn.eu
               VIEWER_ALLOWED_ORIGINS: https://agentmemory.vzkn.eu,https://agentmemory-api.vzkn.eu
               AGENTMEMORY_DROP_STALE_INDEX: "true"
-              # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap $5)
+              EMBEDDING_PROVIDER: openai
+              OPENAI_EMBEDDING_API_KEY: dummy
+              OPENAI_EMBEDDING_DIMENSIONS: "1024"
+              OPENAI_BASE_URL: http://text-embeddings-inference:8080/v1
+              # LLM via Anthropic API
               ANTHROPIC_MODEL: claude-sonnet-4-6
               MAX_TOKENS: "4096"
-              AGENTMEMORY_AUTO_COMPRESS: "false"
+              AGENTMEMORY_AUTO_COMPRESS: "true"
               GRAPH_EXTRACTION_ENABLED: "true"
               CONSOLIDATION_ENABLED: "true"
               AGENTMEMORY_INJECT_CONTEXT: "true"

@@ -7,6 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  # - ./emby/ks.yaml
-  # - ./navidrome/ks.yaml
   - ./seerr/ks.yaml

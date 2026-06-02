@@ -59,8 +59,8 @@ spec:
 
     images:
       sentry:
-        repository: ghcr.io/vrozaksen/sentry-oidc
-        tag: 26.5.0-oidc9.1.1@sha256:8dedd91c7b67851ac0186c2df5c3a87a0a347af261e9431917b5ae4524b33ede
+        repository: registry.vzkn.eu/containers/sentry-oidc
+        tag: 26.5.2@sha256:eefbdb93331ecac0eb417ef1da9b125529275f95f80b625ba820ea052cf68186
         pullPolicy: IfNotPresent
 
     serviceAccount:

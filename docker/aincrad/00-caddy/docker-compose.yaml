@@ -1,0 +1,68 @@
+---
+name: caddy
+
+# TLS edge for Aincrad. Terminates HTTPS for every NAS app behind one cert set,
+# issued via OVH DNS-01 ACME (same Let's Encrypt issuer as the cluster — valid,
+# indistinguishable to clients). Reused image already bundles caddy-dns/ovh.
+#
+# Two ingress paths both land here on :443:
+#   external -> towonel hub -> agent (proxy_protocol: none) -> caddy:443
+#   internal -> Mikrotik DNS (host.vzkn.eu -> NAS LAN IP) -> caddy:443
+# proxy_protocol is disabled on the agent so a single plain-TLS listener serves
+# both paths uniformly (trade-off: external client IP shows as the agent).
+
+services:
+  caddy:
+    # renovate: datasource=docker depName=ghcr.io/vrozaksen/caddy-l4-ovh
+    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.3
+    container_name: caddy
+    restart: unless-stopped
+    environment:
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL}
+      OVH_ENDPOINT: ovh-eu
+      OVH_APPLICATION_KEY: ${OVH_APPLICATION_KEY}
+      OVH_APPLICATION_SECRET: ${OVH_APPLICATION_SECRET}
+      OVH_CONSUMER_KEY: ${OVH_CONSUMER_KEY}
+    ports:
+      - 443:443
+      - 443:443/udp  # HTTP/3
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1:2019/config/"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy-data:
+  caddy-config:
+
+configs:
+  caddyfile:
+    file: ./config/Caddyfile
+
+networks:
+  default:
+    name: aincrad
+    external: true

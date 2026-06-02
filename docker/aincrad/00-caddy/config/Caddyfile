@@ -1,0 +1,103 @@
+{
+	email {$CADDY_ACME_EMAIL}
+
+	# DNS-01 ACME via OVH — replaces the manual /config wildcard files.
+	# Auto-renewing, same Let's Encrypt issuer as the cluster.
+	acme_dns ovh {
+		endpoint {$OVH_ENDPOINT}
+		application_key {$OVH_APPLICATION_KEY}
+		application_secret {$OVH_APPLICATION_SECRET}
+		consumer_key {$OVH_CONSUMER_KEY}
+	}
+}
+
+# Proxy by HOST IP:port (not container name) on purpose: Caddy then works the
+# same whether an app is still plugin-managed or already migrated to doco-cd —
+# both publish the same host port. This decouples the migration order: bring up
+# Caddy first, swap apps one by one, Caddy never cares. 10.10.0.11 = Aincrad.
+
+(block_world) {
+	@block not remote_ip private_ranges
+	abort @block
+}
+
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains;"
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin"
+		X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"
+	}
+}
+
+(log_settings) {
+	log {
+		output file /config/access.log
+		level WARN
+	}
+}
+
+# === media (external via towonel agent, once migrated) ===================
+emby.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:8096
+}
+
+music.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:8080
+}
+
+# === garage S3 ===========================================================
+api.s3.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:9010
+}
+
+web.s3.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:3920
+}
+
+garage.vzkn.eu {
+	import security_headers
+	import block_world
+	reverse_proxy 10.10.0.11:3990
+}
+
+admin.s3.vzkn.eu {
+	import security_headers
+	import block_world
+	reverse_proxy 10.10.0.11:3930
+}
+
+# === apps (LAN-only unless added to the agent SERVICES + invite) =========
+stash.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:6969
+}
+
+code.vzkn.eu {
+	import security_headers
+	import block_world
+	reverse_proxy 10.10.0.11:4993
+}
+
+tdarr.vzkn.eu {
+	import security_headers
+	import block_world
+	reverse_proxy 10.10.0.11:8265
+}
+
+syncthing.vzkn.eu {
+	import security_headers
+	import block_world
+	reverse_proxy 10.10.0.11:8384
+}
+
+# === immich (stays plugin-managed until it migrates TO the cluster) ======
+immich.vzkn.eu {
+	import security_headers
+	reverse_proxy 10.10.0.11:2283
+}

@@ -1,0 +1,34 @@
+---
+# doco-cd app config for the Aincrad (Unraid) NAS host.
+# A SEPARATE doco-cd instance runs ON Aincrad watching this repo and deploys
+# every compose stack under ./docker/aincrad (mirrors the bifrost setup).
+#
+# Prereq secrets in Infisical (project vzkn-eu-v2-zn / prod):
+#   /vps/aincrad/TOWONEL_INVITE_TOKEN  -> from `towonel invite create` on the hub
+#   /vps/aincrad/GARAGE_WEBUI_AUTH     -> "admin:<password>" for garage-webui
+# Reused from /vps/bifrost: TOWONEL_ACME_EMAIL, OVH_* (Caddy DNS-01 ACME).
+name: aincrad
+reference: refs/heads/main
+working_dir: ./docker/aincrad
+auto_discovery:
+  enabled: true
+  depth: 1
+  delete: true
+reconciliation:
+  enabled: true
+  interval: 3600
+external_secrets:
+  # Towonel agent identity (stateless — derived from this token each boot)
+  TOWONEL_INVITE_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/TOWONEL_INVITE_TOKEN
+  # Caddy DNS-01 ACME (shared OVH infra creds + ACME email from bifrost)
+  CADDY_ACME_EMAIL: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/TOWONEL_ACME_EMAIL
+  OVH_APPLICATION_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/OVH_APPLICATION_KEY
+  OVH_APPLICATION_SECRET: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/OVH_APPLICATION_SECRET
+  OVH_CONSUMER_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/bifrost/OVH_CONSUMER_KEY
+  # garage: webui basic auth ("admin:<password>") + rpc/admin secrets (-> *_file)
+  GARAGE_WEBUI_AUTH: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_WEBUI_AUTH
+  GARAGE_RPC_SECRET: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_RPC_SECRET
+  GARAGE_ADMIN_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_ADMIN_TOKEN
+  # code-server login + sudo
+  CODE_SERVER_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_PASSWORD
+  CODE_SERVER_SUDO_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_SUDO_PASSWORD

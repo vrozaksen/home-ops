@@ -1,0 +1,61 @@
+---
+name: towonel-agent
+
+# Stateless towonel agent — identity is derived from TOWONEL_INVITE_TOKEN
+# (TenantKeypair::from_seed), so no persistent volume is needed. Registers the
+# exact hostnames below with the hub; exact-match beats the cluster's
+# *.vzkn.eu wildcard, so these flip to the NAS the moment the agent is up.
+#
+# ⚠️ Cutover is instant on registration. On first bring-up, confirm Caddy +
+# apps are healthy (via NAS LAN IP) BEFORE this stack starts, or external
+# hits briefly 502 while origins warm up. See README.md.
+#
+# proxy_protocol: none -> agent pipes raw TLS straight to Caddy (no PROXY
+# header), so the same Caddy :443 listener also serves direct LAN clients.
+
+services:
+  towonel-agent:
+    # renovate: datasource=docker depName=codeberg.org/towonel/towonel-agent
+    image: codeberg.org/towonel/towonel-agent:0.1.14
+    container_name: towonel-agent
+    restart: unless-stopped
+    environment:
+      RUST_LOG: info
+      TOWONEL_INVITE_TOKEN: ${TOWONEL_INVITE_TOKEN}
+      TOWONEL_AGENT_HEALTH_LISTEN_ADDR: 0.0.0.0:9090
+      TOWONEL_AGENT_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
+      # HELD EMPTY until the emby/navidrome config is migrated. Exact-match is
+      # instant on registration — advertising these now would flip EXTERNAL
+      # emby.vzkn.eu to the (empty) NAS while the cluster still has real data.
+      # At cutover, restore:
+      #   [
+      #     {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"},
+      #     {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"none"}
+      #   ]
+      TOWONEL_AGENT_SERVICES: "[]"
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1:9090/healthz"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

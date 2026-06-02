@@ -40,8 +40,6 @@ services:
     volumes:
       - /mnt/blaze/appdata/navidrome:/config
       - /mnt/cache/z_media/music:/music:ro
-    tmpfs:
-      - /tmp
     healthcheck:
       test:
         - "CMD"

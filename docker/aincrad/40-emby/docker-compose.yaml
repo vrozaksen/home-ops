@@ -26,14 +26,9 @@ services:
       TZ: Europe/Warsaw
     volumes:
       - /mnt/blaze/appdata/emby:/config
-      - /mnt/blaze/appdata/emby/cache:/config/cache
       - /mnt/cache/emby-meta:/metadata
       - /mnt/user/data/media:/data
-    tmpfs:
-      - /config/logs
-      - /config/sync
-      - /transcode
-      - /tmp
+      - /mnt/blaze/temp/emby:/transcode
     healthcheck:
       test:
         - "CMD"

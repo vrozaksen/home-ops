@@ -32,8 +32,8 @@ services:
     healthcheck:
       test:
         - "CMD"
-        - "wget"
-        - "-qO-"
+        - "curl"
+        - "-fsS"
         - "http://127.0.0.1:8096/System/Info/Public"
       interval: 30s
       timeout: 5s

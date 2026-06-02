@@ -32,7 +32,7 @@ spec:
               # LLM via Anthropic API (ANTHROPIC_API_KEY z Infisical + spend cap $5)
               ANTHROPIC_MODEL: claude-sonnet-4-6
               MAX_TOKENS: "4096"
-              AGENTMEMORY_AUTO_COMPRESS: "true"
+              AGENTMEMORY_AUTO_COMPRESS: "false"
               GRAPH_EXTRACTION_ENABLED: "true"
               CONSOLIDATION_ENABLED: "true"
               AGENTMEMORY_INJECT_CONTEXT: "true"

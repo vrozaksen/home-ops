@@ -1,0 +1,62 @@
+---
+name: emby
+
+services:
+  emby:
+    # renovate: datasource=docker depName=ghcr.io/home-operations/emby
+    image: ghcr.io/home-operations/emby:4.9.5.0
+    container_name: emby
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/emby.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8096]"
+    # rootless image: UID 1000, GID 100 (matches the old k8s securityContext).
+    user: "1000:100"
+    group_add:
+      - "18"  # /dev/dri group on Unraid (card0 + renderD128); devices are also 0777
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      # Direct LAN access (Emby native apps auto-discover here). Remote still
+      # goes emby.vzkn.eu -> Caddy -> emby:8096. 8096 stays plain HTTP (TLS is
+      # Caddy's job); not reachable externally (towonel only tunnels to caddy).
+      - "8096:8096"
+    environment:
+      DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+      TZ: Europe/Warsaw
+    volumes:
+      - /mnt/blaze/appdata/emby:/config
+      - /mnt/blaze/appdata/emby/cache:/config/cache
+      - /mnt/cache/emby-meta:/metadata
+      - /mnt/user/data/media:/data
+    tmpfs:
+      - /config/logs
+      - /config/sync
+      - /transcode
+      - /tmp
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1:8096/System/Info/Public"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 8g
+        reservations:
+          memory: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

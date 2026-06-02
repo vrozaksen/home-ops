@@ -1,0 +1,70 @@
+---
+name: navidrome
+
+services:
+  navidrome:
+    # renovate: datasource=docker depName=ghcr.io/navidrome/navidrome
+    image: ghcr.io/navidrome/navidrome:0.61.2
+    container_name: navidrome
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/navidrome.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8080]"
+    user: "1000:100"
+    environment:
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /config
+      ND_CACHEFOLDER: /config/cache
+      ND_LOGLEVEL: info
+      ND_BASEURL: https://music.vzkn.eu
+      ND_PORT: "8080"
+      ND_ENABLEINSIGHTSCOLLECTOR: "false"
+      ND_COVERJPEGQUALITY: "100"
+      ND_DEFAULTTHEME: Spotify-ish
+      ND_ENABLEDOWNLOADS: "true"
+      ND_ENABLEEXTERNALSERVICES: "true"
+      ND_ENABLEGRAVATAR: "false"
+      ND_ENABLESHARING: "true"
+      ND_ENABLESTARRATING: "true"
+      ND_IMAGECACHESIZE: 1GB
+      ND_PROMETHEUS_ENABLED: "true"
+      ND_PROMETHEUS_METRICSPATH: /metrics
+      ND_SCANNER_SCHEDULE: "@every 1h"
+      ND_SEARCHFULLSTRING: "true"
+      ND_TRANSCODINGCACHESIZE: 1GB
+      ND_SUBSONIC_ARTISTPARTICIPATIONS: "true"
+      TZ: Europe/Warsaw
+    ports:
+      # Published so Caddy reaches it at 10.10.0.11:8080 (host-IP proxying).
+      - "8080:8080"
+    volumes:
+      - /mnt/blaze/appdata/navidrome:/config
+      - /mnt/cache/z_media/music:/music:ro
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1:8080/ping"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

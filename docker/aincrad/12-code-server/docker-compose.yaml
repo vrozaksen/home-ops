@@ -1,0 +1,57 @@
+---
+name: code-server
+
+# Ported from the Unraid dump. Secrets (login + sudo) moved to Infisical.
+# ⚠️ code-server grants a shell with sudo — keep external exposure behind
+# Authentik (ext-auth) or LAN-only. Internal access works via Caddy +
+# Mikrotik split-DNS (code.vzkn.eu -> NAS) without the towonel agent.
+
+services:
+  code-server:
+    # renovate: datasource=docker depName=lscr.io/linuxserver/code-server
+    image: lscr.io/linuxserver/code-server:4.122.0-ls340
+    container_name: code-server
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/code-server.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8443]"
+    environment:
+      PUID: "99"
+      PGID: "100"
+      UMASK: "022"
+      TZ: Europe/Warsaw
+      DEFAULT_WORKSPACE: /config/workspace
+      PROXY_DOMAIN: code.vzkn.eu
+      PASSWORD: ${CODE_SERVER_PASSWORD}
+      SUDO_PASSWORD: ${CODE_SERVER_SUDO_PASSWORD}
+    ports:
+      - "4993:8443"
+    volumes:
+      - /mnt/blaze/appdata/code-server:/config
+      - /mnt/blaze/appdata:/appdata
+    healthcheck:
+      test:
+        - "CMD"
+        - "curl"
+        - "-fsS"
+        - "http://127.0.0.1:8443/healthz"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

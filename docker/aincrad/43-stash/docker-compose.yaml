@@ -1,33 +1,31 @@
 ---
 name: stash
 
-# Ported from the Unraid dump. Runs as root (image default); /dev/dri for
-# hardware transcode. No secrets in env (auth lives in config.yml).
-# ⚠️ stashapp/stash has no version label in the dump -> pinning to `latest`.
-# Pin to a vX.Y.Z tag to let Renovate open version PRs.
-
 services:
   stash:
-    # renovate: datasource=docker depName=stashapp/stash
-    image: stashapp/stash:latest
+    # renovate: datasource=docker depName=ghcr.io/home-operations/stash
+    image: ghcr.io/home-operations/stash:0.31.1
     container_name: stash
     restart: unless-stopped
+    user: "1000:100"
     labels:
       net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/stash.png"
       net.unraid.docker.webui: "http://[IP]:[PORT:9999]"
     devices:
       - /dev/dri:/dev/dri
+    group_add:
+      - "18"  # /dev/dri group on Unraid (also 0777)
     environment:
       TZ: Europe/Warsaw
       STASH_STASH: /data/
       STASH_GENERATED: /generated/
       STASH_METADATA: /metadata/
       STASH_CACHE: /cache/
-      STASH_CONFIG_FILE: /root/.stash/config.yml
+      STASH_CONFIG_FILE: /config/config.yml
     ports:
       - "6969:9999"
     volumes:
-      - /mnt/blaze/appdata/stash/config:/root/.stash
+      - /mnt/blaze/appdata/stash/config:/config
       - /mnt/blaze/appdata/stash/blobs:/blobs
       - /mnt/blaze/appdata/stash/cache:/cache
       - /mnt/blaze/appdata/stash/gallery:/gallery

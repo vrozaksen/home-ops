@@ -33,7 +33,7 @@ services:
       POLL_CONFIG: |-
         - url: https://github.com/vrozaksen/home-ops.git
           reference: main
-          interval: 3600
+          interval: 300   # 5 min
       SECRET_PROVIDER: infisical
       SECRET_PROVIDER_SITE_URL: https://eu.infisical.com
       SECRET_PROVIDER_CLIENT_ID: ${INFISICAL_CLIENT_ID}

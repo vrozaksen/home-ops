@@ -1,0 +1,55 @@
+---
+name: syncthing
+
+# Ported from the Unraid dump. Sync/discovery ports stay published on the host
+# for direct P2P (not tunneled). UI (8384) reachable via Caddy internally.
+
+services:
+  syncthing:
+    # renovate: datasource=docker depName=lscr.io/linuxserver/syncthing
+    image: lscr.io/linuxserver/syncthing:2.1.0-ls219  # verify tag
+    container_name: syncthing
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/syncthing.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8384]"
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      UMASK: "022"
+      TZ: Europe/Warsaw
+    ports:
+      - "8384:8384"  # web UI
+      - "22000:22000/tcp"  # sync protocol
+      - "22000:22000/udp"  # sync protocol (QUIC)
+      - "21027:21027/udp"  # local discovery
+    volumes:
+      - /mnt/blaze/appdata/syncthing:/config
+      - /mnt/blaze/personal:/private
+      - /mnt/cache/z_media/roms:/roms
+    healthcheck:
+      test:
+        - "CMD"
+        - "curl"
+        - "-fkSs"
+        - "http://127.0.0.1:8384/rest/noauth/health"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

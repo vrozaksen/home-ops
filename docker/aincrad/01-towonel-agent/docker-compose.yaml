@@ -7,6 +7,8 @@ services:
     image: codeberg.org/towonel/towonel-agent:0.1.14
     container_name: towonel-agent
     restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://codeberg.org/towonel.png"
     environment:
       RUST_LOG: info
       TOWONEL_INVITE_TOKEN: ${TOWONEL_INVITE_TOKEN}

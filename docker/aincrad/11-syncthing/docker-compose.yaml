@@ -7,7 +7,7 @@ name: syncthing
 services:
   syncthing:
     # renovate: datasource=docker depName=lscr.io/linuxserver/syncthing
-    image: lscr.io/linuxserver/syncthing:2.1.1-ls220
+    image: lscr.io/linuxserver/syncthing:v2.1.1-ls220
     container_name: syncthing
     restart: unless-stopped
     labels:

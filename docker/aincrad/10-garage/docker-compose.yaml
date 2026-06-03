@@ -60,6 +60,7 @@ services:
       - "3990:3909"
     environment:
       API_BASE_URL: "http://garage:3930"
+      API_ADMIN_KEY: ${GARAGE_ADMIN_TOKEN}
       S3_ENDPOINT_URL: "http://garage:9010"
       S3_REGION: "eu-central-1"
       AUTH_USER_PASS: ${GARAGE_WEBUI_AUTH}

@@ -1,0 +1,57 @@
+---
+name: tdarr
+
+# Ported from the Unraid dump. Intel QSV via /dev/dri (dropped the leftover
+# NVIDIA_* env — this box transcodes on the i3-14100 iGPU). Internal node +
+# server in one container, as before.
+
+services:
+  tdarr:
+    # renovate: datasource=docker depName=ghcr.io/haveagitgat/tdarr
+    image: ghcr.io/haveagitgat/tdarr:2.77.01  # verify tag (running build was dev_2.77.01)
+    container_name: tdarr
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/tdarr.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8265]"
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "18"  # /dev/dri group on Unraid (also 0777 world-accessible)
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      UMASK: "002"
+      TZ: Europe/Warsaw
+      nodeID: aincrad
+      serverIP: 10.10.0.11
+      internalNode: "true"
+      inContainer: "true"
+      WEB_UI_PORT: "8265"
+      SERVER_PORT: "8266"
+      NODE_PORT: "8267"
+    ports:
+      - "8265:8265"  # web UI
+      - "8266:8266"  # server
+    volumes:
+      - /mnt/blaze/appdata/tdarr/configs:/app/configs
+      - /mnt/blaze/appdata/tdarr/logs:/app/logs
+      - /mnt/blaze/appdata/tdarr/server:/app/server
+      - /mnt/blaze/temp:/temp
+      - /mnt/user/data/media:/mnt/user/data/media
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

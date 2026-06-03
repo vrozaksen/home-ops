@@ -12,7 +12,7 @@ spec:
     - "vrozaksen/home-ops"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:43.209.5@sha256:05fe7300b4364a97d7382f238a84c0f13d6b7a68fb355376a5d2caffbb69d093
+  image: ghcr.io/renovatebot/renovate:43.210.1@sha256:694ad45048def2335e42f08bc92eb8496fdfbb3308940f0238b7fdac865cd289
   schedule: "0 * * * *"
   parallelism: 3
   secretRef: renovate-token

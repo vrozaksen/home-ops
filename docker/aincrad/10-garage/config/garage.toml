@@ -1,0 +1,29 @@
+# GitOps-managed Garage config. Secrets are NOT in git — rpc_secret and
+# admin_token are injected as files (/run/secrets/*) from Infisical via the
+# compose `secrets:` block (sourced from env). Everything else mirrors your
+# existing /mnt/blaze/appdata/garage/garage.toml.
+metadata_dir = "/var/lib/garage/meta"
+data_dir     = "/var/lib/garage/data"
+db_engine    = "lmdb"
+metadata_auto_snapshot_interval = "6h"
+
+replication_factor = 1
+compression_level  = 2
+
+rpc_bind_addr   = "[::]:3910"
+rpc_public_addr = "[::]:3910"
+rpc_secret_file = "/run/secrets/garage_rpc_secret"
+
+[s3_api]
+s3_region     = "eu-central-1"
+api_bind_addr = "[::]:9010"
+root_domain   = "api.s3.vzkn.eu"
+
+[s3_web]
+bind_addr   = "[::]:3920"
+root_domain = "web.s3.vzkn.eu"
+index       = "index.html"
+
+[admin]
+api_bind_addr    = "[::]:3930"
+admin_token_file = "/run/secrets/garage_admin_token"

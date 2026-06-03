@@ -1,0 +1,87 @@
+---
+name: garage
+
+# Ported from your plugin compose, now GitOps + Renovate. Changes:
+#   - config now lives in git (./config/garage.toml) as a docker config
+#   - rpc_secret / admin_token -> Infisical, materialized as /run/secrets/*
+#     files (compose secrets sourced from env), referenced by *_file in the toml
+#   - webui basic-auth -> ${GARAGE_WEBUI_AUTH}
+#   - joined the shared `aincrad` network (Caddy reaches it by name)
+# Storage stays on /mnt/blaze exactly as before.
+
+services:
+  garage:
+    # renovate: datasource=docker depName=dxflrs/garage
+    image: dxflrs/garage:v2.1.0
+    container_name: garage
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/garage.png"
+    ports:
+      - "9010:9010"  # S3 API
+      - "3910:3910"  # RPC
+      - "3920:3920"  # S3 Web
+      - "3930:3930"  # Admin API
+    environment:
+      GARAGE_CONFIG: /etc/garage.toml
+    configs:
+      - source: garage-toml
+        target: /etc/garage.toml
+    secrets:
+      - garage_rpc_secret
+      - garage_admin_token
+    volumes:
+      - /mnt/blaze/garage/meta:/var/lib/garage/meta
+      - /mnt/blaze/garage/data:/var/lib/garage/data
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  garage-webui:
+    # renovate: datasource=docker depName=khairul169/garage-webui
+    image: khairul169/garage-webui:1.1.0
+    container_name: garage-webui
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/garage.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:3909]"
+    ports:
+      - "3990:3909"
+    environment:
+      API_BASE_URL: "http://garage:3930"
+      S3_ENDPOINT_URL: "http://garage:9010"
+      S3_REGION: "eu-central-1"
+      AUTH_USER_PASS: ${GARAGE_WEBUI_AUTH}
+    configs:
+      - source: garage-toml
+        target: /etc/garage.toml
+    depends_on:
+      - garage
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+configs:
+  garage-toml:
+    file: ./config/garage.toml
+
+secrets:
+  garage_rpc_secret:
+    environment: GARAGE_RPC_SECRET
+  garage_admin_token:
+    environment: GARAGE_ADMIN_TOKEN
+
+networks:
+  default:
+    name: aincrad
+    external: true

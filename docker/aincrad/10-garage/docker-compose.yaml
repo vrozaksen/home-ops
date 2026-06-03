@@ -24,6 +24,9 @@ services:
       - "3930:3930"  # Admin API
     environment:
       GARAGE_CONFIG: /etc/garage.toml
+      # Docker mounts compose secrets as 0444 (world-readable); garage refuses
+      # that by default. The file is only readable inside this container anyway.
+      GARAGE_ALLOW_WORLD_READABLE_SECRETS: "true"
     configs:
       - source: garage-toml
         target: /etc/garage.toml

@@ -12,7 +12,7 @@ name: garage
 services:
   garage:
     # renovate: datasource=docker depName=dxflrs/garage
-    image: dxflrs/garage:v2.1.0
+    image: dxflrs/garage:v2.3.0
     container_name: garage
     restart: unless-stopped
     labels:

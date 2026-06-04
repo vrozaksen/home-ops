@@ -82,8 +82,7 @@ spec:
                 drop:
                   - ALL
       provision:
-        # Bootstrap-safe: starts at 0 until the idm_admin api-token exists in Infisical.
-        replicas: 0
+        replicas: 1
         serviceAccount:
           identifier: provision
         containers:

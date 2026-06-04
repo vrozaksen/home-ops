@@ -22,7 +22,7 @@ spec:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/forge
               repository: registry.vzkn.eu/containers/forge
-              tag: 2.34.7@sha256:abf8d3b88c67cd51c3914e3c166b468a390f2480f16a7fdd9e64c9d13f199145
+              tag: 2.34.7@sha256:d419a3949c5e98501b793e3fec8279eda2e600e95366c09f2b484e9ff3d7d239
             env:
               TZ: ${TZ}
             resources:

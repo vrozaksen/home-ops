@@ -100,7 +100,7 @@ spec:
       authorized-keys:
         type: secret
         name: forge-secret
-        defaultMode: 0o400
+        defaultMode: 0o444
         advancedMounts:
           forge:
             app:

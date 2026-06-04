@@ -14,7 +14,6 @@ spec:
       feedback_links_enabled: "false"
       reporting_enabled: "false"
     auth:
-      signout_redirect_url: https://sso.vzkn.eu/application/o/grafana/end-session/
       oauth_auto_login: "false"
       oauth_allow_insecure_email_lookup: "true"
     auth.anonymous:
@@ -23,14 +22,16 @@ spec:
       org_role: Viewer
       hide_version: "true"
     auth.generic_oauth:
-      name: authentik
+      name: Kanidm
       enabled: "true"
-      scopes: openid email profile
-      auth_url: https://sso.vzkn.eu/application/o/authorize/
-      token_url: https://sso.vzkn.eu/application/o/token/
-      api_url: https://sso.vzkn.eu/application/o/userinfo/
-      # Optionally map user groups to Grafana roles
-      role_attribute_path: contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' || 'Viewer'
+      scopes: openid email profile groups
+      auth_url: https://idm.vzkn.eu/ui/oauth2
+      token_url: https://idm.vzkn.eu/oauth2/token
+      api_url: https://idm.vzkn.eu/oauth2/openid/grafana/userinfo
+      use_pkce: "true"
+      allow_assign_grafana_admin: "true"
+      # Roles from the Kanidm `grafana_role` claim map (admins→GrafanaAdmin, users→Editor)
+      role_attribute_path: contains(grafana_role[*], 'GrafanaAdmin') && 'GrafanaAdmin' || contains(grafana_role[*], 'Editor') && 'Editor' || 'Viewer'
     log:
       mode: console
     metrics:
@@ -61,13 +62,13 @@ spec:
                 - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
                   valueFrom:
                     secretKeyRef:
-                      name: grafana-secret
-                      key: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
+                      name: kanidm-grafana-oidc
+                      key: client-id
                 - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
-                      name: grafana-secret
-                      key: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+                      name: kanidm-grafana-oidc
+                      key: client-secret
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

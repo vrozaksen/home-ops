@@ -46,30 +46,30 @@ spec:
                   - SETUID
                   - SYS_CHROOT
             probes:
-              liveness:
+              # Exec probe: check sshd PID via kill -0 (no TCP, zero log noise).
+              # All real :22 connections — even from inside the cluster — stay logged.
+              liveness: &probes
                 enabled: true
                 custom: true
                 spec:
-                  tcpSocket:
-                    port: 22
+                  exec:
+                    command:
+                      - /root/.nix-profile/bin/bash
+                      - -c
+                      - 'kill -0 $(cat /run/sshd.pid)'
                   periodSeconds: 30
                   timeoutSeconds: 5
                   failureThreshold: 3
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  tcpSocket:
-                    port: 22
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
+              readiness: *probes
               startup:
                 enabled: true
                 custom: true
                 spec:
-                  tcpSocket:
-                    port: 22
+                  exec:
+                    command:
+                      - /root/.nix-profile/bin/bash
+                      - -c
+                      - 'kill -0 $(cat /run/sshd.pid)'
                   periodSeconds: 5
                   timeoutSeconds: 5
                   failureThreshold: 30

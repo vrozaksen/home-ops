@@ -2,22 +2,16 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kanidm-provision-oauth2
+  name: kanidm-provision-oauth2-observability
   labels:
     kanidm_config: "1"
   annotations:
     reloader.stakater.com/match: "true"
 data:
-  # All 14 OIDC clients ported from terraform/authentik (redirect URLs = oauth2_rs_origin).
-  # The sidecar writes each client's basic secret to a k8s Secret (keys client-id/client-secret)
-  # in k8s.targetNamespace. Apps are rewired from Authentik → Kanidm one at a time in Phase 2;
-  # verify each redirect URL against the app's real callback when you flip it.
-  # All confidential, PKCE-enforced (Kanidm default). Access granted to the `users` group.
-  oauth2.json: |-
+  targetNamespace: observability
+  oauth2.json: |
     {
-      "groups": {},
-      "persons": {},
-      "systems": { "oauth2": {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "grafana": {
           "present": true, "displayName": "Grafana",
           "originUrl": "https://grafana.vzkn.eu/login/generic_oauth",
@@ -29,83 +23,232 @@ data:
               "valuesByGroup": { "admins": ["GrafanaAdmin"], "users": ["Editor"] }
             }
           },
-          "k8s": { "targetNamespace": "observability" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-development
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: development
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "forgejo": {
           "present": true, "displayName": "Forgejo",
           "originUrl": "https://git.vzkn.eu/user/oauth2/kanidm/callback",
           "originLanding": "https://git.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "development" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-harbor
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: harbor
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "harbor": {
           "present": true, "displayName": "Harbor",
           "originUrl": "https://registry.vzkn.eu/c/oidc/callback",
           "originLanding": "https://registry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "harbor" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-ai
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: ai
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "mcp-gateway": {
           "present": true, "displayName": "MCP Gateway",
           "originUrl": "https://mcp.vzkn.eu/oauth/callback",
           "originLanding": "https://mcp.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "ai" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-downloads
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: downloads
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "qui": {
           "present": true, "displayName": "Qui",
           "originUrl": "https://qui.vzkn.eu/api/auth/oidc/callback",
           "originLanding": "https://qui.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "downloads" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-flux-system
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: flux-system
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "headlamp": {
           "present": true, "displayName": "Headlamp",
           "originUrl": "https://headlamp.vzkn.eu/oidc-callback",
           "originLanding": "https://headlamp.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "flux-system" }
+          "k8s": {}
         },
         "flux": {
           "present": true, "displayName": "Flux",
           "originUrl": "https://flux.vzkn.eu/oauth2/callback",
           "originLanding": "https://flux.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "flux-system", "clientIdKey": "flux-client-id", "clientSecretKey": "flux-client-secret" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-database
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: database
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "pgadmin": {
           "present": true, "displayName": "pgAdmin",
           "originUrl": "https://pgadmin.vzkn.eu/oauth2/authorize",
           "originLanding": "https://pgadmin.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "database" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-self-hosted
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: self-hosted
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "rxresume": {
           "present": true, "displayName": "Reactive Resume",
           "originUrl": "https://rxresume.vzkn.eu/api/auth/oauth2/callback/custom",
           "originLanding": "https://rxresume.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": { "targetNamespace": "self-hosted" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-social
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: social
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "gotosocial": {
           "present": true, "displayName": "GoToSocial",
           "originUrl": "https://gts.vzkn.eu/auth/callback",
           "originLanding": "https://gts.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "targetNamespace": "social" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-sentry
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: sentry
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "sentry": {
           "present": true, "displayName": "Sentry",
           "originUrl": "https://sentry.vzkn.eu/auth/sso/",
           "originLanding": "https://sentry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": { "targetNamespace": "sentry" }
-        },
+          "k8s": {}
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-external
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  # External app (aincrad NAS) — no k8s block, no secret write-back; manage its secret manually.
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
         "unraid": {
           "present": true, "displayName": "Unraid",
           "originUrl": "https://aincrad.home.vzkn.eu:4443/graphql/api/auth/oidc/callback",
           "originLanding": "https://aincrad.home.vzkn.eu:4443/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] }
         }
-      } }
-    }
+      } } }

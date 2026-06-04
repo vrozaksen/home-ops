@@ -23,7 +23,7 @@ data:
               "valuesByGroup": { "admins": ["GrafanaAdmin"], "users": ["Editor"] }
             }
           },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/grafana.svg" }
         }
       } } }
 ---
@@ -45,7 +45,7 @@ data:
           "originUrl": "https://git.vzkn.eu/user/oauth2/kanidm/callback",
           "originLanding": "https://git.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "clientIdKey": "key", "clientSecretKey": "secret", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/forgejo.svg" }
         }
       } } }
 ---
@@ -67,7 +67,7 @@ data:
           "originUrl": "https://registry.vzkn.eu/c/oidc/callback",
           "originLanding": "https://registry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/harbor.svg" }
         }
       } } }
 ---
@@ -89,7 +89,7 @@ data:
           "originUrl": "https://mcp.vzkn.eu/oauth/callback",
           "originLanding": "https://mcp.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/anthropic.svg" }
         }
       } } }
 ---
@@ -111,7 +111,7 @@ data:
           "originUrl": "https://qui.vzkn.eu/api/auth/oidc/callback",
           "originLanding": "https://qui.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/qui.svg" }
         }
       } } }
 ---
@@ -133,14 +133,14 @@ data:
           "originUrl": "https://headlamp.vzkn.eu/oidc-callback",
           "originLanding": "https://headlamp.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/headlamp.svg" }
         },
         "flux": {
           "present": true, "displayName": "Flux",
           "originUrl": "https://flux.vzkn.eu/oauth2/callback",
           "originLanding": "https://flux.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/flux-cd.svg" }
         }
       } } }
 ---
@@ -162,7 +162,7 @@ data:
           "originUrl": "https://pgadmin.vzkn.eu/oauth2/authorize",
           "originLanding": "https://pgadmin.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/pgadmin.svg" }
         }
       } } }
 ---
@@ -184,7 +184,7 @@ data:
           "originUrl": "https://rxresume.vzkn.eu/api/auth/oauth2/callback/custom",
           "originLanding": "https://rxresume.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/reactive-resume.svg" }
         }
       } } }
 ---
@@ -206,7 +206,7 @@ data:
           "originUrl": "https://gts.vzkn.eu/auth/callback",
           "originLanding": "https://gts.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": {}
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/gotosocial.svg" }
         }
       } } }
 ---
@@ -228,7 +228,8 @@ data:
           "originUrl": "https://sentry.vzkn.eu/auth/sso/",
           "originLanding": "https://sentry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": {}
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/sentry.svg" }
         }
       } } }
 ---

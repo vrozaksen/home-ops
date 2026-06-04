@@ -1,0 +1,83 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Kanidm user management
+#
+# Run from the repo root via the `kanidm` module:
+#     just kanidm                 # list recipes
+#     just kanidm onboard ania "Ania K" ania@vzkn.eu users ff household
+#     just kanidm onboard marek "Marek W" marek@vzkn.eu      # default group: users
+#     just kanidm bulk people.csv
+#     just kanidm reset ania
+#
+# Prerequisites:
+#   - `kanidm` CLI installed locally
+#   - logged in as idm_admin:  kanidm login --name idm_admin --url https://idm.vzkn.eu
+#   - KANIDM_URL is exported below, so no --url needed on each call
+#
+# Migrating from Authentik: recreate the account here, then the person sets their OWN
+# credential via the reset link (passwords/MFA do NOT transfer from Authentik).
+#
+# Groups (add `users` to everyone):
+#   users       baseline — access to OIDC apps
+#   ff          friends & family — media (Emby/Navidrome/Seerr)
+#   household   household — home automation + media
+#   admins      app role elevation (e.g. GrafanaAdmin) — trusted only
+#   idm_admins  real Kanidm administration — you only
+# ─────────────────────────────────────────────────────────────────────────────
+
+export KANIDM_URL := "https://idm.vzkn.eu"
+
+# List recipes
+default:
+    @just --list --unsorted --justfile {{justfile()}}
+
+# Onboard a person: create, add to groups (default "users"), print reset link
+onboard user name email +groups="users":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kanidm person create {{user}} "{{name}}" -D idm_admin
+    kanidm person update {{user}} --mail {{email}} -D idm_admin
+    for g in {{groups}}; do kanidm group add-members "$g" {{user}} -D idm_admin; done
+    echo "### reset link for {{user}} ###"
+    kanidm person credential create-reset-token {{user}} -D idm_admin
+
+# Bulk onboard from CSV: username,Full Name,email,space-separated-groups (path relative to where you run just)
+bulk file:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{invocation_directory()}}"
+    while IFS=, read -r user name mail groups; do
+      [ -z "$user" ] && continue
+      kanidm person create "$user" "$name" -D idm_admin
+      kanidm person update "$user" --mail "$mail" -D idm_admin
+      for g in $groups; do kanidm group add-members "$g" "$user" -D idm_admin; done
+      echo "### reset link for $user ###"
+      kanidm person credential create-reset-token "$user" -D idm_admin
+    done < {{file}}
+
+# (Re)issue a credential reset link (e.g. lost passkey)
+reset user:
+    kanidm person credential create-reset-token {{user}} -D idm_admin
+
+# Add a person to a group
+group-add group user:
+    kanidm group add-members {{group}} {{user}} -D idm_admin
+
+# Remove a person from a group
+group-rm group user:
+    kanidm group remove-members {{group}} {{user}} -D idm_admin
+
+# List all people
+list:
+    kanidm person list -D idm_admin
+
+# Show one person
+get user:
+    kanidm person get {{user}} -D idm_admin
+
+# List members of a group (default "users")
+members group="users":
+    kanidm group list-members {{group}} -D idm_admin
+
+# Delete a person
+delete user:
+    kanidm person delete {{user}} -D idm_admin

@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./infisicalsecret.yaml
+  - ./certificate.yaml
+  - ./configmap.yaml
+  - ./helmrelease.yaml
+  - ./backendtlspolicy.yaml
+  - ./networkpolicy.yaml
+  - ./provisioning/groups.yaml
+  - ./provisioning/oauth2.yaml

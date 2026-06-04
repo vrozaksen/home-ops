@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-config
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  # Mounted at /data/server.toml (the container's baked default config path).
+  # Env vars (KANIDM_*) in the HelmRelease still apply on top and are kept as a safety net.
+  server.toml: |-
+    version = "2"
+    domain = "idm.vzkn.eu"
+    origin = "https://idm.vzkn.eu"
+    bindaddress = "[::]:8443"
+    ldapbindaddress = "[::]:3636"
+    db_path = "/data/kanidm.db"
+    tls_chain = "/certs/tls.crt"
+    tls_key = "/certs/tls.key"
+    adminbindpath = "/var/run/kanidmd.sock"
+
+    # SQLite-consistent dumps every 6h, keep 14 (volsync also snapshots the PVC hourly).
+    [online_backup]
+    path = "/data/backups"
+    schedule = "3 */6 * * *"
+    versions = 14
+
+    # Trust X-Forwarded-For from in-cluster Envoy so audit/rate-limit see the real client IP,
+    # not the Envoy pod IP. Restricted to the pod CIDR (only Envoy reaches us via NetworkPolicy).
+    [http_client_address_info]
+    x-forward-for = ["10.69.0.0/16"]

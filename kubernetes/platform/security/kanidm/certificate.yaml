@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: idm-vzkn-eu
+spec:
+  dnsNames:
+    - idm.vzkn.eu
+  duration: 160h
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  secretName: idm-vzkn-eu-tls
+  usages:
+    - digital signature

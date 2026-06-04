@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kanidm
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: kanidm
+  # Ingress-only: egress stays open (SMTP relay, DNS, GitHub if ever needed, k8s API for provision).
+  ingress:
+    # Web UI / OIDC is a public-facing endpoint anyway — allow any in-cluster source
+    # (Envoy gateway hairpin, OIDC app backends, kubelet probes, cilium-health).
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+    # LDAPS is the sensitive surface — lock it to the only consumers (continuwuity, emby).
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: communication
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+      toPorts:
+        - ports:
+            - port: "3636"
+              protocol: TCP

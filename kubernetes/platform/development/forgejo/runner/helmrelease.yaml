@@ -25,7 +25,7 @@ spec:
               workdir_parent: /data/act
             kubernetes:
               namespace: development
-              poll_timeout: 10m
+              poll_timeout: 30m
             log:
               level: info
             plugins:
@@ -33,7 +33,7 @@ spec:
                 address: unix:///plugin/forgejo-runner-k8s.sock
                 options:
                   namespace: development
-                  poll_timeout: 10m
+                  poll_timeout: 30m
                   labels: "app.kubernetes.io/name=forgejo-runner-instance,app.kubernetes.io/instance=forgejo-runner"
             runner:
               capacity: 5

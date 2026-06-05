@@ -133,7 +133,7 @@ data:
           "originUrl": "https://headlamp.vzkn.eu/oidc-callback",
           "originLanding": "https://headlamp.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/headlamp.svg" }
+          "k8s": { "clientIdKey": "OIDC_CLIENT_ID", "clientSecretKey": "OIDC_CLIENT_SECRET", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/headlamp.svg" }
         },
         "flux": {
           "present": true, "displayName": "Flux",

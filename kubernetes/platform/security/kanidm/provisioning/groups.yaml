@@ -13,11 +13,11 @@ data:
   groups.json: |-
     {
       "groups": {
-        "pending":        { "present": true, "members": [] },
-        "users":          { "present": true, "members": [] },
-        "admins":         { "present": true, "members": [] },
-        "ff":             { "present": true, "members": [] },
-        "household":      { "present": true, "members": [] }
+        "pending":        { "present": true, "members": [], "overwriteMembers": false },
+        "users":          { "present": true, "members": [], "overwriteMembers": false },
+        "admins":         { "present": true, "members": [], "overwriteMembers": false },
+        "ff":             { "present": true, "members": [], "overwriteMembers": false },
+        "household":      { "present": true, "members": [], "overwriteMembers": false }
       },
       "persons": {},
       "systems": { "oauth2": {} }

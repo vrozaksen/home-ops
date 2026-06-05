@@ -51,15 +51,14 @@ metadata:
   name: toolhive-config
 spec:
   dependsOn:
+    - name: infisical-operator
+      namespace: security
+    - name: kanidm
+      namespace: security
     - name: toolhive-operator
       namespace: ai
   interval: 1h
   path: ./kubernetes/apps/ai/toolhive/config
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: vmcp-authentik-oidc
-        optional: true
   prune: true
   sourceRef:
     kind: GitRepository

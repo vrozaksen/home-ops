@@ -38,6 +38,18 @@ spec:
                   secretKeyRef:
                     name: postgres-rxresume-app
                     key: uri
+              OAUTH_PROVIDER_NAME: Kanidm
+              OAUTH_DISCOVERY_URL: https://idm.vzkn.eu/oauth2/openid/rxresume/.well-known/openid-configuration
+              OAUTH_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-rxresume-oidc
+                    key: client-id
+              OAUTH_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-rxresume-oidc
+                    key: client-secret
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

@@ -10,6 +10,10 @@ spec:
   dependsOn:
     - name: cloudnative-pg
       namespace: database
+    - name: infisical-operator
+      namespace: security
+    - name: kanidm
+      namespace: security
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

@@ -145,6 +145,11 @@ spec:
           UPDATE_AVATAR: true
           ENABLE_OPENID_SIGNIN: false
           ENABLE_OPENID_SIGNUP: false
+        oauth2_client:
+          ACCOUNT_LINKING: auto
+          USERNAME: preferred_username
+          UPDATE_AVATAR: true
+          ENABLE_AUTO_REGISTRATION: true
         service:
           DISABLE_REGISTRATION: true
           ALLOW_ONLY_EXTERNAL_REGISTRATION: true
@@ -245,12 +250,15 @@ spec:
         qos:
           ENABLED: true
       oauth:
-        - name: Authentik
+        # Source name MUST be `kanidm` — the callback path embeds it:
+        # https://git.vzkn.eu/user/oauth2/kanidm/callback (matches Kanidm redirect URL).
+        - name: kanidm
           provider: openidConnect
-          existingSecret: forgejo-authentik-secret
-          autoDiscoverUrl: "https://sso.vzkn.eu/application/o/forgejo/.well-known/openid-configuration"
-          iconUrl: "https://sso.vzkn.eu/static/dist/assets/icons/icon.png"
-          scopes: "email profile"
+          # kanidm-provision sidecar writes this secret with chart-required keys key/secret.
+          existingSecret: kanidm-forgejo-oidc
+          autoDiscoverUrl: "https://idm.vzkn.eu/oauth2/openid/forgejo/.well-known/openid-configuration"
+          scopes: "openid email profile groups"
+          iconUrl: "https://idm.vzkn.eu/pkg/img/logo-square.svg"
       additionalConfigFromEnvs:
         - name: GITEA__DATABASE__HOST
           value: pooler-forgejo-rw

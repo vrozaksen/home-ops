@@ -26,6 +26,8 @@ metadata:
 spec:
   dependsOn:
     - name: grafana
+    - name: kanidm
+      namespace: security
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

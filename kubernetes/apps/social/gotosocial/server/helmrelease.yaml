@@ -42,11 +42,12 @@ spec:
               OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
               OTEL_METRICS_PRODUCERS: prometheus
               OTEL_METRICS_EXPORTER: prometheus
-              # OIDC (Authentik)
+              # OIDC via Kanidm (discovery on issuer; PKCE S256 auto-negotiated).
               GTS_OIDC_ENABLED: "true"
-              GTS_OIDC_IDP_NAME: "Authentik"
-              GTS_OIDC_ISSUER: "https://sso.vzkn.eu/application/o/gotosocial/"
+              GTS_OIDC_IDP_NAME: "Kanidm"
+              GTS_OIDC_ISSUER: "https://idm.vzkn.eu/oauth2/openid/gotosocial"
               GTS_OIDC_SCOPES: "openid,email,profile,groups"
+              # Link OIDC logins to existing local accounts by email
               GTS_OIDC_LINK_EXISTING: "true"
               # SMTP (relay via maddy in network namespace, no auth needed in-cluster)
               GTS_SMTP_HOST: smtp-relay.network.svc.cluster.local
@@ -58,9 +59,16 @@ spec:
               GTS_DB_ADDRESS: /storage/sqlite.db
               GTS_DB_SQLITE_JOURNAL_MODE: WAL
               GTS_DB_SQLITE_SYNCHRONOUS: NORMAL
-            envFrom:
-              - secretRef:
-                  name: gotosocial-secret
+              GTS_OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-gotosocial-oidc
+                    key: client-id
+              GTS_OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-gotosocial-oidc
+                    key: client-secret
             probes:
               liveness: &probes
                 enabled: true

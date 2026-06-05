@@ -53,6 +53,17 @@ spec:
                   secretKeyRef:
                     name: *secret
                     key: PGADMIN_DEFAULT_PASSWORD
+              # OAUTH2 client creds for Kanidm (config_local.py reads via os.environ)
+              OAUTH2_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-pgadmin-oidc
+                    key: client-id
+              OAUTH2_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-pgadmin-oidc
+                    key: client-secret
             probes:
               liveness: &probes
                 enabled: true

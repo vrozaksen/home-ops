@@ -43,9 +43,17 @@ spec:
       oidc:
         secret:
           create: false
+        usePKCE: true
         externalSecret:
           enabled: true
-          name: headlamp-secret
+          name: kanidm-headlamp-oidc
+    env:
+      - name: OIDC_ISSUER_URL
+        value: https://idm.vzkn.eu/oauth2/openid/headlamp
+      - name: OIDC_SCOPES
+        value: openid email profile groups
+      - name: OIDC_USE_PKCE
+        value: "true"
     serviceAccount:
       create: false
       name: headlamp-admin

@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
-# External gateway — OIDC via Authentik. mcp.vzkn.eu exposed publicly.
+# External gateway — upstream OIDC via Kanidm. mcp.vzkn.eu exposed publicly.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
@@ -19,20 +19,23 @@ spec:
       refreshTokenLifespan: 168h
       authCodeLifespan: 10m
     upstreamProviders:
-      - name: authentik
+      # Upstream IdP: Kanidm (idm.vzkn.eu). client_id == Kanidm resource-server
+      # name "mcp-gateway"; secret from kanidm-mcp-gateway-oidc/client-secret.
+      # PKCE S256 enforced by Kanidm. No offline_access scope (not granted).
+      - name: kanidm
         type: oidc
         oidcConfig:
-          issuerUrl: https://sso.vzkn.eu/application/o/mcp-gateway/
-          clientId: ${MCP_GATEWAY_CLIENT_ID}
+          issuerUrl: https://idm.vzkn.eu/oauth2/openid/mcp-gateway
+          clientId: mcp-gateway
           clientSecretRef:
-            name: vmcp-authentik-oidc
-            key: MCP_GATEWAY_CLIENT_SECRET
+            name: kanidm-mcp-gateway-oidc
+            key: client-secret
           redirectUri: https://mcp.vzkn.eu/oauth/callback
           scopes:
             - openid
             - profile
             - email
-            - offline_access
+            - groups
   groupRef:
     name: mcp-tools
   telemetryConfigRef:

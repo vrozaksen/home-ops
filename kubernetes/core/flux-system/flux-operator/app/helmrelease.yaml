@@ -51,13 +51,13 @@ spec:
         oidc:
           clientIDFrom:
             secretKeyRef:
-              name: flux-webui-oidc
-              key: clientID
+              name: kanidm-flux-oidc
+              key: client-id
           clientSecretFrom:
             secretKeyRef:
-              name: flux-webui-oidc
-              key: clientSecret
-          issuerURL: https://sso.vzkn.eu/application/o/flux/
+              name: kanidm-flux-oidc
+              key: client-secret
+          issuerURL: https://idm.vzkn.eu/oauth2/openid/flux
           scopes:
             - openid
             - profile

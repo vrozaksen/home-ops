@@ -5,9 +5,6 @@ kind: Kustomization
 metadata:
   name: flux-operator
 spec:
-  dependsOn:
-    - name: infisical-operator
-      namespace: security
   interval: 1h
   path: ./kubernetes/core/flux-system/flux-operator/app
   prune: true

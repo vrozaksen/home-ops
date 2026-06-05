@@ -23,11 +23,21 @@ spec:
               QUI__HOST: 0.0.0.0
               QUI__PORT: &port 80
               QUI__LOG_LEVEL: INFO
-              # OIDC Authentication
+              # OIDC Authentication (Kanidm)
               QUI__OIDC_ENABLED: "true"
-              QUI__OIDC_ISSUER: https://sso.vzkn.eu/application/o/qui/
+              QUI__OIDC_ISSUER: https://idm.vzkn.eu/oauth2/openid/qui
               QUI__OIDC_REDIRECT_URL: https://qui.vzkn.eu/api/auth/oidc/callback
               QUI__OIDC_DISABLE_BUILT_IN_LOGIN: "true"
+              QUI__OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-qui-oidc
+                    key: client-id
+              QUI__OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-qui-oidc
+                    key: client-secret
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"

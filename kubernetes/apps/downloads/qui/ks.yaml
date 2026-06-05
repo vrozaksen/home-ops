@@ -9,6 +9,10 @@ spec:
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
+    - name: infisical-operator
+      namespace: security
+    - name: kanidm
+      namespace: security
     - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster

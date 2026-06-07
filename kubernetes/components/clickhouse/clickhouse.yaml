@@ -35,17 +35,6 @@ spec:
       prometheus/events: "true"
       prometheus/asynchronous_metrics: "true"
       prometheus/status_info: "true"
-    files:
-      # Cap internal log tables — text_log/metric_log/asynchronous_metric_log ship
-      # with NO TTL and grow unbounded. Applies to (re)created tables; existing
-      # tables need a one-off ALTER ... MODIFY TTL.
-      config.d/system_logs_ttl.xml: |
-        <clickhouse>
-          <trace_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></trace_log>
-          <text_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></text_log>
-          <metric_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></metric_log>
-          <asynchronous_metric_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></asynchronous_metric_log>
-        </clickhouse>
     clusters:
       - name: ${APP}
         layout:

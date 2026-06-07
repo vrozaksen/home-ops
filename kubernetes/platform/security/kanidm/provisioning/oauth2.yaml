@@ -67,6 +67,7 @@ data:
           "originUrl": "https://registry.vzkn.eu/c/oidc/callback",
           "originLanding": "https://registry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "preferShortUsername": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/harbor.svg" }
         }
       } } }

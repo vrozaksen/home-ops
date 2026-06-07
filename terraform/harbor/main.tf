@@ -37,7 +37,7 @@ data "infisical_secrets" "harbor_admin" {
 data "infisical_secrets" "oidc" {
   env_slug     = "prod"
   workspace_id = var.infisical_workspace_id
-  folder_path  = "/terraform/authentik/oidc"
+  folder_path  = "/terraform/kanidm/oidc"
 }
 
 provider "harbor" {

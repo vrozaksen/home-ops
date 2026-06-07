@@ -29,6 +29,26 @@ spec:
         patches:
           - target:
               kind: Deployment
+              name: sentry-web
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/env/-
+                value:
+                  name: OIDC_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: kanidm-sentry-oidc
+                      key: client-id
+              - op: add
+                path: /spec/template/spec/containers/0/env/-
+                value:
+                  name: OIDC_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: kanidm-sentry-oidc
+                      key: client-secret
+          - target:
+              kind: Deployment
               name: sentry-vroom
             patch: |
               apiVersion: apps/v1
@@ -221,15 +241,14 @@ spec:
         enableSpan: false
         enableUptime: false
       web:
-        existingSecretEnv: sentry-oidc
         replicas: 1
         env:
           - name: OIDC_SCOPE
             value: "openid email profile"
           - name: OIDC_DOMAIN
-            value: "https://sso.vzkn.eu/application/o/sentry/"
+            value: "https://idm.vzkn.eu/oauth2/openid/sentry"
           - name: OIDC_ISSUER
-            value: "Authentik"
+            value: "Kanidm"
       worker:
         replicas: 1
       taskWorker:
@@ -313,10 +332,14 @@ spec:
         SENTRY_RELAY_WHITELIST_PK = []
 
         # ====================================================================
-        # sentry-auth-oidc plugin config
+        # sentry-auth-oidc plugin config (module: oidc)
         # Plugin reads via getattr(django.conf.settings, "OIDC_*", None),
-        # NOT os.environ. Env vars from sentry-oidc Secret + web.env are bridged
-        # into Django settings here (sentryConfPy IS the settings module).
+        # NOT os.environ. Env vars from kanidm-sentry-oidc Secret + web.env are
+        # bridged into Django settings here (sentryConfPy IS the settings module).
+        # OIDC_DOMAIN points at Kanidm discovery; plugin fetches
+        # /.well-known/openid-configuration and overrides auth/token/userinfo
+        # endpoints + issuer. NOTE: plugin has NO PKCE — Kanidm `sentry` client
+        # must allow disabling PKCE (allow-insecure-client-disable-pkce).
         # Without this bridge: ISSUER=None → provider.name=None → UI crash on
         # /settings/sentry/auth/ (providerItem.tsx tries .replace() on null).
         # ====================================================================
@@ -328,8 +351,8 @@ spec:
         OIDC_ISSUER = os.environ.get("OIDC_ISSUER", "OIDC")
 
         # SSRF protection — Sentry blocks outgoing HTTP to private IPs to prevent
-        # internal network scanning. Authentik (sso.vzkn.eu) lives at 10.10.0.91
-        # which is in 10.0.0.0/8 → OIDC token exchange fails with
+        # internal network scanning. Kanidm (idm.vzkn.eu) lives at 10.10.0.91
+        # which is in 10.0.0.0/8 → OIDC discovery/token exchange fails with
         # RestrictedIPAddress. Remove 10.0.0.0/8 from blocklist for cluster-internal
         # OIDC. Acceptable for solo homelab; review if exposing to other users.
         SENTRY_DISALLOWED_IPS = [ip for ip in SENTRY_DISALLOWED_IPS if ip != "10.0.0.0/8"]
@@ -358,7 +381,7 @@ spec:
         # ---- Flip OFF: defaults True upstream, we want False ----
 
         # Auth: SAML2 default ON (we use OIDC via sentry-auth-oidc plugin in
-        # custom image; env vars from sentry-oidc Secret + web.env block)
+        # custom image; creds from kanidm-sentry-oidc Secret + web.env block)
         SENTRY_FEATURES["organizations:sso-saml2"] = False
 
         # Brand UI we don't use (default True in 26.5.0)

@@ -17,6 +17,8 @@ spec:
       namespace: database
     - name: infisical-operator
       namespace: security
+    - name: kanidm
+      namespace: security
     - name: plugin-barman-cloud
       namespace: database
     - name: strimzi-kafka-operator

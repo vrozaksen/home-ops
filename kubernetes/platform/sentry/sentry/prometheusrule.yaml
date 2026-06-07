@@ -70,7 +70,7 @@ spec:
         - alert: SentryPVCNearFull
           annotations:
             summary: "PVC {{ $labels.persistentvolumeclaim }} >80% full"
-            description: "{{ $value | humanizePercentage }} used. Affects symbolicator cache / taskbroker queue."
+            description: "{{ $value | humanizePercentage }} used on {{ $labels.persistentvolumeclaim }}. Expand the PVC or tune retention for the owning component."
           expr: |
             (
               kubelet_volume_stats_used_bytes{namespace="sentry"}
@@ -153,13 +153,24 @@ spec:
       rules:
         - alert: SentryClickHouseDiskNearFull
           annotations:
-            summary: "ClickHouse disk {{ $labels.disk }} >80%"
-            description: "Events table grows fast. Tune retention via SENTRY_OPTIONS or expand PVC."
+            summary: "ClickHouse data disk >80% full"
+            description: "{{ $value | humanizePercentage }} used. Events/profiling grow fast — expand CH_SIZE or cut retention."
           expr: |
             (
-              1 - clickhouse_disk_free_space_bytes{namespace="sentry"}
-                / clickhouse_disk_total_space_bytes{namespace="sentry"}
+              1 - ClickHouseAsyncMetrics_DiskAvailable_default{namespace="sentry"}
+                / ClickHouseAsyncMetrics_DiskTotal_default{namespace="sentry"}
             ) > 0.80
+          for: 15m
+          labels:
+            severity: warning
+            category: sentry
+
+        - alert: SentryClickHouseMergesFallingBehind
+          annotations:
+            summary: "ClickHouse parts piling up ({{ $value }} in a partition)"
+            description: "Merges not keeping up (default parts_to_throw_insert=300 → inserts rejected). Usually merge OOM inside CH_LIMITS_MEMORY (Code 241) — raise it. Compounds disk fill."
+          expr: |
+            max(ClickHouseAsyncMetrics_MaxPartCountForPartition{namespace="sentry"}) > 150
           for: 15m
           labels:
             severity: warning

@@ -21,6 +21,13 @@ spec:
     profiles:
       default/allow_experimental_json_type: "1"
       default/allow_experimental_object_type: "1"
+      # Disable stack-trace/memory profiler — Snuba hammers CH with subscription
+      # queries; per-query sampling bloated system.trace_log to 40Gi+ (2.7B rows)
+      # and OOM'd merges. Not needed for a Sentry backend; re-enable to debug CH.
+      default/query_profiler_real_time_period_ns: "0"
+      default/query_profiler_cpu_time_period_ns: "0"
+      default/memory_profiler_step: "0"
+      default/memory_profiler_sample_probability: "0"
     settings:
       prometheus/endpoint: /metrics
       prometheus/port: "9363"
@@ -28,6 +35,17 @@ spec:
       prometheus/events: "true"
       prometheus/asynchronous_metrics: "true"
       prometheus/status_info: "true"
+    files:
+      # Cap internal log tables — text_log/metric_log/asynchronous_metric_log ship
+      # with NO TTL and grow unbounded. Applies to (re)created tables; existing
+      # tables need a one-off ALTER ... MODIFY TTL.
+      config.d/system_logs_ttl.xml: |
+        <clickhouse>
+          <trace_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></trace_log>
+          <text_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></text_log>
+          <metric_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></metric_log>
+          <asynchronous_metric_log><ttl>event_date + INTERVAL 3 DAY DELETE</ttl></asynchronous_metric_log>
+        </clickhouse>
     clusters:
       - name: ${APP}
         layout:

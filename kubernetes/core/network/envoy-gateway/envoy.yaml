@@ -88,19 +88,6 @@ spec:
         certificateRefs:
           - kind: Secret
             name: vzkn-eu-tls
-    # LDAPS passthrough → Kanidm (idm.vzkn.eu:3636). Envoy does not terminate; Kanidm presents
-    # its own idm.vzkn.eu cert. LAN/cluster-only (Towonel only forwards 443), never internet-exposed.
-    - name: ldaps
-      protocol: TLS
-      port: 3636
-      hostname: idm.vzkn.eu
-      tls:
-        mode: Passthrough
-      allowedRoutes:
-        kinds:
-          - kind: TLSRoute
-        namespaces:
-          from: All
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1

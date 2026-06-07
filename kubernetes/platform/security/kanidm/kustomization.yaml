@@ -8,6 +8,7 @@ resources:
   - ./configmap.yaml
   - ./helmrelease.yaml
   - ./backendtlspolicy.yaml
+  - ./tlsroute.yaml
   - ./networkpolicy.yaml
   - ./provisioning/groups.yaml
   - ./provisioning/oauth2.yaml

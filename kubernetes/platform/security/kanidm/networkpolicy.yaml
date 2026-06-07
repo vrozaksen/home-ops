@@ -18,12 +18,14 @@ spec:
         - ports:
             - port: "8443"
               protocol: TCP
-    # LDAPS is the sensitive surface — lock it to the only consumers (continuwuity, emby).
+    # LDAPS arrives via the external gateway's :3636 TLS-passthrough (emby on aincrad,
+    # continuwuity) → source is the envoy-external pod. Plus direct in-cluster from communication.
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: communication
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
         - matchLabels:
-            io.kubernetes.pod.namespace: media
+            io.kubernetes.pod.namespace: communication
       toPorts:
         - ports:
             - port: "3636"

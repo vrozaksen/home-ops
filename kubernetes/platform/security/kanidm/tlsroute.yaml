@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/tlsroute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: TLSRoute
+metadata:
+  name: kanidm-ldaps
+spec:
+  # TLS passthrough on the external gateway's :3636 listener — Kanidm terminates its own cert.
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: ldaps
+  hostnames:
+    - idm.vzkn.eu
+  rules:
+    - backendRefs:
+        - name: kanidm
+          port: 3636

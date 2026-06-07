@@ -8,7 +8,7 @@ spec:
   components: []
   # - ../../../components/ext-auth
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
   interval: 1h
   path: ./kubernetes/platform/observability/karma

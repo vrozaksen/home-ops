@@ -9,7 +9,7 @@ spec:
     # - ../../../components/ext-auth
     - ../../../components/zeroscaler
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
     - name: prometheus-adapter
       namespace: observability

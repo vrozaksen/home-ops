@@ -10,7 +10,7 @@ spec:
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
     - name: prometheus-adapter
       namespace: observability

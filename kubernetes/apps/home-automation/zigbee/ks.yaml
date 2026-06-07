@@ -10,7 +10,7 @@ spec:
     - ../../../components/volsync
     - ../../../components/zeroscaler
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
     - name: mosquitto
       namespace: database

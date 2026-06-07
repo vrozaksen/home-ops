@@ -6,7 +6,7 @@ metadata:
   name: kube-prometheus-stack
 spec:
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
     - name: rook-ceph-cluster
       namespace: rook-ceph

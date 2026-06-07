@@ -9,7 +9,7 @@ spec:
     - ../../../components/dragonfly
     # - ../../../components/ext-auth
   dependsOn:
-    - name: authentik
+    - name: kanidm
       namespace: security
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1

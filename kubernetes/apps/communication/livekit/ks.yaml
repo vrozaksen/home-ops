@@ -8,8 +8,6 @@ spec:
   components:
     - ../../../components/dragonfly
   dependsOn:
-    - name: continuwuity
-      namespace: communication
     - name: dragonfly-operator
       namespace: database
     - name: stunner-config

@@ -7,8 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./continuwuity/ks.yaml
-  - ./element-web/ks.yaml
   - ./livekit/ks.yaml
   - ./mumble/ks.yaml
   - ./red-lavalink/ks.yaml

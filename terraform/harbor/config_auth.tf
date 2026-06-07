@@ -10,6 +10,6 @@ resource "harbor_config_auth" "oidc" {
   oidc_auto_onboard  = true
   oidc_user_claim    = "preferred_username"
   oidc_groups_claim  = "groups"
-  oidc_admin_group   = "admins"
+  oidc_admin_group   = "admins@idm.vzkn.eu"
   oidc_logout        = true
 }

@@ -37,10 +37,10 @@ spec:
             resources:
               requests:
                 cpu: 100m
-                memory: 2Gi
+                memory: 1Gi
               limits:
-                cpu: 2
-                memory: 8Gi
+                cpu: 1
+                memory: 6Gi
       filebrowser:
         containers:
           app:

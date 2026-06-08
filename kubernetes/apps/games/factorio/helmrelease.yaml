@@ -17,7 +17,7 @@ spec:
         containers:
           app:
             image:
-              repository: registry.vzkn.eu/factorio/factorio
+              repository: registry.vzkn.eu/containers/factorio
               tag: 2.0.77
             env:
               GENERATE_NEW_SAVE: false

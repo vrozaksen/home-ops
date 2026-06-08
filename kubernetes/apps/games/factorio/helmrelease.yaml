@@ -74,6 +74,9 @@ spec:
               limits:
                 memory: 512Mi
     defaultPodOptions:
+      # Pin to alfheim: shared RWO PVC needs both controllers co-located; keep off freshly-repaired granzam
+      nodeSelector:
+        kubernetes.io/hostname: alfheim
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

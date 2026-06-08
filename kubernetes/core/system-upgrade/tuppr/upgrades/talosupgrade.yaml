@@ -5,11 +5,22 @@ kind: TalosUpgrade
 metadata:
   name: talos
 spec:
+  # Exclude granzam: unstable (random crashes + bootloop, non-ECC RAM) — re-include once diagnosed
+  nodeSelector:
+    matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: NotIn
+        values:
+          - "granzam"
   talos:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
     version: v1.13.3
   policy:
-    rebootMode: powercycle
+    # kexec, not powercycle: M720q hardware watchdog does not power-cycle the box
+    rebootMode: default
+  drain:
+    # Evict pods first so CSI unmaps RBD before Talos' own unmount (avoids D-state hang on drain)
+    enabled: true
   healthChecks:
     - apiVersion: volsync.backube/v1alpha1
       kind: ReplicationSource

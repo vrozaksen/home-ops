@@ -1,0 +1,13 @@
+---
+# Symbolicator symbol cache — referenced by helmrelease symbolicator.api.persistence.existingClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sentry-symbolicator-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ceph-block
+  resources:
+    requests:
+      storage: 50Gi

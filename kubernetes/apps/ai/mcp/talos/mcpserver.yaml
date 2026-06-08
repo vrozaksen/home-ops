@@ -6,7 +6,7 @@ metadata:
   name: talos-mcp
 spec:
   # renovate: datasource=docker depName=registry.vzkn.eu/containers/talos-mcp
-  image: registry.vzkn.eu/containers/talos-mcp:rolling@sha256:95d36f7676aeffdb38feeea86bd8c2892f55ba5dada2727ff1a77fe05a5e47c8
+  image: registry.vzkn.eu/containers/talos-mcp@sha256:95d36f7676aeffdb38feeea86bd8c2892f55ba5dada2727ff1a77fe05a5e47c8
   transport: streamable-http
   mcpPort: 8080
   groupRef:

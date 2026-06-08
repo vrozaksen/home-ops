@@ -5,8 +5,8 @@ kind: Kustomization
 metadata:
   name: &app prowlarr
 spec:
-  components: []
-  # - ../../../components/ext-auth
+  components:
+    - ../../../components/oidc-auth
   dependsOn:
     - name: kanidm
       namespace: security

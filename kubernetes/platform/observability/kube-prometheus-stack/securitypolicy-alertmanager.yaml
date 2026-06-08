@@ -5,25 +5,21 @@ kind: SecurityPolicy
 metadata:
   name: alertmanager
 spec:
-  extAuth:
-    failOpen: false
-    headersToExtAuth:
-      - cookie
-    http:
-      backendRefs:
-        - name: ak-outpost-proxy-outpost
-          namespace: security
-          port: 9000
-      path: /outpost.goauthentik.io/auth/envoy
-      headersToBackend:
-        - set-cookie
-        - x-authentik-username
-        - x-authentik-groups
-        - x-authentik-email
-        - x-authentik-name
-        - x-authentik-uid
-        - authorization
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/alertmanager
+    clientID: alertmanager
+    clientSecret:
+      name: kanidm-alertmanager-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://alertmanager.vzkn.eu/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: alertmanager.vzkn.eu
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+      - "groups"
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: kube-prometheus-stack-alertmanager-main
+      name: kube-prometheus-stack-alertmanager

@@ -5,8 +5,8 @@ kind: Kustomization
 metadata:
   name: &app victoria-logs
 spec:
-  components: []
-  # - ../../../components/ext-auth
+  components:
+    - ../../../components/oidc-auth
   dependsOn:
     - name: kanidm
       namespace: security
@@ -17,6 +17,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      OIDC_TARGET: victoria-logs-server
   prune: true
   sourceRef:
     kind: GitRepository

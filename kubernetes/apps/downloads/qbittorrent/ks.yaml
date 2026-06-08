@@ -6,7 +6,7 @@ metadata:
   name: &app qbittorrent
 spec:
   components:
-    # - ../../../components/ext-auth
+    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
@@ -21,6 +21,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      OIDC_HOST: qb.vzkn.eu
       NS: &ns downloads
       VOLSYNC_CAPACITY: 2Gi
   prune: true

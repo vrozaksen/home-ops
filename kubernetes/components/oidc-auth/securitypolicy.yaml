@@ -1,0 +1,28 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: ${APP}
+spec:
+  # Native Envoy OIDC against Kanidm (confidential client, no extra auth pod).
+  # Kanidm enforces PKCE; EG OIDC has no PKCE support, so the client must set
+  # allowInsecureClientDisablePkce in provisioning (secret-based confidential flow).
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/${APP}
+    clientID: ${APP}
+    clientSecret:
+      name: kanidm-${APP}-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://${OIDC_HOST:=${APP}.vzkn.eu}/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: ${OIDC_HOST:=${APP}.vzkn.eu}
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+      - "groups"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: ${OIDC_TARGET:=${APP}}

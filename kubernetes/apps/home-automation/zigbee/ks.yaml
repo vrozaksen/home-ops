@@ -6,7 +6,7 @@ metadata:
   name: &app zigbee
 spec:
   components:
-    # - ../../../components/ext-auth
+    - ../../../components/oidc-auth
     - ../../../components/volsync
     - ../../../components/zeroscaler
   dependsOn:

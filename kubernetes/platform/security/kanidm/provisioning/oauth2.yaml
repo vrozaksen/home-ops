@@ -24,6 +24,35 @@ data:
             }
           },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/grafana.svg" }
+        },
+        "karma": {
+          "present": true, "displayName": "Karma",
+          "originUrl": "https://karma.vzkn.eu/oauth2/callback",
+          "originLanding": "https://karma.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/karma.svg" }
+        },
+        "victoria-logs": {
+          "present": true, "displayName": "VictoriaLogs",
+          "originUrl": "https://victoria-logs.vzkn.eu/oauth2/callback", "originLanding": "https://victoria-logs.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/victoriametrics.svg" }
+        },
+        "prometheus": {
+          "present": true, "displayName": "Prometheus",
+          "originUrl": "https://prometheus.vzkn.eu/oauth2/callback", "originLanding": "https://prometheus.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/prometheus.svg" }
+        },
+        "alertmanager": {
+          "present": true, "displayName": "Alertmanager",
+          "originUrl": "https://alertmanager.vzkn.eu/oauth2/callback", "originLanding": "https://alertmanager.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/prometheus.svg" }
         }
       } } }
 ---
@@ -113,6 +142,62 @@ data:
           "originLanding": "https://qui.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/qui.svg" }
+        },
+        "slskd": {
+          "present": true, "displayName": "slskd",
+          "originUrl": "https://slskd.vzkn.eu/oauth2/callback", "originLanding": "https://slskd.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/slskd.svg" }
+        },
+        "qbittorrent": {
+          "present": true, "displayName": "qBittorrent",
+          "originUrl": "https://qb.vzkn.eu/oauth2/callback", "originLanding": "https://qb.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/qbittorrent.svg" }
+        },
+        "radarr": {
+          "present": true, "displayName": "Radarr",
+          "originUrl": "https://radarr.vzkn.eu/oauth2/callback", "originLanding": "https://radarr.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/radarr.svg" }
+        },
+        "sonarr": {
+          "present": true, "displayName": "Sonarr",
+          "originUrl": "https://sonarr.vzkn.eu/oauth2/callback", "originLanding": "https://sonarr.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/sonarr.svg" }
+        },
+        "prowlarr": {
+          "present": true, "displayName": "Prowlarr",
+          "originUrl": "https://prowlarr.vzkn.eu/oauth2/callback", "originLanding": "https://prowlarr.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/prowlarr.svg" }
+        },
+        "bazarr": {
+          "present": true, "displayName": "Bazarr",
+          "originUrl": "https://bazarr.vzkn.eu/oauth2/callback", "originLanding": "https://bazarr.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/bazarr.svg" }
+        },
+        "lidarr": {
+          "present": true, "displayName": "Lidarr",
+          "originUrl": "https://lidarr.vzkn.eu/oauth2/callback", "originLanding": "https://lidarr.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/lidarr.svg" }
+        },
+        "metube": {
+          "present": true, "displayName": "MeTube",
+          "originUrl": "https://metube.vzkn.eu/oauth2/callback", "originLanding": "https://metube.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/metube.svg" }
         }
       } } }
 ---
@@ -186,6 +271,13 @@ data:
           "originLanding": "https://rxresume.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/reactive-resume.svg" }
+        },
+        "searxng": {
+          "present": true, "displayName": "SearXNG",
+          "originUrl": "https://search.vzkn.eu/oauth2/callback", "originLanding": "https://search.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/searxng.svg" }
         }
       } } }
 ---
@@ -252,5 +344,49 @@ data:
           "originUrl": "https://aincrad.home.vzkn.eu:4443/graphql/api/auth/oidc/callback",
           "originLanding": "https://aincrad.home.vzkn.eu:4443/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] }
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-home-automation
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: home-automation
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "zigbee": {
+          "present": true, "displayName": "Zigbee2MQTT",
+          "originUrl": "https://zigbee.vzkn.eu/oauth2/callback", "originLanding": "https://zigbee.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/zigbee2mqtt.svg" }
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-storage
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: storage
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "kopia": {
+          "present": true, "displayName": "Kopia",
+          "originUrl": "https://kopia.vzkn.eu/oauth2/callback", "originLanding": "https://kopia.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/kopia.svg" }
         }
       } } }

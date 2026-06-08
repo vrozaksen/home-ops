@@ -6,7 +6,7 @@ metadata:
   name: &app slskd
 spec:
   components:
-    # - ../../../components/ext-auth
+    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
   dependsOn:
     - name: kanidm

@@ -20,7 +20,7 @@ spec:
     spec:
       # renovate: registryUrl=https://sentry-kubernetes.github.io/charts
       chart: sentry
-      version: 31.6.0
+      version: 32.0.0
       sourceRef:
         kind: HelmRepository
         name: sentry
@@ -300,6 +300,9 @@ spec:
         replicas: 1
 
     uptimeChecker:
+      enabled: false
+
+    launchpadTaskWorker:
       enabled: false
 
     hooks:

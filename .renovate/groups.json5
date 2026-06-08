@@ -86,6 +86,16 @@
         "commitMessageTopic": "{{{groupName}}} group"
       },
       "minimumGroupSize": 2
+    },
+    {
+      "description": ["Toolhive Group (operator + CRDs)"],
+      "groupName": "toolhive",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/toolhive-operator/", "/toolhive-operator-crds/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
     }
   ]
 }

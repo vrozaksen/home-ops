@@ -302,6 +302,9 @@ spec:
     uptimeChecker:
       enabled: false
 
+    launchpadTaskWorker:
+      enabled: false
+
     hooks:
       enabled: true
       activeDeadlineSeconds: 1800

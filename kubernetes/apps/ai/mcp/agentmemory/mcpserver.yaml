@@ -5,7 +5,7 @@ kind: MCPServer
 metadata:
   name: agentmemory-mcp
 spec:
-  image: registry.vzkn.eu/containers/agentmemory:0.9.24
+  image: registry.vzkn.eu/containers/agentmemory:0.9.27
   transport: stdio
   proxyPort: 8080
   args:

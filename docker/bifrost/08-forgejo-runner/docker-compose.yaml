@@ -3,7 +3,7 @@ name: forgejo-runner
 
 services:
   forgejo-runner-init:
-    image: docker.io/library/alpine:3.23
+    image: docker.io/library/alpine:3.24
     container_name: forgejo-runner-init
     restart: "no"
     user: "0:0"

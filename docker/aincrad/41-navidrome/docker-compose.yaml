@@ -4,7 +4,7 @@ name: navidrome
 services:
   navidrome:
     # renovate: datasource=docker depName=ghcr.io/navidrome/navidrome
-    image: ghcr.io/navidrome/navidrome:0.61.2
+    image: ghcr.io/navidrome/navidrome:0.62.0
     container_name: navidrome
     restart: unless-stopped
     labels:

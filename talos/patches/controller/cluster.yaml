@@ -3,7 +3,7 @@ cluster:
   allowSchedulingOnControlPlanes: false
   apiServer:
     extraArgs:
-      enable-aggregator-routing: true
+      enable-aggregator-routing: "true"
       feature-gates: PersistentVolumeClaimUnusedSinceTime=true,HPAScaleToZero=true
       # Faster pod eviction from unreachable nodes (default: 300s)
       default-not-ready-toleration-seconds: "60"
@@ -26,7 +26,7 @@ cluster:
       auto-compaction-mode: periodic
       auto-compaction-retention: "5m"
       listen-metrics-urls: http://0.0.0.0:2381
-      quota-backend-bytes: 4294967296  # 4 GiB
+      quota-backend-bytes: "4294967296"  # 4 GiB
   proxy:
     disabled: true
   scheduler:
@@ -41,11 +41,3 @@ cluster:
             score:
               disabled:
                 - name: ImageLocality
-          pluginConfig:
-            - name: PodTopologySpread
-              args:
-                defaultingType: List
-                defaultConstraints:
-                  - maxSkew: 1
-                    topologyKey: kubernetes.io/hostname
-                    whenUnsatisfiable: ScheduleAnyway

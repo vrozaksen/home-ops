@@ -18,4 +18,4 @@ spec:
   issuerRef:
     kind: Issuer
     name: self-node-remediation-selfsigned-issuer
-  secretName: webhook-server-cert
+  secretName: self-node-remediation-webhook-server-cert

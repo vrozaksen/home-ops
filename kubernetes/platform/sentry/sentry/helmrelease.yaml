@@ -192,7 +192,9 @@ spec:
           bytes: 50000000
       socket:
         timeout:
-          ms: 1000
+          # librdkafka default; 1000 timed out group-join → empty assignment
+          # → health.txt never written → startup probe kills consumers
+          ms: 60000
       provisioning:
         enabled: true
         replicationFactor: 1

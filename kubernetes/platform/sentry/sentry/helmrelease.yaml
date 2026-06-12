@@ -71,6 +71,18 @@ spec:
                 strategy:
                   type: Recreate
                   rollingUpdate: null
+          # Single-replica Kafka consumers: RollingUpdate (maxUnavailable=0,
+          # maxSurge=1) deadlocks — new pod can't get the lone partition until
+          # the old leaves, old won't leave until new is Ready. Recreate kills
+          # old first → partition freed → new takes over. Brief consume gap, ok.
+          - target:
+              kind: Deployment
+              name: "sentry-(.*consumer.*|.*forward.*|ingest-.*|process-(segments|spans)|monitors-clock-.*|snuba-replacer|uptime-results)"
+            patch: |
+              - op: add
+                path: /spec/strategy
+                value:
+                  type: Recreate
   values:
     profiles:
       - feature-complete

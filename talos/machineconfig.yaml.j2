@@ -56,8 +56,6 @@ machine:
     defaultRuntimeSeccompProfileEnabled: true
     disableManifestsDirectory: true
     extraConfig:
-      featureGates:
-        MemoryQoS: true
       maxPods: 200
       serializeImagePulls: false
     image: ghcr.io/siderolabs/kubelet:v1.36.1

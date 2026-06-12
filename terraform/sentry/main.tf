@@ -8,7 +8,7 @@ terraform {
 
     sentry = {
       source  = "jianyuan/sentry"
-      version = "~> 0.14"
+      version = "0.15.1"
     }
 
     random = {

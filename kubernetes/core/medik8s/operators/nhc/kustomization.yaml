@@ -13,7 +13,7 @@ images:
     newTag: v0.11.0
   - name: kube-rbac-proxy
     newName: quay.io/brancz/kube-rbac-proxy
-    newTag: v0.15.0
+    newTag: v0.22.0
 patches:
   # config/default ships cert-manager commented out; wire webhook serving certs.
   - path: manager-patch.yaml

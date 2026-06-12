@@ -12,7 +12,7 @@ images:
     newTag: v0.12.1
   - name: kube-rbac-proxy
     newName: quay.io/brancz/kube-rbac-proxy
-    newTag: v0.15.0
+    newTag: v0.22.0
 patches:
   # Wire webhook certs + pin the per-node agent image (env, not an image: field).
   - path: manager-patch.yaml

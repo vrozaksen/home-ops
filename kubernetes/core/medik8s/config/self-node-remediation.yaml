@@ -1,0 +1,21 @@
+---
+# Singleton config (name is fixed). Watchdog auto-detect; HW watchdog non-functional
+# on these nodes, SNR falls back to peer-based safe timeout.
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationConfig
+metadata:
+  name: self-node-remediation-config
+  namespace: medik8s
+spec: {}
+---
+# OutOfServiceTaint -> adds node.kubernetes.io/out-of-service taint so CSI
+# force-detaches RBD volumes and pods reschedule off the dead node.
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationTemplate
+metadata:
+  name: self-node-remediation
+  namespace: medik8s
+spec:
+  template:
+    spec:
+      remediationStrategy: OutOfServiceTaint

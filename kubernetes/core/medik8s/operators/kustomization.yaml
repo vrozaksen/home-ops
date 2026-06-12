@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Operators pulled from upstream config/default as remote kustomize bases
+# (Renovate tracks the ?ref= tags). Each overlay adds cert-manager webhook wiring.
+resources:
+  - ./nhc
+  - ./snr

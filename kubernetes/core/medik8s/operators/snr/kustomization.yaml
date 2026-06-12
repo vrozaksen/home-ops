@@ -1,0 +1,43 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medik8s
+resources:
+  # renovate: datasource=github-releases depName=medik8s/self-node-remediation
+  - github.com/medik8s/self-node-remediation/config/default?ref=v0.12.1
+  - ./webhook-pki.yaml
+images:
+  - name: quay.io/medik8s/self-node-remediation-operator
+    newTag: v0.12.1
+  - name: kube-rbac-proxy
+    newName: quay.io/brancz/kube-rbac-proxy
+    newTag: v0.15.0
+patches:
+  # Wire webhook certs + pin the per-node agent image (env, not an image: field).
+  - path: manager-patch.yaml
+    target:
+      kind: Deployment
+      name: self-node-remediation-controller-manager
+  - patch: |
+      apiVersion: admissionregistration.k8s.io/v1
+      kind: MutatingWebhookConfiguration
+      metadata:
+        name: self-node-remediation-mutating-webhook-configuration
+        annotations:
+          cert-manager.io/inject-ca-from: medik8s/self-node-remediation-serving-cert
+  - patch: |
+      apiVersion: admissionregistration.k8s.io/v1
+      kind: ValidatingWebhookConfiguration
+      metadata:
+        name: self-node-remediation-validating-webhook-configuration
+        annotations:
+          cert-manager.io/inject-ca-from: medik8s/self-node-remediation-serving-cert
+  # Namespace is owned by medik8s/namespace.yaml; drop the base copy.
+  # SNR uses namePrefix, so the base Namespace is still named "system" at patch time.
+  - patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: system

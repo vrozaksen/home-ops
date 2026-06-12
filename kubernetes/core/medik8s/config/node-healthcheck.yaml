@@ -1,0 +1,26 @@
+---
+# Worker-only health check. minHealthy 51% remediates at most 1 of ~3 workers
+# at a time, protecting Ceph (needs >=2 OSD nodes up).
+apiVersion: remediation.medik8s.io/v1alpha1
+kind: NodeHealthCheck
+metadata:
+  name: worker-default
+spec:
+  # Target workers only (control-plane nodes excluded).
+  selector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  minHealthy: "51%"
+  unhealthyConditions:
+    - type: Ready
+      status: "False"
+      duration: 300s
+    - type: Ready
+      status: Unknown
+      duration: 300s
+  remediationTemplate:
+    apiVersion: self-node-remediation.medik8s.io/v1alpha1
+    kind: SelfNodeRemediationTemplate
+    name: self-node-remediation
+    namespace: medik8s

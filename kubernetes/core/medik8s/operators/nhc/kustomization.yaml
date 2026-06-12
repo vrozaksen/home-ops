@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medik8s
+resources:
+  # renovate: datasource=github-releases depName=medik8s/node-healthcheck-operator
+  - github.com/medik8s/node-healthcheck-operator/config/default?ref=v0.11.0
+  - ./webhook-pki.yaml
+images:
+  - name: controller
+    newName: quay.io/medik8s/node-healthcheck-operator
+    newTag: v0.11.0
+  - name: kube-rbac-proxy
+    newName: quay.io/brancz/kube-rbac-proxy
+    newTag: v0.15.0
+patches:
+  # config/default ships cert-manager commented out; wire webhook serving certs.
+  - path: manager-patch.yaml
+    target:
+      kind: Deployment
+      name: node-healthcheck-controller-manager
+  - patch: |
+      apiVersion: admissionregistration.k8s.io/v1
+      kind: ValidatingWebhookConfiguration
+      metadata:
+        name: node-healthcheck-validating-webhook-configuration
+        annotations:
+          cert-manager.io/inject-ca-from: medik8s/node-healthcheck-serving-cert
+  # Namespace is owned by medik8s/namespace.yaml; drop the base copy.
+  # Match the base source name ("system") — stable across kustomize transform ordering.
+  - patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: system

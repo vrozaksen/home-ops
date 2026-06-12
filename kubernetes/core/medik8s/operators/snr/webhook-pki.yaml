@@ -1,0 +1,21 @@
+---
+# Self-signed webhook serving cert (config/default has cert-manager commented out).
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: self-node-remediation-selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: self-node-remediation-serving-cert
+spec:
+  dnsNames:
+    - self-node-remediation-webhook-service.medik8s.svc
+    - self-node-remediation-webhook-service.medik8s.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: self-node-remediation-selfsigned-issuer
+  secretName: webhook-server-cert

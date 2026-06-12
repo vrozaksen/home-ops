@@ -4,7 +4,7 @@ name: caddy-l4
 services:
   caddy:
     # renovate: datasource=docker depName=ghcr.io/vrozaksen/caddy-l4-ovh
-    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.3
+    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.4
     container_name: caddy-l4
     restart: unless-stopped
     environment:

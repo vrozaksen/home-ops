@@ -23,7 +23,7 @@ spec:
                 matchLabels:
                   gateway.envoyproxy.io/owning-gateway-namespace: network
         container:
-          image: mirror.gcr.io/envoyproxy/envoy:distroless-v1.38.0
+          image: mirror.gcr.io/envoyproxy/envoy:distroless-v1.38.2
           resources:
             requests:
               cpu: 30m

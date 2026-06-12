@@ -27,6 +27,12 @@
         "dock.mau.dev/mautrix/telegram"
       ],
       "allowedVersions": "/^v0\\.\\d+\\.\\d+$/"
+    },
+    {
+      "description": "Envoy proxy uses distroless-prefixed tags (distroless-v1.38.2); strip prefix so Renovate can semver-compare and resume update PRs",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["mirror.gcr.io/envoyproxy/envoy"],
+      "extractVersion": "^distroless-(?<version>.+)$"
     }
   ]
 }

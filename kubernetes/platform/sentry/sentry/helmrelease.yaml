@@ -77,12 +77,16 @@ spec:
           # old first → partition freed → new takes over. Brief consume gap, ok.
           - target:
               kind: Deployment
-              name: "sentry-(.*consumer.*|.*forward.*|ingest-.*|process-(segments|spans)|monitors-clock-.*|snuba-replacer|uptime-results)"
+              name: sentry-(.*consumer.*|.*forward.*|ingest-.*|process-segments|process-spans|monitors-clock-.*|snuba-replacer|uptime-results)
             patch: |
-              - op: add
-                path: /spec/strategy
-                value:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: all
+              spec:
+                strategy:
                   type: Recreate
+                  rollingUpdate: null
   values:
     profiles:
       - feature-complete

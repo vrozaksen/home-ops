@@ -8,5 +8,5 @@ components:
 resources:
   - ./namespace.yaml
   - ./attic/ks.yaml
-  - ./forge/ks.yaml
+  # - ./forge/ks.yaml
   - ./forgejo/ks.yaml

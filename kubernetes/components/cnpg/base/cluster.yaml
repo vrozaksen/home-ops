@@ -28,6 +28,11 @@ spec:
   storage:
     size: ${CNPG_SIZE:=2Gi}
     storageClass: ${CNPG_STORAGECLASS:=ceph-block-single}
+  # Dedicated WAL volume: isolates WAL from data so a lagging replica can't
+  # pressure the data disk, and gives room to raise max_slot_wal_keep_size.
+  walStorage:
+    size: ${CNPG_WAL_SIZE:=6Gi}
+    storageClass: ${CNPG_WAL_STORAGECLASS:=ceph-block-single}
   superuserSecret:
     name: ${APP}-cnpg-secret
   enableSuperuserAccess: true
@@ -69,9 +74,10 @@ spec:
       effective_io_concurrency: ${CNPG_EFFECTIVE_IO_CONCURRENCY:="200"}
       # REPLICA CATCH-UP settings (prevents slow WAL archive restore):
       # - wal_keep_size: WAL retained on primary for streaming catch-up (default: 512MB)
-      # - max_slot_wal_keep_size: Auto-invalidate slot when replica >N behind → forces pg_basebackup rebuild
+      # - max_slot_wal_keep_size: invalidate slot when replica >N behind → forces rebuild.
+      #   Sized below walStorage to give runway through transient stalls (Ceph/node blips).
       wal_keep_size: ${CNPG_WAL_KEEP_SIZE:="1GB"}
-      max_slot_wal_keep_size: ${CNPG_MAX_SLOT_WAL_KEEP:="2GB"}
+      max_slot_wal_keep_size: ${CNPG_MAX_SLOT_WAL_KEEP:="3GB"}
   resources:
     requests:
       cpu: ${CNPG_REQUESTS_CPU:=100m}

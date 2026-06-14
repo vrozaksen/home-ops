@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/factorio
-              tag: 2.0.77@sha256:b59d033d773dc2062b17281b710f5d09274decddd0237505d6dcba938906eee4
+              tag: 2.0.77@sha256:e702d3cd1f6c5f97fb51ea3a0b8b098918255cde3088ff23db65ac872c521e42
             env:
               GENERATE_NEW_SAVE: false
               LOAD_LATEST_SAVE: true

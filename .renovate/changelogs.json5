@@ -1,15 +1,55 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  // Changelog/sourceUrl overrides for deps whose release notes Renovate can't
-  // auto-resolve (e.g. OCI images missing the org.opencontainers.image.source
-  // label). Add an entry when a PR shows no release notes for a dep that has a
-  // public changelog. Deps on GitHub/Codeberg with a resolvable sourceUrl
-  // (e.g. spegel via GitHub Releases) do NOT need an entry.
   packageRules: [
     {
-      description: "gatus-sidecar OCI image sourceUrl isn't auto-resolved; point Renovate at its CHANGELOG",
+      description: "Changelog URL for gatus-sidecar",
       matchPackageNames: ["/gatus-sidecar/"],
       changelogUrl: "https://github.com/home-operations/gatus-sidecar/blob/main/CHANGELOG.md",
+    },
+    {
+      description: "Changelog URL for actions-runner-controller",
+      matchPackageNames: ["/gha-runner-scale-set/"],
+      changelogUrl: "https://github.com/actions/actions-runner-controller",
+    },
+    {
+      description: "Changelog URL for dragonfly-operator",
+      matchPackageNames: ["/dragonfly-operator/"],
+      changelogUrl: "https://github.com/dragonflydb/dragonfly-operator",
+    },
+    {
+      description: "Changelog URL for tofu-controller",
+      matchPackageNames: ["/tofu-controller/"],
+      changelogUrl: "https://github.com/flux-iac/tofu-controller",
+    },
+    {
+      description: "Changelog URL for grafana-operator",
+      matchPackageNames: ["/grafana-operator/"],
+      changelogUrl: "https://github.com/grafana/grafana-operator",
+    },
+    {
+      description: "Changelog URL for Spegel",
+      matchPackageNames: ["/spegel/"],
+      changelogUrl: "https://github.com/spegel-org/spegel",
+    },
+    {
+      description: "Changelog URL for code-server",
+      matchPackageNames: ["/code-server/"],
+      changelogUrl: "https://github.com/coder/code-server",
+    },
+    {
+      description: "Changelog URL for kubernetes-mcp-server",
+      matchPackageNames: ["/kubernetes-mcp-server/"],
+      changelogUrl: "https://github.com/containers/kubernetes-mcp-server",
+    },
+    {
+      description: "Changelog URL for Authentik",
+      matchPackageNames: ["/goauthentik/"],
+      changelogUrl: "https://github.com/goauthentik/authentik",
+    },
+    {
+      description: "Changelog URL for Bambuddy",
+      matchPackageNames: ["/bambuddy/"],
+      changelogUrl: "https://github.com/maziggy/bambuddy",
     },
   ],
 }

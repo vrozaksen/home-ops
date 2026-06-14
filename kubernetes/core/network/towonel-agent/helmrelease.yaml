@@ -34,7 +34,7 @@ spec:
             image:
               # renovate: datasource=docker depName=codeberg.org/towonel/towonel-agent
               repository: codeberg.org/towonel/towonel-agent
-              tag: 0.2.0
+              tag: 0.2.1
             env:
               NODE_NAME:
                 valueFrom:

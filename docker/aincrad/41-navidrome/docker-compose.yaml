@@ -7,6 +7,10 @@ services:
     image: ghcr.io/navidrome/navidrome:0.62.0
     container_name: navidrome
     restart: unless-stopped
+    depends_on:
+      # Block startup until .ndp files are present in /config/plugins.
+      navidrome-plugins:
+        condition: service_completed_successfully
     labels:
       net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/navidrome.png"
       net.unraid.docker.webui: "http://[IP]:[PORT:8080]"
@@ -33,6 +37,15 @@ services:
       ND_SEARCHFULLSTRING: "true"
       ND_TRANSCODINGCACHESIZE: 1GB
       ND_SUBSONIC_ARTISTPARTICIPATIONS: "true"
+      # Plugins (WASM/Extism sandbox). .ndp files fetched by navidrome-plugins service.
+      ND_PLUGINS_ENABLED: "true"
+      ND_PLUGINS_AUTORELOAD: "true"
+      # Metadata agent priority: plugins first, then built-ins. artist-nfo-metadata needs the
+      # `library` permission — approve it once in UI (Plugins > artist-nfo-metadata).
+      ND_AGENTS: "artist-nfo-metadata,apple-music,lastfm,spotify,deezer"
+      # Lyrics: embedded/.lrc win, nd-lyrics as fallback. WebUI doesn't render plugin lyrics;
+      # use a Subsonic client (Symfonium/Feishin). /music is read-only so .lrc are never written.
+      ND_LYRICSPRIORITY: "embedded,.lrc,nd-lyrics"
       TZ: Europe/Warsaw
     ports:
       # Published so Caddy reaches it at 10.10.0.11:8080 (host-IP proxying).
@@ -56,6 +69,53 @@ services:
           memory: 2g
         reservations:
           memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Oneshot: download plugin .ndp bundles into /config/plugins before navidrome starts.
+  # Versions are Renovate-managed; download failures keep the last-known-good file.
+  navidrome-plugins:
+    # renovate: datasource=docker depName=docker.io/curlimages/curl
+    image: docker.io/curlimages/curl:8.20.0
+    container_name: navidrome-plugins
+    user: "1000:100"
+    restart: "no"
+    environment:
+      # renovate: datasource=github-releases depName=navidrome/apple-music-plugin
+      APPLE_MUSIC_VERSION: v0.2.0
+      # renovate: datasource=github-releases depName=J0R6IT0/navidrome-lyrics-plugin
+      ND_LYRICS_VERSION: v6.1.3
+      # renovate: datasource=github-releases depName=metalheim/navidrome-plugin-artist-nfo-metadata
+      ARTIST_NFO_VERSION: v1.3.0
+      # renovate: datasource=github-releases depName=navidrome/discord-rich-presence-plugin
+      DISCORD_RPC_VERSION: v2.0.0
+    volumes:
+      - /mnt/blaze/appdata/navidrome:/config
+    # Script passed as a single list element so compose doesn't shlex-split it.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -u
+        mkdir -p /config/plugins
+        dl() {
+          url="$$1"; out="/config/plugins/$$2"
+          echo "fetch $$2 ($$url)"
+          if curl -fsSL "$$url" -o "$$out.tmp"; then
+            mv "$$out.tmp" "$$out"
+          else
+            rm -f "$$out.tmp"
+            echo "WARN: download failed for $$2; keeping existing copy if present"
+          fi
+        }
+        dl "https://github.com/navidrome/apple-music-plugin/releases/download/$${APPLE_MUSIC_VERSION}/apple-music.ndp" apple-music.ndp
+        dl "https://github.com/J0R6IT0/navidrome-lyrics-plugin/releases/download/$${ND_LYRICS_VERSION}/nd-lyrics.ndp" nd-lyrics.ndp
+        dl "https://github.com/metalheim/navidrome-plugin-artist-nfo-metadata/releases/download/$${ARTIST_NFO_VERSION}/artist-nfo-metadata.ndp" artist-nfo-metadata.ndp
+        dl "https://github.com/navidrome/discord-rich-presence-plugin/releases/download/$${DISCORD_RPC_VERSION}/discord-rich-presence.ndp" discord-rich-presence.ndp
+        echo "plugins ready"
     logging:
       driver: json-file
       options:

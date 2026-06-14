@@ -1,0 +1,7 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  # code-server login + sudo
+  CODE_SERVER_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_PASSWORD
+  CODE_SERVER_SUDO_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_SUDO_PASSWORD

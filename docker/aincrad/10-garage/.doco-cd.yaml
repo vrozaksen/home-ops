@@ -1,0 +1,8 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  # garage: webui basic auth ("admin:<password>") + rpc/admin secrets (-> *_file)
+  GARAGE_WEBUI_AUTH: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_WEBUI_AUTH
+  GARAGE_RPC_SECRET: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_RPC_SECRET
+  GARAGE_ADMIN_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_ADMIN_TOKEN

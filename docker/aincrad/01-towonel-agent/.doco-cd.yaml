@@ -1,0 +1,6 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  # Towonel agent identity (stateless — derived from this token each boot)
+  TOWONEL_INVITE_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/TOWONEL_INVITE_TOKEN

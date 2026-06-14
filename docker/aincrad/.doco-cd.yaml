@@ -9,13 +9,7 @@ auto_discovery:
 reconciliation:
   enabled: true
   interval: 3600
-external_secrets:
-  # Towonel agent identity (stateless — derived from this token each boot)
-  TOWONEL_INVITE_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/TOWONEL_INVITE_TOKEN
-  # garage: webui basic auth ("admin:<password>") + rpc/admin secrets (-> *_file)
-  GARAGE_WEBUI_AUTH: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_WEBUI_AUTH
-  GARAGE_RPC_SECRET: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_RPC_SECRET
-  GARAGE_ADMIN_TOKEN: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/GARAGE_ADMIN_TOKEN
-  # code-server login + sudo
-  CODE_SERVER_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_PASSWORD
-  CODE_SERVER_SUDO_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/CODE_SERVER_SUDO_PASSWORD
+  # NOTE: external_secrets are declared per-stack (nested .doco-cd.yaml), NOT here.
+  # doco-cd resolves every root-declared secret for EVERY auto-discovered stack
+  # regardless of usage; a global block = stacks × secrets Infisical calls per
+  # poll → 429 rate-limit. Per-stack keeps it to only what each stack consumes.

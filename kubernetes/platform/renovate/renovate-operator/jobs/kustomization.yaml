@@ -4,7 +4,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
-  - ./token-refresh.yaml
   - ./home-ops.yaml
   - ./infisicalsecret-forgejo.yaml
   - ./forgejo.yaml

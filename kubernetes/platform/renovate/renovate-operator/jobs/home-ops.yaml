@@ -15,7 +15,12 @@ spec:
   image: ghcr.io/renovatebot/renovate:43.220.0@sha256:f91213216d10d054fbe11848711dffe2ef2e96f9e8da8f3e3228272a69f003e4
   schedule: "0 * * * *"
   parallelism: 3
-  secretRef: renovate-token
+  # Operator mints + refreshes RENOVATE_TOKEN from the GitHub App natively (beta).
+  githubAppReference:
+    secretName: repo-killer-app-secret
+    appIdSecretKey: GITHUB_APP_ID
+    installationIdSecretKey: INSTALL_ID
+    pemSecretKey: private-key.pem
   extraEnv:
     - name: LOG_LEVEL
       value: info

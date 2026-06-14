@@ -26,14 +26,6 @@ spec:
       value: "Renovate Bot <renovate@vzkn.eu>"
     - name: RENOVATE_USERNAME
       value: "renovate-bot"
-    # Needed to resolve `github>` preset extends + bump datasource rate limits
-    # when scanning Forgejo repos. renovate-token secret is refreshed every 30m
-    # by the token-refresh CronJob.
-    - name: GITHUB_COM_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: renovate-token
-          key: GITHUB_COM_TOKEN
   resources:
     requests:
       cpu: 100m

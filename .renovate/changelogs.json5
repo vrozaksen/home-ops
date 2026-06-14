@@ -1,0 +1,15 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  // Changelog/sourceUrl overrides for deps whose release notes Renovate can't
+  // auto-resolve (e.g. OCI images missing the org.opencontainers.image.source
+  // label). Add an entry when a PR shows no release notes for a dep that has a
+  // public changelog. Deps on GitHub/Codeberg with a resolvable sourceUrl
+  // (e.g. spegel via GitHub Releases) do NOT need an entry.
+  packageRules: [
+    {
+      description: "gatus-sidecar OCI image sourceUrl isn't auto-resolved; point Renovate at its CHANGELOG",
+      matchPackageNames: ["/gatus-sidecar/"],
+      changelogUrl: "https://github.com/home-operations/gatus-sidecar/blob/main/CHANGELOG.md",
+    },
+  ],
+}

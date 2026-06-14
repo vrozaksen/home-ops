@@ -3,6 +3,7 @@
   extends: [
     "github>vrozaksen/renovate-config",
     "github>vrozaksen/home-ops//.renovate/autoMerge.json5",
+    "github>vrozaksen/home-ops//.renovate/changelogs.json5",
     "github>vrozaksen/home-ops//.renovate/customManagers.json5",
     "github>vrozaksen/home-ops//.renovate/grafanaDashboards.json5",
     "github>vrozaksen/home-ops//.renovate/groups.json5",

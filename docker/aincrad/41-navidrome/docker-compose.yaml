@@ -90,6 +90,8 @@ services:
       ND_LYRICS_VERSION: v6.1.3
       # renovate: datasource=github-releases depName=metalheim/navidrome-plugin-artist-nfo-metadata
       ARTIST_NFO_VERSION: v1.3.0
+      # renovate: datasource=github-releases depName=NeptuneHub/AudioMuse-AI-NV-plugin
+      AUDIOMUSE_PLUGIN_VERSION: v8
     volumes:
       - /mnt/blaze/appdata/navidrome:/config
     # Script passed as a single list element so compose doesn't shlex-split it.
@@ -100,7 +102,7 @@ services:
         set -u
         mkdir -p /config/plugins
         # Managed set; any other *.ndp gets pruned so removing a line here removes the plugin.
-        KEEP="apple-music.ndp nd-lyrics.ndp artist-nfo-metadata.ndp"
+        KEEP="apple-music.ndp nd-lyrics.ndp artist-nfo-metadata.ndp audiomuseai.ndp"
         dl() {
           url="$$1"; out="/config/plugins/$$2"
           echo "fetch $$2 ($$url)"
@@ -114,6 +116,7 @@ services:
         dl "https://github.com/navidrome/apple-music-plugin/releases/download/$${APPLE_MUSIC_VERSION}/apple-music.ndp" apple-music.ndp
         dl "https://github.com/J0R6IT0/navidrome-lyrics-plugin/releases/download/$${ND_LYRICS_VERSION}/nd-lyrics.ndp" nd-lyrics.ndp
         dl "https://github.com/metalheim/navidrome-plugin-artist-nfo-metadata/releases/download/$${ARTIST_NFO_VERSION}/artist-nfo-metadata.ndp" artist-nfo-metadata.ndp
+        dl "https://github.com/NeptuneHub/AudioMuse-AI-NV-plugin/releases/download/$${AUDIOMUSE_PLUGIN_VERSION}/audiomuseai.ndp" audiomuseai.ndp
         for f in /config/plugins/*.ndp; do
           [ -e "$$f" ] || continue
           case " $$KEEP " in *" $${f##*/} "*) ;; *) echo "prune $${f##*/}"; rm -f "$$f" ;; esac

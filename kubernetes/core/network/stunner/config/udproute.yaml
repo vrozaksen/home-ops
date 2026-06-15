@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/stunner.l7mp.io/udproute_v1.json
+apiVersion: stunner.l7mp.io/v1
+kind: UDPRoute
+metadata:
+  name: vroxide
+spec:
+  parentRefs:
+    - name: stunner
+      namespace: network
+  rules:
+    - backendRefs:
+        - group: stunner.l7mp.io
+          kind: StaticService
+          name: open-internet
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/stunner.l7mp.io/staticservice_v1.json
+apiVersion: stunner.l7mp.io/v1
+kind: StaticService
+metadata:
+  name: open-internet
+spec:
+  prefixes:
+    - "0.0.0.0/0"

@@ -8,6 +8,7 @@ components:
 resources:
   - ./namespace.yaml
   - ./atuin/ks.yaml
+  - ./audiomuse/ks.yaml
   - ./it-tools/ks.yaml
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml

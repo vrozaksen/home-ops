@@ -1,0 +1,140 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: audiomuse
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      # Flask API + web UI (SERVICE_TYPE=flask)
+      audiomuse:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=registry.vzkn.eu/containers/audiomuse-ai
+              repository: registry.vzkn.eu/containers/audiomuse-ai
+              tag: 2.2.0@sha256:46eab8ea61c724becfd22ed659bdee0a882a9117acbf940c5a92613f900013dd
+            env: &env
+              SERVICE_TYPE: flask
+              TZ: Europe/Warsaw
+              # Baked HF cache is read-only for the non-root uid; offline avoids
+              # any cache-lock writes (only the local roberta tokenizer uses HF).
+              HF_HUB_OFFLINE: "1"
+              TRANSFORMERS_OFFLINE: "1"
+              POSTGRES_HOST: postgres-audiomuse-rw.self-hosted.svc.cluster.local
+              POSTGRES_PORT: "5432"
+              REDIS_URL: redis://audiomuse-dragonfly.self-hosted.svc.cluster.local:6379/0
+              POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-audiomuse-app
+                    key: username
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-audiomuse-app
+                    key: password
+              POSTGRES_DB:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-audiomuse-app
+                    key: dbname
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &port 8000
+                  initialDelaySeconds: 15
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probes
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+      # RQ worker doing the heavy sonic analysis (SERVICE_TYPE=worker)
+      audiomuse-worker:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=registry.vzkn.eu/containers/audiomuse-ai
+              repository: registry.vzkn.eu/containers/audiomuse-ai
+              tag: 2.2.0@sha256:46eab8ea61c724becfd22ed659bdee0a882a9117acbf940c5a92613f900013dd
+            env:
+              <<: *env
+              SERVICE_TYPE: worker
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 500m
+                memory: 2Gi
+              limits:
+                memory: 6Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: audiomuse
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - audiomuse.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      music:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/cache/z_media
+        globalMounts:
+          - path: /music
+            subPath: music
+            readOnly: true
+      temp-audio:
+        type: emptyDir
+        globalMounts:
+          - path: /app/temp_audio
+      workspace:
+        type: emptyDir
+        globalMounts:
+          - path: /workspace

@@ -93,16 +93,16 @@ spec:
       resources:
         requests:
           cpu: 25m
-          memory: 96Mi
+          memory: 256Mi
         limits:
-          memory: 192Mi
+          memory: 512Mi
     userOperator:
       resources:
         requests:
           cpu: 25m
-          memory: 96Mi
+          memory: 256Mi
         limits:
-          memory: 192Mi
+          memory: 512Mi
     template:
       pod:
         affinity:

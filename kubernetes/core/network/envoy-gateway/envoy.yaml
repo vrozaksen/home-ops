@@ -169,7 +169,8 @@ spec:
     connectionKeepalive:
       interval: 30s
       timeout: 5s
-  http3: {}
+  # http3 disabled: QUIC UDP listener can't take the proxy_protocol filter,
+  # so EG rejects the https-quic listener and Envoy 1.38.2 segfaults on LDS update
   # Required for Collabora WebSocket paths with encoded URLs
   path:
     escapedSlashesAction: KeepUnchanged

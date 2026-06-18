@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: stunner
+spec:
+  selector:
+    matchLabels:
+      app: stunner
+  podMetricsEndpoints:
+    - port: metrics-port
+  fallbackScrapeProtocol: PrometheusText0.0.4

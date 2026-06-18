@@ -8,3 +8,5 @@ resources:
   - ./gateway.yaml
   - ./dnsendpoint.yaml
   - ./udproute.yaml
+  - ./podmonitor.yaml
+  - ./prometheusrule.yaml

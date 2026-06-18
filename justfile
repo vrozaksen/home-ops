@@ -2,3 +2,4 @@
 # Usage: `just kanidm` (list), `just kanidm onboard <user> "<name>" <email> [groups...]`
 
 mod kanidm 'kubernetes/platform/security/kanidm/justfile'
+mod stunner 'kubernetes/core/network/stunner/justfile'

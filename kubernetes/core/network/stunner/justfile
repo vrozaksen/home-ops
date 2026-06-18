@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# STUNner TURN credential minting (opt-in relay for trusted contacts)
+#
+# Run from the repo root via the `stunner` module:
+#     just stunner                 # list recipes
+#     just stunner mint adam       # ttl 90d (default)
+#     just stunner mint adam 7d    # 7 days
+#     just stunner mint adam 12h   # 12 hours
+#
+# STUNner runs ephemeral / TURN-REST auth (coturn use-auth-secret style). A code
+# is a time-limited username/password derived from the shared TURN_SECRET (read
+# from Infisical, never stored locally). Hand the printed blob to the contact
+# out-of-band; they paste it into vroxide Settings -> TURN. Mint only for people
+# you trust — anyone holding a valid code can relay through turn.vzkn.eu.
+#
+# Revocation is coarse: a code is valid until its expiry. To kill all outstanding
+# codes early, rotate TURN_SECRET in Infisical (/kubernetes/network/stunner).
+#
+# Prerequisites: infisical (logged in), openssl, base64
+# vroxide ships an identical minter (`vroxide-app turn-mint`, reads
+# VROXIDE_TURN_SECRET) — same algorithm, so both must use the SAME secret value.
+# ─────────────────────────────────────────────────────────────────────────────
+
+export INFISICAL_PROJECT := "da94b011-9a7d-408b-92d9-55be47efe750"
+export INFISICAL_PATH := "/kubernetes/network/stunner"
+export REALM := "stunner.vzkn.eu"
+export HOST := "turn.vzkn.eu"
+
+# List recipes
+default:
+    @just --list --unsorted --justfile {{justfile()}}
+
+# Mint an ephemeral TURN code for a trusted contact (ttl: Nd / Nh / Ns / raw seconds)
+mint user ttl="90d":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    raw="{{ttl}}"
+    case "$raw" in
+      *d) ttl=$(( ${raw%d} * 86400 )) ;;
+      *h) ttl=$(( ${raw%h} * 3600 )) ;;
+      *s) ttl="${raw%s}" ;;
+      *)  ttl="$raw" ;;
+    esac
+    secret="$(infisical run --env=prod --projectId="$INFISICAL_PROJECT" \
+      --path="$INFISICAL_PATH" -- bash -c 'printf %s "${TURN_SECRET}"')"
+    [[ -n "$secret" ]] || { echo "ERROR: TURN_SECRET empty (check infisical login / path)" >&2; exit 1; }
+    expiry=$(( $(date +%s) + ttl ))
+    username="${expiry}:{{user}}"
+    password="$(printf '%s' "$username" | openssl dgst -sha1 -hmac "$secret" -binary | base64)"
+    blob="$(printf '{"u":"%s","p":"%s","exp":%s,"realm":"%s","host":"%s"}' \
+      "$username" "$password" "$expiry" "$REALM" "$HOST" | base64 -w 0)"
+    cat <<EOF
+
+    TURN code for '{{user}}' — expires $(date -d "@${expiry}" '+%Y-%m-%d %H:%M %Z')
+
+      username : ${username}
+      password : ${password}
+      realm    : ${REALM}
+      servers  : turns:${HOST}:5349?transport=tcp  (preferred)
+                 turn:${HOST}:3478?transport=udp
+
+    vroxide blob (paste into Settings -> TURN):
+
+      ${blob}
+
+    EOF

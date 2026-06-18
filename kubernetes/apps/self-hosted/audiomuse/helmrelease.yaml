@@ -28,6 +28,11 @@ spec:
               # any cache-lock writes (only the local roberta tokenizer uses HF).
               HF_HUB_OFFLINE: "1"
               TRANSFORMERS_OFFLINE: "1"
+              # Skip the lyrics step entirely — its per-track media-server fetch
+              # times out (public URL) and falls back to Whisper ASR on CPU,
+              # which dominates analysis time. Sonic Instant Mix uses CLAP audio
+              # embeddings, not lyrics.
+              LYRICS_ENABLED: "false"
               POSTGRES_HOST: postgres-audiomuse-rw.self-hosted.svc.cluster.local
               POSTGRES_PORT: "5432"
               REDIS_URL: redis://audiomuse-dragonfly.self-hosted.svc.cluster.local:6379/0

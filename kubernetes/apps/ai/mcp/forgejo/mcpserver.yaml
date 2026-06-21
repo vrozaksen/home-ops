@@ -5,7 +5,7 @@ kind: MCPServer
 metadata:
   name: forgejo-mcp
 spec:
-  image: registry.vzkn.eu/containers/forgejo-mcp:0.1.5
+  image: registry.vzkn.eu/containers/forgejo-mcp:0.1.7
   transport: stdio
   proxyPort: 8080
   groupRef:

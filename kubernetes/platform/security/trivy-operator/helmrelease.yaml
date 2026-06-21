@@ -18,7 +18,7 @@ spec:
   chart:
     spec:
       chart: trivy-operator
-      version: 0.33.1
+      version: 0.33.2
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository

@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mumble-voip/mumble-server
-              tag: v1.6.870@sha256:b9fb72d772eb52b5c7d4c402054c183886ecde07efc59c829c53001542365a81
+              tag: v1.6.870@sha256:1285fc69938fe364a030cc4b4dbbcadde3c2def23ff943c10e5f5924216537b4
             env:
               MUMBLE_CONFIG_WELCOMETEXT: "Welcome to Mumble!"
             envFrom:

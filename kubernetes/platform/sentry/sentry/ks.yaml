@@ -51,6 +51,8 @@ spec:
       KAFKA_SIZE: 20Gi
       KAFKA_RETENTION_HOURS: "72"
       CH_SIZE: 50Gi
+      CH_REQUESTS_MEMORY: 4Gi
+      CH_LIMITS_MEMORY: 4Gi
   prune: true
   sourceRef:
     kind: GitRepository

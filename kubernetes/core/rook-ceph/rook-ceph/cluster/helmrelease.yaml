@@ -92,10 +92,6 @@ spec:
         connections:
           requireMsgr2: true
       resources:
-        # mon/mgr: cpu-only override, memory uses Rook defaults
-        # osd: full spec pinned to existing deployment — ceph-pool-single
-        # (size:1) blocks ok-to-stop, so any drift here deadlocks the OSD
-        # rolling update and spams prepare jobs every reconcile
         mgr:
           requests:
             cpu: 125m
@@ -105,7 +101,7 @@ spec:
         osd:
           requests:
             cpu: 500m
-            memory: 2560Mi
+            memory: 6Gi
           limits:
             memory: 6Gi
       healthCheck:

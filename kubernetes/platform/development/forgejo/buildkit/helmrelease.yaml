@@ -66,7 +66,7 @@ spec:
             image:
               # renovate: datasource=docker depName=moby/buildkit
               repository: moby/buildkit
-              tag: v0.31.0-rootless@sha256:e335bfb48eec12110318aced51f75161f01e765dd13e6041c0f4600b7c93507f
+              tag: v0.31.1-rootless@sha256:946cf909534b789c9b84af75e6d4f8cb23c3b9cb387daec5ba0f4878a3e4647c
             args:
               - --addr=tcp://0.0.0.0:1234
               - --addr=unix:///run/user/1000/buildkit/buildkitd.sock
@@ -138,7 +138,7 @@ spec:
           app:
             image:
               repository: moby/buildkit
-              tag: v0.31.0-rootless@sha256:e335bfb48eec12110318aced51f75161f01e765dd13e6041c0f4600b7c93507f
+              tag: v0.31.1-rootless@sha256:946cf909534b789c9b84af75e6d4f8cb23c3b9cb387daec5ba0f4878a3e4647c
             command:
               - buildctl
               - --addr=tcp://buildkit.development.svc.cluster.local:1234

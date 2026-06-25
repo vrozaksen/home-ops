@@ -7,4 +7,4 @@ resources:
   - ./garage.yaml
   - ./harbor.yaml
   - ./ocirepository.yaml
-  - ./sentry.yaml
+  # - ./sentry.yaml

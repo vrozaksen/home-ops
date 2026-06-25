@@ -79,7 +79,7 @@ services:
   # Versions are Renovate-managed; download failures keep the last-known-good file.
   navidrome-plugins:
     # renovate: datasource=docker depName=docker.io/curlimages/curl
-    image: docker.io/curlimages/curl:8.20.0
+    image: docker.io/curlimages/curl:8.21.0
     container_name: navidrome-plugins
     user: "1000:100"
     restart: "no"

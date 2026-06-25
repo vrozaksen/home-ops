@@ -28,7 +28,7 @@ spec:
             image:
               # renovate: datasource=docker depName=docker.io/superseriousbusiness/gotosocial
               repository: docker.io/superseriousbusiness/gotosocial
-              tag: "0.21.2"
+              tag: "0.21.3"
             env:
               TZ: Europe/Warsaw
               GTS_HOST: gts.vzkn.eu

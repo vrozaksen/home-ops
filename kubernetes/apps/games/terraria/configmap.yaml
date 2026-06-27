@@ -22,15 +22,11 @@ data:
     language=pl-PL
 
     # Journey power permissions: 0 = locked for all, 1 = host only, 2 = everyone
-    #
-    # Phase 1 (setup): setdifficulty=2, join as a Journey character, snap the
-    #   slider to 2x (master-tier on getfixedboi). The value is saved to .wld.
-    # Phase 2 (lock):  set setdifficulty=0; Reloader rolls out the pod. The
-    #   slider stays at 2x inside the .wld, now frozen.
-    journeypermission_setdifficulty=2
 
     # trivialises combat -> hard-locked
     journeypermission_godmode=0
+    journeypermission_setdifficulty=0
+    journeypermission_biomespread_setfrozen=0
 
     # QoL / cuts grind -> everyone
     journeypermission_setspawnrate=2
@@ -44,5 +40,4 @@ data:
     journeypermission_rain_setfrozen=2
     journeypermission_wind_setstrength=2
     journeypermission_wind_setfrozen=2
-    journeypermission_biomespread_setfrozen=2
     journeypermission_increaseplacementrange=2

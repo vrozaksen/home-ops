@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomize
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: terraria
+data:
+  # Server password is injected at runtime via the `-pass` CLI flag (Infisical),
+  # which overrides this file. Do NOT put the password here.
+  # Reloader restarts the pod on any change to this ConfigMap.
+  serverconfig.txt: |-
+    # Terraria 1.4.5.6 dedicated server - getfixedboi / Journey / master-tier
+    worldpath=/config
+    world=/config/Ostoja.wld
+    autocreate=3
+    seed=getfixedboi
+    worldname=Ostoja
+    difficulty=3
+    maxplayers=8
+    port=7777
+    secure=1
+    language=pl-PL
+
+    # Journey power permissions: 0 = locked for all, 1 = host only, 2 = everyone
+    #
+    # Phase 1 (setup): setdifficulty=2, join as a Journey character, snap the
+    #   slider to 2x (master-tier on getfixedboi). The value is saved to .wld.
+    # Phase 2 (lock):  set setdifficulty=0; Reloader rolls out the pod. The
+    #   slider stays at 2x inside the .wld, now frozen.
+    journeypermission_setdifficulty=2
+
+    # trivialises combat -> hard-locked
+    journeypermission_godmode=0
+
+    # QoL / cuts grind -> everyone
+    journeypermission_setspawnrate=2
+    journeypermission_time_setfrozen=2
+    journeypermission_time_setdawn=2
+    journeypermission_time_setnoon=2
+    journeypermission_time_setdusk=2
+    journeypermission_time_setmidnight=2
+    journeypermission_time_setspeed=2
+    journeypermission_rain_setstrength=2
+    journeypermission_rain_setfrozen=2
+    journeypermission_wind_setstrength=2
+    journeypermission_wind_setfrozen=2
+    journeypermission_biomespread_setfrozen=2
+    journeypermission_increaseplacementrange=2

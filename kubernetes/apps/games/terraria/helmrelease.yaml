@@ -1,0 +1,74 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: terraria
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      terraria:
+        type: statefulset
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/beardedio/terraria
+              tag: vanilla-1.4.5.6@sha256:713800572cc1f93329107167b246e08724ce0ad8978ad0049482f4ecb023b073
+            # Entrypoint hard-codes `-config /config/serverconfig.txt`; extra args
+            # are appended after it, so `-pass` overrides the (absent) config password.
+            args:
+              - "-pass"
+              - "$(SERVER_PASSWORD)"
+            stdin: true  # server reads console commands from stdin (kubectl attach)
+            tty: true
+            env:
+              SERVER_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ .Release.Name }}-secret"
+                    key: SERVER_PASSWORD
+            resources:
+              requests:
+                cpu: 250m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      terminationGracePeriodSeconds: 60  # vanilla doesn't save cleanly on SIGKILL
+      securityContext:
+        # beardedio image writes to /root and runs the server as root
+        runAsNonRoot: false
+    service:
+      app:
+        controller: terraria
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.62
+          external-dns.alpha.kubernetes.io/hostname: terraria.vzkn.eu
+        ports:
+          game:
+            port: 7777
+            protocol: TCP
+    persistence:
+      config:
+        type: configMap
+        name: terraria
+        defaultMode: 0644
+        advancedMounts:
+          terraria:
+            app:
+              - path: /config/serverconfig.txt
+                subPath: serverconfig.txt
+                readOnly: true
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        advancedMounts:
+          terraria:
+            app:
+              - path: /config

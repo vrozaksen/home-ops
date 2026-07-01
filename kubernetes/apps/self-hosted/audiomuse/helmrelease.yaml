@@ -20,7 +20,7 @@ spec:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/audiomuse-ai
               repository: registry.vzkn.eu/containers/audiomuse-ai
-              tag: 2.3.3@sha256:eba9dafb31fa1d513ec7e5a3711a32d3727989211e95ac612f769bd3a301e6f7
+              tag: 2.3.4@sha256:bef0f5f6191c4e69953da192f6b5394a7c4007595d40a23e3fb43c8dc281bac6
             env: &env
               SERVICE_TYPE: flask
               TZ: Europe/Warsaw
@@ -83,7 +83,7 @@ spec:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/audiomuse-ai
               repository: registry.vzkn.eu/containers/audiomuse-ai
-              tag: 2.3.3@sha256:eba9dafb31fa1d513ec7e5a3711a32d3727989211e95ac612f769bd3a301e6f7
+              tag: 2.3.4@sha256:bef0f5f6191c4e69953da192f6b5394a7c4007595d40a23e3fb43c8dc281bac6
             env:
               <<: *env
               SERVICE_TYPE: worker

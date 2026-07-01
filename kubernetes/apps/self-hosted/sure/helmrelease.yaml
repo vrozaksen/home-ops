@@ -75,7 +75,8 @@ spec:
                   name: "{{ .Release.Name }}-secret"
             securityContext: &securityContext
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+
+              readOnlyRootFilesystem: false
               capabilities: {drop: ["ALL"]}
         containers:
           app:

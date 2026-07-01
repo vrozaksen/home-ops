@@ -12,3 +12,4 @@ resources:
   - ./it-tools/ks.yaml
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml
+  - ./sure/ks.yaml

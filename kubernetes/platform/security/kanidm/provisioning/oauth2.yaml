@@ -279,6 +279,13 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/searxng.svg" }
+        },
+        "sure": {
+          "present": true, "displayName": "Sure",
+          "originUrl": "https://sure.vzkn.eu/auth/openid_connect/callback",
+          "originLanding": "https://sure.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/maybe-finance.svg" }
         }
       } } }
 ---

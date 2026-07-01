@@ -1,0 +1,170 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sure
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      sure:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          migrate:
+            image: &image
+              repository: ghcr.io/we-promise/sure
+              tag: 0.7.0-hotfix.3@sha256:55c4da94f60a6a0e1da107dd6d61bdef06661bebaed26c1cd2a5c4d3d10af4ef
+            command:
+              - /bin/sh
+              - -c
+              - DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bundle exec rake db:prepare
+            env: &env
+              RAILS_ENV: production
+              SELF_HOSTED: "true"
+              RAILS_LOG_TO_STDOUT: "true"
+              RAILS_ASSUME_SSL: "true"
+              RAILS_FORCE_SSL: "false"
+              RAILS_MAX_THREADS: "3"
+              MALLOC_ARENA_MAX: "2"
+              APP_DOMAIN: sure.vzkn.eu
+              # Database via PgBouncer pooler (CNPG-generated app credentials)
+              DB_HOST: pooler-sure-rw.self-hosted.svc.cluster.local
+              DB_PORT: "5432"
+              POSTGRES_DB: sure
+              POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sure-app
+                    key: username
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-sure-app
+                    key: password
+              # Redis / Sidekiq (dedicated Dragonfly instance)
+              REDIS_URL: redis://sure-dragonfly.self-hosted.svc.cluster.local:6379/0
+              # OIDC (Kanidm)
+              OIDC_ISSUER: https://idm.vzkn.eu/oauth2/openid/sure
+              OIDC_REDIRECT_URI: https://sure.vzkn.eu/auth/openid_connect/callback
+              OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-sure-oidc
+                    key: client-id
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-sure-oidc
+                    key: client-secret
+            envFrom: &envFrom
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+        containers:
+          app:
+            image: *image
+            env:
+              <<: *env
+              PORT: &port "3000"
+            envFrom: *envFrom
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /up
+                    port: 3000
+                  initialDelaySeconds: 15
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /up
+                    port: 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 40
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 100m
+                memory: 384Mi
+              limits:
+                memory: 1Gi
+          worker:
+            image: *image
+            command:
+              - "bundle"
+              - "exec"
+              - "sidekiq"
+            env: *env
+            envFrom: *envFrom
+            probes:
+              liveness: {enabled: false}
+              readiness: {enabled: false}
+              startup: {enabled: false}
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 768Mi
+    service:
+      app:
+        controller: sure
+        ports:
+          http:
+            port: 3000
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - "sure.vzkn.eu"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 3000
+    persistence:
+      storage:
+        existingClaim: sure
+        advancedMounts:
+          sure:
+            app:
+              - path: /rails/storage
+            worker:
+              - path: /rails/storage
+      tmp-app:
+        type: emptyDir
+        advancedMounts:
+          sure:
+            migrate:
+              - path: /rails/tmp
+            app:
+              - path: /rails/tmp
+      tmp-worker:
+        type: emptyDir
+        advancedMounts:
+          sure:
+            worker:
+              - path: /rails/tmp

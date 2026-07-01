@@ -32,7 +32,7 @@ spec:
               RAILS_MAX_THREADS: "3"
               MALLOC_ARENA_MAX: "2"
               # Disable baked-in Skylight APM (no auth token)
-              SKYLIGHT_ENABLE: "false"
+              SKYLIGHT_ENABLED: "false"
               APP_DOMAIN: sure.vzkn.eu
               # Database via PgBouncer pooler (CNPG-generated app credentials)
               DB_HOST: pooler-sure-rw.self-hosted.svc.cluster.local

@@ -31,6 +31,8 @@ spec:
               RAILS_FORCE_SSL: "false"
               RAILS_MAX_THREADS: "3"
               MALLOC_ARENA_MAX: "2"
+              # Disable baked-in Skylight APM (no auth token)
+              SKYLIGHT_ENABLE: "false"
               APP_DOMAIN: sure.vzkn.eu
               # Database via PgBouncer pooler (CNPG-generated app credentials)
               DB_HOST: pooler-sure-rw.self-hosted.svc.cluster.local
@@ -168,3 +170,24 @@ spec:
           sure:
             worker:
               - path: /rails/tmp
+      # readOnlyRootFilesystem writable paths (Tempfile, gem/home caches)
+      systmp:
+        type: emptyDir
+        advancedMounts:
+          sure:
+            migrate:
+              - path: /tmp
+            app:
+              - path: /tmp
+            worker:
+              - path: /tmp
+      home:
+        type: emptyDir
+        advancedMounts:
+          sure:
+            migrate:
+              - path: /home/rails
+            app:
+              - path: /home/rails
+            worker:
+              - path: /home/rails

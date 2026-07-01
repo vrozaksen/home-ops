@@ -10,6 +10,13 @@ spec:
     kind: OCIRepository
     name: app-template
   values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
     controllers:
       sure:
         annotations:
@@ -156,38 +163,3 @@ spec:
               - path: /rails/storage
             worker:
               - path: /rails/storage
-      tmp-app:
-        type: emptyDir
-        advancedMounts:
-          sure:
-            migrate:
-              - path: /rails/tmp
-            app:
-              - path: /rails/tmp
-      tmp-worker:
-        type: emptyDir
-        advancedMounts:
-          sure:
-            worker:
-              - path: /rails/tmp
-      # readOnlyRootFilesystem writable paths (Tempfile, gem/home caches)
-      systmp:
-        type: emptyDir
-        advancedMounts:
-          sure:
-            migrate:
-              - path: /tmp
-            app:
-              - path: /tmp
-            worker:
-              - path: /tmp
-      home:
-        type: emptyDir
-        advancedMounts:
-          sure:
-            migrate:
-              - path: /home/rails
-            app:
-              - path: /home/rails
-            worker:
-              - path: /home/rails

@@ -12,7 +12,7 @@ spec:
     - "vrozaksen/home-ops"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:43.255.2@sha256:77ba5621fddae788ccd9f4dd5b2d907964959fcebb32999bc7a306bfb0165d75
+  image: ghcr.io/renovatebot/renovate:43.256.0@sha256:e2438fd7ffa48dde35d4e7aaeb6c694529dd2e654f56be872de33ae989c2f3d5
   schedule: "0 * * * *"
   parallelism: 3
   # Operator mints + refreshes RENOVATE_TOKEN from the GitHub App natively (beta).

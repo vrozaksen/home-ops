@@ -24,14 +24,15 @@ spec:
     name: victoria-logs
   interval: 1h
   values:
-    fullnameOverride: victoria-logs
+    global:
+      image:
+        registry: quay.io
+    dashboards:
+      enabled: true
+      grafanaOperator:
+        enabled: true
     server:
-      resources:
-        requests:
-          cpu: 30m
-          memory: 1472Mi
-        limits:
-          memory: 3Gi
+      fullnameOverride: victoria-logs
       persistentVolume:
         enabled: true
         storageClassName: ceph-block
@@ -40,23 +41,9 @@ spec:
       route:
         enabled: true
         hostnames:
-          - victoria-logs.vzkn.eu
+          - vlogs.vzkn.eu
         parentRefs:
           - name: envoy-internal
             namespace: network
-        extraRules:
-          - filters:
-              - type: RequestRedirect
-                requestRedirect:
-                  path:
-                    type: ReplaceFullPath
-                    replaceFullPath: /select/vmui/
-                  statusCode: 302
-            matches:
-              - path:
-                  type: Exact
-                  value: /
       serviceMonitor:
         enabled: true
-    dashboards:
-      enabled: true

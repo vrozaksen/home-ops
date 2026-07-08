@@ -7,7 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./livekit/ks.yaml
   - ./mumble/ks.yaml
   - ./red-lavalink/ks.yaml
   - ./redbot/ks.yaml

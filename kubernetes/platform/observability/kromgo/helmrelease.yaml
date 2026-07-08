@@ -45,11 +45,11 @@ spec:
           valueExpr: labels["revision"]
           icon: si:flux
 
-        - title: Renovate
-          id: renovate_version
-          query: max by (version) (label_replace(kube_pod_container_info{namespace="renovate", container="renovate-operator"}, "version", "$1", "image", ".*:(.+)"))
+        - title: Ceph
+          id: ceph_version
+          query: max by (version) (label_replace(ceph_mon_metadata, "version", "$1", "ceph_version", "ceph version ([^ ]+) .*"))
           valueExpr: labels["version"]
-          icon: si:renovate
+          icon: si:ceph
 
         - title: Renovate
           id: renovate_status

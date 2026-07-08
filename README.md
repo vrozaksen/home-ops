@@ -10,12 +10,8 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 <div align="center">
 
-[![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
-[![Renovate](https://kromgo.vzkn.eu/badges/renovate_status)](https://github.com/mogenius/renovate-operator)&nbsp;
-[![Talos](https://kromgo.vzkn.eu/badges/talos_version)](https://talos.dev)&nbsp;
-[![Kubernetes](https://kromgo.vzkn.eu/badges/kubernetes_version)](https://kubernetes.io)&nbsp;
-[![Flux](https://kromgo.vzkn.eu/badges/flux_version)](https://fluxcd.io)&nbsp;
-[![Renovate](https://kromgo.vzkn.eu/badges/renovate_version)](https://github.com/mogenius/renovate-operator)
+[![Discord](https://img.shields.io/discord/673534664354430999?style=flat&label=Discord&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;
+[![Renovate](https://kromgo.vzkn.eu/badges/renovate_status)](https://github.com/mogenius/renovate-operator)
 
 </div>
 
@@ -24,6 +20,15 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 [![Internet](https://kromgo.vzkn.eu/badges/internet_connectivity)](https://status.vzkn.eu)&nbsp;
 [![VPS Edge](https://kromgo.vzkn.eu/badges/bifrost_edge)](https://status.vzkn.eu)&nbsp;
 [![Heartbeat](https://kromgo.vzkn.eu/badges/bifrost_heartbeat)](https://status.vzkn.eu)
+
+</div>
+
+<div align="center">
+
+[![Talos](https://kromgo.vzkn.eu/badges/talos_version)](https://talos.dev)&nbsp;
+[![Kubernetes](https://kromgo.vzkn.eu/badges/kubernetes_version)](https://kubernetes.io)&nbsp;
+[![Flux](https://kromgo.vzkn.eu/badges/flux_version)](https://fluxcd.io)&nbsp;
+[![Ceph](https://kromgo.vzkn.eu/badges/ceph_version)](https://rook.io)
 
 </div>
 

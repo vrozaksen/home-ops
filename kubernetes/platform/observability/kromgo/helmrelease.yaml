@@ -45,6 +45,19 @@ spec:
           valueExpr: labels["revision"]
           icon: si:flux
 
+        - title: Renovate
+          id: renovate_version
+          query: max by (version) (label_replace(kube_pod_container_info{namespace="renovate", container="renovate-operator"}, "version", "$1", "image", ".*:(.+)"))
+          valueExpr: labels["version"]
+          icon: si:renovate
+
+        - title: Renovate
+          id: renovate_status
+          query: max(renovate_operator_run_failed)
+          valueExpr: 'result == 0.0 ? "passing" : "failing"'
+          colorExpr: 'result == 0.0 ? "brightgreen" : "red"'
+          icon: si:renovate
+
         - title: Nodes
           id: cluster_node_count
           query: count(count by (node) (kube_node_status_condition{condition="Ready"}))

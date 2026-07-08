@@ -6,11 +6,8 @@ metadata:
   name: &app slskd
 spec:
   components:
-    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
   dependsOn:
-    - name: kanidm
-      namespace: security
     - name: lidarr
       namespace: downloads
     - name: rook-ceph-cluster

@@ -6,12 +6,9 @@ metadata:
   name: &app radarr
 spec:
   components:
-    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
-    - name: kanidm
-      namespace: security
     - name: postgres-arr
       namespace: downloads
     - name: prometheus-adapter

@@ -7,10 +7,9 @@ metadata:
 spec:
   components:
     - ../../../components/dragonfly
-    - ../../../components/oidc-auth
   dependsOn:
-    - name: kanidm
-      namespace: security
+    - name: dragonfly-operator
+      namespace: database
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
@@ -21,7 +20,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      OIDC_HOST: search.vzkn.eu
   prune: true
   sourceRef:
     kind: GitRepository

@@ -6,11 +6,8 @@ metadata:
   name: &app kopia
 spec:
   components:
-    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
   dependsOn:
-    - name: kanidm
-      namespace: security
     - name: prometheus-adapter
       namespace: observability
     - name: volsync

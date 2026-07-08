@@ -6,12 +6,9 @@ metadata:
   name: &app metube
 spec:
   components:
-    - ../../../components/oidc-auth
     - ../../../components/zeroscaler
     - ../../../components/volsync
   dependsOn:
-    - name: kanidm
-      namespace: security
     - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster

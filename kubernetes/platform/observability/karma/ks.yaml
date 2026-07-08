@@ -5,11 +5,6 @@ kind: Kustomization
 metadata:
   name: &app karma
 spec:
-  components:
-    - ../../../components/oidc-auth
-  dependsOn:
-    - name: kanidm
-      namespace: security
   interval: 1h
   path: ./kubernetes/platform/observability/karma
   postBuild:

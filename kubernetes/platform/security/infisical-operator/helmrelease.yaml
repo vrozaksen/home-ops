@@ -32,6 +32,12 @@ spec:
         env:
           - name: TZ
             value: Europe/Warsaw
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
       tolerations:

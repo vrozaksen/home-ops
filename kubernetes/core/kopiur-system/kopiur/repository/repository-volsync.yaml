@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kopiur.home-operations.com/repository_v1alpha1.json
+# Adopts the existing volsync (perfectra1n fork) kopia repo in place - no
+# create block, so a mis-parsed backend can never initialize a fresh repo
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: Repository
+metadata:
+  name: volsync
+spec:
+  backend:
+    filesystem:
+      path: /repository
+      volume:
+        nfs:
+          server: aincrad.home.vzkn.eu
+          path: /mnt/blaze/volsync-kopia
+  catalog:
+    periodicRefresh: true  # volsync keeps writing during the transition
+  encryption:
+    passwordSecretRef:
+      name: kopiur-repository-secret
+      key: KOPIA_PASSWORD
+  maintenance:
+    enabled: false  # volsync KopiaMaintenance owns maintenance until retirement
+  moverDefaults:
+    podSecurityContext:
+      fsGroup: 100
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 100
+    ttlSecondsAfterFinished: 86400

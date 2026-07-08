@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kopiur.home-operations.com/snapshotpolicy_v1alpha1.json
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: ${APP}
+spec:
+  compression:
+    compressor: zstd-fastest
+  copyMethod: Snapshot
+  credentialProjection:
+    enabled: true
+  # Pinned to the volsync fork identity (<app>@<namespace>:/data) so history
+  # in the adopted repo continues as one series instead of forking
+  identity:
+    username: ${APP}
+    hostname: ${NS}
+  mover:
+    cache:
+      capacity: ${KOPIUR_CACHE_CAPACITY:=5Gi}
+      mode: Persistent
+      storageClassName: local-hostpath
+    podSecurityContext:
+      fsGroup: ${KOPIUR_PGID:=100}
+    securityContext:
+      runAsUser: ${KOPIUR_PUID:=1000}
+      runAsGroup: ${KOPIUR_PGID:=100}
+  repository:
+    kind: ClusterRepository
+    name: garage
+  retention:
+    keepHourly: 24
+    keepDaily: 10
+    keepWeekly: 5
+    keepMonthly: 3
+  sources:
+    - pvc:
+        name: ${APP}
+      sourcePathOverride: /data
+  upload:
+    maxParallelFileReads: 2
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}

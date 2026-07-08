@@ -9,4 +9,5 @@ resources:
   - ./mikrotik-exporter/ks.yaml
   - ./nut-exporter/ks.yaml
   - ./smartctl-exporter/ks.yaml
+  - ./snmp-exporter/ks.yaml
   - ./speedtest-exporter/ks.yaml

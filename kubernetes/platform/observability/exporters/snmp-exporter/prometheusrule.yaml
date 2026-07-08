@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: snmp-exporter-rules
+spec:
+  groups:
+    - name: snmp-exporter.rules
+      rules:
+        - alert: UPSOnBattery
+          expr: upsBasicBatteryTimeOnBattery_seconds > 60
+          annotations:
+            summary: >-
+              ZPM {{$labels.instance}} is running on batteries
+          for: 5m
+          labels:
+            severity: critical
+
+        - alert: UPSReplaceBattery
+          expr: upsAdvBattery_needsreplacing > 0
+          annotations:
+            summary: >-
+              ZPM {{ $labels.instance }} battery needs to be replaced
+          for: 5m
+          labels:
+            severity: critical

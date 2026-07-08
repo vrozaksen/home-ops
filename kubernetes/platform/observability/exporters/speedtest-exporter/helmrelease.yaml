@@ -19,12 +19,6 @@ spec:
             image:
               repository: ghcr.io/miguelndecarvalho/speedtest-exporter
               tag: v3.5.4
-            resources:
-              requests:
-                cpu: 10m
-                memory: 96Mi
-              limits:
-                memory: 192Mi
     service:
       metrics:
         ipFamilyPolicy: PreferDualStack

@@ -20,8 +20,9 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 <div align="center">
 
-[![Home-Internet](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F248aa3ff-73a8-4088-86af-a18f68562717.shields&style=for-the-badge&logo=mikrotik&logoColor=white&label=Home%20Internet)](https://status.vzkn.eu)&nbsp;&nbsp;
-[![Status-Page](https://img.shields.io/endpoint?url=https%3A%2F%2Fstatus.vzkn.eu%2Fapi%2Fv1%2Fendpoints%2Finfrastructure_github-webhook%2Fhealth%2Fbadge.shields&style=for-the-badge&logo=statuspage&logoColor=white&label=Status%20Page)](https://status.vzkn.eu/endpoints/infrastructure_github-webhook)&nbsp;&nbsp;
+[![Internet](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Finternet_connectivity&style=for-the-badge&logo=cloudflare&logoColor=white&label=Internet)](https://status.vzkn.eu)&nbsp;&nbsp;
+[![VPS-Edge](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fbifrost_edge&style=for-the-badge&logo=caddy&logoColor=white&label=VPS%20Edge)](https://status.vzkn.eu)&nbsp;&nbsp;
+[![Heartbeat](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fbifrost_heartbeat&style=for-the-badge&logo=pushover&logoColor=white&label=Heartbeat)](https://status.vzkn.eu)&nbsp;&nbsp;
 
 </div>
 

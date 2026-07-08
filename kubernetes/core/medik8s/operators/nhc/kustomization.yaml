@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: medik8s
 resources:
   # renovate: datasource=github-releases depName=medik8s/node-healthcheck-operator
-  - github.com/medik8s/node-healthcheck-operator/config/default?ref=v0.11.0
+  - github.com/medik8s/node-healthcheck-operator/config/default?ref=v0.12.0
   - ./webhook-pki.yaml
 images:
   - name: controller

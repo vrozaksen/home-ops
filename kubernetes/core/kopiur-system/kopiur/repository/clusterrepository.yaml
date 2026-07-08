@@ -1,7 +1,9 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/kopiur.home-operations.com/clusterrepository_v1alpha1.json
 # Primary backup repository - seeded from the volsync repo by
-# RepositoryReplication (no create block: it must already exist)
+# RepositoryReplication. create.enabled MUST be false: absent block
+# defaults to true and bootstrap initializes a fresh empty repo,
+# which sync-to then refuses as incompatible
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: ClusterRepository
 metadata:
@@ -9,6 +11,8 @@ metadata:
 spec:
   allowedNamespaces:
     all: true
+  create:
+    enabled: false
   backend:
     s3:
       bucket: kopiur

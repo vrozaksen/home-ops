@@ -22,4 +22,4 @@ spec:
         secretRef:
           name: kopiur-repository-secret
   schedule:
-    cron: H */6 * * *
+    cron: H/15 * * * *  # TODO: revert to `H */6 * * *` once the initial seed lands

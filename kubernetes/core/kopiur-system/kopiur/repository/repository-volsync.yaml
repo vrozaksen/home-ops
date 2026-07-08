@@ -16,6 +16,8 @@ spec:
           path: /mnt/blaze/volsync-kopia
   catalog:
     periodicRefresh: true  # volsync keeps writing during the transition
+  create:
+    enabled: false  # absent block defaults to true; never initialize over a bad mount
   encryption:
     passwordSecretRef:
       name: kopiur-repository-secret

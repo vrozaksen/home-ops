@@ -22,4 +22,4 @@ spec:
         secretRef:
           name: kopiur-repository-secret
   schedule:
-    cron: H/15 * * * *  # TODO: revert to `H */6 * * *` once the initial seed lands
+    cron: H * * * *  # hourly during the transition (webhook rejects H in step syntax like H/15); relax or retire after cutover

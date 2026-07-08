@@ -9,7 +9,7 @@ spec:
     - name: infisical-operator
       namespace: security
   components:
-    - ../../../components/volsync
+    - ../../../components/kopiur
     - ../../../components/nfs-scaler
   interval: 1h
   path: ./kubernetes/apps/self-hosted/teamspeak
@@ -17,9 +17,9 @@ spec:
     substitute:
       APP: *app
       NS: &ns self-hosted
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_PUID: "9987"
-      VOLSYNC_PGID: "9987"
+      KOPIUR_CAPACITY: 5Gi
+      KOPIUR_PUID: "9987"
+      KOPIUR_PGID: "9987"
   prune: true
   sourceRef:
     kind: GitRepository

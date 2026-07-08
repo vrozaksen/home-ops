@@ -8,8 +8,10 @@ spec:
   components:
     - ../../../components/cnpg/restore
     - ../../../components/zeroscaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
     - name: radarr
       namespace: downloads
     - name: sonarr
@@ -26,7 +28,7 @@ spec:
       APP: *app
       NS: &ns media
       CNPG_SIZE: 5Gi
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

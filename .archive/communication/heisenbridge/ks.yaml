@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: continuwuity
       namespace: communication
@@ -21,9 +21,9 @@ spec:
     substitute:
       APP: *app
       NS: &ns communication
-      VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_PUID: "1337"
-      VOLSYNC_PGID: "1337"
+      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_PUID: "1337"
+      KOPIUR_PGID: "1337"
   prune: true
   sourceRef:
     kind: GitRepository

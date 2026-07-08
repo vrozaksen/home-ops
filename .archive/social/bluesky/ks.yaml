@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/cnpg/initdb
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: infisical-operator
       namespace: security
@@ -30,7 +30,7 @@ spec:
       APP: *app
       NS: &ns social
       CNPG_SIZE: 5Gi
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

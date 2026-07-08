@@ -7,7 +7,7 @@ metadata:
 spec:
   components:
     - ../../../components/nfs-scaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
@@ -16,7 +16,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
+      KOPIUR_CAPACITY: 1Gi
   prune: true
   sourceRef:
     kind: GitRepository

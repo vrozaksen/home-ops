@@ -6,13 +6,13 @@
 #   name: &app github-mcp
 # spec:
 #   components:
-#     - ../../../../components/volsync
+#     - ../../../../components/kopiur
 #   interval: 1h
 #   path: ./kubernetes/apps/ai/mcp/github-mcp
 #   postBuild:
 #     substitute:
 #       APP: *app
-#       VOLSYNC_CAPACITY: 10Gi
+#       KOPIUR_CAPACITY: 10Gi
 #   prune: true
 #   retryInterval: 2m
 #   sourceRef:

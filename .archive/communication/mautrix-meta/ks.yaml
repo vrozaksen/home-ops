@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../components/cnpg/restore
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: continuwuity
       namespace: communication
@@ -32,9 +32,9 @@ spec:
       APP: *app
       NS: &ns communication
       CNPG_SIZE: 2Gi
-      VOLSYNC_CAPACITY: 2Gi
-      VOLSYNC_PUID: "1337"
-      VOLSYNC_PGID: "1337"
+      KOPIUR_CAPACITY: 2Gi
+      KOPIUR_PUID: "1337"
+      KOPIUR_PGID: "1337"
   prune: true
   sourceRef:
     kind: GitRepository

@@ -28,25 +28,25 @@ spec:
       credentialProjection:
         enabled: true  # shared garage ClusterRepository projects creds into consumer namespaces
     monitoring:
-      serviceMonitor:
-        enabled: true
-      prometheusRule:
-        enabled: true
       dashboards:
         enabled: true
         grafanaOperator:
           enabled: true
           matchLabels:
             grafana.internal/instance: grafana
+      prometheusRule:
+        enabled: true
+      serviceMonitor:
+        enabled: true
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 1000
-      runAsGroup: 1000
-      fsGroup: 1000
+      runAsGroup: 100
+      fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
     resources:
       requests:
         cpu: 10m
         memory: 256Mi
       limits:
-        memory: 1Gi
+        memory: 2Gi

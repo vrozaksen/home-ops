@@ -8,7 +8,7 @@ spec:
   components:
     - ../../../components/dragonfly
     - ../../../components/postgres  # TODO Migrate to CNPG!
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database

@@ -9,7 +9,7 @@ spec:
     - ../../../../components/anubis
     - ../../../../components/cnpg/restore
     - ../../../../components/dragonfly
-    - ../../../../components/volsync
+    - ../../../../components/kopiur
   dependsOn:
     - name: dragonfly-operator
       namespace: database
@@ -17,6 +17,8 @@ spec:
       namespace: security
     - name: kanidm
       namespace: security
+    - name: kopiur
+      namespace: kopiur-system
     - name: plugin-barman-cloud
       namespace: database
     - name: priority-classes
@@ -37,9 +39,9 @@ spec:
       APP: *app
       NS: &ns development
       CNPG_SIZE: 5Gi
-      VOLSYNC_CAPACITY: 50Gi
-      VOLSYNC_STORAGECLASS: ceph-block
-      VOLSYNC_ACCESSMODES: ReadWriteOnce
+      KOPIUR_CAPACITY: 50Gi
+      KOPIUR_STORAGECLASS: ceph-block
+      KOPIUR_ACCESSMODES: ReadWriteOnce
       ANUBIS_TARGET: "http://forgejo-http.development.svc.cluster.local:3000"
   prune: true
   sourceRef:

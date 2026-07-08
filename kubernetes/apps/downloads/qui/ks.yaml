@@ -7,12 +7,14 @@ metadata:
 spec:
   components:
     - ../../../components/zeroscaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: infisical-operator
       namespace: security
     - name: kanidm
       namespace: security
+    - name: kopiur
+      namespace: kopiur-system
     - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster

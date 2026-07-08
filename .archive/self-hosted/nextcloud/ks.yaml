@@ -9,7 +9,7 @@ spec:
     - ../../../../components/cnpg/restore  # PostgreSQL cluster
     - ../../../../components/dragonfly  # Redis cache (nextcloud-dragonfly)
     - ../../../../components/zeroscaler  # Scale down on NFS mount issues
-    - ../../../../components/volsync  # Backup config/apps volume
+    - ../../../../components/kopiur  # Backup config/apps volume
   dependsOn:
     - name: dragonfly-operator
       namespace: database
@@ -35,9 +35,9 @@ spec:
       APP: *app
       NS: &ns self-hosted
       CNPG_SIZE: 10Gi  # PostgreSQL PVC size
-      VOLSYNC_CAPACITY: 100Gi  # Config/apps backup size (thumbnails, etc)
-      VOLSYNC_GID: "100"
-      VOLSYNC_UID: "1000"
+      KOPIUR_CAPACITY: 100Gi  # Config/apps backup size (thumbnails, etc)
+      KOPIUR_GID: "100"
+      KOPIUR_UID: "1000"
   prune: true
   sourceRef:
     kind: GitRepository

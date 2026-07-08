@@ -7,8 +7,10 @@ metadata:
 spec:
   components:
     - ../../../components/zeroscaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
     - name: postgres-arr
       namespace: downloads
     - name: prometheus-adapter

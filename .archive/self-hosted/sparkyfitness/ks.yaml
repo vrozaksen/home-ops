@@ -7,7 +7,7 @@ metadata:
 spec:
   components:
     - ../../../../components/cnpg/restore
-    - ../../../../components/volsync
+    - ../../../../components/kopiur
   dependsOn:
     - name: infisical-operator
       namespace: security
@@ -45,7 +45,7 @@ spec:
       NS: &ns self-hosted
       CNPG_SIZE: 5Gi
       CNPG_VERSION: "18.3-system-trixie"
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

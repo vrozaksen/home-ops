@@ -6,10 +6,12 @@ metadata:
   name: &app agentmemory
 spec:
   components:
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: infisical-operator
       namespace: security
+    - name: kopiur
+      namespace: kopiur-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
@@ -18,7 +20,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns ai
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

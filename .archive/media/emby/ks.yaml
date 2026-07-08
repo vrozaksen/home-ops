@@ -8,7 +8,7 @@ spec:
   components:
     - ../../../components/gpu
     - ../../../components/zeroscaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: prometheus-adapter
       namespace: observability
@@ -20,7 +20,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns media
-      VOLSYNC_CAPACITY: 10Gi
+      KOPIUR_CAPACITY: 10Gi
   prune: true
   sourceRef:
     kind: GitRepository

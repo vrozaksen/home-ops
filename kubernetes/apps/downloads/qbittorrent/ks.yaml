@@ -7,8 +7,10 @@ metadata:
 spec:
   components:
     - ../../../components/zeroscaler
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
     - name: prometheus-adapter
       namespace: observability
     - name: rook-ceph-cluster
@@ -19,7 +21,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns downloads
-      VOLSYNC_CAPACITY: 2Gi
+      KOPIUR_CAPACITY: 2Gi
   prune: true
   sourceRef:
     kind: GitRepository

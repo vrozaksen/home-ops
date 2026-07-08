@@ -8,7 +8,7 @@ spec:
   components:
     - ../../../components/cnpg/initdb
     - ../../../components/dragonfly
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: dragonfly-operator
       namespace: database
@@ -16,6 +16,8 @@ spec:
       namespace: security
     - name: kanidm
       namespace: security
+    - name: kopiur
+      namespace: kopiur-system
     - name: plugin-barman-cloud
       namespace: database
     - name: rook-ceph-cluster
@@ -36,7 +38,7 @@ spec:
       APP: sure
       NS: &ns self-hosted
       CNPG_SIZE: 5Gi
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

@@ -21,13 +21,13 @@ metadata:
   name: &app minecraft-survival
 spec:
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur
   interval: 1h
   path: ./kubernetes/apps/games/minecraft/survival
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 50Gi
+      KOPIUR_CAPACITY: 50Gi
   prune: true
   sourceRef:
     kind: GitRepository

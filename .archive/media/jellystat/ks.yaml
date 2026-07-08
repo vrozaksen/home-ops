@@ -8,7 +8,7 @@ spec:
   components:
     - ../../../components/cnpg/restore
     # - ../../../components/ext-auth
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: authentik
       namespace: security

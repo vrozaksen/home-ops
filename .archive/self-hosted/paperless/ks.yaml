@@ -9,7 +9,7 @@ spec:
     - ../../../components/dragonfly
     - ../../../components/nfs-scaler
     - ../../../components/postgres  # TODO Migrate to CNPG!
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: crunchy-postgres-operator
       namespace: database
@@ -31,7 +31,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 15Gi
+      KOPIUR_CAPACITY: 15Gi
   prune: true
   sourceRef:
     kind: GitRepository

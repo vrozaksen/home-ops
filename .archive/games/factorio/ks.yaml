@@ -6,7 +6,7 @@ metadata:
   name: &app factorio
 spec:
   components:
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
@@ -17,9 +17,9 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 20Gi
-      VOLSYNC_UID: "1000"
-      VOLSYNC_GID: "1000"
+      KOPIUR_CAPACITY: 20Gi
+      KOPIUR_UID: "1000"
+      KOPIUR_GID: "1000"
   prune: true
   sourceRef:
     kind: GitRepository

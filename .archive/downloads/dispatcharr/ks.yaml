@@ -8,7 +8,7 @@ spec:
   components:
     # - ../../../components/ext-auth
     - ../../../components/gpu
-    - ../../../components/volsync
+    - ../../../components/kopiur
   dependsOn:
     - name: authentik
       namespace: security
@@ -20,7 +20,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns downloads
-      VOLSYNC_CAPACITY: 10Gi
+      KOPIUR_CAPACITY: 10Gi
   prune: true
   sourceRef:
     kind: GitRepository

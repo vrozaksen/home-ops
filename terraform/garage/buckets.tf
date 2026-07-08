@@ -4,6 +4,7 @@ locals {
     "cnpg",
     "forgejo",
     "harbor",
+    "kopiur",
     "rxresume",
     "sentry",
     "tekton-results-logs",

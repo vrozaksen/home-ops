@@ -11,30 +11,32 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 <div align="center">
 
 [![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
-[![Talos](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Ftalos_version&style=for-the-badge&logo=talos&logoColor=white&color=blue&label=%20)](https://talos.dev)&nbsp;&nbsp;
-[![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fkubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://kubernetes.io)&nbsp;&nbsp;
-[![Flux](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fflux_version&style=for-the-badge&logo=flux&logoColor=white&color=blue&label=%20)](https://fluxcd.io)&nbsp;&nbsp;
 [![Renovate](https://img.shields.io/github/actions/workflow/status/vrozaksen/renovate-config/renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/vrozaksen/renovate-config/actions/workflows/renovate.yaml)
 
 </div>
 
 <div align="center">
 
-[![Internet](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Finternet_connectivity&style=for-the-badge&logo=cloudflare&logoColor=white&label=Internet)](https://status.vzkn.eu)&nbsp;&nbsp;
-[![VPS-Edge](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fbifrost_edge&style=for-the-badge&logo=caddy&logoColor=white&label=VPS%20Edge)](https://status.vzkn.eu)&nbsp;&nbsp;
-[![Heartbeat](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fbifrost_heartbeat&style=for-the-badge&logo=pushover&logoColor=white&label=Heartbeat)](https://status.vzkn.eu)&nbsp;&nbsp;
+[![Talos](https://kromgo.vzkn.eu/badges/talos_version)](https://talos.dev)&nbsp;
+[![Kubernetes](https://kromgo.vzkn.eu/badges/kubernetes_version)](https://kubernetes.io)&nbsp;
+[![Flux](https://kromgo.vzkn.eu/badges/flux_version)](https://fluxcd.io)&nbsp;
+[![Internet](https://kromgo.vzkn.eu/badges/internet_connectivity)](https://status.vzkn.eu)&nbsp;
+[![VPS Edge](https://kromgo.vzkn.eu/badges/bifrost_edge)](https://status.vzkn.eu)&nbsp;
+[![Heartbeat](https://kromgo.vzkn.eu/badges/bifrost_heartbeat)](https://status.vzkn.eu)
 
 </div>
 
 <div align="center">
 
-[![Age-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_age_days&style=flat-square&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Uptime-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_uptime_days&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.vzkn.eu%2Fcluster_alert_count&style=flat-square&label=Alerts)](https://github.com/kashalls/kromgo)
+[![Nodes](https://kromgo.vzkn.eu/badges/cluster_node_count)](https://github.com/home-operations/kromgo)&nbsp;
+[![Pods](https://kromgo.vzkn.eu/badges/cluster_pod_count)](https://github.com/home-operations/kromgo)&nbsp;
+[![CPU](https://kromgo.vzkn.eu/badges/cluster_cpu_usage)](https://github.com/home-operations/kromgo)&nbsp;
+[![Memory](https://kromgo.vzkn.eu/badges/cluster_memory_usage)](https://github.com/home-operations/kromgo)&nbsp;
+[![Power](https://kromgo.vzkn.eu/badges/cluster_power_usage)](https://github.com/home-operations/kromgo)&nbsp;
+[![Age](https://kromgo.vzkn.eu/badges/cluster_birth_age)](https://github.com/home-operations/kromgo)&nbsp;
+[![Uptime](https://kromgo.vzkn.eu/badges/cluster_uptime_age)](https://github.com/home-operations/kromgo)&nbsp;
+[![Alerts](https://kromgo.vzkn.eu/badges/cluster_alert_count)](https://github.com/home-operations/kromgo)
+
 </div>
 
 ---

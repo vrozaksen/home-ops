@@ -6,9 +6,11 @@ metadata:
   name: &app atuin
 spec:
   components:
-    - ../../../components/volsync
+    - ../../../components/kopiur
   interval: 1h
   dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/self-hosted/atuin
@@ -16,7 +18,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns self-hosted
-      VOLSYNC_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
   prune: true
   sourceRef:
     kind: GitRepository

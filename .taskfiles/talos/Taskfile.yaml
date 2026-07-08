@@ -131,7 +131,7 @@ tasks:
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
       - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
-      - task: :volsync:state-suspend
+      - task: :kopiur:state-suspend
     preconditions:
       - which kubectl
 
@@ -140,6 +140,6 @@ tasks:
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
       - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
-      - task: :volsync:state-resume
+      - task: :kopiur:state-resume
     preconditions:
       - which kubectl

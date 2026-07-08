@@ -26,7 +26,7 @@ includes:
   infisical: .taskfiles/infisical
   kubernetes: .taskfiles/kubernetes
   talos: .taskfiles/talos
-  volsync: .taskfiles/volsync
+  kopiur: .taskfiles/kopiur
   workstation: .taskfiles/workstation
 
 tasks:

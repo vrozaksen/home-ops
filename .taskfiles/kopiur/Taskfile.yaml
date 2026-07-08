@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+# Kopiur backup tasks. Assumptions:
+#   1. Fluxtomization, PVC and SnapshotPolicy all share the app name (e.g. plex)
+#   2. Apps back up to the `garage` ClusterRepository via components/kopiur
+
+tasks:
+  state-*:
+    desc: Suspend or resume Kopiur (stops spawning mover Jobs)
+    cmds:
+      - flux --namespace kopiur-system {{.STATE}} kustomization kopiur
+      - flux --namespace kopiur-system {{.STATE}} helmrelease kopiur
+      - kubectl --namespace kopiur-system scale deployment kopiur-controller --replicas {{if eq .STATE "suspend"}}0{{else}}1{{end}}
+    vars:
+      STATE: '{{index .MATCH 0}}'
+    preconditions:
+      - '[[ "{{.STATE}}" == "suspend" || "{{.STATE}}" == "resume" ]]'
+      - which flux kubectl
+
+  cleanup-jobs:
+    desc: Delete completed kopiur mover jobs
+    cmds:
+      - kubectl delete jobs -A -l app.kubernetes.io/managed-by=kopiur --field-selector status.successful=1
+    preconditions:
+      - which kubectl
+
+  snapshot:
+    desc: Snapshot an app [NS=default] [APP=required]
+    cmds:
+      - |
+        SNAP=$(kubectl --namespace {{.NS}} create -f - -o name <<EOF
+        apiVersion: kopiur.home-operations.com/v1alpha1
+        kind: Snapshot
+        metadata:
+          generateName: {{.APP}}-manual-
+        spec:
+          policyRef:
+            name: {{.APP}}
+        EOF
+        )
+        echo "$SNAP"
+        kubectl --namespace {{.NS}} wait "$SNAP" --for=jsonpath='{.status.phase}'=Succeeded --timeout=120m
+    requires:
+      vars:
+        - NS
+        - APP
+    preconditions:
+      - kubectl --namespace {{.NS}} get snapshotpolicy {{.APP}}
+      - which kubectl
+
+  restore:
+    desc: Restore an app in place [NS=default] [APP=required] [OFFSET=n back or ASOF=RFC3339]
+    summary: |
+      Scales the app down, restores the chosen snapshot into the existing PVC,
+      scales back up. Uses a one-off Restore CR with target.pvcRef.
+    cmds:
+      - flux --namespace {{.NS}} suspend kustomization {{.APP}}
+      - kubectl --namespace {{.NS}} scale {{.CTRL}} --replicas 0
+      - kubectl --namespace {{.NS}} wait pod --for=delete --selector="app.kubernetes.io/name={{.APP}}" --timeout=5m
+      - |
+        RST=$(kubectl --namespace {{.NS}} create -f - -o name <<EOF
+        apiVersion: kopiur.home-operations.com/v1alpha1
+        kind: Restore
+        metadata:
+          generateName: {{.APP}}-manual-
+        spec:
+          policy:
+            onMissingSnapshot: Fail
+          source:
+            fromPolicy:
+              name: {{.APP}}
+              {{if .ASOF}}asOf: "{{.ASOF}}"{{else}}offset: {{.OFFSET | default "0"}}{{end}}
+          target:
+            pvcRef:
+              name: {{.APP}}
+        EOF
+        )
+        echo "$RST"
+        kubectl --namespace {{.NS}} wait "$RST" --for=jsonpath='{.status.phase}'=Completed --timeout=120m
+      - flux --namespace {{.NS}} resume kustomization {{.APP}}
+      - kubectl --namespace {{.NS}} scale {{.CTRL}} --replicas 1
+    vars:
+      CTRL:
+        sh: kubectl --namespace {{.NS}} get deploy {{.APP}} -o name 2>/dev/null || kubectl --namespace {{.NS}} get statefulset {{.APP}} -o name
+    requires:
+      vars:
+        - NS
+        - APP
+    preconditions:
+      - which flux kubectl

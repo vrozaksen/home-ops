@@ -131,10 +131,14 @@ rules:
       - "list"
       - "watch"
   - apiGroups:
-      - "volsync.backube"
+      - "kopiur.home-operations.com"
     resources:
-      - "replicationsources"
-      - "replicationdestinations"
+      - "clusterrepositories"
+      - "repositories"
+      - "restores"
+      - "snapshotpolicies"
+      - "snapshots"
+      - "snapshotschedules"
     verbs:
       - "get"
       - "list"

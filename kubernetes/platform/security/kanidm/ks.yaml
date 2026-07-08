@@ -21,6 +21,9 @@ spec:
       APP: *app
       NS: &ns security
       KOPIUR_CAPACITY: 5Gi
+      # kanidm runs as 2000:2000; mover must match to read 0600 SQLite WAL/SHM files
+      KOPIUR_PUID: "2000"
+      KOPIUR_PGID: "2000"
   prune: true
   sourceRef:
     kind: GitRepository

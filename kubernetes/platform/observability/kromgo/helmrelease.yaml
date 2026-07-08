@@ -110,7 +110,7 @@ spec:
           query: gatus_results_endpoint_success{key="vps_bifrost-|-heartbeat-push"}
           valueExpr: 'result == 1.0 ? "up" : "down"'
           colorExpr: 'result == 1.0 ? "brightgreen" : "red"'
-          icon: si:pushover
+          icon: mdi:heart-pulse
     httpRoute:
       enabled: true
       annotations:

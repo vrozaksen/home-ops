@@ -13,4 +13,5 @@ resources:
   - ./flux-operator/ks.yaml
   - ./github-status/ks.yaml
   - ./headlamp/ks.yaml
+  - ./konflate/ks.yaml
   - ./tofu-controller/ks.yaml

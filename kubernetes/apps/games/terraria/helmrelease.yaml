@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/beardedio/terraria
-              tag: vanilla-1.4.5.6@sha256:713800572cc1f93329107167b246e08724ce0ad8978ad0049482f4ecb023b073
+              tag: vanilla-1.4.5.6@sha256:a8a47dda92c1c847b2516d811bedbbe9b16d7a21ddb9bce9ed495ba82e29436e
             # Entrypoint hard-codes `-config /config/serverconfig.txt`; extra args
             # are appended after it, so `-pass` overrides the (absent) config password.
             args:

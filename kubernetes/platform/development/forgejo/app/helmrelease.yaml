@@ -32,7 +32,7 @@ spec:
     image:
       registry: code.forgejo.org
       repository: forgejo/forgejo
-      tag: 15.0.4-rootless
+      tag: 15.0.5-rootless
       rootless: true
 
     podSecurityContext:

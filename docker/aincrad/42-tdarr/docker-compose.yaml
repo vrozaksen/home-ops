@@ -8,7 +8,7 @@ name: tdarr
 services:
   tdarr:
     # renovate: datasource=docker depName=ghcr.io/haveagitgat/tdarr
-    image: ghcr.io/haveagitgat/tdarr:2.82.02  # verify tag (running build was dev_2.77.01)
+    image: ghcr.io/haveagitgat/tdarr:2.84.01  # verify tag (running build was dev_2.77.01)
     container_name: tdarr
     restart: unless-stopped
     labels:

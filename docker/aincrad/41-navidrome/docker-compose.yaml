@@ -91,7 +91,7 @@ services:
       # renovate: datasource=github-releases depName=metalheim/navidrome-plugin-artist-nfo-metadata
       ARTIST_NFO_VERSION: v1.3.0
       # renovate: datasource=github-releases depName=NeptuneHub/AudioMuse-AI-NV-plugin
-      AUDIOMUSE_PLUGIN_VERSION: v8
+      AUDIOMUSE_PLUGIN_VERSION: v9
     volumes:
       - /mnt/blaze/appdata/navidrome:/config
     # Script passed as a single list element so compose doesn't shlex-split it.

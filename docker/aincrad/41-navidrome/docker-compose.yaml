@@ -87,7 +87,7 @@ services:
       # renovate: datasource=github-releases depName=navidrome/apple-music-plugin
       APPLE_MUSIC_VERSION: v0.2.0
       # renovate: datasource=github-releases depName=J0R6IT0/navidrome-lyrics-plugin
-      ND_LYRICS_VERSION: v7.0.0
+      ND_LYRICS_VERSION: v7.1.0
       # renovate: datasource=github-releases depName=metalheim/navidrome-plugin-artist-nfo-metadata
       ARTIST_NFO_VERSION: v1.3.0
       # renovate: datasource=github-releases depName=NeptuneHub/AudioMuse-AI-NV-plugin

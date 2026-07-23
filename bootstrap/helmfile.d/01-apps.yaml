@@ -21,7 +21,7 @@ releases:
   - name: coredns
     namespace: kube-system
     chart: oci://ghcr.io/coredns/charts/coredns
-    version: 1.46.0
+    version: 1.46.2
     values:
       - '../values.yaml.gotmpl'
     needs:

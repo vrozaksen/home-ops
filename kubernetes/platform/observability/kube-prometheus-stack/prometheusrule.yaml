@@ -18,13 +18,16 @@ spec:
           labels:
             severity: warning
 
-        - alert: NodeMemoryCritical
+        - alert: NodeMemoryStalled
+          # PSI full-stall, not a % threshold: 12Gi CP nodes sit at >93% used
+          # from apiserver working set while nothing OOMs. Real pre-OOM pressure
+          # shows as the kernel spending time with ALL tasks stalled on reclaim.
           expr: |-
-            (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.93
-          for: 5m
+            rate(node_pressure_memory_stalled_seconds_total[5m]) > 0.10
+          for: 2m
           annotations:
             summary: >-
-              Node {{ $labels.instance }} memory >93% — OOM risk imminent ({{ $value | humanizePercentage }})
+              Node {{ $labels.instance }} under real memory pressure — {{ $value | humanizePercentage }} of time fully stalled on reclaim (OOM precursor)
           labels:
             severity: critical
 

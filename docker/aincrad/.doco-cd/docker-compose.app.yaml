@@ -22,7 +22,7 @@ secrets:
 services:
   doco-cd:
     # renovate: datasource=docker depName=ghcr.io/kimdre/doco-cd
-    image: ghcr.io/kimdre/doco-cd:0.92.0
+    image: ghcr.io/kimdre/doco-cd:0.101.1
     container_name: doco-cd
     restart: unless-stopped
     environment:

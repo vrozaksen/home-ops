@@ -17,9 +17,6 @@ metrics:
   url: /metrics
   authentication:
     disabled: true
-permissions:
-  file:
-    mode: 750
 remote_configuration: false
 shares:
   directories:
@@ -28,6 +25,11 @@ shares:
     - \.ini$
     - Thumbs.db$
     - \.DS_Store$
+transfers:
+  download:
+    destination:
+      permissions:
+        mode: 777  # moved from permissions.file.mode in slskd 0.26.0; 777 so Lidarr manages completed files
 web:
   authentication:
     api_keys:

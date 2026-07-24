@@ -29,6 +29,12 @@ spec:
       name: kopiur-repository-secret
       namespace: kopiur-system
       key: KOPIA_PASSWORD
+  health:
+    # Epoch-index repo with ~21 hourly sources holds ~2-4k index blobs mid-epoch;
+    # maintenance compacts them on each epoch advance (~daily). Raise the warn
+    # threshold above that steady-state band so IndexBlobHealth stops false-
+    # positiving, but keep a real ceiling that trips if compaction ever stalls.
+    indexBlobWarnThreshold: 5000
   moverDefaults:
     cache:
       capacity: 10Gi

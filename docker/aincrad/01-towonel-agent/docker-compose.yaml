@@ -4,7 +4,7 @@ name: towonel-agent
 services:
   towonel-agent:
     # renovate: datasource=docker depName=codeberg.org/towonel/towonel-agent
-    image: codeberg.org/towonel/towonel-agent:0.2.2
+    image: codeberg.org/towonel/towonel-agent:1.4.1
     container_name: towonel-agent
     restart: unless-stopped
     labels:

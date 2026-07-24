@@ -30,6 +30,11 @@ transfers:
     destination:
       permissions:
         mode: 777  # moved from permissions.file.mode in slskd 0.26.0; 777 so Lidarr manages completed files
+    retry:
+      incomplete: overwrite  # restart from scratch; resuming across different Soulseek sources yields corrupt files Lidarr skips
+      attempts: 3
+      delay: 5000       # ms, first retry
+      max_delay: 60000  # ms, backoff ceiling
 web:
   authentication:
     api_keys:

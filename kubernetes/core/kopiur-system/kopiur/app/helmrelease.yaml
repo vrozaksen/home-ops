@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.7.0
+    tag: 0.8.1
   url: oci://ghcr.io/home-operations/charts/kopiur
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -23,6 +23,10 @@ spec:
   chartRef:
     kind: OCIRepository
     name: kopiur
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace  # CRDs ship in chart crds/; Flux skips them on upgrade by default
   values:
     features:
       credentialProjection:

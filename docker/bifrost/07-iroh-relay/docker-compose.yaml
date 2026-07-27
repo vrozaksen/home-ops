@@ -24,7 +24,7 @@ services:
 
   iroh-relay:
     # renovate: datasource=docker depName=docker.io/n0computer/iroh-relay
-    image: docker.io/n0computer/iroh-relay:1.0.0-rc.0
+    image: docker.io/n0computer/iroh-relay:v1.0.2
     container_name: iroh-relay
     restart: unless-stopped
     depends_on:

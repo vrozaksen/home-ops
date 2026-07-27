@@ -13,3 +13,4 @@ resources:
   - ./cluster
   - ./infisicalsecret.yaml
   - ./databases.yaml
+  - ./databaseroles.yaml

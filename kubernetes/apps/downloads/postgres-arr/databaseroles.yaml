@@ -1,0 +1,69 @@
+---
+# Declarative role management, migrated from Cluster.spec.managed.roles (CNPG 1.30).
+# Each role keeps its own lifecycle/status; passwords stay in the InfisicalSecret-
+# materialized credentials. databaseRoleReclaimPolicy defaults to retain, so deleting
+# a DatabaseRole leaves the PostgreSQL role (and its owned database) intact.
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: bazarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: bazarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-bazarr-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: lidarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: lidarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-lidarr-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: prowlarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: prowlarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-prowlarr-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: radarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: radarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-radarr-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: sonarr
+spec:
+  cluster:
+    name: postgres-arr
+  name: sonarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-sonarr-credentials

@@ -67,5 +67,55 @@
       matchPackageNames: ["/eleboucher/runner-k8s-plugin/"],
       changelogUrl: "https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin",
     },
+    {
+      // factory.talos.dev + ghcr.io/siderolabs/installer resolve to no changelog
+      description: "Changelog URL for Talos Linux",
+      matchPackageNames: ["/siderolabs/installer/", "/metal-installer/"],
+      changelogUrl: "https://github.com/siderolabs/talos",
+    },
+    {
+      description: "Changelog URL for Towonel (codeberg)",
+      matchPackageNames: ["/towonel/"],
+      changelogUrl: "https://codeberg.org/towonel/towonel",
+    },
+    {
+      // iroh-relay is a crate in the iroh monorepo
+      description: "Changelog URL for iroh-relay",
+      matchPackageNames: ["/iroh-relay/"],
+      changelogUrl: "https://github.com/n0-computer/iroh",
+    },
+    {
+      // data-plane Envoy image ($ anchor avoids matching envoyproxy/gateway-helm)
+      description: "Changelog URL for Envoy proxy",
+      matchPackageNames: ["/envoyproxy/envoy$/"],
+      changelogUrl: "https://github.com/envoyproxy/envoy",
+    },
+    // Our registry.vzkn.eu/containers/* images (built in ~/git/containers) point at
+    // the upstream tool each packages, per their image.source labels.
+    {
+      description: "Changelog URL for flux-operator-mcp",
+      matchPackageNames: ["/containers/flux-operator-mcp/"],
+      changelogUrl: "https://github.com/controlplaneio-fluxcd/flux-operator",
+    },
+    {
+      description: "Changelog URL for sentry-mcp",
+      matchPackageNames: ["/containers/sentry-mcp/"],
+      changelogUrl: "https://github.com/getsentry/sentry-mcp",
+    },
+    {
+      description: "Changelog URL for mcp-nixos",
+      matchPackageNames: ["/containers/mcp-nixos/"],
+      changelogUrl: "https://github.com/utensils/mcp-nixos",
+    },
+    {
+      description: "Changelog URL for talos-mcp",
+      matchPackageNames: ["/containers/talos-mcp/"],
+      changelogUrl: "https://github.com/eleboucher/talos-mcp",
+    },
+    {
+      description: "Changelog URL for agentmemory",
+      matchPackageNames: ["/containers/agentmemory/"],
+      changelogUrl: "https://github.com/rohitg00/agentmemory",
+    },
   ],
 }

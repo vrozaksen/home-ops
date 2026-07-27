@@ -31,8 +31,6 @@ services:
       TOWONEL_EDGE_HEALTH_LISTEN_ADDR: 0.0.0.0:9092
       TOWONEL_EDGE_ADVERTISED_ADDRESSES: tunnel.vzkn.eu:443
       TOWONEL_EDGE_PROXY_PROTOCOL: "true"
-      TOWONEL_HUB_TLS_CERT_DIR: /data/certs
-      TOWONEL_HUB_TLS_ACME_EMAIL: ${TOWONEL_ACME_EMAIL}
       TOWONEL_EDGE_HTTP_LISTEN_ADDR: 0.0.0.0:8081
       TOWONEL_HUB_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
       TOWONEL_EDGE_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
@@ -52,7 +50,7 @@ services:
         - -fsS
         - -o
         - /dev/null
-        - http://127.0.0.1:9091/v1/health
+        - http://127.0.0.1:8443/v1/health
       interval: 30s
       timeout: 5s
       start_period: 30s

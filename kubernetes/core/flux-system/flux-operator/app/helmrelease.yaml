@@ -49,6 +49,7 @@ spec:
       auth:
         type: oidc
         oidc:
+          autoLogin: true
           clientIDFrom:
             secretKeyRef:
               name: kanidm-flux-oidc

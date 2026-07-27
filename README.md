@@ -143,22 +143,24 @@ than I am willing to put in.
 
 ### Main Kubernetes Cluster
 
-| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose     |
-|---------|--------------|----------|-----------|------------|------|-------|-------------|
-| Alfheim | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 64GB | Talos | k8s control |
-| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
-| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s control |
+**Control Plane** (SecureBoot / sd-boot)
 
-**Totals:** 18 CPU threads, 128 GB RAM
-**Network:** Intel X710-DA2 (LACP 2x10Gbps 802.3ad)
+| Name  | Device       | CPU  | OS Disk       | RAM       | OS    | Purpose     |
+|-------|--------------|------|---------------|-----------|-------|-------------|
+| Saga  | SOYO M4 Mini | N150 | 512GB M.2 SSD | 12GB DDR5 | Talos | k8s control |
+| Eir   | SOYO M4 Mini | N150 | 512GB M.2 SSD | 12GB DDR5 | Talos | k8s control |
+| Skuld | SOYO M4 Mini | N150 | 512GB M.2 SSD | 12GB DDR5 | Talos | k8s control |
 
-### Experimental/Game Server
+**Workers**
 
-| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS  | Purpose                          |
-|---------|--------------|----------|-----------|------------|------|-----|----------------------------------|
-| Granzam | Lenovo M920q | i3-9100  | xxxxxxxxx | xxxxxxxxxx | 16GB | TBD | Game servers (Pterodactyl/AMP)   |
+| Name    | Device       | CPU      | OS Disk   | Data Disk  | RAM  | OS    | Purpose               |
+|---------|--------------|----------|-----------|------------|------|-------|-----------------------|
+| Alfheim | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 64GB | Talos | k8s worker + Ceph OSD |
+| Alne    | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s worker + Ceph OSD |
+| Ainias  | Lenovo M720q | i5-8500T | 480GB SSD | 500GB NVME | 32GB | Talos | k8s worker + Ceph OSD |
 
-_Infrastructure management: Ansible or Terraform (learning project)_
+**Totals:** 30 CPU threads (12 CP + 18 worker), 164 GB RAM (36 CP + 128 worker)
+**Network:** workers — Intel X710-DA2 (LACP 2x10Gbps 802.3ad); control plane — SOYO 2.5GbE
 
 ### NAS
 

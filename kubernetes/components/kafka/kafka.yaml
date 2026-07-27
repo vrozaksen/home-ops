@@ -48,8 +48,10 @@ metadata:
     strimzi.io/kraft: enabled
 spec:
   kafka:
-    version: ${KAFKA_VERSION:=4.1.2}
-    metadataVersion: ${KAFKA_METADATA_VERSION:=4.1-IV0}
+    # 4.3.0 is the newest Kafka supported by Strimzi 1.1.0 (4.1.x support dropped).
+    # Sentry connects as an external client, compatible with 4.x brokers.
+    version: ${KAFKA_VERSION:=4.3.0}
+    metadataVersion: ${KAFKA_METADATA_VERSION:=4.3-IV0}
     listeners:
       - name: plain
         port: 9092

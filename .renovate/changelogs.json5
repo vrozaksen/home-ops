@@ -51,5 +51,21 @@
       matchPackageNames: ["/bambuddy/"],
       changelogUrl: "https://github.com/maziggy/bambuddy",
     },
+    {
+      description: "Changelog URL for Anubis",
+      matchPackageNames: ["/techarohq/anubis/"],
+      changelogUrl: "https://github.com/TecharoHQ/anubis",
+    },
+    {
+      // K8s-ready fork; versions map 1:1 to upstream forgejo-runner
+      description: "Changelog URL for Forgejo runner (eleboucher fork)",
+      matchPackageNames: ["/eleboucher/runner$/"],
+      changelogUrl: "https://code.forgejo.org/forgejo/runner",
+    },
+    {
+      description: "Changelog URL for Forgejo runner-k8s-plugin",
+      matchPackageNames: ["/eleboucher/runner-k8s-plugin/"],
+      changelogUrl: "https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin",
+    },
   ],
 }

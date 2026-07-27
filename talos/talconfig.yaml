@@ -4,7 +4,7 @@
 talosVersion: v1.13.3
 # v1.10.7 - latest stable
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.36.2
+kubernetesVersion: v1.36.3
 # v1.32.2 - bootstrap works!!!
 clusterName: &cluster main
 endpoint: https://10.10.0.20:6443

@@ -16,7 +16,6 @@ rules:
       - "namespaces"
       - "events"
       - "configmaps"
-      - "secrets"
       - "pods"
       - "pods/log"
     verbs:

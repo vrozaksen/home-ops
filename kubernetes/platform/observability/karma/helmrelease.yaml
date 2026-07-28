@@ -85,7 +85,7 @@ spec:
         hostnames:
           - "{{ .Release.Name }}.vzkn.eu"
         parentRefs:
-          - name: envoy-external
+          - name: envoy-internal
             namespace: network
     persistence:
       config-file:

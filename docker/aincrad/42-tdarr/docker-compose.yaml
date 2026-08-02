@@ -31,8 +31,8 @@ services:
       SERVER_PORT: "8266"
       NODE_PORT: "8267"
     ports:
-      - "8265:8265"  # web UI
-      - "8266:8266"  # server
+      # web UI 8265 not published — via Caddy (tdarr.vzkn.eu, block_world)
+      - "8266:8266"  # server (kept: external Tdarr nodes connect here)
     volumes:
       - /mnt/blaze/appdata/tdarr/configs:/app/configs
       - /mnt/blaze/appdata/tdarr/logs:/app/logs

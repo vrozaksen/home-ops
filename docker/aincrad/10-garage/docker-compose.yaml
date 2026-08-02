@@ -19,9 +19,9 @@ services:
       net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/garage.png"
     ports:
       - "9010:9010"  # S3 API
-      - "3910:3910"  # RPC
+      # RPC 3910 not published: single node, replication_factor=1, no peers
       - "3920:3920"  # S3 Web
-      - "3930:3930"  # Admin API
+      - "3930:3930"  # Admin API (kept: Prometheus scrapes aincrad:3930 directly)
     environment:
       GARAGE_CONFIG: /etc/garage.toml
       # Docker mounts compose secrets as 0444 (world-readable); garage refuses
@@ -66,8 +66,10 @@ services:
     labels:
       net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/garage.png"
       net.unraid.docker.webui: "http://[IP]:[PORT:3909]"
-    ports:
-      - "3990:3909"
+    # Not published: via Caddy (garage.vzkn.eu, block_world). Holds the admin
+    # token in plain env, so LAN exposure was the wrong default.
+    expose:
+      - "3909"
     environment:
       API_BASE_URL: "http://garage:3930"
       API_ADMIN_KEY: ${GARAGE_ADMIN_TOKEN}

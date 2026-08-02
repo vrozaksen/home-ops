@@ -19,7 +19,7 @@ services:
       UMASK: "022"
       TZ: Europe/Warsaw
     ports:
-      - "8384:8384"  # web UI
+      # web UI 8384 not published — via Caddy (syncthing.vzkn.eu, block_world)
       - "22000:22000/tcp"  # sync protocol
       - "22000:22000/udp"  # sync protocol (QUIC)
       - "21027:21027/udp"  # local discovery

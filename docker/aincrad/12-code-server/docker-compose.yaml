@@ -24,8 +24,11 @@ services:
       PROXY_DOMAIN: code.vzkn.eu
       PASSWORD: ${CODE_SERVER_PASSWORD}
       SUDO_PASSWORD: ${CODE_SERVER_SUDO_PASSWORD}
-    ports:
-      - "4993:8443"
+    # No published port: reachable only via Caddy (code.vzkn.eu, block_world)
+    # over the shared `aincrad` network. Publishing it exposed a password-auth
+    # web shell with SUDO_PASSWORD and /mnt/blaze/appdata RW to the whole LAN.
+    expose:
+      - "8443"
     volumes:
       - /mnt/blaze/appdata/code-server:/config
       - /mnt/blaze/appdata:/appdata

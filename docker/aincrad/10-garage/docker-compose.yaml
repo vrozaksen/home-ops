@@ -18,10 +18,13 @@ services:
     labels:
       net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/garage.png"
     ports:
-      - "9010:9010"  # S3 API
-      # RPC 3910 not published: single node, replication_factor=1, no peers
-      - "3920:3920"  # S3 Web
+      # S3 API 9010 and web 3920 not published: every consumer (cluster kopiur/
+      # CNPG/Harbor/Sentry/attic/forgejo/tofu state) reaches them through Caddy
+      # at api.s3.vzkn.eu / web.s3.vzkn.eu, which now proxies by container name.
       - "3930:3930"  # Admin API (kept: Prometheus scrapes aincrad:3930 directly)
+    expose:
+      - "9010"
+      - "3920"
     environment:
       GARAGE_CONFIG: /etc/garage.toml
       # Docker mounts compose secrets as 0444 (world-readable); garage refuses

@@ -58,13 +58,13 @@ music.vzkn.eu {
 api.s3.vzkn.eu {
 	import tls_wildcard
 	import security_headers
-	reverse_proxy 10.10.0.11:9010
+	reverse_proxy garage:9010
 }
 
 web.s3.vzkn.eu {
 	import tls_wildcard
 	import security_headers
-	reverse_proxy 10.10.0.11:3920
+	reverse_proxy garage:3920
 }
 
 garage.vzkn.eu {

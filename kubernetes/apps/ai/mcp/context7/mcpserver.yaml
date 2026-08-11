@@ -5,7 +5,7 @@ kind: MCPServer
 metadata:
   name: context7
 spec:
-  image: ghcr.io/stacklok/dockyard/npx/context7:3.2.5
+  image: ghcr.io/stacklok/dockyard/npx/context7:4.0.0
   transport: stdio
   proxyPort: 8080
   groupRef:

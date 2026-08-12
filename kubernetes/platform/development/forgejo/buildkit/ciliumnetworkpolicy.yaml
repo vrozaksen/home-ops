@@ -12,8 +12,11 @@ spec:
     ingress: true
   ingress:
     - fromEndpoints:
+        # Ephemeral job pods, labelled by the runner's k8s plugin. The previous
+        # `managed-by: forgejo-runner` selector matched nothing, so job pods
+        # were in fact denied access to buildkit by the ingress default-deny.
         - matchLabels:
-            app.kubernetes.io/managed-by: forgejo-runner
+            app.kubernetes.io/name: forgejo-runner-instance
         - matchLabels:
             app.kubernetes.io/name: buildkit-prune
       toPorts:

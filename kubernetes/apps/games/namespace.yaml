@@ -7,3 +7,9 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
     kopiur.home-operations.com/privileged-movers: "true"
     volsync.backube/privileged-movers: "true"
+  labels:
+    # Verified with `kubectl label --dry-run=server`: no running pod here
+    # violates baseline. Namespaces that do (development, downloads,
+    # kube-system, observability, rook-ceph) are deliberately excluded.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest

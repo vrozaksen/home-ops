@@ -4,23 +4,76 @@ kind: ServiceAccount
 metadata:
   name: home-ops-runner
 ---
+# Scoped to what gha-runner-scale-set needs for containerMode.type=kubernetes.
+# Mirrors the chart's own kube_mode_role template, which is what would be
+# generated if template.spec.serviceAccountName were left unset.
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: Role
+metadata:
+  name: home-ops-runner
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - "pods"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "delete"
+  - apiGroups:
+      - ""
+    resources:
+      - "pods/exec"
+    verbs:
+      - "get"
+      - "create"
+  - apiGroups:
+      - ""
+    resources:
+      - "pods/log"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "batch"
+    resources:
+      - "jobs"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "delete"
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "delete"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
   name: home-ops-runner
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
+  kind: Role
+  name: home-ops-runner
 subjects:
   - kind: ServiceAccount
     name: home-ops-runner
     namespace: actions-runner-system
 ---
+# The only self-hosted job is Image Pull, which runs `talosctl image pull`.
+# ImagePull accepts role.Admin or role.Operator; Operator is the floor.
 apiVersion: talos.dev/v1alpha1
 kind: ServiceAccount
 metadata:
   name: home-ops-runner
 spec:
   roles:
-    - "os:admin"
+    - "os:operator"

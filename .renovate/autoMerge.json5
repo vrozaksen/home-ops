@@ -20,13 +20,16 @@
       "ignoreTests": false
     },
     {
+      // automergeType must stay "pr" with ignoreTests:false — "branch" pushes
+      // straight to main without ever opening a PR, so konflate never renders
+      // a diff and no status check gates the merge.
       "description": "Auto-merge GitHub Releases",
       "matchDatasources": ["github-releases"],
       "automerge": true,
-      "automergeType": "branch",
+      "automergeType": "pr",
       "matchUpdateTypes": ["minor", "patch"],
       "matchPackageNames": ["/external-dns/", "/gateway-api/", "/prometheus-operator/"],
-      "ignoreTests": true
+      "ignoreTests": false
     },
     {
       "description": "Auto-merge Renovate self-updates",

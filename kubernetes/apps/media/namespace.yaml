@@ -7,3 +7,8 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
   labels:
     resource.kubernetes.io/admin-access: "true"
+    # Verified with `kubectl label --dry-run=server`: no running pod in this
+    # namespace violates baseline. Infra namespaces that do (development,
+    # downloads, kube-system, observability, rook-ceph) are deliberately excluded.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest

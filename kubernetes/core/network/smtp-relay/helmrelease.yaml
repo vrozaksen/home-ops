@@ -44,6 +44,10 @@ spec:
 
     defaultPodOptions:
       automountServiceAccountToken: false
+      # Opts out of the cluster-wide allow-cluster-egress CCNP so this pod's own
+      # default-deny egress policy (DNS + smtp.protonmail.ch:587) actually applies.
+      labels:
+        egress.home.arpa/custom-egress: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

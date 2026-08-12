@@ -1,10 +1,19 @@
+---
 machine:
   features:
     hostDNS:
       enabled: true
       resolveMemberNames: true
-      forwardKubeDNSToHost: true # Requires Cilium socketLB features
+      forwardKubeDNSToHost: true  # Requires Cilium socketLB features
     kubernetesTalosAPIAccess:
       enabled: true
-      allowedRoles: ["os:admin"]
-      allowedKubernetesNamespaces: ["actions-runner-system", "system-upgrade"]
+      # os:admin — tuppr (system-upgrade): Upgrade/Install are Admin-only.
+      # os:operator — home-ops-runner: only needs ImagePull, which accepts
+      # Admin or Operator. Operator cannot read Kubeconfig, mint client certs,
+      # or read file contents, so a compromised CI job cannot take over.
+      allowedRoles:
+        - "os:admin"
+        - "os:operator"
+      allowedKubernetesNamespaces:
+        - "actions-runner-system"
+        - "system-upgrade"

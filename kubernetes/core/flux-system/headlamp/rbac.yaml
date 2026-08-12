@@ -1,5 +1,7 @@
 ---
-### Token Auth (fallback)
+### Token Auth (break-glass fallback for when Kanidm/OIDC is unavailable).
+### Deliberately NOT replicated to Infisical — retrieve on demand with:
+###   kubectl -n flux-system get secret headlamp-admin -o jsonpath='{.data.token}' | base64 -d
 apiVersion: v1
 kind: ServiceAccount
 metadata:

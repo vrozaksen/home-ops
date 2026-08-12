@@ -5,9 +5,12 @@ kind: CiliumNetworkPolicy
 metadata:
   name: forgejo-runner
 spec:
+  # Must match the labels the k8s plugin stamps on ephemeral job pods
+  # (helmrelease.yaml: plugins.k8s.options.labels). The previous
+  # `managed-by: forgejo-runner` selector matched no pod at all.
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/managed-by: forgejo-runner
+      app.kubernetes.io/name: forgejo-runner-instance
   enableDefaultDeny:
     ingress: true
   egress:

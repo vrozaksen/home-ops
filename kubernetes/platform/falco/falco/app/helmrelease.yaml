@@ -140,7 +140,9 @@ spec:
           hostport: http://alertmanager-operated.observability.svc.cluster.local:9093
           # Alertmanager removed the v1 API in 0.27 — v2 is required.
           endpoint: /api/v2/alerts
-          minimumpriority: notice
+          # notice maps to info, which the route blackholes — sending it only
+          # fills Alertmanager. Notice-level findings stay in the pod logs.
+          minimumpriority: warning
           extralabels: "category:security,component:falco"
           # Output fields become labels, so events never deduplicate.
           expireafter: "3600"

@@ -61,6 +61,16 @@ cluster:
               resources:
                 - "pods"
             - group: apps
+        # Controller reconcile reads are ~55% of the volume. Reads by real users
+        # still land in the catch-all below; secrets matched earlier regardless.
+        - level: None
+          verbs:
+            - "get"
+            - "list"
+            - "watch"
+          userGroups:
+            - "system:serviceaccounts"
+            - "system:nodes"
         - level: Metadata
   controllerManager:
     extraArgs:

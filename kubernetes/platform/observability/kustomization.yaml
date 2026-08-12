@@ -15,5 +15,6 @@ resources:
   - ./prometheus-adapter/ks.yaml
   - ./silence-operator/ks.yaml
   - ./victoria-logs/ks.yaml
+  - ./vmalert/ks.yaml
   # Exporters
   - ./exporters

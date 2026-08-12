@@ -27,8 +27,7 @@ spec:
     controller:
       kind: daemonset
 
-    # modern_ebpf needs no kernel module and no driver build — the right fit for
-    # Talos, whose nodes are immutable and have no toolchain.
+    # No kernel module or driver build, which Talos cannot provide.
     driver:
       enabled: true
       kind: modern_ebpf
@@ -43,10 +42,15 @@ spec:
       crio:
         enabled: false
 
-    # Run everywhere, including control planes (they are NoSchedule for normal
-    # workloads but still need runtime coverage).
-    tolerations:
-      - operator: Exists
+    # SecureBoot pins the control planes to lockdown=confidentiality, which
+    # withholds the BPF kernel-read helpers Falco needs. Workers only.
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: DoesNotExist
 
     resources:
       requests:
@@ -55,9 +59,8 @@ spec:
       limits:
         memory: 1Gi
 
-    # Native metrics are a periodic snapshot, so they are used for health
-    # ("is the sensor alive"), NOT for incident alerting — that path is
-    # falcosidekick -> Alertmanager below, which is event-driven.
+    # Periodic snapshot, so health only. Incident alerting goes via
+    # falcosidekick -> Alertmanager, which is event-driven.
     metrics:
       enabled: true
       interval: 15m
@@ -73,8 +76,7 @@ spec:
       json_output: true
       json_include_output_property: true
       log_level: info
-      # Drop the noisiest tiers at the source rather than shipping and
-      # discarding them downstream.
+      # Drop the noisiest tiers at the source.
       priority: notice
       buffered_outputs: true
       syscall_event_drops:
@@ -83,6 +85,25 @@ spec:
           - alert
         rate: 0.03333
         max_burst: 1
+
+    # Stock rule fires Critical on every CNI plugin exec and on buildkit's
+    # qemu-check. Except those rather than disabling the rule.
+    customRules:
+      overrides.yaml: |-
+        - rule: Drop and execute new binary in container
+          override:
+            exceptions: append
+          exceptions:
+            - name: cni_plugins
+              fields: [proc.exepath]
+              comps: [startswith]
+              values:
+                - [/opt/cni/bin/]
+            - name: buildkit_qemu_check
+              fields: [proc.pname, proc.name]
+              comps: [=, =]
+              values:
+                - [buildkitd, check]
 
     falcoctl:
       artifact:
@@ -113,8 +134,6 @@ spec:
         limits:
           memory: 256Mi
       config:
-        # Anything below `notice` never leaves Falco (falco.priority), this is
-        # the second gate.
         debug: false
         customfields: "cluster:main"
         alertmanager:
@@ -123,9 +142,8 @@ spec:
           endpoint: /api/v2/alerts
           minimumpriority: notice
           extralabels: "category:security,component:falco"
-          # Maps Falco priorities onto the severity values our Alertmanager
-          # routes on. Default upstream emits `information`, which matches no
-          # route; `info` is what our blackhole route expects. Only
-          # emergency/alert/critical page loudly — error/warning stay quiet so
-          # day-one Falco noise cannot flood Pushover.
+          # Output fields become labels, so events never deduplicate.
+          expireafter: "3600"
+          # Upstream emits `information`, which matches no route here.
+          # Only emergency/alert/critical page loudly.
           customseveritymap: "emergency:critical,alert:critical,critical:critical,error:warning,warning:warning,notice:info,informational:info,debug:info"

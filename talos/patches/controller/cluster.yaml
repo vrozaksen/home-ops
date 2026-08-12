@@ -13,6 +13,55 @@ cluster:
       oidc-client-id: headlamp
       oidc-username-claim: preferred_username
       oidc-groups-claim: groups
+    # Talos defaults to blanket Metadata, which is mostly volume. Keep the
+    # security-relevant verbs at full fidelity and drop the churn.
+    auditPolicy:
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      omitStages:
+        - RequestReceived
+      rules:
+        # Leader-election and probe traffic: volume without signal.
+        - level: None
+          resources:
+            - group: coordination.k8s.io
+              resources:
+                - "leases"
+        - level: None
+          nonResourceURLs:
+            - /healthz*
+            - /readyz*
+            - /livez*
+            - /version
+            - /metrics
+        # Metadata only: records access without recording secret contents.
+        - level: Metadata
+          resources:
+            - group: ""
+              resources:
+                - "secrets"
+                - "configmaps"
+            - group: secrets.infisical.com
+        - level: RequestResponse
+          resources:
+            - group: ""
+              resources:
+                - "pods/exec"
+                - "pods/attach"
+                - "pods/portforward"
+            - group: rbac.authorization.k8s.io
+        - level: Request
+          verbs:
+            - "create"
+            - "update"
+            - "patch"
+            - "delete"
+          resources:
+            - group: ""
+              resources:
+                - "pods"
+            - group: apps
+        - level: Metadata
   controllerManager:
     extraArgs:
       bind-address: 0.0.0.0

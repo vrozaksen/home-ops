@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: falco-alerts
+spec:
+  groups:
+    - name: falco
+      interval: 1m
+      rules:
+        # Sensor liveness. Falco is the only runtime-detection layer on nodes
+        # that have no AppArmor/SELinux and no auditd (kernel args disable them),
+        # so a silent Falco means no runtime coverage at all.
+        - alert: FalcoAgentDown
+          expr: |
+            up{job=~"falco.*"} == 0
+          for: 10m
+          labels:
+            severity: critical
+            category: security
+          annotations:
+            summary: "Falco is down on {{ $labels.instance }}"
+            description: |
+              The Falco runtime-security agent has been unreachable for over 10 minutes.
+              Runtime threat detection is NOT active on this node.
+
+              Pod: {{ $labels.pod }}
+              Instance: {{ $labels.instance }}
+
+        - alert: FalcoNotOnAllNodes
+          expr: |
+            kube_daemonset_status_number_ready{daemonset="falco"}
+              < kube_daemonset_status_desired_number_scheduled{daemonset="falco"}
+          for: 30m
+          labels:
+            severity: warning
+            category: security
+          annotations:
+            summary: "Falco is not running on every node"
+            description: |
+              {{ $value }} node(s) short of the desired Falco DaemonSet count.
+              Those nodes have no runtime detection.
+
+        # falcosidekick is the delivery path for every Falco finding. If it is
+        # down, detections still happen but nobody is told — the failure mode
+        # that looks exactly like "nothing is wrong".
+        - alert: FalcosidekickDown
+          expr: |
+            up{job=~".*falcosidekick.*"} == 0
+          for: 10m
+          labels:
+            severity: critical
+            category: security
+          annotations:
+            summary: "falcosidekick is down — Falco alerts are not being delivered"
+            description: |-
+              Falco events cannot reach Alertmanager while falcosidekick is down.
+              Detection continues but alerting is silently broken.
+
+              Pod: {{ $labels.pod }}

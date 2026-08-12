@@ -1,0 +1,131 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: falco
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 9.1.0
+  url: oci://ghcr.io/falcosecurity/charts/falco
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: falco
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: falco
+  values:
+    controller:
+      kind: daemonset
+
+    # modern_ebpf needs no kernel module and no driver build — the right fit for
+    # Talos, whose nodes are immutable and have no toolchain.
+    driver:
+      enabled: true
+      kind: modern_ebpf
+
+    collectors:
+      enabled: true
+      docker:
+        enabled: false
+      containerd:
+        enabled: true
+        socket: /run/containerd/containerd.sock
+      crio:
+        enabled: false
+
+    # Run everywhere, including control planes (they are NoSchedule for normal
+    # workloads but still need runtime coverage).
+    tolerations:
+      - operator: Exists
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+
+    # Native metrics are a periodic snapshot, so they are used for health
+    # ("is the sensor alive"), NOT for incident alerting — that path is
+    # falcosidekick -> Alertmanager below, which is event-driven.
+    metrics:
+      enabled: true
+      interval: 15m
+      rulesCountersEnabled: true
+      resourceUtilizationEnabled: true
+      convertMemoryToMB: true
+
+    serviceMonitor:
+      create: true
+      interval: 30s
+
+    falco:
+      json_output: true
+      json_include_output_property: true
+      log_level: info
+      # Drop the noisiest tiers at the source rather than shipping and
+      # discarding them downstream.
+      priority: notice
+      buffered_outputs: true
+      syscall_event_drops:
+        actions:
+          - log
+          - alert
+        rate: 0.03333
+        max_burst: 1
+
+    falcoctl:
+      artifact:
+        install:
+          enabled: true
+        follow:
+          enabled: true
+      config:
+        artifact:
+          allowedTypes:
+            - rulesfile
+          install:
+            refs:
+              - falco-rules:4
+          follow:
+            refs:
+              - falco-rules:4
+
+    falcosidekick:
+      enabled: true
+      replicaCount: 1
+      webui:
+        enabled: false
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+      config:
+        # Anything below `notice` never leaves Falco (falco.priority), this is
+        # the second gate.
+        debug: false
+        customfields: "cluster:main"
+        alertmanager:
+          hostport: http://alertmanager-operated.observability.svc.cluster.local:9093
+          # Alertmanager removed the v1 API in 0.27 — v2 is required.
+          endpoint: /api/v2/alerts
+          minimumpriority: notice
+          extralabels: "category:security,component:falco"
+          # Maps Falco priorities onto the severity values our Alertmanager
+          # routes on. Default upstream emits `information`, which matches no
+          # route; `info` is what our blackhole route expects. Only
+          # emergency/alert/critical page loudly — error/warning stay quiet so
+          # day-one Falco noise cannot flood Pushover.
+          customseveritymap: "emergency:critical,alert:critical,critical:critical,error:warning,warning:warning,notice:info,informational:info,debug:info"

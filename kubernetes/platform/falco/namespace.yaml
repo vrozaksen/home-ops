@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: _
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    # Falco needs hostPID + privileged + host mounts to run its eBPF probe, so
+    # it cannot live under `baseline`.
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest

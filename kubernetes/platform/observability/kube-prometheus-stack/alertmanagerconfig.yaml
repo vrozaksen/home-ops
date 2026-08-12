@@ -5,8 +5,16 @@ kind: AlertmanagerConfig
 metadata:
   name: alertmanager
 spec:
+  # Severity routing. Previously the root receiver was `pushover`, so the
+  # `severity=critical` child route was a no-op and info/warning paged exactly
+  # like critical — the flood that makes alerts ignorable. Now:
+  #   critical  -> Pushover priority 1  (loud, repeats 12h)
+  #   warning   -> Pushover priority -1 (silent, no resolved, repeats 24h)
+  #   info      -> dropped
+  #   unlabelled-> quiet channel, deliberately NOT dropped, so a new rule that
+  #                forgets a severity label is visible rather than silent.
   route:
-    receiver: pushover
+    receiver: pushover-quiet
     repeatInterval: 12h
     routes:
       - receiver: blackhole
@@ -21,10 +29,21 @@ spec:
           - name: alertname
             value: Watchdog
             matchType: =
+      - receiver: blackhole
+        matchers:
+          - name: severity
+            value: info
+            matchType: =
       - receiver: pushover
         matchers:
           - name: severity
             value: critical
+            matchType: =
+      - receiver: pushover-quiet
+        repeatInterval: 24h
+        matchers:
+          - name: severity
+            value: warning
             matchType: =
     groupBy:
       - alertname
@@ -34,12 +53,36 @@ spec:
     groupWait: 1m
 
   inhibitRules:
+    # Same alert firing at critical suppresses its warning/info twins.
+    # `equal` intentionally keeps namespace so unrelated namespaces still page.
     - equal:
         - alertname
         - namespace
       sourceMatch:
         - name: severity
           value: critical
+          matchType: =
+      targetMatch:
+        - name: severity
+          value: warning
+          matchType: =
+    - equal:
+        - alertname
+        - namespace
+      sourceMatch:
+        - name: severity
+          value: critical
+          matchType: =
+      targetMatch:
+        - name: severity
+          value: info
+          matchType: =
+    # A node going NotReady fans out into dozens of pod/volume warnings.
+    - equal:
+        - node
+      sourceMatch:
+        - name: alertname
+          value: KubeNodeNotReady
           matchType: =
       targetMatch:
         - name: severity
@@ -82,6 +125,45 @@ spec:
           sound: gamelan
           title: >-
             [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}🔥{{ else if eq .CommonLabels.severity "warning" }}⚠️{{ else }}ℹ️{{ end }}{{ else }}✅{{ end }} {{ if ne .CommonAnnotations.summary ""}}{{ .CommonAnnotations.summary }} {{ else if ne .CommonAnnotations.message ""}}{{ .CommonAnnotations.message }} {{ else if ne .CommonAnnotations.description ""}}{{ .CommonAnnotations.description }} {{ else }}{{ .CommonLabels.alertname }}{{ end }}
+          ttl: 86400s
+          token:
+            name: *secret
+            key: ALERTMANAGER_PUSHOVER_TOKEN
+          userKey:
+            name: *secret
+            key: PUSHOVER_USER_KEY
+          urlTitle: View in Alertmanager
+
+    # Same payload as `pushover` but delivered at priority -1: it lands in the
+    # Pushover app without sound, vibration or screen wake. Resolved notices are
+    # dropped — a warning clearing itself is not worth a second message.
+    - name: pushover-quiet
+      pushoverConfigs:
+        - html: true
+          message: |-
+            {{- range .Alerts }}
+              {{- if ne .Annotations.description "" }}
+                {{ .Annotations.description }}
+              {{- else if ne .Annotations.summary "" }}
+                {{ .Annotations.summary }}
+              {{- else if ne .Annotations.message "" }}
+                {{ .Annotations.message }}
+              {{- else }}
+                Alert description not available
+              {{- end }}
+              {{- if gt (len .Labels.SortedPairs) 0 }}
+                <small>
+                  {{- range .Labels.SortedPairs }}
+                    <b>{{ .Name }}:</b> {{ .Value }}
+                  {{- end }}
+                </small>
+              {{- end }}
+            {{- end }}
+          monospace: false
+          priority: "-1"
+          sendResolved: false
+          title: >-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ if eq .CommonLabels.severity "warning" }}⚠️{{ else }}ℹ️{{ end }} {{ if ne .CommonAnnotations.summary ""}}{{ .CommonAnnotations.summary }} {{ else if ne .CommonAnnotations.message ""}}{{ .CommonAnnotations.message }} {{ else if ne .CommonAnnotations.description ""}}{{ .CommonAnnotations.description }} {{ else }}{{ .CommonLabels.alertname }}{{ end }}
           ttl: 86400s
           token:
             name: *secret

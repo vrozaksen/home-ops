@@ -47,7 +47,7 @@ spec:
           groups:
             - name: kanidm-auth
               type: vlogs
-              interval: 5m
+              interval: 1m
               rules:
                 # Kanidm logs every request; a failed credential or unknown user
                 # on /v1/auth returns 4xx with the real client IP.
@@ -55,7 +55,7 @@ spec:
                   expr: >-
                     kubernetes.pod_name:"kanidm-0" AND "uri: /v1/auth" AND
                     ("status_code: 401" OR "status_code: 403" OR "status_code: 404")
-                    AND _time:5m
+                    AND _time:10m
                     | extract 'client_address: "<client_ip>"'
                     | stats by (client_ip) count() as failures
                     | filter failures:>20
@@ -65,14 +65,14 @@ spec:
                   annotations:
                     summary: "Kanidm auth failures from {{ index .Labels \"client_ip\" }}"
                     description: |
-                      {{ $value }} failed authentication attempts in 5 minutes from
+                      {{ $value }} failed authentication attempts in 10 minutes from
                       {{ index .Labels "client_ip" }} against idm.vzkn.eu.
 
                 - alert: KanidmAuthFailureFlood
                   expr: >-
                     kubernetes.pod_name:"kanidm-0" AND "uri: /v1/auth" AND
                     ("status_code: 401" OR "status_code: 403" OR "status_code: 404")
-                    AND _time:5m
+                    AND _time:10m
                     | extract 'client_address: "<client_ip>"'
                     | stats by (client_ip) count() as failures
                     | filter failures:>100
@@ -82,6 +82,6 @@ spec:
                   annotations:
                     summary: "Sustained brute-force against Kanidm from {{ index .Labels \"client_ip\" }}"
                     description: |-
-                      {{ $value }} failed authentication attempts in 5 minutes from
+                      {{ $value }} failed authentication attempts in 10 minutes from
                       {{ index .Labels "client_ip" }}. idm.vzkn.eu is internet-facing;
                       consider blocking the source at the edge.

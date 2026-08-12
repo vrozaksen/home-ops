@@ -86,8 +86,10 @@ spec:
         rate: 0.03333
         max_burst: 1
 
-    # Stock rule fires Critical on every CNI plugin exec and on buildkit's
-    # qemu-check. Except those rather than disabling the rule.
+    # Stock rule fires Critical on every CNI plugin exec, on buildkit's
+    # qemu-check, and on every CI job that fetches a toolchain. Fetching and
+    # running new binaries is what a build agent does, so the rule cannot
+    # distinguish it from an attack — exclude those namespaces instead.
     customRules:
       overrides.yaml: |-
         - rule: Drop and execute new binary in container
@@ -99,11 +101,11 @@ spec:
               comps: [startswith]
               values:
                 - [/opt/cni/bin/]
-            - name: buildkit_qemu_check
-              fields: [proc.pname, proc.name]
-              comps: [=, =]
+            - name: ci_namespaces
+              fields: [k8s.ns.name]
+              comps: [in]
               values:
-                - [buildkitd, check]
+                - [[actions-runner-system, development]]
 
     falcoctl:
       artifact:

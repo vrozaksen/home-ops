@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: victoria-logs-syslog
+  annotations:
+    lbipam.cilium.io/ips: 10.10.0.92
+spec:
+  # The chart's own Service is headless, so RouterOS gets its own routable one.
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app.kubernetes.io/instance: victoria-logs
+    app.kubernetes.io/name: victoria-logs-single
+  ports:
+    - name: syslog-udp
+      port: 514
+      protocol: UDP
+      targetPort: 514

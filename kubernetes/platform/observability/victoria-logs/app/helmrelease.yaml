@@ -47,3 +47,9 @@ spec:
             namespace: network
       serviceMonitor:
         enabled: true
+      # Syslog receiver for RouterOS (RB5009/CRS326), which sits outside the
+      # cluster and needs a routable address.
+      extraArgs:
+        syslog.listenAddr.udp: :514
+        syslog.useLocalTimestamp.udp: "true"
+        syslog.streamFields.udp: '["hostname","app_name"]'

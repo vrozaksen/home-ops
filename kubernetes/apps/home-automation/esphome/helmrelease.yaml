@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/esphome/esphome
-              tag: 2026.5.1@sha256:7886a4b0f04bd7d5e092e0b0cae277a47e39088d4d9028935df3304655300acd
+              tag: 2026.7.4@sha256:e636269c6390c2124916510d45f55febb1d9ce41365f8445c9083ee41e43c92b
             env:
               HOME: /config
               # build artifacts + PIO toolchains on cache PVC, not in backed-up config

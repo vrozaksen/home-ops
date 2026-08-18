@@ -38,6 +38,14 @@ spec:
     # component is pinned away from them and prefers the 64Gi worker.
     indexer:
       replicas: 1
+      # The chart's policies assume replies are conntrack-exempt. With
+      # kubeProxyReplacement + endpointRoutes the reply to a ClusterIP-DNATed
+      # connection loses its conntrack association and is re-evaluated against
+      # egress, which denies it -- Hubble shows the SYN,ACK dropped. Cluster-wide
+      # Cilium policy governs this namespace instead.
+      networkPolicy:
+        enabled: false
+
       storageSize: 50Gi
       storageClass: ceph-block
       env:
@@ -70,6 +78,8 @@ spec:
     wazuh:
       master:
         enabled: true
+        networkPolicy:
+          enabled: false
         storageSize: 20Gi
         storageClass: ceph-block
         resources:
@@ -92,6 +102,8 @@ spec:
 
     dashboard:
       replicas: 1
+      networkPolicy:
+        enabled: false
       resources:
         requests:
           cpu: 100m

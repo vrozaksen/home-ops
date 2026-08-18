@@ -45,6 +45,42 @@ spec:
       config:
         alerts:
           groups:
+            - name: suricata
+              type: vlogs
+              interval: 1m
+              rules:
+                # Suricata severity 1 is its highest. Anything at that level on
+                # a home network is worth waking someone for.
+                - alert: SuricataHighSeverityAlert
+                  expr: >-
+                    hostname:"cardinal" AND '"event_type":"alert"' AND
+                    '"severity":1' AND _time:10m
+                    | stats count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: security
+                  annotations:
+                    summary: "Suricata high-severity alert on cardinal"
+                    description: |
+                      {{ $value }} severity-1 Suricata alerts in the last 10 minutes.
+                      Investigate in the SOC console at https://cardinal.home.vzkn.eu
+
+                # Measured baseline is 10-15 alerts per 10min of benign noise
+                # (STUN, abused-service and TLD rules), so 100 is ~7x that.
+                - alert: SuricataAlertSpike
+                  expr: >-
+                    hostname:"cardinal" AND '"event_type":"alert"' AND _time:10m
+                    | stats count() as hits
+                    | filter hits:>100
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "Suricata alert volume spike on cardinal"
+                    description: |
+                      {{ $value }} Suricata alerts in 10 minutes, above the usual baseline.
+
             - name: kanidm-auth
               type: vlogs
               interval: 1m

@@ -7,8 +7,11 @@ metadata:
     lbipam.cilium.io/ips: 10.10.0.92
 spec:
   # The chart's own Service is headless, so RouterOS gets its own routable one.
+  # Cluster policy on purpose: Cilium announces LoadBalancer IPs over BGP only,
+  # so hosts sharing the Servers VLAN cannot ARP for them and must use a node
+  # IP + nodePort instead. Cluster policy keeps that working wherever the pod runs.
   type: LoadBalancer
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
   selector:
     app.kubernetes.io/instance: victoria-logs
     app.kubernetes.io/name: victoria-logs-single
@@ -17,3 +20,7 @@ spec:
       port: 514
       protocol: UDP
       targetPort: 514
+    - name: http
+      port: 9428
+      protocol: TCP
+      targetPort: 9428

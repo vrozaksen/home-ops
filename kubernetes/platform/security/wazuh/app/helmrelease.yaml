@@ -1,0 +1,101 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: wazuh
+spec:
+  interval: 1h
+  url: https://morgoved.github.io/wazuh-helm
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: wazuh
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: wazuh
+      version: 2.0.4
+      sourceRef:
+        kind: HelmRepository
+        name: wazuh
+  values:
+    # cert-manager already runs in the cluster, so only the Certificates are
+    # wanted. With issuer.name unset the chart creates its own self-signed one.
+    cert-manager:
+      enabled: false
+    certificates:
+      enabled: true
+      subject:
+        organization: vzkn
+        country: PL
+        locality: Warsaw
+
+    # Control planes have 12Gi soldered and already sit at 70-85%, so every
+    # component is pinned away from them and prefers the 64Gi worker.
+    indexer:
+      replicas: 1
+      storageSize: 50Gi
+      storageClass: ceph-block
+      env:
+        OPENSEARCH_JAVA_OPTS: -Xms4g -Xmx4g -Dlog4j2.formatMsgNoLookups=true
+        CLUSTER_NAME: wazuh
+        NETWORK_HOST: 0.0.0.0
+        DISABLE_INSTALL_DEMO_CONFIG: "true"
+      resources:
+        requests:
+          cpu: 500m
+          memory: 6Gi
+        limits:
+          memory: 8Gi
+      affinity: &workers
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "alfheim"
+
+    wazuh:
+      master:
+        enabled: true
+        storageSize: 20Gi
+        storageClass: ceph-block
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1Gi
+          limits:
+            memory: 2Gi
+        affinity: *workers
+      # Four agents do not need a manager cluster.
+      worker:
+        enabled: false
+
+    # The bundled DaemonSet runs privileged with /proc, /sys, /etc and /boot from
+    # the host, which PSA baseline rejects here. It would also see very little on
+    # immutable Talos nodes, where Falco already covers runtime. This deployment
+    # exists for the hosts outside the cluster.
+    agent:
+      enabled: false
+
+    dashboard:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+      affinity: *workers

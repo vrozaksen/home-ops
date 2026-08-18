@@ -10,3 +10,4 @@ resources:
   - ./infisical-operator/ks.yaml
   - ./kanidm/ks.yaml
   - ./trivy-operator/ks.yaml
+  - ./wazuh/ks.yaml

@@ -25,9 +25,7 @@ services:
       - /mnt/blaze/appdata:/mnt/blaze/appdata:ro
       - /var/log:/var/log:ro
     secrets:
-      - source: authd_pass
-        target: /var/ossec/etc/authd.pass
-        mode: 0640
+      - authd_pass
     deploy:
       resources:
         limits:

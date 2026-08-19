@@ -139,7 +139,10 @@ spec:
       sso:
         oidc:
           enabled: true
-          primary: false
+          # Sets `challenge: false` on the OIDC auth domain -- the chart inverts
+          # this. Left false, that domain answers every request with a 401
+          # before the internal-user backend at order 4 is ever reached.
+          primary: true
           existingSecret: kanidm-wazuh-oidc
           issuer: https://idm.vzkn.eu/oauth2/openid/wazuh
           url: https://idm.vzkn.eu/oauth2/openid/wazuh/.well-known/openid-configuration

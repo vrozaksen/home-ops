@@ -80,6 +80,27 @@ spec:
         enabled: true
         networkPolicy:
           enabled: false
+        # The chart ships only 1515 and 55000; agents also need 1514 to report
+        # events. Exposed on the LAN for hosts that route through the router --
+        # same-VLAN hosts must use the nodePort, since Cilium announces
+        # LoadBalancer IPs over BGP only.
+        service:
+          type: LoadBalancer
+          annotations:
+            lbipam.cilium.io/ips: 10.10.0.93
+          ports:
+            - name: agents
+              protocol: TCP
+              port: 1514
+              targetPort: 1514
+            - name: registration
+              protocol: TCP
+              port: 1515
+              targetPort: 1515
+            - name: api
+              protocol: TCP
+              port: 55000
+              targetPort: 55000
         storageSize: 20Gi
         storageClass: ceph-block
         resources:

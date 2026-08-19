@@ -1,0 +1,7 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  # Agent enrolment password. Must match authd.pass under
+  # /kubernetes/security/wazuh, which the manager reads.
+  WAZUH_AUTHD_PASS: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/WAZUH_AUTHD_PASS

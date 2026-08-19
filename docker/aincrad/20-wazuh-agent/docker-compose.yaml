@@ -1,0 +1,57 @@
+---
+name: wazuh-agent
+
+services:
+  wazuh-agent:
+    image: wazuh/wazuh-agent:4.14.3
+    container_name: wazuh-agent
+    restart: unless-stopped
+    # Matches the manager: agents newer than the manager are unsupported.
+    labels:
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/wazuh.png"
+    # Needed to read host processes, ports and files for rootcheck and FIM.
+    pid: host
+    cap_add:
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
+    environment:
+      TZ: Europe/Warsaw
+    volumes:
+      - ./config/ossec.conf:/wazuh-config-mount/etc/ossec.conf:ro
+      - wazuh-agent-state:/var/ossec/queue
+      - wazuh-agent-etc:/var/ossec/etc
+      # Read-only: the agent watches these, it must never alter them.
+      - /boot/config:/boot/config:ro
+      - /mnt/blaze/appdata:/mnt/blaze/appdata:ro
+      - /var/log:/var/log:ro
+    secrets:
+      - source: authd_pass
+        target: /var/ossec/etc/authd.pass
+        mode: 0640
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "/var/ossec/bin/wazuh-control status | grep -q 'wazuh-agentd is running'"
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  wazuh-agent-state:
+  wazuh-agent-etc:
+
+secrets:
+  authd_pass:
+    environment: WAZUH_AUTHD_PASS
+
+networks:
+  default:
+    name: aincrad
+    external: true

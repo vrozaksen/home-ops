@@ -276,3 +276,26 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] }
         }
       } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-security
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: security
+  # Key names match what the Wazuh chart reads from its OIDC existingSecret.
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "wazuh": {
+          "present": true, "displayName": "Wazuh",
+          "originUrl": "https://wazuh.vzkn.eu/auth/openid/login",
+          "originLanding": "https://wazuh.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "k8s": { "clientIdKey": "OPENSEARCH_OIDC_CLIENT_ID", "clientSecretKey": "OPENSEARCH_OIDC_CLIENT_SECRET", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/wazuh.svg" }
+        }
+      } } }

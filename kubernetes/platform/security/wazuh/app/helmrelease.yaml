@@ -38,6 +38,8 @@ spec:
     # component is pinned away from them and prefers the 64Gi worker.
     indexer:
       replicas: 1
+      cred:
+        existingSecret: wazuh-credentials
       # The chart's policies assume replies are conntrack-exempt. With
       # kubeProxyReplacement + endpointRoutes the reply to a ClusterIP-DNATed
       # connection loses its conntrack association and is re-evaluated against
@@ -76,6 +78,11 @@ spec:
                       - "alfheim"
 
     wazuh:
+      apiCred:
+        existingSecret: wazuh-credentials
+      authd:
+        enabled: true
+        existingSecret: wazuh-credentials
       master:
         enabled: true
         networkPolicy:
@@ -123,6 +130,30 @@ spec:
 
     dashboard:
       replicas: 1
+      cred:
+        existingSecret: wazuh-credentials
+      # Kanidm provisions this Secret; the key names are set on its side to
+      # match what the chart expects. Local admin stays as break-glass, since
+      # Kanidm has wedged after Ceph events before.
+      sso:
+        oidc:
+          enabled: true
+          primary: false
+          existingSecret: kanidm-wazuh-oidc
+          issuer: https://idm.vzkn.eu/oauth2/openid/wazuh
+          url: https://idm.vzkn.eu/oauth2/openid/wazuh/.well-known/openid-configuration
+          logoutUrl: https://idm.vzkn.eu/ui/logout
+          baseRedirectUrl: https://wazuh.vzkn.eu
+          config:
+            subjectKey: preferred_username
+            rolesKey: groups
+          roleMappings:
+            allAccess:
+              backendRoles:
+                - "admin"
+          customizeLoginButton:
+            enabled: true
+            text: Log in with Kanidm
       networkPolicy:
         enabled: false
       resources:

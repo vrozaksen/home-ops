@@ -15,6 +15,7 @@ metadata:
   name: wazuh
 spec:
   interval: 1h
+  timeout: 20m
   chart:
     spec:
       chart: wazuh

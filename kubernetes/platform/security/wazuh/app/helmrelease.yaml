@@ -109,7 +109,10 @@ spec:
               protocol: TCP
               port: 55000
               targetPort: 55000
-        storageSize: 20Gi
+        # Vulnerability Detection keeps a ~10Gi CVE database and stages another
+        # full copy beside it while updating the feed, so 20Gi filled up and
+        # wazuh-db started refusing writes.
+        storageSize: 50Gi
         storageClass: ceph-block
         resources:
           requests:
@@ -144,6 +147,10 @@ spec:
           # before the internal-user backend at order 4 is ever reached.
           primary: true
           existingSecret: kanidm-wazuh-oidc
+          # The chart also asks for address and phone, which Kanidm does not
+          # grant and so refuses the whole authorisation. `groups` is what
+          # rolesKey below reads, and the default scope omits it.
+          scope: openid profile email groups
           issuer: https://idm.vzkn.eu/oauth2/openid/wazuh
           url: https://idm.vzkn.eu/oauth2/openid/wazuh/.well-known/openid-configuration
           logoutUrl: https://idm.vzkn.eu/ui/logout

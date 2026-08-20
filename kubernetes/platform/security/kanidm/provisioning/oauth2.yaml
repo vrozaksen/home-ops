@@ -297,6 +297,7 @@ data:
           "originLanding": "https://wazuh.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "allowInsecureClientDisablePkce": true,
+          "enableLegacyCrypto": true,
           "k8s": { "clientIdKey": "OPENSEARCH_OIDC_CLIENT_ID", "clientSecretKey": "OPENSEARCH_OIDC_CLIENT_SECRET", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/wazuh.svg" }
         }
       } } }

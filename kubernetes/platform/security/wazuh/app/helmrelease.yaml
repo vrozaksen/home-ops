@@ -160,8 +160,9 @@ spec:
             rolesKey: groups
           roleMappings:
             allAccess:
+              # Kanidm returns groups as SPNs, not bare names.
               backendRoles:
-                - "admin"
+                - "admins@idm.vzkn.eu"
           customizeLoginButton:
             enabled: true
             text: Log in with Kanidm

@@ -10,4 +10,5 @@ resources:
   - ./bambuddy/ks.yaml
   - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
+  - ./mesh-bridge/ks.yaml
   - ./zigbee/ks.yaml

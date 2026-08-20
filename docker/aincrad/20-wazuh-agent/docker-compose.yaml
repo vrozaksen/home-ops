@@ -9,10 +9,11 @@ services:
     # Matches the manager: agents newer than the manager are unsupported.
     labels:
       net.unraid.docker.icon: "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/wazuh.png"
-    # Needed to read host processes, ports and files for rootcheck and FIM.
-    pid: host
+    # NO `pid: host`. This image runs s6, whose shutdown sequence signals every
+    # process in its PID namespace -- sharing the host's meant that stopping the
+    # container killed all of Unraid's userspace, kernel and NFS aside.
+    # Losing it costs rootcheck's process and port checks, nothing FIM needs.
     cap_add:
-      - SYS_PTRACE
       - DAC_READ_SEARCH
     environment:
       TZ: Europe/Warsaw

@@ -26,12 +26,13 @@ services:
       - /var/log:/var/log:ro
     secrets:
       - authd_pass
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-        reservations:
-          memory: 128m
+    # Not `deploy.resources`, which is a swarm construct and gets ignored here.
+    # FIM hashing is CPU and I/O heavy, and this host has no swap -- the agent
+    # must never be able to starve the NAS it is watching.
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 1.0
+    pids_limit: 200
     healthcheck:
       test:
         - "CMD-SHELL"

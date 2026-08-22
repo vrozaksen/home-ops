@@ -17,7 +17,7 @@ spec:
             image:
               repository: registry.vzkn.eu/containers/meshtastic-bridge
               tag: 2.7.11
-              digest: sha256:4e600c88134cd62608e601547b4b81b324a164e95d92cab65a2e275a664fbb1d
+              digest: sha256:5366c997df927277eb75caadc5e6e859ec8aa61c0e49860d3d421b0255d50b68
             env:
               MESH_HOST: 10.20.0.215
               MQTT_HOST: mosquitto.database.svc.cluster.local

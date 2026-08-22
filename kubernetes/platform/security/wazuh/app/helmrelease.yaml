@@ -101,6 +101,17 @@ spec:
         existingSecret: wazuh-credentials
       master:
         enabled: true
+        # Nothing here reads a dashboard, so alerts have to leave the box. This
+        # feeds the existing VictoriaLogs -> vmalert -> Pushover path rather
+        # than adding a second notification channel. Level 7 keeps the noise
+        # down; what actually pages is decided by the vmalert rule.
+        extraConf: |
+          <syslog_output>
+            <server>10.10.0.92</server>
+            <port>514</port>
+            <format>json</format>
+            <level>7</level>
+          </syslog_output>
         networkPolicy:
           enabled: false
         # The chart ships only 1515 and 55000; agents also need 1514 to report

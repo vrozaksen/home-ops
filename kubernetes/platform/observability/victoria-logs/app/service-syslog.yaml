@@ -16,10 +16,13 @@ spec:
     app.kubernetes.io/instance: victoria-logs
     app.kubernetes.io/name: victoria-logs-single
   ports:
+    # Pinned: same-VLAN senders point at a node IP and this port, so letting
+    # Kubernetes reallocate it would silently cut them off.
     - name: syslog-udp
       port: 514
       protocol: UDP
       targetPort: 514
+      nodePort: 30893
     - name: http
       port: 9428
       protocol: TCP

@@ -75,8 +75,12 @@ spec:
     k8sServicePort: 7445
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    # BGP alone leaves LoadBalancer IPs unreachable from the Servers VLAN: the
+    # pool overlaps it, so those hosts treat the IP as on-link and ARP for it
+    # instead of routing via the router that holds the BGP route. Opt-in per
+    # service via CiliumL2AnnouncementPolicy, so this stays off by default.
     l2announcements:
-      enabled: false
+      enabled: true
     loadBalancer:
       algorithm: maglev
       mode: dsr

@@ -23,6 +23,21 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: wazuh
+  # The chart exposes no labels on this Service, and agents on the Servers VLAN
+  # cannot reach a BGP-only LoadBalancer IP without it.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: wazuh
+            patch: |
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: wazuh
+                labels:
+                  home-ops.io/l2-announce: "true"
   values:
     # cert-manager already runs in the cluster, so only the Certificates are
     # wanted. With issuer.name unset the chart creates its own self-signed one.

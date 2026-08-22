@@ -68,6 +68,23 @@ spec:
           peerConfigRef:
             name: l3-bgp-peer-config
 ---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliuml2announcementpolicy_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: same-vlan
+spec:
+  # Opt-in: label a Service `home-ops.io/l2-announce: "true"` when hosts on the
+  # Servers VLAN must reach its LoadBalancer IP. They cannot otherwise, and the
+  # node-IP-plus-nodePort workaround pins them to one node.
+  serviceSelector:
+    matchLabels:
+      home-ops.io/l2-announce: "true"
+  interfaces:
+    - ^bond.*
+    - ^enp.*
+  loadBalancerIPs: true
+---
 apiVersion: v1
 kind: Service
 metadata:

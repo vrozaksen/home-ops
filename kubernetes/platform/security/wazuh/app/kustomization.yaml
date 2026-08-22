@@ -6,3 +6,4 @@ resources:
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
   - ./httproute.yaml
+  - ./rbac-cronjob.yaml

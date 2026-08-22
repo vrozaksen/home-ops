@@ -1,0 +1,94 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: wazuh-rbac-sync
+spec:
+  # The Wazuh API keeps its RBAC in the manager's own database, which no chart
+  # value reaches. Without this, an OIDC login lands with an empty agent list
+  # and a rebuilt manager silently loses admin access.
+  schedule: "17 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: rbac-sync
+              image: alpine:3.24
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  apk add -q --no-cache curl jq
+
+                  API="https://wazuh:55000"
+                  RULE_NAME="kanidm_admins"
+                  # Kanidm returns groups as SPNs, and the dashboard passes them
+                  # to the API under backend_roles when run_as is on.
+                  GROUP="admins@idm.vzkn.eu"
+                  ADMIN_ROLE_ID=1
+
+                  TOKEN=$$(curl -sSk -u "$${API_USERNAME}:$${API_PASSWORD}" \
+                    -X POST "$${API}/security/user/authenticate?raw=true")
+                  AUTH="Authorization: Bearer $${TOKEN}"
+
+                  BODY=$$(jq -nc --arg n "$${RULE_NAME}" --arg g "$${GROUP}" \
+                    '{name: $$n, rule: {FIND: {backend_roles: $$g}}}')
+                  WANT=$$(echo "$${BODY}" | jq -cS '.rule')
+
+                  EXISTING=$$(curl -sSk -H "$${AUTH}" "$${API}/security/rules?limit=500" \
+                    | jq -c --arg n "$${RULE_NAME}" \
+                      '[.data.affected_items[]? | select(.name == $$n)][0] // empty')
+                  RULE_ID=$$(echo "$${EXISTING}" | jq -r '.id // empty')
+
+                  if [ -z "$${RULE_ID}" ]; then
+                    RULE_ID=$$(curl -sSk -H "$${AUTH}" -H 'Content-Type: application/json' \
+                      -X POST "$${API}/security/rules" -d "$${BODY}" \
+                      | jq -r '.data.affected_items[0].id')
+                    echo "created rule $${RULE_NAME} (id $${RULE_ID})"
+                  elif [ "$$(echo "$${EXISTING}" | jq -cS '.rule')" != "$${WANT}" ]; then
+                    # Only when it actually differs -- a PUT drops the rule's
+                    # role links, so doing it unconditionally would unlink and
+                    # relink on every run.
+                    curl -sSk -H "$${AUTH}" -H 'Content-Type: application/json' \
+                      -X PUT "$${API}/security/rules/$${RULE_ID}" -d "$${BODY}" >/dev/null
+                    echo "corrected rule $${RULE_NAME} (id $${RULE_ID})"
+                  fi
+
+                  LINKED=$$(curl -sSk -H "$${AUTH}" "$${API}/security/roles?role_ids=$${ADMIN_ROLE_ID}" \
+                    | jq -r --argjson r "$${RULE_ID}" \
+                      '[.data.affected_items[0].rules[]? | select(. == $$r)] | length')
+
+                  if [ "$${LINKED}" = "0" ]; then
+                    curl -sSk -H "$${AUTH}" \
+                      -X POST "$${API}/security/roles/$${ADMIN_ROLE_ID}/rules?rule_ids=$${RULE_ID}" >/dev/null
+                    echo "linked rule $${RULE_ID} to role $${ADMIN_ROLE_ID}"
+                  fi
+
+                  echo "wazuh rbac in sync: rule $${RULE_ID} -> role $${ADMIN_ROLE_ID}"
+              # Named explicitly rather than envFrom: the secret also holds
+              # `authd.pass`, which is not a legal environment variable name.
+              env:
+                - name: API_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: wazuh-credentials
+                      key: API_USERNAME
+                - name: API_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: wazuh-credentials
+                      key: API_PASSWORD
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi

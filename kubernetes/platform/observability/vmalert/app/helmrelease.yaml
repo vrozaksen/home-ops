@@ -121,3 +121,60 @@ spec:
                       {{ $value }} failed authentication attempts in 10 minutes from
                       {{ index .Labels "client_ip" }}. idm.vzkn.eu is internet-facing;
                       consider blocking the source at the edge.
+
+            - name: wazuh
+              type: vlogs
+              interval: 1m
+              rules:
+                # The manager syslogs alerts as JSON under app_name "ossec".
+                # Wazuh scores rules 0-15: 12+ is its "high importance" band
+                # (rootkits, tampering, repeated auth failures from one source).
+                - alert: WazuhCriticalAlert
+                  expr: >-
+                    app_name:"ossec" AND _time:10m
+                    | unpack_json
+                    | filter rule.level:>=12
+                    | stats by (agent.name) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: security
+                  annotations:
+                    summary: "Wazuh critical alert on {{ index .Labels \"agent.name\" }}"
+                    description: |-
+                      {{ $value }} Wazuh alerts at level 12 or above in 10 minutes on
+                      {{ index .Labels "agent.name" }}. Details at https://wazuh.vzkn.eu
+
+                # Level 10-11 is worth knowing about but not worth interrupting
+                # anything, so it rides the quiet route.
+                - alert: WazuhHighSeverityAlert
+                  expr: >-
+                    app_name:"ossec" AND _time:10m
+                    | unpack_json
+                    | filter rule.level:>=10 rule.level:<12
+                    | stats by (agent.name) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "Wazuh high-severity alerts on {{ index .Labels \"agent.name\" }}"
+                    description: |-
+                      {{ $value }} Wazuh alerts at level 10-11 in 10 minutes on
+                      {{ index .Labels "agent.name" }}.
+
+                # The manager going quiet is itself a finding: it means alerts
+                # stopped flowing, which looks identical to "nothing is wrong".
+                - alert: WazuhAlertStreamSilent
+                  expr: >-
+                    app_name:"ossec" AND _time:6h
+                    | stats count() as hits
+                    | filter hits:<1
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "No Wazuh alerts received for 6 hours"
+                    description: |-
+                      Nothing has arrived from wazuh-csyslogd. Either the manager
+                      stopped forwarding or the syslog path to VictoriaLogs broke.

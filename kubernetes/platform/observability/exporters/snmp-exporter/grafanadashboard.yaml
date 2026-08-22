@@ -3,13 +3,136 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: apc-ups
+  name: apc-pdu
 spec:
   allowCrossNamespaceImport: true
   instanceSelector:
     matchLabels:
-      dashboards: grafana
+      grafana.internal/instance: grafana
   datasources:
     - datasourceName: prometheus
-      inputName: DS_THINKY
-  url: https://grafana.com/api/dashboards/13524/revisions/1/download
+      inputName: DS_PROMETHEUS
+  json: |-
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "decimals": 1,
+              "mappings": [],
+              "max": 10,
+              "min": 0,
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 8}, {"color": "red", "value": 10}]},
+              "unit": "amp"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 5, "w": 5, "x": 0, "y": 0},
+          "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true},
+          "title": "Load",
+          "type": "gauge",
+          "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Load", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "decimals": 0,
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 1840}, {"color": "red", "value": 2300}]},
+              "unit": "watt"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 5, "w": 5, "x": 5, "y": 0},
+          "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Est. Power (230V)",
+          "type": "stat",
+          "targets": [{"expr": "rPDULoadStatusLoad / 10 * 230", "legendFormat": "Power", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [{"options": {"1": {"color": "blue", "index": 0, "text": "Low Load"}, "2": {"color": "green", "index": 1, "text": "Normal"}, "3": {"color": "yellow", "index": 2, "text": "Near Overload"}, "4": {"color": "red", "index": 3, "text": "Overload"}}, "type": "value"}],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 5, "w": 5, "x": 10, "y": 0},
+          "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "title": "Phase State",
+          "type": "stat",
+          "targets": [{"expr": "rPDULoadStatusLoadState", "legendFormat": "State", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [{"options": {"1": {"color": "green", "index": 0, "text": "On"}, "2": {"color": "dark-red", "index": 1, "text": "Off"}}, "type": "value"}],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 5, "w": 9, "x": 15, "y": 0},
+          "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name"},
+          "title": "Outlets",
+          "type": "stat",
+          "targets": [{"expr": "rPDUOutletStatusOutletState", "legendFormat": "{{ outlet_name }}", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "fillOpacity": 15, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": true},
+              "decimals": 1,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+              "unit": "amp"
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 9, "w": 15, "x": 0, "y": 5},
+          "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+          "title": "Load over time",
+          "type": "timeseries",
+          "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Phase load", "refId": "A"}]
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "custom": {"fillOpacity": 70, "hideFrom": {"legend": false, "tooltip": false, "viz": false}, "insertNulls": false, "lineWidth": 0, "spanNulls": true},
+              "mappings": [{"options": {"1": {"color": "green", "index": 0, "text": "On"}, "2": {"color": "dark-red", "index": 1, "text": "Off"}}, "type": "value"}],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "gridPos": {"h": 9, "w": 9, "x": 15, "y": 5},
+          "options": {"alignValue": "center", "legend": {"displayMode": "list", "placement": "bottom", "showLegend": false}, "mergeValues": true, "rowHeight": 0.85, "showValue": "never", "tooltip": {"mode": "single", "sort": "none"}},
+          "title": "Outlet history",
+          "type": "state-timeline",
+          "targets": [{"expr": "rPDUOutletStatusOutletState", "legendFormat": "{{ outlet_name }}", "refId": "A"}]
+        }
+      ],
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": ["pdu", "power"],
+      "templating": {"list": []},
+      "time": {"from": "now-24h", "to": "now"},
+      "title": "APC PDU",
+      "uid": "apc-pdu"
+    }

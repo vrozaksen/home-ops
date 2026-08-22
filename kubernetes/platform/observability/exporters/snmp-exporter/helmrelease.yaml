@@ -25,15 +25,59 @@ spec:
   interval: 1h
   values:
     fullnameOverride: *app
+    # Hand-written config (replaces the bundled snmp.yml): the default set of
+    # modules has nothing for the APC rPDU subtree, only apcups.
+    config: |-
+      auths:
+        pdu_v1:
+          version: 1
+          community: ${PDU_SNMP_READ}
+      modules:
+        apc_rpdu:
+          walk:
+            - 1.3.6.1.4.1.318.1.1.12.2.3.1  # rPDULoadStatus table
+            - 1.3.6.1.4.1.318.1.1.12.3.5.1  # rPDUOutletStatus table
+          metrics:
+            - name: rPDULoadStatusLoad
+              oid: 1.3.6.1.4.1.318.1.1.12.2.3.1.1.2
+              type: gauge
+              help: Phase load in tenths of amperes
+              indexes:
+                - labelname: phase
+                  type: gauge
+            - name: rPDULoadStatusLoadState
+              oid: 1.3.6.1.4.1.318.1.1.12.2.3.1.1.3
+              type: gauge
+              help: 1=lowLoad 2=normal 3=nearOverload 4=overload
+              indexes:
+                - labelname: phase
+                  type: gauge
+            - name: rPDUOutletStatusOutletState
+              oid: 1.3.6.1.4.1.318.1.1.12.3.5.1.1.4
+              type: gauge
+              help: Outlet state 1=on 2=off
+              indexes:
+                - labelname: outlet
+                  type: gauge
+              lookups:
+                - labels: [outlet]
+                  labelname: outlet_name
+                  oid: 1.3.6.1.4.1.318.1.1.12.3.5.1.1.2
+                  type: DisplayString
+    extraArgs:
+      - --config.expand-environment-variables
+    envFrom:
+      - secretRef:
+          name: snmp-exporter-secret
     serviceMonitor:
       enabled: true
       params:
-        - name: apcups
+        - name: pdu
           module:
-            - apcups
-          target: 192.168.1.80
+            - apc_rpdu
+          target: 10.10.0.7
           auth:
-            - public_v2
+            - pdu_v1
       path: /snmp
       scrapeTimeout: 10s
       relabelings:

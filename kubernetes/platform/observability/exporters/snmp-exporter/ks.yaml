@@ -5,6 +5,9 @@ kind: Kustomization
 metadata:
   name: snmp-exporter
 spec:
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
   interval: 1h
   path: ./kubernetes/platform/observability/exporters/snmp-exporter
   prune: true

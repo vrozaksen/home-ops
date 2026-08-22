@@ -8,20 +8,30 @@ spec:
   groups:
     - name: snmp-exporter.rules
       rules:
-        - alert: UPSOnBattery
-          expr: upsBasicBatteryTimeOnBattery_seconds > 60
+        # Thresholds mirror the PDU's own: near-overload 8A, overload 10A
+        - alert: PDUNearOverload
+          expr: rPDULoadStatusLoad / 10 >= 8
+          for: 5m
           annotations:
             summary: >-
-              ZPM {{$labels.instance}} is running on batteries
-          for: 5m
+              PDU {{ $labels.instance }} load is {{ $value }}A, near overload (>=8A)
+          labels:
+            severity: warning
+
+        - alert: PDUOverload
+          expr: rPDULoadStatusLoad / 10 >= 10
+          for: 1m
+          annotations:
+            summary: >-
+              PDU {{ $labels.instance }} load is {{ $value }}A, overload (>=10A)
           labels:
             severity: critical
 
-        - alert: UPSReplaceBattery
-          expr: upsAdvBattery_needsreplacing > 0
+        - alert: PDUScrapeFailed
+          expr: up{job="snmp-exporter"} == 0
+          for: 15m
           annotations:
             summary: >-
-              ZPM {{ $labels.instance }} battery needs to be replaced
-          for: 5m
+              SNMP scrape of PDU {{ $labels.instance }} has been failing for 15m
           labels:
-            severity: critical
+            severity: warning

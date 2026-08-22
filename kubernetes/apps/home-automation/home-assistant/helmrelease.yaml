@@ -76,9 +76,10 @@ spec:
             resources:
               requests:
                 cpu: 30m
-                memory: 192Mi
+                memory: 256Mi
               limits:
-                memory: 384Mi
+                # headroom for Claude Code (node process) in the terminal
+                memory: 2Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

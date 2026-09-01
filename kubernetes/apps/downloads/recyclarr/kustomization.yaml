@@ -5,11 +5,3 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
-configMapGenerator:
-  - name: recyclarr-configmap
-    files:
-      - recyclarr.yml=./config/recyclarr.yml
-generatorOptions:
-  disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled

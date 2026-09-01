@@ -321,6 +321,7 @@ data:
           "originLanding": "https://kyoo.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "allowInsecureClientDisablePkce": true,
+          "preferShortUsername": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/kyoo.svg" }
         }
       } } }

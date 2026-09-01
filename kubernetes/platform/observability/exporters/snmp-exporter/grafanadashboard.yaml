@@ -9,9 +9,6 @@ spec:
   instanceSelector:
     matchLabels:
       grafana.internal/instance: grafana
-  datasources:
-    - datasourceName: prometheus
-      inputName: DS_PROMETHEUS
   json: |-
     {
       "annotations": {"list": []},
@@ -21,7 +18,6 @@ spec:
       "links": [],
       "panels": [
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "thresholds"},
@@ -41,7 +37,6 @@ spec:
           "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Load", "refId": "A"}]
         },
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "thresholds"},
@@ -59,7 +54,6 @@ spec:
           "targets": [{"expr": "rPDULoadStatusLoad / 10 * 230", "legendFormat": "Power", "refId": "A"}]
         },
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "thresholds"},
@@ -75,7 +69,6 @@ spec:
           "targets": [{"expr": "rPDULoadStatusLoadState", "legendFormat": "State", "refId": "A"}]
         },
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "thresholds"},
@@ -91,7 +84,6 @@ spec:
           "targets": [{"expr": "rPDUOutletStatusOutletState", "legendFormat": "{{ outlet_name }}", "refId": "A"}]
         },
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "palette-classic"},
@@ -111,7 +103,6 @@ spec:
           "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Phase load", "refId": "A"}]
         },
         {
-          "datasource": {"type": "prometheus", "uid": "$${DS_PROMETHEUS}"},
           "fieldConfig": {
             "defaults": {
               "color": {"mode": "thresholds"},

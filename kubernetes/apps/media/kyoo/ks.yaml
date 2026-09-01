@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app kyoo
+spec:
+  components:
+    - ../../../components/cnpg/initdb
+    - ../../../components/gpu
+  dependsOn:
+    - name: kanidm
+      namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/media/kyoo
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns media
+      CNPG_SIZE: 10Gi
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

@@ -301,3 +301,26 @@ data:
           "k8s": { "clientIdKey": "OPENSEARCH_OIDC_CLIENT_ID", "clientSecretKey": "OPENSEARCH_OIDC_CLIENT_SECRET", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/wazuh.svg" }
         }
       } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-media
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: media
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "kyoo": {
+          "present": true, "displayName": "Kyoo",
+          "originUrl": "https://kyoo.vzkn.eu/auth/oidc/logged/kanidm",
+          "originLanding": "https://kyoo.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/kyoo.svg" }
+        }
+      } } }

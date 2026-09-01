@@ -1,0 +1,106 @@
+---
+# Kyoo metadata lives on aincrad (like emby-meta in doco-cd): dedicated folders
+# under /mnt/cache/kyoo-meta/ that are cheap to inspect and nuke. Statically
+# bound PV/PVC pairs via csi-driver-nfs; capacities are nominal on NFS.
+# Transcode HLS cache stays an emptyDir on the node (NFS would hurt there).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kyoo-meta-api
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  capacity:
+    storage: 5Gi
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: aincrad-kyoo-meta-api
+    volumeAttributes:
+      server: aincrad.home.vzkn.eu
+      share: /mnt/cache/kyoo-meta/api
+  mountOptions:
+    - "nfsvers=4.1"
+    - "noatime"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-meta-api
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  storageClassName: ""
+  volumeName: kyoo-meta-api
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kyoo-meta-auth
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  capacity:
+    storage: 1Gi
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: aincrad-kyoo-meta-auth
+    volumeAttributes:
+      server: aincrad.home.vzkn.eu
+      share: /mnt/cache/kyoo-meta/auth
+  mountOptions:
+    - "nfsvers=4.1"
+    - "noatime"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-meta-auth
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  storageClassName: ""
+  volumeName: kyoo-meta-auth
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kyoo-meta-transcoder
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  capacity:
+    storage: 20Gi
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: aincrad-kyoo-meta-transcoder
+    volumeAttributes:
+      server: aincrad.home.vzkn.eu
+      share: /mnt/cache/kyoo-meta/transcoder
+  mountOptions:
+    - "nfsvers=4.1"
+    - "noatime"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-meta-transcoder
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  storageClassName: ""
+  volumeName: kyoo-meta-transcoder
+  resources:
+    requests:
+      storage: 20Gi

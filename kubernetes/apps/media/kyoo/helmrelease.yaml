@@ -1,0 +1,147 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kyoo
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 5.2.1
+  url: oci://ghcr.io/zoriya/helm-charts/kyoo
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyoo
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: kyoo
+  values:
+    global:
+      postgres:
+        shared:
+          # Direct -rw service (not the pooler): few long-lived connections,
+          # per-service schemas + LISTEN/NOTIFY don't mix well with PgBouncer.
+          host: postgres-kyoo-rw
+          port: 5432
+          # Single database, one schema per service (compose-style layout).
+          databaseOverride: kyoo
+          sslmodeOverride: disable
+          existingSecret: postgres-kyoo-app
+          userKey: username
+          passwordKey: password
+
+    kyoo:
+      address: https://kyoo.vzkn.eu
+      auth:
+        apikeys:
+          scanner:
+            existingSecret: kyoo-secret
+            apikeyKey: scanner_apikey
+      oidc_providers:
+        - name: kanidm
+          existingSecret: kanidm-kyoo-oidc
+          clientIdKey: client-id
+          clientSecretKey: client-secret
+          logo: https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/kanidm.svg
+          authorizationAddress: https://idm.vzkn.eu/ui/oauth2
+          tokenAddress: https://idm.vzkn.eu/oauth2/token
+          profileAddress: https://idm.vzkn.eu/oauth2/openid/kyoo/userinfo
+          scope: "openid email profile"
+          authMethod: ClientSecretBasic
+      transcoderAcceleration: qsv
+      transcoderPreset: medium
+
+    media:
+      volumes:
+        - name: anime
+          nfs:
+            server: aincrad.home.vzkn.eu
+            path: /mnt/user/data/media/anime
+        - name: animemovies
+          nfs:
+            server: aincrad.home.vzkn.eu
+            path: /mnt/user/data/media/animemovies
+      volumeMounts:
+        - mountPath: /media/anime
+          name: anime
+          readOnly: true
+        - mountPath: /media/animemovies
+          name: animemovies
+          readOnly: true
+      baseMountPath: /media
+
+    api:
+      kyoo_api:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+      persistence:
+        existingClaim: kyoo-meta-api
+
+    auth:
+      kyoo_auth:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+      persistence:
+        existingClaim: kyoo-meta-auth
+
+    front:
+      kyoo_front:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+    scanner:
+      kyoo_scanner:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+    transcoder:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: kyoo-gpu
+      kyoo_transcoder:
+        resources:
+          claims:
+            - name: gpu
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            memory: 4Gi
+      # thumbnails + extracted subtitles/fonts
+      persistence:
+        existingClaim: kyoo-meta-transcoder
+
+    traefikproxy:
+      traefik:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+
+    postgres:
+      enabled: false

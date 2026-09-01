@@ -34,7 +34,7 @@ spec:
           "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true},
           "title": "Load",
           "type": "gauge",
-          "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Load", "refId": "A"}]
+          "targets": [{"expr": "max_over_time(rPDULoadStatusLoad[10m]) / 10", "legendFormat": "Load", "refId": "A"}]
         },
         {
           "fieldConfig": {
@@ -51,7 +51,7 @@ spec:
           "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
           "title": "Est. Power (230V)",
           "type": "stat",
-          "targets": [{"expr": "rPDULoadStatusLoad / 10 * 230", "legendFormat": "Power", "refId": "A"}]
+          "targets": [{"expr": "max_over_time(rPDULoadStatusLoad[10m]) / 10 * 230", "legendFormat": "Power", "refId": "A"}]
         },
         {
           "fieldConfig": {
@@ -100,7 +100,7 @@ spec:
           "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
           "title": "Load over time",
           "type": "timeseries",
-          "targets": [{"expr": "rPDULoadStatusLoad / 10", "legendFormat": "Phase load", "refId": "A"}]
+          "targets": [{"expr": "max_over_time(rPDULoadStatusLoad[10m]) / 10", "legendFormat": "Phase load", "refId": "A"}]
         },
         {
           "fieldConfig": {

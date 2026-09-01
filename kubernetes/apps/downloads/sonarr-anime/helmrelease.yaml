@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sonarr-anime
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      sonarr-anime:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-operations/sonarr
+              tag: 4.0.19.2995@sha256:e679d9abf64f7a1edaf340f5c3fea20efed55fb1489ef8ba42f3404caed43590
+            env:
+              SONARR__APP__INSTANCENAME: Sonarr Anime
+              SONARR__APP__THEME: dark
+              SONARR__AUTH__METHOD: External
+              SONARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              SONARR__LOG__DBENABLED: "False"
+              SONARR__LOG__LEVEL: info
+              SONARR__SERVER__PORT: &port 80
+              SONARR__UPDATE__BRANCH: develop
+              SONARR__POSTGRES__HOST: pooler-arr-rw
+              SONARR__POSTGRES__PORT: "5432"
+              SONARR__POSTGRES__MAINDB: sonarr_anime
+              SONARR__POSTGRES__USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: &pg postgres-arr-sonarr-anime-credentials
+                    key: username
+              SONARR__POSTGRES__PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: *pg
+                    key: password
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 200m
+                memory: 448Mi
+              limits:
+                memory: 896Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: downloads
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      config:
+        existingClaim: "{{ .Release.Name }}"
+      scripts:
+        type: configMap
+        name: "{{ .Release.Name }}-configmap"
+        defaultMode: 0775
+        globalMounts:
+          - readOnly: true
+      data:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/user/data
+        globalMounts:
+          - path: /data
+      tmp:
+        type: emptyDir

@@ -10,12 +10,14 @@ resources:
   ### *arr
   - ./postgres-arr/ks.yaml
   - ./bazarr/ks.yaml
+  - ./bazarr-anime/ks.yaml
   - ./flaresolverr/ks.yaml
   - ./lidarr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
-  # - ./recyclarr/ks.yaml
+  - ./radarr-anime/ks.yaml
   - ./sonarr/ks.yaml
+  - ./sonarr-anime/ks.yaml
   - ./webhook/ks.yaml
   ### Others
   # - ./metube/ks.yaml

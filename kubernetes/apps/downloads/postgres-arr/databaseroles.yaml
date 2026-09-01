@@ -19,6 +19,19 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: DatabaseRole
 metadata:
+  name: bazarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: bazarr_anime
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-bazarr-anime-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
   name: lidarr
 spec:
   cluster:
@@ -58,6 +71,19 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: DatabaseRole
 metadata:
+  name: radarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: radarr_anime
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-radarr-anime-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
   name: sonarr
 spec:
   cluster:
@@ -67,3 +93,16 @@ spec:
   login: true
   passwordSecret:
     name: postgres-arr-sonarr-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: sonarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: sonarr_anime
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-arr-sonarr-anime-credentials

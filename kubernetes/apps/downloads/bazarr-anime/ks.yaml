@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app bazarr-anime
+spec:
+  components:
+    - ../../../components/zeroscaler
+    - ../../../components/kopiur
+  dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
+    - name: postgres-arr
+      namespace: downloads
+    - name: prometheus-adapter
+      namespace: observability
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  interval: 1h
+  path: ./kubernetes/apps/downloads/bazarr-anime
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns downloads
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

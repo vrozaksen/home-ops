@@ -13,6 +13,16 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
+  name: bazarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: bazarr_anime
+  owner: bazarr_anime
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
   name: lidarr
 spec:
   cluster:
@@ -43,9 +53,29 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
+  name: radarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: radarr_anime
+  owner: radarr_anime
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
   name: sonarr
 spec:
   cluster:
     name: postgres-arr
   name: sonarr
   owner: sonarr
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: sonarr-anime
+spec:
+  cluster:
+    name: postgres-arr
+  name: sonarr_anime
+  owner: sonarr_anime

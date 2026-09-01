@@ -102,18 +102,44 @@ tasks:
       - test -f {{.ROOT_DIR}}/talosconfig
 
   shutdown-cluster:
-    desc: Shutdown Talos across the whole cluster
+    desc: Gracefully shutdown the whole cluster (suspend Flux/Kopiur, prep Ceph, workers then control plane)
     prompt: Shutdown the Talos cluster ... continue?
-    cmd: talosctl shutdown --nodes {{.HOSTNAMES}} --force
+    cmds:
+      - task: :kubernetes:ks-suspend
+      - task: :kopiur:state-suspend
+      # Wait only for ACTIVE jobs to drain — Failed jobs never complete and would wedge a wait-for-complete
+      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
+      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set noout
+      - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set norebalance
+      - talosctl shutdown --nodes {{.WORKER_NODES}} --force --talosconfig {{.ROOT_DIR}}/talosconfig
+      # No --wait on the control plane: apid endpoints die mid-shutdown, tracking would error
+      - talosctl shutdown --nodes {{.CP_NODES}} --force --wait=false --talosconfig {{.ROOT_DIR}}/talosconfig
     vars:
-      HOSTNAMES:
-        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
+      WORKER_NODES:
+        sh: kubectl get nodes --selector '!node-role.kubernetes.io/control-plane' --output jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{","}{end}' | sed 's/,$//'
+      CP_NODES:
+        sh: kubectl get nodes --selector 'node-role.kubernetes.io/control-plane' --output jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{","}{end}' | sed 's/,$//'
     preconditions:
-      - talosctl --nodes {{.NODES}} get machineconfig --talosconfig {{.ROOT_DIR}}/talosconfig
+      - '[[ -n "{{.WORKER_NODES}}" && -n "{{.CP_NODES}}" ]]'
       - talosctl config info --talosconfig {{.ROOT_DIR}}/talosconfig
-      - test -f {{.TALOS_DIR}}/talconfig.yaml
+      - kubectl --namespace rook-ceph get deploy rook-ceph-tools
       - test -f {{.ROOT_DIR}}/talosconfig
-      - which talosctl
+      - which talosctl kubectl flux
+
+  startup-cluster:
+    desc: Resume the cluster after power-on (wait for nodes, clear Ceph flags, resume Flux/Kopiur)
+    cmds:
+      - until kubectl wait nodes --all --for=condition=Ready --timeout=15m &>/dev/null; do sleep 10; done
+      - until kubectl --namespace rook-ceph wait deploy/rook-ceph-tools --for=condition=available --timeout=10m &>/dev/null; do sleep 10; done
+      - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
+      - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset norebalance
+      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 10; done
+      - task: :kubernetes:ks-resume
+      - task: :kopiur:state-resume
+      - task: :kubernetes:cleanse-pods
+    preconditions:
+      - which kubectl flux
 
   kubeconfig:
     desc: Generate the kubeconfig for a Talos cluster
@@ -133,7 +159,8 @@ tasks:
       # before suspending is a race the wait can lose indefinitely.
       - task: :kopiur:state-suspend
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
+      # Wait only for ACTIVE jobs — Failed jobs never complete and would wedge a wait-for-complete
+      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
     preconditions:
       - which kubectl
 
@@ -141,7 +168,8 @@ tasks:
     internal: true
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
+      # Wait only for ACTIVE jobs — Failed jobs never complete and would wedge a wait-for-complete
+      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
       - task: :kopiur:state-resume
     preconditions:
       - which kubectl

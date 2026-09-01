@@ -88,7 +88,8 @@ tasks:
   ks-*:
     desc: Suspend or resume Kustomizations
     cmds:
-      - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 flux {{.STATE}} ks --all --namespace
+      # Only namespaces that actually hold Kustomizations — empty ones make flux exit non-zero
+      - kubectl get kustomizations.kustomize.toolkit.fluxcd.io --all-namespaces --no-headers --output custom-columns=NS:.metadata.namespace | sort -u | xargs -n1 flux {{.STATE}} ks --all --namespace
     vars:
       STATE: '{{index .MATCH 0}}'
     preconditions:

@@ -11,6 +11,9 @@ spec:
   datasource:
     type: prometheus
     name: prometheus
+    # Deterministic uid = name, so the operator's ${DS_*} input substitution
+    # (which injects the NAME into panel uid fields) resolves correctly
+    uid: prometheus
     access: proxy
     isDefault: true
     url: http://prometheus-operated.observability.svc.cluster.local:9090
@@ -27,6 +30,7 @@ spec:
   datasource:
     type: alertmanager
     name: alertmanager
+    uid: alertmanager
     access: proxy
     jsonData:
       implementation: prometheus

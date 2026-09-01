@@ -1,7 +1,8 @@
 ---
 # Kyoo metadata lives on aincrad (like emby-meta in doco-cd): dedicated folders
 # under /mnt/cache/kyoo-meta/ that are cheap to inspect and nuke. Statically
-# bound PV/PVC pairs via csi-driver-nfs; capacities are nominal on NFS.
+# bound PV/PVC pairs (in-tree NFS, same as app-template `type: nfs` mounts;
+# csi-driver-nfs is not deployed); capacities are nominal on NFS.
 # Transcode HLS cache stays an emptyDir on the node (NFS would hurt there).
 apiVersion: v1
 kind: PersistentVolume
@@ -12,12 +13,9 @@ spec:
     - "ReadWriteMany"
   capacity:
     storage: 5Gi
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeHandle: aincrad-kyoo-meta-api
-    volumeAttributes:
-      server: aincrad.home.vzkn.eu
-      share: /mnt/cache/kyoo-meta/api
+  nfs:
+    server: aincrad.home.vzkn.eu
+    path: /mnt/cache/kyoo-meta/api
   mountOptions:
     - "nfsvers=4.1"
     - "noatime"
@@ -46,12 +44,9 @@ spec:
     - "ReadWriteMany"
   capacity:
     storage: 1Gi
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeHandle: aincrad-kyoo-meta-auth
-    volumeAttributes:
-      server: aincrad.home.vzkn.eu
-      share: /mnt/cache/kyoo-meta/auth
+  nfs:
+    server: aincrad.home.vzkn.eu
+    path: /mnt/cache/kyoo-meta/auth
   mountOptions:
     - "nfsvers=4.1"
     - "noatime"
@@ -80,12 +75,9 @@ spec:
     - "ReadWriteMany"
   capacity:
     storage: 20Gi
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeHandle: aincrad-kyoo-meta-transcoder
-    volumeAttributes:
-      server: aincrad.home.vzkn.eu
-      share: /mnt/cache/kyoo-meta/transcoder
+  nfs:
+    server: aincrad.home.vzkn.eu
+    path: /mnt/cache/kyoo-meta/transcoder
   mountOptions:
     - "nfsvers=4.1"
     - "noatime"

@@ -139,3 +139,5 @@ spec:
             subPath: config.yaml
           - path: /config/config-bifrost.yaml
             subPath: bifrost.yaml
+          - path: /config/config-aincrad.yaml
+            subPath: aincrad.yaml

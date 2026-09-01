@@ -1,0 +1,88 @@
+---
+endpoints:
+  - name: aincrad | ping
+    group: aincrad
+    url: icmp://10.10.0.11
+    interval: 1m
+    ui:
+      hide-url: true
+      hide-hostname: true
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: aincrad | emby
+    group: aincrad
+    url: https://emby.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      # wildcard cert is pushed to the NAS by cert-sync; catches a stale sync
+      - "[CERTIFICATE_EXPIRATION] > 72h"
+
+  - name: aincrad | navidrome
+    group: aincrad
+    url: https://music.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: aincrad | immich
+    group: aincrad
+    url: https://immich.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: aincrad | stash
+    group: aincrad
+    url: https://stash.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  # garage daemon health (admin API, no token required)
+  - name: aincrad | garage
+    group: aincrad
+    url: https://admin.s3.vzkn.eu/health
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+  # kopiur backup repository path; unauthenticated GET = 403 AccessDenied from garage
+  - name: aincrad | garage s3 api
+    group: aincrad
+    url: https://api.s3.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 403"
+
+  - name: aincrad | garage webui
+    group: aincrad
+    url: https://garage.vzkn.eu
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+
+# tdarr/syncthing/code have no DNS records yet (emby/garage resolve to
+# 10.10.0.11, these NXDOMAIN) — uncomment after adding them where the
+# other aincrad records live.
+# - name: aincrad | tdarr
+#   group: aincrad
+#   url: https://tdarr.vzkn.eu
+#   interval: 1m
+#   conditions:
+#     - "[STATUS] == 200"
+#
+# - name: aincrad | syncthing
+#   group: aincrad
+#   url: https://syncthing.vzkn.eu
+#   interval: 1m
+#   conditions:
+#     - "[STATUS] == 200"
+#
+# - name: aincrad | code-server
+#   group: aincrad
+#   url: https://code.vzkn.eu
+#   interval: 1m
+#   conditions:
+#     - "[STATUS] == 200"

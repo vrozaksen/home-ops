@@ -11,6 +11,7 @@ configMapGenerator:
     files:
       - config.yaml=./resources/config.yaml
       - bifrost.yaml=./resources/bifrost.yaml
+      - aincrad.yaml=./resources/aincrad.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

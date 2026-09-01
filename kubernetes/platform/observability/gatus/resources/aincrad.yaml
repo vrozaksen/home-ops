@@ -16,8 +16,9 @@ endpoints:
     interval: 1m
     conditions:
       - "[STATUS] == 200"
-      # wildcard cert is pushed to the NAS by cert-sync; catches a stale sync
-      - "[CERTIFICATE_EXPIRATION] > 72h"
+      # wildcard is short-lived (7d) and pushed to the NAS by cert-sync;
+      # <6h left = sync went stale
+      - "[CERTIFICATE_EXPIRATION] > 6h"
 
   - name: aincrad | navidrome
     group: aincrad
@@ -33,32 +34,10 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: aincrad | stash
-    group: aincrad
-    url: https://stash.vzkn.eu
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
   # garage daemon health (admin API, no token required)
   - name: aincrad | garage
     group: aincrad
     url: https://admin.s3.vzkn.eu/health
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
-  # kopiur backup repository path; unauthenticated GET = 403 AccessDenied from garage
-  - name: aincrad | garage s3 api
-    group: aincrad
-    url: https://api.s3.vzkn.eu
-    interval: 1m
-    conditions:
-      - "[STATUS] == 403"
-
-  - name: aincrad | garage webui
-    group: aincrad
-    url: https://garage.vzkn.eu
     interval: 1m
     conditions:
       - "[STATUS] == 200"

@@ -44,6 +44,11 @@ spec:
           scanner:
             existingSecret: kyoo-secret
             apikeyKey: scanner_apikey
+            # scanner.trigger on top of chart defaults: inotify is blind to
+            # changes made by other NFS clients (sonarr renames), so the
+            # downloads/webhook kyoo-rescan hook PUTs /scanner/scan with this
+            # key on sonarr-anime/radarr-anime import/rename/delete events
+            claims: '{"permissions": ["core.read", "core.write", "scanner.trigger"]}'
       oidc_providers:
         - name: kanidm
           existingSecret: kanidm-kyoo-oidc

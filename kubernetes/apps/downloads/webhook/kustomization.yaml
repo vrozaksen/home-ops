@@ -12,6 +12,7 @@ configMapGenerator:
       - seerr-pushover.sh=./resources/seerr-pushover.sh
       - radarr-pushover.sh=./resources/radarr-pushover.sh
       - sonarr-pushover.sh=./resources/sonarr-pushover.sh
+      - kyoo-rescan.sh=./resources/kyoo-rescan.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

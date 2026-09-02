@@ -11,4 +11,5 @@ resources:
   - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mesh-bridge/ks.yaml
+  - ./spoolman/ks.yaml
   - ./zigbee/ks.yaml

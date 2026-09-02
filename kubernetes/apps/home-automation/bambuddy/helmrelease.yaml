@@ -48,6 +48,64 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
+          # Server-side slicing sidecar (BambuStudio CLI + HTTP wrapper).
+          # Bambuddy UI: Settings -> Workflow -> Slicer -> http://localhost:3001
+          bambu-studio:
+            image:
+              repository: ghcr.io/maziggy/bambu-studio-api
+              tag: bambuddy-1.2.5.1
+            env:
+              NODE_ENV: production
+              PORT: &bambuPort 3001
+              HOME: /home/ubuntu
+              MAX_MODEL_UPLOAD_MB: "512"
+            probes:
+              liveness: &bambuProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *bambuPort
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *bambuProbes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+          # Server-side slicing sidecar (OrcaSlicer CLI + HTTP wrapper).
+          # Bambuddy UI: Settings -> Workflow -> Slicer -> http://localhost:3003
+          slicer:
+            image:
+              repository: ghcr.io/maziggy/orca-slicer-api
+              tag: bambuddy-1.2.5.1
+            env:
+              NODE_ENV: production
+              PORT: &slicerPort 3003
+              HOME: /home/ubuntu
+              MAX_MODEL_UPLOAD_MB: "512"
+            probes:
+              liveness: &slicerProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *slicerPort
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *slicerProbes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -62,6 +120,15 @@ spec:
           http:
             appProtocol: kubernetes.io/ws
             port: *httpPort
+    # Metrics need a one-time UI toggle: Settings -> Network -> Prometheus Metrics
+    serviceMonitor:
+      app:
+        serviceName: bambuddy
+        endpoints:
+          - port: http
+            path: /api/v1/metrics
+            interval: 1m
+            scrapeTimeout: 10s
     route:
       app:
         annotations:
@@ -89,3 +156,22 @@ spec:
                 subPath: tmp
               - path: /app/logs
                 subPath: logs
+            bambu-studio:
+              - path: /tmp
+                subPath: bambu-tmp
+            slicer:
+              - path: /tmp
+                subPath: slicer-tmp
+      # Scratch space for slice jobs (models + gcode); ephemeral by design,
+      # presets live in bambuddy's own DB
+      slicer-data:
+        type: emptyDir
+        sizeLimit: 10Gi
+        advancedMounts:
+          bambuddy:
+            bambu-studio:
+              - path: /app/data
+                subPath: bambu
+            slicer:
+              - path: /app/data
+                subPath: orca

@@ -3,17 +3,25 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: bambuddy
+  name: spoolman
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: bambuddy
-      app.kubernetes.io/instance: bambuddy
+      app.kubernetes.io/name: spoolman
+      app.kubernetes.io/instance: spoolman
   ingress:
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: network
             gateway.networking.k8s.io/gateway-name: envoy-internal
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    # bambuddy filament inventory sync (same namespace)
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: bambuddy
       toPorts:
         - ports:
             - port: "8000"

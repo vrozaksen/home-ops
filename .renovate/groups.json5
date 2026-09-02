@@ -12,6 +12,16 @@
       "minimumGroupSize": 2
     },
     {
+      "description": ["Bambuddy Group"],
+      "groupName": "bambuddy",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/maziggy/bambuddy/", "/maziggy/orca-slicer-api/", "/maziggy/bambu-studio-api/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Flux Operator Group"],
       "groupName": "flux-operator",
       "matchDatasources": ["docker"],

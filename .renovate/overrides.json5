@@ -20,6 +20,12 @@
       overridePackageName: "ghcr.io/siderolabs/installer",
     },
     {
+      description: "Bambuddy slicer sidecar tags look like bambuddy-X.Y.Z(.W)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/maziggy/orca-slicer-api/", "/maziggy/bambu-studio-api/"],
+      versioning: "regex:^bambuddy-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:\\.(?<build>\\d+))?$",
+    },
+    {
       description: "Custom registry for garage Terraform provider",
       matchDatasources: ["terraform-provider"],
       matchPackageNames: ["schwitzd/garage"],

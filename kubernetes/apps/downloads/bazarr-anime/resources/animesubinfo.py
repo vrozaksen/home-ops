@@ -35,8 +35,11 @@ class AnimesubinfoSubtitle(Subtitle):
         # home-ops patch: declare the source format so profiles with
         # originalFormat enabled keep SSA/ASS styling — upstream never sets
         # _og_format, so everything falls back to an SRT conversion.
+        # Always 'ass' (never 'ssa'): libass parses both, and .ssa files
+        # would get renamed to .ass by our post-processing AFTER bazarr
+        # records the path — leaving DB entries pointing at missing files.
         if format_type and 'SSA' in format_type:
-            self.format = 'ass' if 'Advanced' in format_type else 'ssa'
+            self.format = 'ass'
         self.size = size
         self.download_hash = download_hash
         self.download_count = download_count

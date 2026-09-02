@@ -96,6 +96,13 @@ spec:
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
+      provider-patch:
+        type: configMap
+        name: bazarr-anime-patches
+        globalMounts:
+          - path: /app/bin/custom_libs/subliminal_patch/providers/animesubinfo.py
+            subPath: animesubinfo.py
+            readOnly: true
       data:
         type: nfs
         server: aincrad.home.vzkn.eu

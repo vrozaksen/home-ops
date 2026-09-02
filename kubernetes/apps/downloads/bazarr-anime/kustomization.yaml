@@ -5,6 +5,12 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
+configMapGenerator:
+  # Patched animesubinfo provider (declares SSA/ASS source format) —
+  # mounted over the upstream file, see persistence.provider-patch in the HR.
+  - name: bazarr-anime-patches
+    files:
+      - animesubinfo.py=./resources/animesubinfo.py
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

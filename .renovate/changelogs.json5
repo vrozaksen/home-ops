@@ -1,121 +1,272 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  // `sourceUrl` is what makes Renovate FETCH release notes; `changelogUrl` only
+  // renders a link in the PR body and never pulls content. Use sourceUrl unless
+  // the upstream can't be matched, then fall back to a bare link.
+  //
+  // Matching (release-notes.ts): a release tag must match
+  //   (^|/)(<packageName>|<name-without-host>|<last-path-segment>)[@_/-]v?<version>
+  // or equal <version> / v<version>. `sourceDirectory` does NOT affect tag
+  // matching — it only locates a CHANGELOG.md inside a monorepo subdirectory.
   packageRules: [
+    //
+    // ── Release notes fetched from the source repo ──────────────────────────
+    //
     {
-      description: "Changelog URL for gatus-sidecar",
+      description: "Source for gatus-sidecar",
       matchPackageNames: ["/gatus-sidecar/"],
-      changelogUrl: "https://github.com/home-operations/gatus-sidecar/blob/main/CHANGELOG.md",
+      sourceUrl: "https://github.com/home-operations/gatus-sidecar",
     },
     {
-      description: "Changelog URL for actions-runner-controller",
+      description: "Source for actions-runner-controller",
       matchPackageNames: ["/gha-runner-scale-set/"],
-      changelogUrl: "https://github.com/actions/actions-runner-controller",
+      sourceUrl: "https://github.com/actions/actions-runner-controller",
     },
     {
-      description: "Changelog URL for dragonfly-operator",
+      description: "Source for dragonfly-operator",
       matchPackageNames: ["/dragonfly-operator/"],
-      changelogUrl: "https://github.com/dragonflydb/dragonfly-operator",
+      sourceUrl: "https://github.com/dragonflydb/dragonfly-operator",
     },
     {
-      description: "Changelog URL for tofu-controller",
+      description: "Source for tofu-controller",
       matchPackageNames: ["/tofu-controller/"],
-      changelogUrl: "https://github.com/flux-iac/tofu-controller",
+      sourceUrl: "https://github.com/flux-iac/tofu-controller",
     },
     {
-      description: "Changelog URL for grafana-operator",
+      description: "Source for grafana-operator",
       matchPackageNames: ["/grafana-operator/"],
-      changelogUrl: "https://github.com/grafana/grafana-operator",
+      sourceUrl: "https://github.com/grafana/grafana-operator",
     },
     {
-      description: "Changelog URL for Spegel",
+      description: "Source for Spegel",
       matchPackageNames: ["/spegel/"],
-      changelogUrl: "https://github.com/spegel-org/spegel",
+      sourceUrl: "https://github.com/spegel-org/spegel",
     },
     {
-      description: "Changelog URL for code-server",
+      description: "Source for code-server",
       matchPackageNames: ["/code-server/"],
-      changelogUrl: "https://github.com/coder/code-server",
+      sourceUrl: "https://github.com/coder/code-server",
     },
     {
-      description: "Changelog URL for kubernetes-mcp-server",
+      description: "Source for kubernetes-mcp-server",
       matchPackageNames: ["/kubernetes-mcp-server/"],
-      changelogUrl: "https://github.com/containers/kubernetes-mcp-server",
+      sourceUrl: "https://github.com/containers/kubernetes-mcp-server",
     },
     {
-      description: "Changelog URL for Authentik",
+      description: "Source for Authentik",
       matchPackageNames: ["/goauthentik/"],
-      changelogUrl: "https://github.com/goauthentik/authentik",
+      sourceUrl: "https://github.com/goauthentik/authentik",
     },
     {
-      description: "Changelog URL for Bambuddy",
-      matchPackageNames: ["/bambuddy/"],
-      changelogUrl: "https://github.com/maziggy/bambuddy",
-    },
-    {
-      description: "Changelog URL for Anubis",
+      description: "Source for Anubis",
       matchPackageNames: ["/techarohq/anubis/"],
-      changelogUrl: "https://github.com/TecharoHQ/anubis",
+      sourceUrl: "https://github.com/TecharoHQ/anubis",
     },
     {
-      // K8s-ready fork; versions map 1:1 to upstream forgejo-runner
-      description: "Changelog URL for Forgejo runner (eleboucher fork)",
+      description: "Source for Kanidm",
+      matchPackageNames: ["/kanidm/server/"],
+      sourceUrl: "https://github.com/kanidm/kanidm",
+    },
+    {
+      description: "Source for Atuin",
+      matchPackageNames: ["/atuinsh/atuin/"],
+      sourceUrl: "https://github.com/atuinsh/atuin",
+    },
+    {
+      // Agent images are built out of the wazuh-docker repo, not wazuh/wazuh
+      description: "Source for Wazuh agent",
+      matchPackageNames: ["/wazuh-agent/"],
+      sourceUrl: "https://github.com/wazuh/wazuh-docker",
+    },
+    {
+      // factory.talos.dev is remapped to siderolabs/installer in overrides.json5
+      description: "Source for Talos Linux",
+      matchPackageNames: ["/siderolabs/installer/", "/metal-installer/", "/talosctl/"],
+      sourceUrl: "https://github.com/siderolabs/talos",
+    },
+    {
+      // Codeberg is a Forgejo instance; detectPlatform() supports it natively
+      description: "Source for Towonel (codeberg)",
+      matchPackageNames: ["/towonel/"],
+      sourceUrl: "https://codeberg.org/towonel/towonel",
+    },
+    {
+      // Chart lives in its own repo, doubled path segment is intentional
+      description: "Source for Forgejo Helm chart",
+      matchPackageNames: ["/forgejo-helm/forgejo/"],
+      sourceUrl: "https://code.forgejo.org/forgejo-helm/forgejo-helm",
+    },
+    {
+      // iroh-relay is a crate in the iroh monorepo; tags are plain vX.Y.Z.
+      // Docker org "n0computer" differs from the GitHub org "n0-computer".
+      description: "Source for iroh-relay",
+      matchPackageNames: ["/iroh-relay/"],
+      sourceUrl: "https://github.com/n0-computer/iroh",
+    },
+    {
+      // data-plane Envoy image ($ anchor avoids matching envoyproxy/gateway-helm)
+      description: "Source for Envoy proxy",
+      matchPackageNames: ["/envoyproxy/envoy$/"],
+      sourceUrl: "https://github.com/envoyproxy/envoy",
+    },
+    {
+      description: "Source for Bambuddy",
+      matchPackageNames: ["/maziggy/bambuddy/"],
+      sourceUrl: "https://github.com/maziggy/bambuddy",
+    },
+    //
+    // ── Helm charts in monorepos (sourceDirectory locates the CHANGELOG) ────
+    //
+    {
+      description: "Source for prometheus-community charts",
+      matchPackageNames: ["/charts/kube-prometheus-stack/"],
+      sourceUrl: "https://github.com/prometheus-community/helm-charts",
+      sourceDirectory: "charts/kube-prometheus-stack",
+    },
+    {
+      description: "Source for prometheus-snmp-exporter chart",
+      matchPackageNames: ["/charts/prometheus-snmp-exporter/"],
+      sourceUrl: "https://github.com/prometheus-community/helm-charts",
+      sourceDirectory: "charts/prometheus-snmp-exporter",
+    },
+    {
+      description: "Source for prometheus-blackbox-exporter chart",
+      matchPackageNames: ["/charts/prometheus-blackbox-exporter/"],
+      sourceUrl: "https://github.com/prometheus-community/helm-charts",
+      sourceDirectory: "charts/prometheus-blackbox-exporter",
+    },
+    {
+      // Release tags carry a "-helm-chart-" infix that the tag regex can't
+      // match, so notes come from the chart's own CHANGELOG.md — sourceDirectory
+      // is required here, not optional.
+      description: "Source for metrics-server chart",
+      matchPackageNames: ["/charts-mirror/metrics-server/"],
+      sourceUrl: "https://github.com/kubernetes-sigs/metrics-server",
+      sourceDirectory: "charts/metrics-server",
+    },
+    {
+      description: "Source for victoria-metrics charts",
+      matchPackageNames: ["/helm-charts/victoria-metrics-alert/"],
+      sourceUrl: "https://github.com/VictoriaMetrics/helm-charts",
+      sourceDirectory: "charts/victoria-metrics-alert",
+    },
+    {
+      description: "Source for bjw-s app-template",
+      matchPackageNames: ["/bjw-s-labs/helm/app-template/"],
+      sourceUrl: "https://github.com/bjw-s-labs/helm-charts",
+      sourceDirectory: "charts/other/app-template",
+    },
+    {
+      description: "Source for coredns chart",
+      matchPackageNames: ["/coredns/charts/coredns/"],
+      sourceUrl: "https://github.com/coredns/helm",
+      sourceDirectory: "charts/coredns",
+    },
+    {
+      // Chart versions (0.7.x) are numbered separately from the plugin itself
+      // (v0.14.x), so the charts repo is the correct source, not the plugin repo.
+      description: "Source for plugin-barman-cloud chart",
+      matchPackageNames: ["/charts/plugin-barman-cloud/"],
+      sourceUrl: "https://github.com/cloudnative-pg/charts",
+      sourceDirectory: "charts/plugin-barman-cloud",
+    },
+    {
+      description: "Source for toolhive operator chart",
+      matchPackageNames: ["/toolhive-operator$/"],
+      sourceUrl: "https://github.com/stacklok/toolhive",
+      sourceDirectory: "deploy/charts/operator",
+    },
+    {
+      description: "Source for toolhive operator CRDs chart",
+      matchPackageNames: ["/toolhive-operator-crds/"],
+      sourceUrl: "https://github.com/stacklok/toolhive",
+      sourceDirectory: "deploy/charts/operator-crds",
+    },
+    //
+    // ── Our registry.vzkn.eu/containers/* images (built in ~/git/containers) ─
+    //
+    {
+      description: "Source for flux-operator-mcp",
+      matchPackageNames: ["/containers/flux-operator-mcp/"],
+      sourceUrl: "https://github.com/controlplaneio-fluxcd/flux-operator",
+    },
+    {
+      description: "Source for sentry-mcp",
+      matchPackageNames: ["/containers/sentry-mcp/"],
+      sourceUrl: "https://github.com/getsentry/sentry-mcp",
+    },
+    {
+      description: "Source for mcp-nixos",
+      matchPackageNames: ["/containers/mcp-nixos/"],
+      sourceUrl: "https://github.com/utensils/mcp-nixos",
+    },
+    {
+      description: "Source for talos-mcp",
+      matchPackageNames: ["/containers/talos-mcp/"],
+      sourceUrl: "https://github.com/eleboucher/talos-mcp",
+    },
+    {
+      description: "Source for agentmemory",
+      matchPackageNames: ["/containers/agentmemory/"],
+      sourceUrl: "https://github.com/rohitg00/agentmemory",
+    },
+    //
+    // ── Link-only: upstream can't be matched, so no notes are fetchable ─────
+    //
+    {
+      // Server image tag carries a "-rootless" suffix, so it never matches the
+      // v16.0.1 release tag even though the source repo is correct.
+      description: "Changelog link for Forgejo server",
+      matchPackageNames: ["/code.forgejo.org/forgejo/forgejo/"],
+      changelogUrl: "https://codeberg.org/forgejo/forgejo/releases",
+    },
+    {
+      // git.erwanleboucher.dev is not auto-detected as Forgejo by
+      // detectPlatform(); enabling notes would need a hostRules entry.
+      description: "Changelog link for Forgejo runner (eleboucher fork)",
       matchPackageNames: ["/eleboucher/runner$/"],
       changelogUrl: "https://code.forgejo.org/forgejo/runner",
     },
     {
-      description: "Changelog URL for Forgejo runner-k8s-plugin",
+      description: "Changelog link for Forgejo runner-k8s-plugin",
       matchPackageNames: ["/eleboucher/runner-k8s-plugin/"],
       changelogUrl: "https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin",
     },
     {
-      // factory.talos.dev + ghcr.io/siderolabs/installer resolve to no changelog
-      description: "Changelog URL for Talos Linux",
-      matchPackageNames: ["/siderolabs/installer/", "/metal-installer/"],
-      changelogUrl: "https://github.com/siderolabs/talos",
+      // Chart tags are "chart-vX.Y.Z" and there is no CHANGELOG.md anywhere
+      description: "Changelog link for Reloader",
+      matchPackageNames: ["/stakater/charts/reloader/"],
+      changelogUrl: "https://github.com/stakater/Reloader/releases",
     },
     {
-      description: "Changelog URL for Towonel (codeberg)",
-      matchPackageNames: ["/towonel/"],
-      changelogUrl: "https://codeberg.org/towonel/towonel",
+      // Monorepo tags are "flux-X.Y.Z", which can't match headlamp-plugin-flux
+      description: "Changelog link for headlamp-plugin-flux",
+      matchPackageNames: ["/headlamp-plugin-flux/"],
+      changelogUrl: "https://github.com/headlamp-k8s/plugins/releases",
     },
     {
-      // iroh-relay is a crate in the iroh monorepo
-      description: "Changelog URL for iroh-relay",
-      matchPackageNames: ["/iroh-relay/"],
-      changelogUrl: "https://github.com/n0-computer/iroh",
+      // stacklok/dockyard publishes no tags; upstream tags @upstash/context7-mcp@X
+      description: "Changelog link for context7",
+      matchPackageNames: ["/npx/context7/"],
+      changelogUrl: "https://github.com/upstash/context7/releases",
     },
     {
-      // data-plane Envoy image ($ anchor avoids matching envoyproxy/gateway-helm)
-      description: "Changelog URL for Envoy proxy",
-      matchPackageNames: ["/envoyproxy/envoy$/"],
-      changelogUrl: "https://github.com/envoyproxy/envoy",
-    },
-    // Our registry.vzkn.eu/containers/* images (built in ~/git/containers) point at
-    // the upstream tool each packages, per their image.source labels.
-    {
-      description: "Changelog URL for flux-operator-mcp",
-      matchPackageNames: ["/containers/flux-operator-mcp/"],
-      changelogUrl: "https://github.com/controlplaneio-fluxcd/flux-operator",
+      // Repo has published no releases since 2020
+      description: "Changelog link for Tdarr",
+      matchPackageNames: ["/haveagitgat/tdarr/"],
+      changelogUrl: "https://github.com/HaveAGitGat/Tdarr/releases",
     },
     {
-      description: "Changelog URL for sentry-mcp",
-      matchPackageNames: ["/containers/sentry-mcp/"],
-      changelogUrl: "https://github.com/getsentry/sentry-mcp",
+      // forge wraps nixos/nix; NixOS/nix publishes no GitHub releases
+      description: "Changelog link for forge (nixos/nix)",
+      matchPackageNames: ["/containers/forge/"],
+      changelogUrl: "https://nix.dev/manual/nix/latest/release-notes/",
     },
     {
-      description: "Changelog URL for mcp-nixos",
-      matchPackageNames: ["/containers/mcp-nixos/"],
-      changelogUrl: "https://github.com/utensils/mcp-nixos",
-    },
-    {
-      description: "Changelog URL for talos-mcp",
-      matchPackageNames: ["/containers/talos-mcp/"],
-      changelogUrl: "https://github.com/eleboucher/talos-mcp",
-    },
-    {
-      description: "Changelog URL for agentmemory",
-      matchPackageNames: ["/containers/agentmemory/"],
-      changelogUrl: "https://github.com/rohitg00/agentmemory",
+      // Sidecar tags are "bambuddy-X.Y.Z.W" and the repos carry no releases
+      description: "Changelog link for Bambuddy slicer sidecars",
+      matchPackageNames: ["/maziggy/orca-slicer-api/", "/maziggy/bambu-studio-api/"],
+      changelogUrl: "https://github.com/maziggy/bambuddy/releases",
     },
   ],
 }

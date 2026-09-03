@@ -22,6 +22,43 @@
       "minimumGroupSize": 2
     },
     {
+      // Webhook solver links cert-manager's apiextensions lib; a cert-manager
+      // bump that breaks it breaks the 7-day wildcard renewal.
+      "description": ["Cert-Manager Group (chart + OVH DNS-01 webhook)"],
+      "groupName": "cert-manager",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/charts/cert-manager/", "/cert-manager-webhook-ovh/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
+      // barman-cloud is a CNPG-I sidecar with an operator compatibility range;
+      // a mismatch breaks backups silently, discovered only at restore time.
+      "description": ["CloudNative-PG Group (operator + barman-cloud plugin)"],
+      "groupName": "cloudnative-pg",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/charts/cloudnative-pg/", "/charts/plugin-barman-cloud/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
+      // envoy.yaml pins the proxy tag to override the Gateway default (two
+      // segfault incidents). EG generates xDS for a specific Envoy version, so
+      // an EG bump must be reviewed against that pin in the same PR.
+      "description": ["Envoy Gateway Group (control plane + pinned data plane)"],
+      "groupName": "envoy-gateway",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/envoyproxy/gateway-helm/", "/envoyproxy/envoy$/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       "description": ["Flux Operator Group"],
       "groupName": "flux-operator",
       "matchDatasources": ["docker"],
@@ -30,6 +67,30 @@
         "commitMessageTopic": "{{{groupName}}} group"
       },
       "minimumGroupSize": 3
+    },
+    {
+      // Chart and server image are versioned separately (chart 17.x drives app
+      // 16.x) and have drifted apart before as two independent PRs.
+      "description": ["Forgejo Group (chart + server image)"],
+      "groupName": "forgejo",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/forgejo-helm/forgejo/", "/code.forgejo.org/forgejo/forgejo/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
+      // The k8s plugin is the runner's execution backend from the same release
+      // train; already skewed by three minors.
+      "description": ["Forgejo Runner Group (runner + k8s plugin)"],
+      "groupName": "forgejo-runner",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/eleboucher/runner/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
     },
     {
       "description": ["Infisical Operator Group"],
@@ -68,10 +129,13 @@
       "minimumGroupSize": 2
     },
     {
-      "description": ["Tetragon Group"],
-      "groupName": "tetragon",
+      // The OIDC image tag is the Sentry application version; the chart runs
+      // version-keyed DB migrations and Kafka consumer topologies.
+      // Exact "sentry" avoids sweeping in sentry-kubernetes/-mcp/-forgejo.
+      "description": ["Sentry Group (chart + self-built OIDC image)"],
+      "groupName": "sentry",
       "matchDatasources": ["docker", "helm"],
-      "matchPackageNames": ["/tetragon/"],
+      "matchPackageNames": ["sentry", "/containers/sentry-oidc/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
@@ -88,10 +152,12 @@
       "minimumGroupSize": 2
     },
     {
-      "description": ["Towonel Group (agent + hub)"],
+      // iroh-relay must match the iroh protocol version compiled into towonel;
+      // the 1.5.1 migration required pinning it to a specific release.
+      "description": ["Towonel Group (agent + node + iroh relay)"],
       "groupName": "towonel",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["/towonel-agent/", "/towonel-node/"],
+      "matchPackageNames": ["/towonel-agent/", "/towonel-node/", "/n0computer/iroh-relay/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
@@ -102,6 +168,18 @@
       "groupName": "toolhive",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/toolhive-operator/", "/toolhive-operator-crds/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
+      // Manager version comes only from the chart's appVersion — the agent tag
+      // is the only other knob, and Wazuh does not support agent > manager.
+      "description": ["Wazuh Group (chart + agent)"],
+      "groupName": "wazuh",
+      "matchDatasources": ["docker", "helm"],
+      "matchPackageNames": ["/wazuh/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },

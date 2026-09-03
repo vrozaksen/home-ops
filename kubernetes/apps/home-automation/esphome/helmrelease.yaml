@@ -24,6 +24,7 @@ spec:
               # build artifacts + PIO toolchains on cache PVC, not in backed-up config
               ESPHOME_DATA_DIR: /cache/esphome
               PLATFORMIO_CORE_DIR: /cache/pio
+              XDG_CACHE_HOME: /cache/xdg
               # nodes are on a different L2 — mDNS won't reach, ping does
               ESPHOME_DASHBOARD_USE_PING: "true"
             probes:

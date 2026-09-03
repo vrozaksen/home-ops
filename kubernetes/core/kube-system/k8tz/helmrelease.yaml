@@ -29,11 +29,6 @@ spec:
     replicaCount: 2
     timezone: Europe/Warsaw
     cronJobTimeZone: true
-    ignoredNamespaces:
-      - falco
-      - flux-system
-      - kube-system
-      - security
     nodeSelector:
       node-role.kubernetes.io/control-plane: ""
     tolerations:
@@ -55,6 +50,11 @@ spec:
         issuerRef:
           name: k8tz-selfsigned
           kind: Issuer
+      ignoredNamespaces:
+        - falco
+        - flux-system
+        - kube-system
+        - security
   postRenderers:
     - kustomize:
         patches:

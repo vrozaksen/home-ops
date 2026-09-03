@@ -18,61 +18,94 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
           containers:
+            # Python stdlib rather than curl+jq: an `apk add` at runtime trips
+            # Falco's "Drop and execute new binary in container", and `curl -u`
+            # would put the API password in argv, where Falco copies it into
+            # every alert it raises about this pod.
             - name: rbac-sync
-              image: alpine:3.24
+              image: docker.io/library/python:3.13-alpine
               command:
-                - /bin/sh
+                - python
                 - -c
                 - |
-                  set -eu
-                  apk add -q --no-cache curl jq
+                  import base64
+                  import json
+                  import os
+                  import ssl
+                  import urllib.request
 
-                  API="https://wazuh:55000"
-                  RULE_NAME="kanidm_admins"
+                  API = "https://wazuh:55000"
+                  RULE_NAME = "kanidm_admins"
                   # Kanidm returns groups as SPNs, and the dashboard passes them
                   # to the API under backend_roles when run_as is on.
-                  GROUP="admins@idm.vzkn.eu"
-                  ADMIN_ROLE_ID=1
+                  GROUP = "admins@idm.vzkn.eu"
+                  ADMIN_ROLE_ID = 1
+                  RULE = {"FIND": {"backend_roles": GROUP}}
 
-                  TOKEN=$$(curl -sSk -u "$${API_USERNAME}:$${API_PASSWORD}" \
-                    -X POST "$${API}/security/user/authenticate?raw=true")
-                  AUTH="Authorization: Bearer $${TOKEN}"
+                  # The manager serves the chart's own self-signed cert
+                  # (CN=wazuh.com, SAN=localhost), so no CA in the cluster can
+                  # verify it and the hostname never matches.
+                  ctx = ssl.create_default_context()
+                  ctx.check_hostname = False
+                  ctx.verify_mode = ssl.CERT_NONE
 
-                  BODY=$$(jq -nc --arg n "$${RULE_NAME}" --arg g "$${GROUP}" \
-                    '{name: $$n, rule: {FIND: {backend_roles: $$g}}}')
-                  WANT=$$(echo "$${BODY}" | jq -cS '.rule')
+                  def call(method, path, token=None, body=None):
+                      req = urllib.request.Request(API + path, method=method)
+                      if token is None:
+                          raw = f"{os.environ['API_USERNAME']}:{os.environ['API_PASSWORD']}"
+                          creds = base64.b64encode(raw.encode()).decode()
+                          req.add_header("Authorization", "Basic " + creds)
+                      else:
+                          req.add_header("Authorization", "Bearer " + token)
+                      if body is not None:
+                          req.add_header("Content-Type", "application/json")
+                          req.data = json.dumps(body).encode()
+                      with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
+                          return resp.read().decode()
 
-                  EXISTING=$$(curl -sSk -H "$${AUTH}" "$${API}/security/rules?limit=500" \
-                    | jq -c --arg n "$${RULE_NAME}" \
-                      '[.data.affected_items[]? | select(.name == $$n)][0] // empty')
-                  RULE_ID=$$(echo "$${EXISTING}" | jq -r '.id // empty')
+                  token = call("POST", "/security/user/authenticate?raw=true")
 
-                  if [ -z "$${RULE_ID}" ]; then
-                    RULE_ID=$$(curl -sSk -H "$${AUTH}" -H 'Content-Type: application/json' \
-                      -X POST "$${API}/security/rules" -d "$${BODY}" \
-                      | jq -r '.data.affected_items[0].id')
-                    echo "created rule $${RULE_NAME} (id $${RULE_ID})"
-                  elif [ "$$(echo "$${EXISTING}" | jq -cS '.rule')" != "$${WANT}" ]; then
-                    # Only when it actually differs -- a PUT drops the rule's
-                    # role links, so doing it unconditionally would unlink and
-                    # relink on every run.
-                    curl -sSk -H "$${AUTH}" -H 'Content-Type: application/json' \
-                      -X PUT "$${API}/security/rules/$${RULE_ID}" -d "$${BODY}" >/dev/null
-                    echo "corrected rule $${RULE_NAME} (id $${RULE_ID})"
-                  fi
+                  rules = json.loads(call("GET", "/security/rules?limit=500", token))
+                  existing = next(
+                      (r for r in rules["data"]["affected_items"] if r["name"] == RULE_NAME),
+                      None,
+                  )
+                  body = {"name": RULE_NAME, "rule": RULE}
 
-                  LINKED=$$(curl -sSk -H "$${AUTH}" "$${API}/security/roles?role_ids=$${ADMIN_ROLE_ID}" \
-                    | jq -r --argjson r "$${RULE_ID}" \
-                      '[.data.affected_items[0].rules[]? | select(. == $$r)] | length')
+                  if existing is None:
+                      created = json.loads(call("POST", "/security/rules", token, body))
+                      rule_id = created["data"]["affected_items"][0]["id"]
+                      print(f"created rule {RULE_NAME} (id {rule_id})")
+                  else:
+                      rule_id = existing["id"]
+                      if existing["rule"] != RULE:
+                          # Only when it actually differs -- a PUT drops the
+                          # rule's role links, so doing it unconditionally would
+                          # unlink and relink on every run.
+                          call("PUT", f"/security/rules/{rule_id}", token, body)
+                          print(f"corrected rule {RULE_NAME} (id {rule_id})")
 
-                  if [ "$${LINKED}" = "0" ]; then
-                    curl -sSk -H "$${AUTH}" \
-                      -X POST "$${API}/security/roles/$${ADMIN_ROLE_ID}/rules?rule_ids=$${RULE_ID}" >/dev/null
-                    echo "linked rule $${RULE_ID} to role $${ADMIN_ROLE_ID}"
-                  fi
+                  roles = json.loads(
+                      call("GET", f"/security/roles?role_ids={ADMIN_ROLE_ID}", token)
+                  )
+                  linked = roles["data"]["affected_items"][0].get("rules", [])
 
-                  echo "wazuh rbac in sync: rule $${RULE_ID} -> role $${ADMIN_ROLE_ID}"
+                  if rule_id not in linked:
+                      call(
+                          "POST",
+                          f"/security/roles/{ADMIN_ROLE_ID}/rules?rule_ids={rule_id}",
+                          token,
+                      )
+                      print(f"linked rule {rule_id} to role {ADMIN_ROLE_ID}")
+
+                  print(f"wazuh rbac in sync: rule {rule_id} -> role {ADMIN_ROLE_ID}")
               # Named explicitly rather than envFrom: the secret also holds
               # `authd.pass`, which is not a legal environment variable name.
               env:
@@ -86,6 +119,14 @@ spec:
                     secretKeyRef:
                       name: wazuh-credentials
                       key: API_PASSWORD
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - "ALL"
               resources:
                 requests:
                   cpu: 25m

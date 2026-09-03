@@ -106,6 +106,25 @@ spec:
               comps: [in]
               values:
                 - [[actions-runner-system, development]]
+            # Patches its bundled chromedriver into /app on every start, so
+            # the binary is always newer than the image layer.
+            - name: flaresolverr_chromedriver
+              fields: [container.image.repository, proc.exepath]
+              comps: [=, =]
+              values:
+                - [ghcr.io/flaresolverr/flaresolverr, /app/chromedriver]
+
+        # Wazuh's own file-integrity monitoring reads /etc/shadow inside its
+        # container -- that is the product working, not credential theft.
+        - rule: Read sensitive file untrusted
+          override:
+            exceptions: append
+          exceptions:
+            - name: wazuh_fim
+              fields: [container.image.repository, proc.name]
+              comps: [=, in]
+              values:
+                - [docker.io/wazuh/wazuh-manager, [wazuh-syscheckd, wazuh-modulesd]]
 
     falcoctl:
       artifact:

@@ -165,8 +165,10 @@ spec:
           # fills Alertmanager. Notice-level findings stay in the pod logs.
           minimumpriority: warning
           extralabels: "category:security,component:falco"
-          # Output fields become labels, so events never deduplicate.
-          expireafter: "3600"
+          # No expireafter: sidekick 2.32.0 stamps both startsAt and endsAt at
+          # event time + that value, so every alert landed an hour in the
+          # future and sat there. Alertmanager's 5m resolve_timeout expires
+          # them instead -- output fields become labels, so they never dedupe.
           # Upstream emits `information`, which matches no route here.
           # Only emergency/alert/critical page loudly.
           customseveritymap: "emergency:critical,alert:critical,critical:critical,error:warning,warning:warning,notice:info,informational:info,debug:info"

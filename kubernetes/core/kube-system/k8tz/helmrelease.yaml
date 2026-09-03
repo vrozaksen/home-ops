@@ -30,6 +30,7 @@ spec:
     timezone: Europe/Warsaw
     cronJobTimeZone: true
     ignoredNamespaces:
+      - falco
       - flux-system
       - kube-system
       - security

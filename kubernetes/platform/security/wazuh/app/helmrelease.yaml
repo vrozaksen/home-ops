@@ -38,6 +38,18 @@ spec:
                 name: wazuh
                 labels:
                   home-ops.io/l2-announce: "true"
+          # The dashboard renders wazuh.yml from envFrom at start, so a rotated
+          # API password only reaches it on restart.
+          - target:
+              kind: Deployment
+              name: wazuh-dashboard
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wazuh-dashboard
+                annotations:
+                  reloader.stakater.com/auto: "true"
   values:
     # cert-manager already runs in the cluster, so only the Certificates are
     # wanted. With issuer.name unset the chart creates its own self-signed one.

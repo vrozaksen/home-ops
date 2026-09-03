@@ -30,7 +30,7 @@ spec:
             # would put the API password in argv, where Falco copies it into
             # every alert it raises about this pod.
             - name: rbac-sync
-              image: docker.io/library/python:3.13-alpine
+              image: docker.io/library/python:3.14-alpine
               command:
                 - python
                 - -c

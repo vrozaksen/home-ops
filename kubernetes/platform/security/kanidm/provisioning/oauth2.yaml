@@ -325,3 +325,33 @@ data:
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/kyoo.svg" }
         }
       } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-home-automation
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: home-automation
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "bambuddy": {
+          "present": true, "displayName": "Bambuddy",
+          "originUrl": "https://bambuddy.vzkn.eu/api/v1/auth/oidc/callback",
+          "originLanding": "https://bambuddy.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/bambu-lab.svg" }
+        },
+        "orcaslicer": {
+          "present": true, "displayName": "OrcaSlicer",
+          "originUrl": "https://orcaslicer.vzkn.eu/oauth2/callback",
+          "originLanding": "https://orcaslicer.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/orcaslicer.png" }
+        }
+      } } }

@@ -13,6 +13,10 @@ spec:
       app.kubernetes.io/name: forgejo-runner-instance
   enableDefaultDeny:
     ingress: true
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: buildkit
   egress:
     - # Forgejo server
       toEndpoints:

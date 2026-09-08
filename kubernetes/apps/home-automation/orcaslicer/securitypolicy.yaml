@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: orcaslicer
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/orcaslicer
+    clientID: orcaslicer
+    clientSecret:
+      name: kanidm-orcaslicer-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://orcaslicer.vzkn.eu/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: orcaslicer.vzkn.eu
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+      - "groups"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: orcaslicer

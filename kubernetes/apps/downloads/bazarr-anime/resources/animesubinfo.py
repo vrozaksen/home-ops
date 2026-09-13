@@ -429,6 +429,37 @@ class AnimesubinfoProvider(Provider):
         logger.info(f'Returning {len(all_subtitles)} subtitles')
         return all_subtitles
 
+    @staticmethod
+    def _pick_archive_member(subtitle, subtitle_files):
+        """Pick the archive member matching the wanted episode.
+
+        home-ops patch. Packs on animesub.info hold a whole season, so taking the
+        first member gives every episode the subtitles of episode 1.
+        """
+        video = getattr(subtitle, 'video', None)
+        wanted = [n for n in (getattr(video, 'episode', None),
+                              getattr(video, 'absolute_episode', None),
+                              getattr(subtitle, 'episode', None)) if n]
+        if not wanted or len(subtitle_files) == 1:
+            return subtitle_files[0]
+
+        for name in subtitle_files:
+            stem = os.path.splitext(os.path.basename(name))[0]
+            # Drop tokens that carry digits but never an episode number
+            cleaned = re.sub(
+                r'(?i)\b(?:19|20)\d{2}\b|\b\d{3,4}[pi]\b|x26[45]|h\.?26[45]|'
+                r'\d{1,2}\s?bit|\[[0-9a-f]{8}\]', ' ', stem)
+            numbers = [int(x) for x in re.findall(r'(?i)(?:ep|odc|e)[\s._-]*(\d{1,3})', cleaned)]
+            if not numbers:
+                numbers = [int(x) for x in re.findall(r'(?<!\d)(\d{1,3})(?!\d)', cleaned)]
+            if any(n in numbers for n in wanted):
+                logger.info(f'Archive member {name!r} matches episode {wanted[0]}')
+                return name
+
+        logger.warning(f'No archive member matches episode {wanted[0]}, '
+                       f'falling back to {subtitle_files[0]!r}')
+        return subtitle_files[0]
+
     def download_subtitle(self, subtitle):
         """Download the subtitle content."""
         try:
@@ -460,9 +491,9 @@ class AnimesubinfoProvider(Provider):
                         logger.error('No subtitle file found in ZIP archive')
                         return
 
-                    # Use the first subtitle file found
-                    # TODO: Could be improved to select best matching file
-                    subtitle_file = subtitle_files[0]
+                    # home-ops patch: upstream always took subtitle_files[0], so every
+                    # episode covered by a multi-episode pack got episode 1's subtitles.
+                    subtitle_file = self._pick_archive_member(subtitle, subtitle_files)
                     logger.info(f'Extracting subtitle file: {subtitle_file}')
 
                     subtitle.content = fix_line_ending(zf.read(subtitle_file))

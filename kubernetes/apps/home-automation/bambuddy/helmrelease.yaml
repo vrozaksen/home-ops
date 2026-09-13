@@ -120,6 +120,49 @@ spec:
           http:
             appProtocol: kubernetes.io/ws
             port: *httpPort
+      # Virtual printer
+      vp:
+        controller: bambuddy
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.45
+        ports:
+          bind:
+            port: 3000
+          detect:
+            port: 3002
+          ssdp:
+            port: 2021
+            protocol: UDP
+          mqtt:
+            port: 8883
+          ftps:
+            port: 990
+          # A1/P1 stream chamber images on 6000; X1/H2 would need 322 instead
+          camera:
+            port: 6000
+          # Passive FTP slice for VP id 1 (base 50000, 10 ports per VP).
+          # A second VP would need 50010-50019 added here.
+          ftp-pasv-0:
+            port: 50000
+          ftp-pasv-1:
+            port: 50001
+          ftp-pasv-2:
+            port: 50002
+          ftp-pasv-3:
+            port: 50003
+          ftp-pasv-4:
+            port: 50004
+          ftp-pasv-5:
+            port: 50005
+          ftp-pasv-6:
+            port: 50006
+          ftp-pasv-7:
+            port: 50007
+          ftp-pasv-8:
+            port: 50008
+          ftp-pasv-9:
+            port: 50009
     # Metrics need a one-time UI toggle: Settings -> Network -> Prometheus Metrics
     serviceMonitor:
       app:
@@ -139,6 +182,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
     persistence:
       config:
         existingClaim: bambuddy

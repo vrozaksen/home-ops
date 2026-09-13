@@ -33,12 +33,13 @@ spec:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: network
             gateway.networking.k8s.io/gateway-name: envoy-external
-    # Virtual printer: OrcaSlicer "Send" speaks the printer protocol — MQTT for
-    # control, FTPS plus a passive data range for the plate itself.
+    # Virtual printer: a slicer "Send" speaks the printer protocol — MQTT for
+    # control, FTPS plus a passive data range for the plate itself. Reachable
+    # from the in-cluster OrcaSlicer and from desktop slicers on the LAN.
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/name: orcaslicer
-      toPorts:
+      toPorts: &vpPorts
         - ports:
             - port: "3000"
               protocol: TCP
@@ -55,3 +56,7 @@ spec:
               protocol: TCP
             - port: "2021"
               protocol: UDP
+    # Desktop slicers on the clients VLAN
+    - fromCIDR:
+        - 10.100.0.0/24
+      toPorts: *vpPorts

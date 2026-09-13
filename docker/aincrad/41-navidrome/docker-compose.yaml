@@ -23,7 +23,7 @@ services:
       ND_BASEURL: https://music.vzkn.eu
       ND_PORT: "8080"
       ND_ENABLEINSIGHTSCOLLECTOR: "false"
-      ND_COVERJPEGQUALITY: "100"
+      ND_COVERARTQUALITY: "100"
       ND_DEFAULTTHEME: Spotify-ish
       ND_ENABLEDOWNLOADS: "true"
       ND_ENABLEEXTERNALSERVICES: "true"
@@ -34,7 +34,7 @@ services:
       ND_PROMETHEUS_ENABLED: "true"
       ND_PROMETHEUS_METRICSPATH: /metrics
       ND_SCANNER_SCHEDULE: "@every 1h"
-      ND_SEARCHFULLSTRING: "true"
+      ND_SEARCH_FULLSTRING: "true"
       ND_TRANSCODINGCACHESIZE: 1GB
       ND_SUBSONIC_ARTISTPARTICIPATIONS: "true"
       # Plugins (WASM/Extism sandbox). .ndp files fetched by navidrome-plugins service.
@@ -62,7 +62,7 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 15s
+      start_period: 300s
     deploy:
       resources:
         limits:

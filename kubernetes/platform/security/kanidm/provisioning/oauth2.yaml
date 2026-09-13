@@ -352,6 +352,6 @@ data:
           "originLanding": "https://orcaslicer.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "allowInsecureClientDisablePkce": true,
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/orcaslicer.png" }
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/printer.svg" }
         }
       } } }

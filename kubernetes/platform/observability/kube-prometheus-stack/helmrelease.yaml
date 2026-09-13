@@ -23,6 +23,10 @@ spec:
     kind: OCIRepository
     name: kube-prometheus-stack
   interval: 1h
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   valuesFrom:
     - kind: ConfigMap
       name: flux-metrics-configmap

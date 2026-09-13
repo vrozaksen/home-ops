@@ -4,7 +4,7 @@ name: emby
 services:
   emby:
     # renovate: datasource=docker depName=ghcr.io/home-operations/emby
-    image: ghcr.io/home-operations/emby:4.9.5.0
+    image: ghcr.io/home-operations/emby:4.10.0.40
     container_name: emby
     restart: unless-stopped
     labels:

@@ -197,7 +197,7 @@ data:
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "rxresume": {
           "present": true, "displayName": "Reactive Resume",
-          "originUrl": "https://rxresume.vzkn.eu/api/auth/oauth2/callback/custom",
+          "originUrl": "https://rxresume.vzkn.eu/api/auth/callback/custom",
           "originLanding": "https://rxresume.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/reactive-resume.svg" }

@@ -18,11 +18,11 @@ shell history, AI agent state — accessible from any device with SSH.
 | Component | Role |
 | --- | --- |
 | `Deployment` (single replica, `Recreate`) | Plain sshd pod, no sidecars. |
-| PVC `forge` (50Gi ceph-block, via volsync) | `subPath: home` → `/home/vrozaksen`, `subPath: keys` → `/etc/ssh/keys`. |
-| Service `forge-ssh:22` (ClusterIP) | Targeted by towonel-agent passthrough. |
-| Towonel agent | TCP forward `forge-ssh.development:22` → bifrost VPS `:2222`. |
+| PVC `forge` (50Gi ceph-block, via kopiur) | `subPath: home` → `/home/vrozaksen`, `subPath: keys` → `/etc/ssh/keys`. |
+| Service `forge:22` (ClusterIP) | Single service, so app-template names it after the release, not `forge-ssh`. |
+| Towonel agent | TCP forward `forge.development:22` → bifrost VPS `:2222`. |
 | DNSEndpoint | `forge.vzkn.eu` → VPS IP via external-dns. |
-| Volsync (Kopia) | Hourly snapshots → S3 (24h/10d/5w/3m retention). |
+| Kopiur (Kopia) | Hourly snapshots → Garage S3 (24h/10d/5w/3m retention). |
 
 ## SSH security
 
@@ -46,10 +46,25 @@ shell history, AI agent state — accessible from any device with SSH.
 4. First login — install tooling via home-manager:
    ```sh
    nix run home-manager -- switch \
-     --flake github:vrozaksen/nix-config#vrozaksen-forge
+     --flake git+https://git.vzkn.eu/vrozaksen/nix-config#vrozaksen-forge
    ```
 5. Copy your git ssh key once for forgejo/github push:
    ```sh
    scp ~/.ssh/id_ed25519 forge.vzkn.eu:~/.ssh/   # from your workstation
    ```
+
+## Claude Code from a phone (Remote Control)
+
+Forge is the always-on host that Remote Control needs — sessions survive the
+workstation sleeping. Inside a zellij session on the pod:
+
+```sh
+claude /login                             # once; OAuth creds persist on the PVC
+claude remote-control --spawn worktree    # server mode, each session its own worktree
+```
+
+Then drive it from the Claude mobile app or claude.ai/code — no SSH needed.
+Set `attribution` (`commit`/`pr` empty, `sessionUrl: false`) in the pod's
+`~/.claude/settings.json` so commits carry no Claude trailer; best done in
+`nix-config#vrozaksen-forge` so it survives a PVC rebuild.
 

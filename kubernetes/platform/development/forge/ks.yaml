@@ -21,6 +21,7 @@ spec:
       APP: *app
       NS: &ns development
       KOPIUR_CAPACITY: 50Gi
+      KOPIUR_PGID: "1000"  # home is 1000:1000; default PGID 100 would restore wrong group
   prune: true
   sourceRef:
     kind: GitRepository

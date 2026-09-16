@@ -15,7 +15,10 @@ metadata:
   name: wazuh
 spec:
   interval: 1h
-  timeout: 20m
+  # The indexer migrates its data directory on start and OpenSearch refuses to
+  # run on metadata written by a newer version. A remediated upgrade therefore
+  # leaves it unstartable, so the window has to outlast the migration.
+  timeout: 45m
   chart:
     spec:
       chart: wazuh

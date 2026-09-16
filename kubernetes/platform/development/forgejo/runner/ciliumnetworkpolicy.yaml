@@ -17,6 +17,15 @@ spec:
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/name: buildkit
+    # Reply path, not a real ingress: jobs reach git.vzkn.eu and
+    # registry.vzkn.eu over the public hostnames, which resolve to the
+    # envoy-external LoadBalancer. When the picked backend shares this node the
+    # SYN-ACK misses conntrack and is judged as a new ingress connection, so
+    # the job hangs until curl times out.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.networking.k8s.io/gateway-name: envoy-external
   egress:
     - # Forgejo server
       toEndpoints:

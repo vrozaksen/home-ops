@@ -47,6 +47,83 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
+      # Chart defaults reserve 300m (nodeplugin) + 400m (provisioner) while the
+      # containers idle at 1-5m — these are gRPC shims that only work during
+      # attach/detach/resize. Over 6 nodes that held ~2.2 CPU hostage and left
+      # workers at 96-98% CPU requests, which made descheduler nodeFit reject
+      # every rebalance. Headroom kept on csi-rbdplugin: it does the actual rbd
+      # map work during a mass remount storm.
+      csiRBDPluginResource: |
+        - name: driver-registrar
+          resource:
+            requests:
+              memory: 64Mi
+              cpu: 10m
+            limits:
+              memory: 256Mi
+        - name: csi-rbdplugin
+          resource:
+            requests:
+              memory: 256Mi
+              cpu: 50m
+            limits:
+              memory: 1Gi
+        - name: liveness-prometheus
+          resource:
+            requests:
+              memory: 64Mi
+              cpu: 10m
+            limits:
+              memory: 256Mi
+      csiRBDProvisionerResource: |
+        - name: csi-provisioner
+          resource:
+            requests:
+              memory: 128Mi
+              cpu: 25m
+            limits:
+              memory: 256Mi
+        - name: csi-resizer
+          resource:
+            requests:
+              memory: 128Mi
+              cpu: 25m
+            limits:
+              memory: 256Mi
+        - name: csi-attacher
+          resource:
+            requests:
+              memory: 128Mi
+              cpu: 25m
+            limits:
+              memory: 256Mi
+        - name: csi-snapshotter
+          resource:
+            requests:
+              memory: 128Mi
+              cpu: 25m
+            limits:
+              memory: 256Mi
+        - name: csi-rbdplugin
+          resource:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+        - name: csi-omap-generator
+          resource:
+            requests:
+              memory: 256Mi
+              cpu: 50m
+            limits:
+              memory: 1Gi
+        - name: liveness-prometheus
+          resource:
+            requests:
+              memory: 64Mi
+              cpu: 10m
+            limits:
+              memory: 256Mi
     image:
       repository: ghcr.io/rook/ceph
     monitoring:

@@ -480,12 +480,44 @@ class AnimesubinfoProvider(Provider):
                        f'falling back to {subtitle_files[0]!r}')
         return subtitle_files[0]
 
+    def _refresh_download_hash(self, subtitle):
+        """Fetch a currently valid 'sh' token for this subtitle.
+
+        home-ops patch. animesub.info rotates the download token on every page
+        load, and the provider runs several search strategies — so the token
+        captured while parsing results is already dead by download time and the
+        POST returns an HTML error page instead of subtitles. Callers must POST
+        immediately after this, since any further request rotates it again.
+        """
+        for title in (subtitle.title_org, subtitle.title_eng, subtitle.title_alt):
+            if not title:
+                continue
+            try:
+                response = self.session.get(self.search_url,
+                                            params={'szukane': title, 'pTitle': 'org'},
+                                            timeout=10)
+                response.raise_for_status()
+            except Exception as e:
+                logger.debug(f'Could not refresh download token via {title!r}: {e}')
+                continue
+
+            match = re.search(
+                r"name=.id.\s+value=.%s.[^>]*>.{0,400}?name=.sh.\s+value=.([a-f0-9]+)."
+                % re.escape(str(subtitle.subtitle_id)), response.text, re.S)
+            if match:
+                return match.group(1)
+
+        logger.warning(f'No fresh download token for subtitle {subtitle.subtitle_id}, '
+                       f'using the one from search (download will likely fail)')
+        return None
+
     def download_subtitle(self, subtitle):
         """Download the subtitle content."""
         try:
             data = {
                 'id': subtitle.subtitle_id,
-                'sh': subtitle.download_hash,
+                # home-ops patch: token must be fetched right before the POST
+                'sh': self._refresh_download_hash(subtitle) or subtitle.download_hash,
                 'single_file': 'Pobierz napisy'  # Submit button value
             }
 

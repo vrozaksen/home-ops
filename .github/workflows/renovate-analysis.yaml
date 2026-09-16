@@ -1,0 +1,140 @@
+---
+name: Renovate Analysis
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  analyse:
+    if: startsWith(github.head_ref, 'renovate/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Renovate's conventional-commit title carries the package and both
+      # versions: "feat(container): update image ghcr.io/foo/bar (1.2.3 → 1.3.0)"
+      - name: Parse package and version delta
+        id: parse
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pkg=$(printf '%s' "$TITLE" | sed -nE 's/.*update (image|chart|provider) ([^ ]+) .*/\2/p')
+          from=$(printf '%s' "$TITLE" | sed -nE 's/.*\(([^ ]+) → ([^)]+)\).*/\1/p')
+          to=$(printf '%s' "$TITLE"   | sed -nE 's/.*\(([^ ]+) → ([^)]+)\).*/\2/p')
+          [ -n "$pkg" ] && [ -n "$from" ] && [ -n "$to" ] || { echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; }
+          {
+            echo "skip=false"
+            echo "pkg=$pkg"
+            echo "from=$from"
+            echo "to=$to"
+          } >> "$GITHUB_OUTPUT"
+
+      # Prefer the sourceUrl we already curate for Renovate; fall back to the
+      # image's OCI source label. Without a source there is nothing to read.
+      - name: Resolve upstream source
+        id: source
+        if: steps.parse.outputs.skip != 'true'
+        env:
+          PKG: ${{ steps.parse.outputs.pkg }}
+        run: |
+          src=$(python3 - "$PKG" <<'PY'
+          import json, re, sys, pathlib
+          pkg = sys.argv[1]
+          raw = pathlib.Path(".renovate/changelogs.json5").read_text()
+          raw = re.sub(r"^\s*//.*$", "", raw, flags=re.M)
+          raw = re.sub(r",(\s*[}\]])", r"\1", raw)
+          raw = re.sub(r"^(\s*)([A-Za-z_$][\w$]*)\s*:", r'\1"\2":', raw, flags=re.M)
+          for rule in json.loads(raw).get("packageRules", []):
+              url = rule.get("sourceUrl")
+              if not url:
+                  continue
+              for pat in rule.get("matchPackageNames", []):
+                  body = pat[1:-1] if pat.startswith("/") and pat.endswith("/") else re.escape(pat)
+                  if re.search(body, pkg):
+                      print(url)
+                      sys.exit(0)
+          PY
+          )
+          if [ -z "$src" ]; then
+            go install github.com/google/go-containerregistry/cmd/crane@latest 2>/dev/null || true
+            src=$("$HOME"/go/bin/crane config "$PKG:${{ steps.parse.outputs.to }}" 2>/dev/null \
+              | jq -r '.config.Labels["org.opencontainers.image.source"] // empty')
+          fi
+          echo "url=$src" >> "$GITHUB_OUTPUT"
+
+      # Everything below is deterministic. The value is in reading the real
+      # upstream notes between the two versions, not the Renovate PR body.
+      - name: Fetch release notes between versions
+        id: notes
+        if: steps.source.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SRC: ${{ steps.source.outputs.url }}
+          FROM: ${{ steps.parse.outputs.from }}
+          TO: ${{ steps.parse.outputs.to }}
+        run: |
+          case "$SRC" in
+            https://github.com/*) repo=${SRC#https://github.com/} ;;
+            *) echo "unsupported host, link only" ; exit 0 ;;
+          esac
+          gh api "repos/$repo/releases?per_page=100" --paginate \
+            | jq --arg from "$FROM" --arg to "$TO" '
+                [ .[]
+                  | select(.draft | not)
+                  | {tag: .tag_name, name: .name, body: (.body // "")}
+                ]' > releases.json
+          jq -r '.[] | "## \(.tag)\n\(.body)\n"' releases.json > notes.md
+          wc -c < notes.md
+
+      # A removed or renamed option only matters if it appears in our files.
+      - name: Cross-reference against this repo
+        id: xref
+        if: steps.source.outputs.url != ''
+        run: |
+          grep -oiE '`[A-Za-z0-9_.-]{4,}`' notes.md 2>/dev/null \
+            | tr -d '`' | sort -u > candidates.txt || true
+          : > hits.md
+          while read -r opt; do
+            [ ${#opt} -ge 6 ] || continue
+            hit=$(grep -rln --include='*.yaml' --include='*.yml' --include='*.json5' \
+                   --include='*.tf' --include='*.j2' -F "$opt" \
+                   kubernetes bootstrap docker talos terraform 2>/dev/null | head -3)
+            [ -n "$hit" ] && printf -- '- `%s` → %s\n' "$opt" "$(echo "$hit" | tr '\n' ' ')" >> hits.md
+          done < candidates.txt
+          head -40 hits.md
+
+      - name: Comment on PR
+        if: steps.source.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |-
+          {
+            echo "### Upstream analysis"
+            echo
+            echo "**${{ steps.parse.outputs.pkg }}** \`${{ steps.parse.outputs.from }}\` → \`${{ steps.parse.outputs.to }}\`"
+            echo "Source: ${{ steps.source.outputs.url }}"
+            echo
+            echo "#### Signals"
+            grep -inE 'breaking|no longer|removed|renamed|deprecat|must (now|be)|default (is|changed)' notes.md \
+              | head -25 | sed 's/^/- /' || echo "_none matched_"
+            echo
+            if [ -s hits.md ]; then
+              echo "#### Mentioned identifiers found in this repo"
+              cat hits.md | head -25
+            else
+              echo "_No identifier from the notes appears in this repo._"
+            fi
+          } > comment.md
+          gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none

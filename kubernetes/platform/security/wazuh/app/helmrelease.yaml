@@ -65,6 +65,10 @@ spec:
     # Control planes have 12Gi soldered and already sit at 70-85%, so every
     # component is pinned away from them and prefers the 64Gi worker.
     indexer:
+      # Chart appVersion is pinned at 4.14.3; upstream 4.14.x is at .7 and the
+      # agent must never be newer than the manager. All three must match.
+      images:
+        tag: "4.14.7"
       replicas: 1
       cred:
         existingSecret: wazuh-credentials
@@ -106,6 +110,8 @@ spec:
                       - "alfheim"
 
     wazuh:
+      images:
+        tag: "4.14.7"
       apiCred:
         existingSecret: wazuh-credentials
       authd:
@@ -171,6 +177,8 @@ spec:
       enabled: false
 
     dashboard:
+      images:
+        tag: "4.14.7"
       replicas: 1
       cred:
         existingSecret: wazuh-credentials

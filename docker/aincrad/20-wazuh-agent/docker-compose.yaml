@@ -3,7 +3,7 @@ name: wazuh-agent
 
 services:
   wazuh-agent:
-    image: wazuh/wazuh-agent:4.14.3
+    image: wazuh/wazuh-agent:4.14.7
     container_name: wazuh-agent
     restart: unless-stopped
     # Matches the manager: agents newer than the manager are unsupported.

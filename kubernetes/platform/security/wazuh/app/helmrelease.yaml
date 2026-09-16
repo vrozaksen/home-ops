@@ -68,7 +68,8 @@ spec:
       # Chart appVersion is pinned at 4.14.3; upstream 4.14.x is at .7 and the
       # agent must never be newer than the manager. All three must match.
       images:
-        tag: "4.14.7"
+        # renovate: datasource=docker depName=wazuh/wazuh-indexer
+        tag: 4.14.7
       replicas: 1
       cred:
         existingSecret: wazuh-credentials
@@ -111,7 +112,8 @@ spec:
 
     wazuh:
       images:
-        tag: "4.14.7"
+        # renovate: datasource=docker depName=wazuh/wazuh-manager
+        tag: 4.14.7
       apiCred:
         existingSecret: wazuh-credentials
       authd:
@@ -178,7 +180,8 @@ spec:
 
     dashboard:
       images:
-        tag: "4.14.7"
+        # renovate: datasource=docker depName=wazuh/wazuh-dashboard
+        tag: 4.14.7
       replicas: 1
       cred:
         existingSecret: wazuh-credentials

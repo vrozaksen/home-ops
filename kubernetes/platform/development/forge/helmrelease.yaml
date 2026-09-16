@@ -23,8 +23,6 @@ spec:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/forge
               repository: registry.vzkn.eu/containers/forge
               tag: 2.35.2@sha256:2e952a1979896ccc897c3905951186993c07bd39c6bfc35c67663f734a045d82
-            env:
-              TZ: ${TZ}
             resources:
               requests:
                 cpu: 500m

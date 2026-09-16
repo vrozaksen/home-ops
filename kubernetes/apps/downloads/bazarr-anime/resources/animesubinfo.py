@@ -18,6 +18,26 @@ from random import randint
 
 logger = logging.getLogger(__name__)
 
+# home-ops patch: animesub titles sequels as separate entries ("Overlord II",
+# "Shingeki no Kyojin Season 3"), which upstream happily matches against any
+# season. Returns the season stated in a title, or None when it states none.
+_ROMAN = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8}
+
+
+def _title_season(title):
+    if not title:
+        return None
+    match = re.search(r'(?i)\b(?:season|sezon)\s*(\d{1,2})\b', title)
+    if match:
+        return int(match.group(1))
+    match = re.search(r'(?i)\b(\d{1,2})(?:nd|rd|th|st)\s+season\b', title)
+    if match:
+        return int(match.group(1))
+    match = re.search(r'(?i)\s(VIII|VII|VI|IV|V|III|II|I)\b(?=\s*(?:ep|odc|\d|$))', title)
+    if match:
+        return _ROMAN[match.group(1).upper()]
+    return None
+
 
 class AnimesubinfoSubtitle(Subtitle):
     """AnimeSub.info Subtitle."""
@@ -400,13 +420,18 @@ class AnimesubinfoProvider(Provider):
                         search_strategies.append(('pl', search_title_with_ep))
 
                 # Strategy 2: search with absolute episode number
+                # home-ops patch: animesub numbers long-runners zero-padded, and
+                # its search is literal — "Naruto ep89" returns nothing while
+                # "Naruto ep089" returns the entries. Try both spellings.
                 if video.absolute_episode:
-                    search_title_with_ep = f'{search_title} ep{video.absolute_episode}'
-                    if eng:
-                        search_strategies.append(('en', search_title_with_ep))
-                    else:
-                        search_strategies.append(('org', search_title_with_ep))
-                        search_strategies.append(('pl', search_title_with_ep))
+                    for number in dict.fromkeys((f'{video.absolute_episode}',
+                                                 f'{video.absolute_episode:03d}')):
+                        search_title_with_ep = f'{search_title} ep{number}'
+                        if eng:
+                            search_strategies.append(('en', search_title_with_ep))
+                        else:
+                            search_strategies.append(('org', search_title_with_ep))
+                            search_strategies.append(('pl', search_title_with_ep))
 
                 # Strategy 3: Search without episode number (for series packs or general search)
                 if not any([video.episode, video.absolute_episode]):
@@ -444,6 +469,50 @@ class AnimesubinfoProvider(Provider):
                     if sub.subtitle_id not in seen_ids:
                         all_subtitles.append(sub)
                         seen_ids.add(sub.subtitle_id)
+
+        # home-ops patch: upstream matches loosely — sequels ("Overlord II ep10")
+        # count as a season match and the series is matched by substring, so
+        # "Naruto" also hits "Boruto Naruto Next Generations". Narrow it down;
+        # returning nothing beats returning another episode's subtitles.
+        if isinstance(video, Episode) and all_subtitles:
+            wanted_eps = {video.episode, video.absolute_episode} - {None}
+            names = {sanitize(video.series) or ''}
+            names |= {sanitize(t) for t in (getattr(video, 'alternative_series', None) or [])}
+            names -= {''}
+
+            def _stated_season(sub):
+                return _title_season(sub.title_org) or _title_season(sub.title_eng)
+
+            def _is_exact_title(sub):
+                for title in (sub.title_org, sub.title_eng, sub.title_alt):
+                    stripped = re.sub(r'(?i)\s*(?:ep|odc|episode)\s*\d+.*$', '', title or '')
+                    if sanitize(stripped) in names:
+                        return True
+                return False
+
+            def _right_season(sub):
+                stated = _stated_season(sub)
+                if stated is not None:
+                    return stated == video.season
+                if not video.season or video.season == 1:
+                    return True
+                # No season stated means season 1, unless the entry uses the
+                # absolute numbering animesub gives long-running shows.
+                return bool(video.absolute_episode and sub.episode == video.absolute_episode)
+
+            kept = [s for s in all_subtitles if _right_season(s)]
+            # Only trust an exact series title when one is actually on offer —
+            # animesub often lists shows under their Japanese name instead.
+            if any(_is_exact_title(s) for s in kept):
+                kept = [s for s in kept if _is_exact_title(s)]
+            # sub.episode is None for whole-season packs, which stay eligible.
+            if wanted_eps:
+                kept = [s for s in kept if s.episode is None or s.episode in wanted_eps]
+
+            if len(kept) != len(all_subtitles):
+                logger.debug(f'Narrowed {len(all_subtitles)} candidates down to {len(kept)} '
+                             f'for {video.series} S{video.season or 0:02d}E{video.episode or 0:02d}')
+            all_subtitles = kept
 
         logger.debug(f'Returning {len(all_subtitles)} subtitles')
         return all_subtitles
@@ -538,6 +607,15 @@ class AnimesubinfoProvider(Provider):
                     # Find subtitle files in the archive
                     subtitle_files = [f for f in zf.namelist()
                                     if f.lower().endswith(('.srt', '.ass', '.ssa', '.sub'))]
+
+                    if not subtitle_files:
+                        # home-ops patch: Polish fansubs ship TMP/mDVD subtitles as
+                        # .txt (e.g. "Naruto-89-SO.txt"), which upstream skips — the
+                        # download then silently returns no content at all.
+                        subtitle_files = [f for f in zf.namelist()
+                                          if f.lower().endswith('.txt')
+                                          and 'readme' not in f.lower()
+                                          and 'info' not in f.lower()]
 
                     if not subtitle_files:
                         logger.debug('No subtitle file found in ZIP archive')

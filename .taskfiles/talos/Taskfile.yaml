@@ -107,8 +107,7 @@ tasks:
     cmds:
       - task: :kubernetes:ks-suspend
       - task: :kopiur:state-suspend
-      # Wait only for ACTIVE jobs to drain — Failed jobs never complete and would wedge a wait-for-complete
-      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
+      - task: wait-for-jobs
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set noout
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set norebalance
@@ -159,8 +158,7 @@ tasks:
       # before suspending is a race the wait can lose indefinitely.
       - task: :kopiur:state-suspend
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      # Wait only for ACTIVE jobs — Failed jobs never complete and would wedge a wait-for-complete
-      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
+      - task: wait-for-jobs
     preconditions:
       - which kubectl
 
@@ -168,8 +166,34 @@ tasks:
     internal: true
     cmds:
       - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
-      # Wait only for ACTIVE jobs — Failed jobs never complete and would wedge a wait-for-complete
-      - until [[ -z "$(kubectl get jobs --all-namespaces --output jsonpath='{.items[?(@.status.active)].metadata.name}')" ]]; do sleep 5; done
+      - task: wait-for-jobs
       - task: :kopiur:state-resume
+    preconditions:
+      - which kubectl
+
+  wait-for-jobs:
+    internal: true
+    vars:
+      # Bounded on purpose: a Job whose container never exits (a retry loop such as
+      # wazuh-indexer's securityadmin.sh) would otherwise block a reboot forever.
+      TIMEOUT: '{{.TIMEOUT | default "600"}}'
+    cmd: |
+      deadline=$(( $(date +%s) + {{.TIMEOUT}} ))
+      while :; do
+        # Only Jobs with a Running pod are actually draining. A pod stuck Pending/Init
+        # cannot finish — and is often stuck on the very node we are about to reboot,
+        # which deadlocks this wait against the thing that would unstick it.
+        draining="$(kubectl get pods --all-namespaces \
+          --selector batch.kubernetes.io/job-name \
+          --field-selector status.phase=Running \
+          --output jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}')"
+        [[ -z "${draining}" ]] && break
+        if [[ "$(date +%s)" -ge "${deadline}" ]]; then
+          echo "WARNING: continuing after {{.TIMEOUT}}s with Job pods still running:" >&2
+          echo "${draining}" >&2
+          break
+        fi
+        sleep 5
+      done
     preconditions:
       - which kubectl

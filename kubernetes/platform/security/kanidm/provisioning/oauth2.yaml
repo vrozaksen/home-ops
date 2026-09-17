@@ -215,6 +215,13 @@ data:
           "originLanding": "https://sure.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/maybe-finance.svg" }
+        },
+        "trilium": {
+          "present": true, "displayName": "Trilium Notes",
+          "originUrl": "https://trilium.vzkn.eu/callback",
+          "originLanding": "https://trilium.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/trilium.svg" }
         }
       } } }
 ---

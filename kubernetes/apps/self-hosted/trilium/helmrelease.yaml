@@ -1,0 +1,100 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: trilium
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      trilium:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=docker.io/triliumnext/trilium
+              repository: docker.io/triliumnext/trilium
+              tag: v0.105.0@sha256:cc6a15edd7ac3df9bb98ad39dd40af8ffda6c1c0bfafe37c26137ddcbecdb7e5
+            env:
+              TRILIUM_DATA_DIR: &data /home/node/trilium-data
+              TRILIUM_PORT: &port 8080
+              # Replaces password login entirely -- Trilium's own TOTP stops
+              # applying, the provider owns MFA from here on.
+              TRILIUM_MULTIFACTORAUTHENTICATION_OAUTHBASEURL: &url https://trilium.vzkn.eu
+              TRILIUM_MULTIFACTORAUTHENTICATION_OAUTHISSUERBASEURL: https://idm.vzkn.eu/oauth2/openid/trilium
+              TRILIUM_MULTIFACTORAUTHENTICATION_OAUTHISSUERNAME: Kanidm
+              TRILIUM_MULTIFACTORAUTHENTICATION_OAUTHCLIENTID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-trilium-oidc
+                    key: client-id
+              TRILIUM_MULTIFACTORAUTHENTICATION_OAUTHCLIENTSECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-trilium-oidc
+                    key: client-secret
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 30
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probe
+            securityContext:
+              # start-docker.sh runs usermod/groupmod, `chown -R node:node
+              # /home/node` and then `su ... node`, so this image MUST start as
+              # root and needs the caps for that drop -- a plain drop-ALL
+              # non-root pod dies in the entrypoint. It does end up running the
+              # server as node (1000).
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop:
+                  - "ALL"
+                add:
+                  - "CHOWN"
+                  - "DAC_OVERRIDE"
+                  - "FOWNER"
+                  - "SETGID"
+                  - "SETUID"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: trilium
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - trilium.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      data:
+        existingClaim: trilium
+        globalMounts:
+          - path: *data

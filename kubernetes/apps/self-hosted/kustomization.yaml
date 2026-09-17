@@ -13,3 +13,4 @@ resources:
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml
   - ./sure/ks.yaml
+  - ./trilium/ks.yaml

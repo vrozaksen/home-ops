@@ -7,7 +7,6 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./airtrail/ks.yaml
   - ./atuin/ks.yaml
   - ./dawarich/ks.yaml
   - ./homebox/ks.yaml

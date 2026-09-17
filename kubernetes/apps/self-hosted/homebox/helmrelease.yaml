@@ -26,8 +26,7 @@ spec:
               HBOX_OPTIONS_HOSTNAME: homebox.vzkn.eu
               HBOX_OPTIONS_TRUST_PROXY: "true"
               HBOX_OPTIONS_ALLOW_REGISTRATION: "false"
-              # Local login stays as break-glass; Kanidm has wedged before.
-              HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: "true"
+              HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: "false"
               # SQLite on purpose: Postgres is supported since 0.18 but there is
               # no SQLite->Postgres migrator, so the choice is one-way. A
               # household inventory does not justify a cnpg cluster.

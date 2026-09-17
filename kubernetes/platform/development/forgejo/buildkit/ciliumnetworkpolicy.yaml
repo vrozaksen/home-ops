@@ -23,6 +23,15 @@ spec:
         - ports:
             - protocol: TCP
               port: "1234"
+    # registry.vzkn.eu resolves to the envoy-external LB, so every pull/push
+    # buildkit makes hairpins back into the cluster. When Maglev picks the
+    # envoy backend on buildkit's own node the reply misses conntrack and is
+    # re-evaluated as a new ingress connection — default-deny then drops the
+    # SYN-ACK and the caller sees a connect timeout, not a refusal.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.networking.k8s.io/gateway-name: envoy-external
   egress:
     - toFQDNs:
         - matchName: registry.vzkn.eu

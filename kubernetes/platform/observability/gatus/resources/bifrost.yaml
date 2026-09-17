@@ -20,6 +20,17 @@ endpoints:
       - "[STATUS] < 500"
       - "[CERTIFICATE_EXPIRATION] > 72h"
 
+  - name: bifrost | iroh relay
+    group: vps
+    url: https://relay.towonel.vzkn.eu/healthz
+    interval: 1m
+    ui:
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[CERTIFICATE_EXPIRATION] > 72h"
+
   # Push our liveness to bifrost gatus so it can alert via Pushover
   # if the cluster gatus stops pushing (independent alert path).
   - name: bifrost | heartbeat push

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 0
 
@@ -88,12 +88,16 @@ jobs:
             https://github.com/*) repo=${SRC#https://github.com/} ;;
             *) echo "unsupported host, link only" ; exit 0 ;;
           esac
-          gh api "repos/$repo/releases?per_page=100" --paginate \
+          # Deliberately unpaginated: projects like renovate publish thousands of
+          # releases and --paginate would stream tens of megabytes into jq. One
+          # page covers any realistic version span; older spans degrade to the
+          # link-only comment rather than failing the job.
+          gh api "repos/$repo/releases?per_page=100" \
             | jq --arg from "$FROM" --arg to "$TO" '
                 [ .[]
                   | select(.draft | not)
                   | {tag: .tag_name, name: .name, body: (.body // "")}
-                ]' > releases.json
+                ]' > releases.json || echo "[]" > releases.json
           jq -r '.[] | "## \(.tag)\n\(.body)\n"' releases.json > notes.md
           wc -c < notes.md
 

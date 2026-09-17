@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minuspod
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      minuspod:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=docker.io/ttlequals0/minuspod
+              repository: docker.io/ttlequals0/minuspod
+              tag: 2.95.3@sha256:8a67d6240c5f3e215deff56a70eceb734064cd4aa5c7bb6b004a70c2d8627d7b
+            env:
+              TZ: Europe/Warsaw
+              BASE_URL: https://minuspod.vzkn.eu
+              MINUSPOD_PORT: &port 8000
+              # The LLM that locates ad segments in the transcript. Key comes
+              # from Infisical; model choice is made in the UI.
+              LLM_PROVIDER: anthropic
+              # Upstream defaults to cuda. There is no NVIDIA card in this
+              # cluster (workers have Intel iGPUs), so transcription runs on
+              # CPU -- slower, but it is a background job. Switch to
+              # WHISPER_BACKEND=openai-api against Groq if it drags.
+              WHISPER_DEVICE: cpu
+              WHISPER_MODEL: small
+              MINUSPOD_REQUIRE_AUTH: "true"
+              # No OIDC support -- this app has its own login only.
+              MINUSPOD_ALLOW_PUBLIC_PROCESSING: "false"
+              # Without this the real client IP never reaches the app, so login
+              # lockout and per-IP rate limits silently never fire. One hop.
+              MINUSPOD_TRUSTED_PROXY_COUNT: "1"
+              MINUSPOD_ENABLE_HSTS: "true"
+              SESSION_COOKIE_SECURE: "auto"
+            envFrom:
+              - secretRef:
+                  name: minuspod-secret
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *probe
+            securityContext:
+              # entrypoint.sh fixes volume ownership as root, then drops to the
+              # bundled minuspod user (1000) with setpriv.
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop:
+                  - "ALL"
+                add:
+                  - "CHOWN"
+                  - "DAC_OVERRIDE"
+                  - "FOWNER"
+                  - "SETGID"
+                  - "SETUID"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              # Whisper on CPU is the heavy part; `small` fits comfortably here.
+              limits:
+                memory: 4Gi
+    defaultPodOptions:
+      # Transcoding a backlog must not be interrupted mid-episode.
+      terminationGracePeriodSeconds: 360
+      securityContext:
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: minuspod
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: media
+        hostnames:
+          - minuspod.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      data:
+        existingClaim: minuspod
+        globalMounts:
+          - path: /app/data

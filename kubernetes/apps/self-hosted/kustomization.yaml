@@ -9,6 +9,7 @@ resources:
   - ./namespace.yaml
   - ./atuin/ks.yaml
   - ./dawarich/ks.yaml
+  - ./homebox/ks.yaml
   - ./it-tools/ks.yaml
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml

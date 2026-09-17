@@ -202,6 +202,13 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/dawarich.svg" }
         },
+        "homebox": {
+          "present": true, "displayName": "Homebox",
+          "originUrl": "https://homebox.vzkn.eu/api/v1/users/login/oidc/callback",
+          "originLanding": "https://homebox.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/homebox.svg" }
+        },
         "rxresume": {
           "present": true, "displayName": "Reactive Resume",
           "originUrl": "https://rxresume.vzkn.eu/api/auth/callback/custom",

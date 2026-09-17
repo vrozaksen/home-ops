@@ -1,0 +1,110 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homebox
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      homebox:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/sysadminsmedia/homebox
+              repository: ghcr.io/sysadminsmedia/homebox
+              tag: 0.26.2@sha256:b1ad7e3c63f732a5f6daa466e8116be4f545b3b120383a64dcb62beb00a660cc
+            env:
+              HBOX_MODE: production
+              HBOX_WEB_PORT: &port 7745
+              # SecureBaseURL refuses a Referer-based fallback, so the OIDC
+              # redirect is built from this -- unset means no callback URL.
+              HBOX_OPTIONS_HOSTNAME: &url https://homebox.vzkn.eu
+              HBOX_OPTIONS_TRUST_PROXY: "true"
+              HBOX_OPTIONS_ALLOW_REGISTRATION: "false"
+              # Local login stays as break-glass; Kanidm has wedged before.
+              HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: "true"
+              # SQLite on purpose: Postgres is supported since 0.18 but there is
+              # no SQLite->Postgres migrator, so the choice is one-way. A
+              # household inventory does not justify a cnpg cluster.
+              HBOX_DATABASE_DRIVER: sqlite3
+              HBOX_OIDC_ENABLED: "true"
+              HBOX_OIDC_ISSUER_URL: https://idm.vzkn.eu/oauth2/openid/homebox
+              HBOX_OIDC_BUTTON_TEXT: Log in with Kanidm
+              # Kanidm returns groups as SPNs, not bare names.
+              HBOX_OIDC_ALLOWED_GROUPS: users@idm.vzkn.eu
+              HBOX_OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-homebox-oidc
+                    key: client-id
+              HBOX_OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-homebox-oidc
+                    key: client-secret
+            envFrom:
+              - secretRef:
+                  name: homebox-secret
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/status
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probe
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: homebox
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - homebox.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      data:
+        existingClaim: homebox
+        globalMounts:
+          - path: /data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

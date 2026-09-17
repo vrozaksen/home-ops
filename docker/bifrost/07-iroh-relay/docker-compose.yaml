@@ -23,8 +23,11 @@ services:
     restart: "no"
 
   iroh-relay:
+    # Held at v1.0.2: v1.0.3 panics on boot in noq-udp 1.1.0 cmsg
+    # (align_of assertion) and restart-loops with exit 139, so the relay never
+    # completes TLS and agents silently fall back to the upstream public relay.
     # renovate: datasource=docker depName=docker.io/n0computer/iroh-relay
-    image: docker.io/n0computer/iroh-relay:v1.0.3
+    image: docker.io/n0computer/iroh-relay:v1.0.2
     container_name: iroh-relay
     restart: unless-stopped
     depends_on:

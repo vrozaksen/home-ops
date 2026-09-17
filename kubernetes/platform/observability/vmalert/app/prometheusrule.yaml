@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: vmalert-rules
+spec:
+  groups:
+    - name: vmalert.rules
+      rules:
+        # Evaluated by Prometheus rather than by vmalert itself: a stopped rule
+        # engine cannot report its own silence. Metric names follow upstream's
+        # alerts-vmalert.yml; remoteWrite rules are omitted since none is set.
+        - alert: VmalertDown
+          expr: |-
+            up{job=~".*vmalert.*"} == 0
+          for: 5m
+          annotations:
+            summary: >-
+              vmalert is down — Suricata, Kanidm and Wazuh alerting is not being evaluated
+          labels:
+            severity: critical
+
+        - alert: VmalertConfigReloadFailed
+          # It keeps serving the last good config, so a broken rule file is
+          # otherwise invisible until someone notices an alert never fired.
+          expr: |-
+            vmalert_config_last_reload_successful != 1
+          for: 10m
+          annotations:
+            summary: >-
+              vmalert is running with a stale config — the last reload failed
+          labels:
+            severity: warning
+
+        - alert: VmalertRuleErrors
+          expr: |-
+            sum(increase(vmalert_alerting_rules_errors_total[10m])) without(id) > 0
+          for: 15m
+          annotations:
+            summary: >-
+              vmalert group {{ $labels.group }} is failing to evaluate its alerting rules
+          labels:
+            severity: critical
+
+        - alert: VmalertMissedIterations
+          # Groups falling behind their interval means alerts fire late, which
+          # for the security path is close to not firing at all.
+          expr: |-
+            increase(vmalert_iteration_missed_total[10m]) > 0
+          for: 15m
+          annotations:
+            summary: >-
+              vmalert group {{ $labels.group }} is missing evaluation iterations
+          labels:
+            severity: warning
+
+        - alert: VmalertAlertmanagerUnreachable
+          # Rules can evaluate correctly and still reach nobody.
+          expr: |-
+            increase(vmalert_alerts_send_errors_total[10m]) > 0
+          for: 10m
+          annotations:
+            summary: >-
+              vmalert cannot deliver alerts to Alertmanager at {{ $labels.addr }}
+          labels:
+            severity: critical

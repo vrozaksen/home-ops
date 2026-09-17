@@ -23,9 +23,7 @@ spec:
             env:
               HBOX_MODE: production
               HBOX_WEB_PORT: &port 7745
-              # SecureBaseURL refuses a Referer-based fallback, so the OIDC
-              # redirect is built from this -- unset means no callback URL.
-              HBOX_OPTIONS_HOSTNAME: &url https://homebox.vzkn.eu
+              HBOX_OPTIONS_HOSTNAME: homebox.vzkn.eu
               HBOX_OPTIONS_TRUST_PROXY: "true"
               HBOX_OPTIONS_ALLOW_REGISTRATION: "false"
               # Local login stays as break-glass; Kanidm has wedged before.
@@ -37,6 +35,7 @@ spec:
               HBOX_OIDC_ENABLED: "true"
               HBOX_OIDC_ISSUER_URL: https://idm.vzkn.eu/oauth2/openid/homebox
               HBOX_OIDC_BUTTON_TEXT: Log in with Kanidm
+              HBOX_OIDC_SCOPE: openid profile email groups
               # Kanidm returns groups as SPNs, not bare names.
               HBOX_OIDC_ALLOWED_GROUPS: users@idm.vzkn.eu
               HBOX_OIDC_CLIENT_ID:

@@ -26,13 +26,6 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
-    - fromEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: spoolman
-    - fromEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: network
-            gateway.networking.k8s.io/gateway-name: envoy-external
     # Virtual printer: a slicer "Send" speaks the printer protocol — MQTT for
     # control, FTPS plus a passive data range for the plate itself. Reachable
     # from the in-cluster OrcaSlicer and from desktop slicers on the LAN.

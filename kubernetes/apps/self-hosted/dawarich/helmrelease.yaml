@@ -78,14 +78,29 @@ spec:
               - secretRef:
                   name: dawarich-secret
             probes:
-              liveness: &probe
+              # First boot runs the whole migration chain against an empty
+              # PostGIS schema, which takes far longer than liveness tolerates
+              # -- without a startup probe the kubelet SIGTERMs Rails mid-migrate
+              # and the container never finishes booting. Liveness and readiness
+              # only begin once this one passes.
+              startup:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
                     path: /api/v1/health
                     port: &port 3000
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 15
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
                   periodSeconds: 15
                   timeoutSeconds: 5
                   failureThreshold: 5

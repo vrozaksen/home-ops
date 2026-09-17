@@ -7,5 +7,5 @@ resources:
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
 patches:
-  # Patch the component-rendered Cluster (from ./db) to add PostGIS.
   - path: ./patches/cluster-postgis.yaml
+  - path: ./patches/dragonfly-lua.yaml

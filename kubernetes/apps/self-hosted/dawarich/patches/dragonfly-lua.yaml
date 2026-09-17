@@ -1,0 +1,20 @@
+---
+# sidekiq-limit_fetch runs EVAL scripts that touch keys it never declares in
+# KEYS[] (e.g. limit_fetch:pause:highest_priority). Under --cluster_mode=emulated
+# Dragonfly rejects exactly that with "script tried accessing undeclared key",
+# so every sidekiq fetch dies. Cost: such scripts become global transactions and
+# lock the whole datastore for their duration -- irrelevant at this instance's
+# job volume, and this Dragonfly serves only dawarich.
+#
+# NOTE: args is a plain string list, so this merge REPLACES it -- the component's
+# defaults have to be repeated here verbatim.
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: ${APP}-dragonfly
+spec:
+  args:
+    - --maxmemory=$(MAX_MEMORY)Mi
+    - --proactor_threads=2
+    - --cluster_mode=emulated
+    - --default_lua_flags=allow-undeclared-keys

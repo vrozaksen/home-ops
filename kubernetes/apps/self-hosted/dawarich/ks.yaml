@@ -5,10 +5,7 @@ kind: Kustomization
 metadata:
   name: &app dawarich
 spec:
-  # cnpg lives in ./db so the PostGIS patch can target the rendered Cluster --
-  # components apply after patches, so a top-level component is unpatchable.
   components:
-    - ../../../components/dragonfly
     - ../../../components/kopiur
   dependsOn:
     - name: dragonfly-operator

@@ -1,6 +1,10 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# Stateful dependencies live in this nested kustomization so the parent can
+# patch what they render -- ks.yaml components apply AFTER the parent's
+# patches, which would leave both the Cluster and the Dragonfly unpatchable.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 components:
   - ../../../../components/cnpg/initdb
+  - ../../../../components/dragonfly

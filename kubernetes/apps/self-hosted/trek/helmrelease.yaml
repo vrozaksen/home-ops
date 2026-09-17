@@ -44,9 +44,7 @@ spec:
               OIDC_ADMIN_CLAIM: groups
               # Kanidm returns groups as SPNs, not bare names.
               OIDC_ADMIN_VALUE: admins@idm.vzkn.eu
-              # Password login stays available as break-glass; OIDC_ONLY cannot
-              # be flipped back at runtime.
-              OIDC_ONLY: "false"
+              OIDC_ONLY: "true"
               OIDC_CLIENT_ID:
                 valueFrom:
                   secretKeyRef:

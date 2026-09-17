@@ -90,6 +90,9 @@ spec:
                   httpGet:
                     path: /api/v1/health
                     port: &port 3000
+                    httpHeaders: &probeHeaders
+                      - name: X-Forwarded-Proto
+                        value: https
                   initialDelaySeconds: 15
                   periodSeconds: 10
                   timeoutSeconds: 5
@@ -101,6 +104,7 @@ spec:
                   httpGet:
                     path: /api/v1/health
                     port: *port
+                    httpHeaders: *probeHeaders
                   periodSeconds: 15
                   timeoutSeconds: 5
                   failureThreshold: 5

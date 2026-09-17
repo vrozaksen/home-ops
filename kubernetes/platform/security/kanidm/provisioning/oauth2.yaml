@@ -195,6 +195,13 @@ data:
   oauth2.json: |
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "airtrail": {
+          "present": true, "displayName": "AirTrail",
+          "originUrl": "https://airtrail.vzkn.eu/login",
+          "originLanding": "https://airtrail.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/airtrail.svg" }
+        },
         "dawarich": {
           "present": true, "displayName": "Dawarich",
           "originUrl": "https://dawarich.vzkn.eu/users/auth/openid_connect/callback",

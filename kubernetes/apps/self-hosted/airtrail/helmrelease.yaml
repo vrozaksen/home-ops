@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: airtrail
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      airtrail:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=docker.io/johly/airtrail
+              repository: docker.io/johly/airtrail
+              tag: v3.12.0@sha256:c5616704defabd82d2dde97e93a5417e59c7acfdb06c0e589209257543b50f8c
+            env:
+              PORT: &port 3000
+              TZ: Europe/Warsaw
+              ORIGIN: &url https://airtrail.vzkn.eu
+              # AirTrail wants one connection string, so there is no clean way
+              # to splice in the pooler host -- this CNPG-generated key points
+              # at postgres-airtrail-rw directly. Prisma pools on its own side.
+              DB_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-airtrail-app
+                    key: fqdn-uri
+              UPLOAD_LOCATION: &uploads /app/uploads
+              # Detailed flight tracks are posted as part of the flight form.
+              BODY_SIZE_LIMIT: 20M
+              OAUTH_ENABLED: "true"
+              # Unlike most apps here this wants the full discovery URL, not the
+              # bare issuer. Env-set values become read-only in the settings UI.
+              OAUTH_ISSUER_URL: https://idm.vzkn.eu/oauth2/openid/airtrail/.well-known/openid-configuration
+              OAUTH_SCOPE: openid profile email
+              OAUTH_BUTTON_TEXT: Log in with Kanidm
+              OAUTH_AUTO_REGISTER: "true"
+              # Password form stays visible as break-glass.
+              OAUTH_HIDE_PASSWORD_FORM: "false"
+              OAUTH_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-airtrail-oidc
+                    key: client-id
+              OAUTH_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-airtrail-oidc
+                    key: client-secret
+            probes:
+              # Prisma migrations run at container start against a fresh schema.
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: &ping /api/ping
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: *ping
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *probe
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 25m
+                memory: 192Mi
+              limits:
+                memory: 768Mi
+    defaultPodOptions:
+      securityContext:
+        # Upstream is explicit that /app/uploads must be writable by 1000:1000.
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: airtrail
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - airtrail.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      data:
+        existingClaim: airtrail
+        globalMounts:
+          - path: *uploads
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

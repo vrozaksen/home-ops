@@ -1,0 +1,41 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app airtrail
+spec:
+  components:
+    - ../../../components/cnpg/initdb
+    - ../../../components/kopiur
+  dependsOn:
+    - name: kanidm
+      namespace: security
+    - name: kopiur
+      namespace: kopiur-system
+    - name: plugin-barman-cloud
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/airtrail
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns self-hosted
+      CNPG_SIZE: 5Gi
+      # Uploads are airline icons only -- the flights live in Postgres.
+      KOPIUR_CAPACITY: 2Gi
+      KOPIUR_PGID: "1000"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

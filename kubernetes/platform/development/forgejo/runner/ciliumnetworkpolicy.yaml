@@ -13,28 +13,6 @@ spec:
       app.kubernetes.io/name: forgejo-runner-instance
   enableDefaultDeny:
     ingress: true
-  ingress:
-    - fromEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: buildkit
-    # Reply path for the ClusterIP call to forgejo-http:3000. Same class as the
-    # envoy-external rule below, but the same-node ClusterIP variant: when the
-    # scheduler lands a job pod on forgejo's node, the SYN-ACK misses conntrack
-    # and default-deny drops it, so actions/checkout hangs in `git fetch` at 0%
-    # CPU until the step times out. Cross-node runs are unaffected, which is
-    # why CI only fails about half the time.
-    - fromEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: forgejo
-    # Reply path, not a real ingress: jobs reach git.vzkn.eu and
-    # registry.vzkn.eu over the public hostnames, which resolve to the
-    # envoy-external LoadBalancer. When the picked backend shares this node the
-    # SYN-ACK misses conntrack and is judged as a new ingress connection, so
-    # the job hangs until curl times out.
-    - fromEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: network
-            gateway.networking.k8s.io/gateway-name: envoy-external
   egress:
     - # Forgejo server
       toEndpoints:

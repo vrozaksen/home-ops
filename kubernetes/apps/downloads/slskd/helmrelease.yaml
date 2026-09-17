@@ -81,6 +81,7 @@ spec:
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
               DNS_UPSTREAM_RESOLVERS: cloudflare
               HEALTH_SUCCESS_WAIT_DURATION: 10s
+              PUBLICIP_PERIOD: 5m
               FIREWALL_INPUT_PORTS: "80"
               PUID: "1000"
               PGID: "100"
@@ -126,6 +127,10 @@ spec:
               limits:
                 memory: 1Gi
     defaultPodOptions:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

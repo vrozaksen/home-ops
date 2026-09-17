@@ -15,4 +15,5 @@ resources:
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml
   - ./sure/ks.yaml
+  - ./trek/ks.yaml
   - ./trilium/ks.yaml

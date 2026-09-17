@@ -11,6 +11,39 @@ spec:
   policy:
     rebootMode: powercycle
     waitForVolumeDetach: true
+  # Rebooting a node makes Ceph mark its OSD out and start backfilling, which
+  # has repeatedly cascaded into slow ops and blocked RBD. noout holds the map
+  # still for the upgrade. Routed through the toolbox because the hook Job runs
+  # in this namespace and cannot mount the mon keyring from rook-ceph.
+  hooks:
+    pre:
+      - name: ceph-noout-set
+        image: registry.k8s.io/kubectl:v1.37.0
+        serviceAccountName: tuppr-ceph-hook
+        command:
+          - kubectl
+          - --namespace=rook-ceph
+          - exec
+          - deploy/rook-ceph-tools
+          - --
+          - ceph
+          - osd
+          - set
+          - noout
+    post:
+      - name: ceph-noout-unset
+        image: registry.k8s.io/kubectl:v1.37.0
+        serviceAccountName: tuppr-ceph-hook
+        command:
+          - kubectl
+          - --namespace=rook-ceph
+          - exec
+          - deploy/rook-ceph-tools
+          - --
+          - ceph
+          - osd
+          - unset
+          - noout
   healthChecks:
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Snapshot

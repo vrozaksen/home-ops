@@ -147,8 +147,7 @@ spec:
               - --tlscert=/certs/tls.crt
               - --tlskey=/certs/tls.key
               - prune
-              - --keep-storage=20480  # retain 20 GiB
-              - --keep-duration=168h  # retain ≤7 days regardless
+              - --keep-storage=40960
             resources:
               requests: {cpu: 10m, memory: 32Mi}
               limits: {memory: 128Mi}

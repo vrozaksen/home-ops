@@ -22,6 +22,8 @@ spec:
         secretRef:
           name: kopiur-repository-secret
           namespace: kopiur-system
+  concurrency:
+    maxConcurrentJobs: 3
   credentialProjection:
     allowed: true
   encryption:

@@ -9,6 +9,13 @@ spec:
     # 1.27+; operator is on 1.30) instead of maintaining a custom Postgres image.
     extensions:
       - name: postgis
+        # PostGIS links against GEOS/PROJ, which the stock PG image does not
+        # carry. They ship inside the extension image under `system`, but the
+        # loader only looks there once that dir is on LD_LIBRARY_PATH -- without
+        # this initdb dies on `libgeos_c.so.1: cannot open shared object file`.
+        # Changing it later needs a manual cluster restart (read at PG startup).
+        ld_library_path:
+          - system
         image:
           reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.1-18-trixie
   bootstrap:

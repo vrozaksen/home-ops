@@ -40,8 +40,6 @@ spec:
       NS: &ns self-hosted
       CNPG_SIZE: 10Gi
       KOPIUR_CAPACITY: 5Gi
-      # Align mover gid with the pod's fsGroup (see helmrelease)
-      KOPIUR_PGID: "1000"
   prune: true
   sourceRef:
     kind: GitRepository

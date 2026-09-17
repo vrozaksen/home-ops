@@ -1,0 +1,41 @@
+---
+# tuppr sets noout around node reboots by exec'ing into the toolbox. Its hook
+# Job runs in system-upgrade and cannot mount the mon keyring from here, and
+# the binding has to live in this namespace to grant anything.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tuppr-ceph-hook
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tuppr-ceph-hook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tuppr-ceph-hook
+subjects:
+  - kind: ServiceAccount
+    name: tuppr-ceph-hook
+    namespace: system-upgrade

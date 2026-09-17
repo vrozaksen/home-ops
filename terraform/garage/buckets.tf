@@ -5,6 +5,7 @@ locals {
     "forgejo",
     "harbor",
     "kopiur",
+    "plane",
     "rxresume",
     "sentry",
     "tekton-results-logs",

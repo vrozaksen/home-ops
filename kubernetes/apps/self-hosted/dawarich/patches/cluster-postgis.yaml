@@ -1,0 +1,17 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-${APP}
+spec:
+  postgresql:
+    # Mount PostGIS into the stock PG18 base image (CNPG extension image volume,
+    # 1.27+; operator is on 1.30) instead of maintaining a custom Postgres image.
+    extensions:
+      - name: postgis
+        image:
+          reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.1-18-trixie
+  bootstrap:
+    initdb:
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS postgis;

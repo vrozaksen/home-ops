@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app dawarich
+spec:
+  # cnpg lives in ./db so the PostGIS patch can target the rendered Cluster --
+  # components apply after patches, so a top-level component is unpatchable.
+  components:
+    - ../../../components/dragonfly
+    - ../../../components/kopiur
+  dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+    - name: infisical-operator
+      namespace: security
+    - name: kanidm
+      namespace: security
+    - name: kopiur
+      namespace: kopiur-system
+    - name: plugin-barman-cloud
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      failed: status.phase != 'ready'
+      current: status.phase == 'ready'
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/dawarich
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns self-hosted
+      CNPG_SIZE: 10Gi
+      KOPIUR_CAPACITY: 5Gi
+      # Align mover gid with the pod's fsGroup (see helmrelease)
+      KOPIUR_PGID: "1000"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

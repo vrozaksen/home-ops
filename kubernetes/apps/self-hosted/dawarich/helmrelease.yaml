@@ -1,0 +1,172 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dawarich
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      # web (Rails) + sidekiq worker share the same RWO PVC → one pod, two containers
+      dawarich:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app: &container
+            image:
+              # renovate: datasource=docker depName=mirror.gcr.io/freikin/dawarich
+              repository: mirror.gcr.io/freikin/dawarich
+              tag: 1.14.5@sha256:11826c67e4b1cfc1049033b5b6ad05f5134bcbfb7807045bd39d3376cbc79d89
+            env: &env
+              RAILS_ENV: production
+              SELF_HOSTED: "true"
+              STORE_GEODATA: "true"
+              TIME_ZONE: Europe/Warsaw
+              DOMAIN: &host dawarich.vzkn.eu
+              APPLICATION_HOSTS: *host
+              APPLICATION_PROTOCOL: https
+              # OIDC derives its redirect URI from this; without it the callback
+              # would be built against localhost:3000.
+              APPLICATION_URL: https://dawarich.vzkn.eu
+              DISTANCE_UNIT: km
+              # Public Komoot geocoder (rate-limited); self-host photon later if needed
+              PHOTON_API_HOST: photon.komoot.io
+              PHOTON_API_USE_HTTPS: "true"
+              # One preloaded Puma worker is plenty for a household instance
+              WEB_CONCURRENCY: "1"
+              # Pool must cover sidekiq concurrency on the worker container
+              RAILS_MAX_THREADS: "5"
+              RAILS_LOG_TO_STDOUT: "true"
+              REDIS_URL: redis://dawarich-dragonfly.self-hosted.svc.cluster.local:6379/0
+              # Dragonfly runs emulated-cluster mode (DB 0 only) → pin all logical DBs to 0
+              RAILS_CACHE_DB: "0"
+              RAILS_JOB_QUEUE_DB: "0"
+              RAILS_WS_DB: "0"
+              # Via PgBouncer pooler (session mode) with the CNPG-generated app
+              # credentials, same as the other Rails app here (sure).
+              DATABASE_HOST: pooler-dawarich-rw.self-hosted.svc.cluster.local
+              DATABASE_PORT: "5432"
+              DATABASE_NAME: dawarich
+              DATABASE_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-dawarich-app
+                    key: username
+              DATABASE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-dawarich-app
+                    key: password
+              # Discovery only needs the bare issuer -- the gem appends the
+              # well-known path itself (lib/oidc_config.rb normalizes it).
+              OIDC_ISSUER: https://idm.vzkn.eu/oauth2/openid/dawarich
+              OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-dawarich-oidc
+                    key: client-id
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-dawarich-oidc
+                    key: client-secret
+            envFrom:
+              - secretRef:
+                  name: dawarich-secret
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: &port 3000
+                  initialDelaySeconds: 30
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probe
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            # Upstream binds :: now; this cluster is single-stack v4, so the
+            # wildcard has to stay 0.0.0.0 or Puma listens on nothing reachable.
+            command:
+              - "web-entrypoint.sh"
+            args:
+              - "bin/rails"
+              - "server"
+              - "-p"
+              - "3000"
+              - "-b"
+              - "0.0.0.0"
+            resources:
+              requests:
+                cpu: 250m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+          sidekiq:
+            <<: *container
+            env:
+              <<: *env
+              # 3 job threads keep idle memory and DB connections low; raise
+              # temporarily for large imports.
+              BACKGROUND_PROCESSING_CONCURRENCY: "3"
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+            command:
+              - "sidekiq-entrypoint.sh"
+            args:
+              - "sidekiq"
+            resources:
+              requests:
+                cpu: 250m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: dawarich
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - *host
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      data:
+        existingClaim: dawarich
+        globalMounts:
+          - path: /var/app/public
+            subPath: public
+          - path: /var/app/storage
+            subPath: storage
+      # Auto-import watch dir — transient, no need to back up
+      watched:
+        type: emptyDir
+        globalMounts:
+          - path: /var/app/tmp/imports/watched

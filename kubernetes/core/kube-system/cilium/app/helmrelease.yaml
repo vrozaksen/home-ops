@@ -133,4 +133,7 @@ spec:
           - SYS_RESOURCE
     socketLB:
       enabled: true
-      hostNamespaceOnly: true
+      # Must stay false: true skips socket-level translation in pod netns, so a
+      # pod reaching a ClusterIP backed by a same-node pod goes through the
+      # network path and its own egress policy drops the reply.
+      hostNamespaceOnly: false

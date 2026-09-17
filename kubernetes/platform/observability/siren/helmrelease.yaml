@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app siren
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  dependsOn:
+    - name: kube-prometheus-stack
+      namespace: observability
+  values:
+    controllers:
+      siren:
+        replicas: 2
+        strategy: RollingUpdate
+        podDisruptionBudget:
+          minAvailable: 1
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/shamubernetes/siren
+              repository: ghcr.io/shamubernetes/siren
+              tag: v1.4.40@sha256:b322bb92b4f0746266e9a73fa36820a16987d32026279d6e180c2ff1836e272c
+            env:
+              # Read from the server side, so the in-cluster Service -- not the
+              # public hostname.
+              ALERTMANAGER_BASE_URL: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
+              PORT: &port 3000
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /livez
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness:
+                <<: *probes
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 96Mi
+              limits:
+                memory: 256Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: observability
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network

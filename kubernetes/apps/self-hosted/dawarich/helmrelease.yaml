@@ -33,9 +33,10 @@ spec:
               # would be built against localhost:3000.
               APPLICATION_URL: https://dawarich.vzkn.eu
               DISTANCE_UNIT: km
-              # Public Komoot geocoder (rate-limited); self-host photon later if needed
-              PHOTON_API_HOST: photon.komoot.io
-              PHOTON_API_USE_HTTPS: "true"
+              # Self-hosted Photon, reverse-only Poland index. The public Komoot
+              # instance caps at 1 req/s and would see the whole location history.
+              PHOTON_API_HOST: photon.self-hosted.svc.cluster.local:2322
+              PHOTON_API_USE_HTTPS: "false"
               # One preloaded Puma worker is plenty for a household instance
               WEB_CONCURRENCY: "1"
               # Password resets, family invites, year-end digests. Delivery

@@ -1,0 +1,88 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: photon
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      photon:
+        # The index is built in place on an RWO volume; two pods would corrupt it.
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/rtuszik/photon-docker
+              repository: ghcr.io/rtuszik/photon-docker
+              tag: 2.4.0@sha256:21549c60f9e6488fff3217e40429a652c4b445f374800333fe32859e47cec293
+            env:
+              TZ: Europe/Warsaw
+              # Poland has no prebuilt DB index -- only 16 regions do, and it is
+              # not among them -- so the index is built in-container from the
+              # JSONL dump. This mode is flagged experimental upstream.
+              IMPORT_MODE: jsonl
+              REGION: poland
+              # Dawarich only ever calls /reverse, and this drops ~60% of the
+              # index size and import time. Disables /api and /structured.
+              REVERSE_ONLY: "TRUE"
+              LANGUAGES: pl,en
+              # UPDATE_STRATEGY only applies to db mode, so there is no
+              # auto-refresh here: re-import by deleting the PVC when stale.
+              LOG_LEVEL: INFO
+              JAVA_PARAMS: -Xmx3g
+            probes:
+              # The first start downloads the dump and builds the index, which
+              # takes far longer than a liveness probe tolerates.
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: &path /reverse?lat=52.23&lon=21.01
+                    port: &port 2322
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  # 4h: JSONL import is CPU-bound and runs once.
+                  failureThreshold: 480
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: *path
+                    port: *port
+                  periodSeconds: 60
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *probe
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                # Import is the peak; steady-state reverse lookups need far less.
+                memory: 4Gi
+    defaultPodOptions:
+      securityContext:
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: photon
+        ports:
+          http:
+            port: *port
+    persistence:
+      data:
+        existingClaim: photon-data
+        globalMounts:
+          - path: /photon/data

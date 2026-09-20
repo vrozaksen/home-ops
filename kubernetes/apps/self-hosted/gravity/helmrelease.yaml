@@ -46,7 +46,7 @@ spec:
     defaultPodOptions:
       securityContext:
         # The image was rebuilt to run nginx unprivileged on 8080.
-        runAsNonRoot: true
+        runAsNonRoot: false
         runAsUser: 65532
         runAsGroup: 65532
         seccompProfile: {type: RuntimeDefault}

@@ -64,6 +64,7 @@ spec:
               # Discovery only needs the bare issuer -- the gem appends the
               # well-known path itself (lib/oidc_config.rb normalizes it).
               OIDC_ISSUER: https://idm.vzkn.eu/oauth2/openid/dawarich
+              OIDC_PKCE_ENABLED: "true"
               OIDC_CLIENT_ID:
                 valueFrom:
                   secretKeyRef:

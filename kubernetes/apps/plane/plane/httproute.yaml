@@ -15,6 +15,31 @@ spec:
       namespace: network
   # Paths mirror the chart's Traefik rules; four frontends behind one host.
   rules:
+    # nginx inside the admin/space images appends the trailing slash itself and
+    # builds Location from its own listener -- http://host:3000/... Redirect
+    # here so that 301 never happens. Exact wins over PathPrefix.
+    - matches:
+        - path:
+            type: Exact
+            value: /god-mode
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /god-mode/
+            statusCode: 302
+    - matches:
+        - path:
+            type: Exact
+            value: /spaces
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /spaces/
+            statusCode: 302
     - matches:
         - path:
             type: PathPrefix

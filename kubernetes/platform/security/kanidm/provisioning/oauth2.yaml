@@ -229,13 +229,6 @@ data:
           "originLanding": "https://trek.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/trek.svg" }
-        },
-        "trilium": {
-          "present": true, "displayName": "Trilium Notes",
-          "originUrl": "https://trilium.vzkn.eu/callback",
-          "originLanding": "https://trilium.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/trilium.svg" }
         }
       } } }
 ---

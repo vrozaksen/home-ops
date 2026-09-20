@@ -108,7 +108,7 @@ tasks:
       - task: :kubernetes:ks-suspend
       - task: :kopiur:state-suspend
       - task: wait-for-jobs
-      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - task: wait-for-ceph
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set noout
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set norebalance
       - talosctl shutdown --nodes {{.WORKER_NODES}} --force --talosconfig {{.ROOT_DIR}}/talosconfig
@@ -133,7 +133,9 @@ tasks:
       - until kubectl --namespace rook-ceph wait deploy/rook-ceph-tools --for=condition=available --timeout=10m &>/dev/null; do sleep 10; done
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
       - kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset norebalance
-      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 10; done
+      - task: wait-for-ceph
+        vars:
+          ON_TIMEOUT: warn
       - task: :kubernetes:ks-resume
       - task: :kopiur:state-resume
       - task: :kubernetes:cleanse-pods
@@ -157,7 +159,7 @@ tasks:
       # Suspend first: kopiur is what creates the jobs, so waiting on them
       # before suspending is a race the wait can lose indefinitely.
       - task: :kopiur:state-suspend
-      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - task: wait-for-ceph
       - task: wait-for-jobs
     preconditions:
       - which kubectl
@@ -165,9 +167,39 @@ tasks:
   up:
     internal: true
     cmds:
-      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - task: wait-for-ceph
+        vars:
+          ON_TIMEOUT: warn
       - task: wait-for-jobs
       - task: :kopiur:state-resume
+    preconditions:
+      - which kubectl
+
+  wait-for-ceph:
+    internal: true
+    vars:
+      TIMEOUT: '{{.TIMEOUT | default "600"}}'
+      # fail before a reboot, warn after one -- blocking a recovery helps nobody.
+      ON_TIMEOUT: '{{.ON_TIMEOUT | default "fail"}}'
+    cmd: |
+      deadline=$(( $(date +%s) + {{.TIMEOUT}} ))
+      while :; do
+        # HEALTH_WARN counts as good, matching the healthCheckExprs on the
+        # rook-ceph-cluster Kustomization. Waiting for HEALTH_OK hangs forever:
+        # the cephx insecure-key checks stay WARN until CSI keys can move to
+        # aes256k, which needs kernel 7.0 (nodes are on 6.18).
+        unhealthy="$(kubectl get cephcluster --all-namespaces \
+          --output jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}={.status.ceph.health}{"\n"}{end}' \
+          | grep -vE '=HEALTH_(OK|WARN)$' || true)"
+        [[ -z "${unhealthy}" ]] && break
+        if [[ "$(date +%s)" -ge "${deadline}" ]]; then
+          echo "Ceph not healthy after {{.TIMEOUT}}s:" >&2
+          echo "${unhealthy}" >&2
+          [[ "{{.ON_TIMEOUT}}" == "warn" ]] && break
+          exit 1
+        fi
+        sleep 5
+      done
     preconditions:
       - which kubectl
 

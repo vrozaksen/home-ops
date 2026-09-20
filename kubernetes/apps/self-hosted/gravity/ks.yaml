@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app gravity
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/gravity
+  postBuild:
+    substitute:
+      APP: *app
+      NS: &ns self-hosted
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

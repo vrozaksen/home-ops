@@ -27,6 +27,10 @@ spec:
               # JSONL dump. This mode is flagged experimental upstream.
               IMPORT_MODE: jsonl
               REGION: poland
+              # The default community mirror carries only ~16 regions and 404s on
+              # poland, despite upstream claiming every region has a JSONL dump.
+              # GraphHopper's own mirror has it (0.85 GB).
+              BASE_URL: https://download1.graphhopper.com/public
               # Dawarich only ever calls /reverse, and this drops ~60% of the
               # index size and import time. Disables /api and /structured.
               REVERSE_ONLY: "TRUE"

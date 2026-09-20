@@ -1,0 +1,8 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# Nested so the parent can patch what these render (components apply last).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../../../components/cnpg/initdb
+  - ../../../../components/dragonfly

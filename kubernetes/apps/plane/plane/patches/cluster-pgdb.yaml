@@ -1,0 +1,11 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-${APP}
+spec:
+  bootstrap:
+    initdb:
+      # Plane takes only a whole DATABASE_URL, so the password must be pinned.
+      secret:
+        name: plane-pgdb

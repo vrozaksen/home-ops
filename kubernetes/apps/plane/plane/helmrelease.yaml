@@ -1,0 +1,84 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/helmrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: plane
+spec:
+  interval: 1h
+  url: https://helm.plane.so
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plane
+spec:
+  interval: 1h
+  # Migration Job must finish before the API starts; 5m is not enough on install.
+  timeout: 20m
+  chart:
+    spec:
+      chart: plane-ce
+      version: 1.8.1
+      sourceRef:
+        kind: HelmRepository
+        name: plane
+  values:
+    planeVersion: v1.4.1
+
+    # Chart only knows Traefik/nginx; routing lives in httproute.yaml.
+    ingress:
+      enabled: false
+      # Still read -- WEB_URL and CORS derive from it.
+      appHost: plane.vzkn.eu
+    ssl:
+      # TLS ends at the gateway, but WEB_URL must still say https://.
+      externalTermination: true
+
+    postgres:
+      local_setup: false
+    redis:
+      local_setup: false
+    minio:
+      local_setup: false
+
+    # Bundled on purpose: no queue operator here and Plane is the only consumer.
+    rabbitmq:
+      local_setup: true
+      storageClass: ceph-block
+      volumeSize: 2Gi
+      affinity: &offControlPlane
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+
+    # Without these the chart templates DATABASE_URL, AMQP_URL and the signing
+    # keys from plain values, i.e. into git.
+    external_secrets:
+      app_env_existingSecret: plane-app-env
+      live_env_existingSecret: plane-live-env
+      doc_store_existingSecret: plane-doc-store
+      app_keys_existingSecret: plane-app-keys
+      rabbitmq_existingSecret: plane-rabbitmq
+
+    env:
+      # Fail the render instead of falling back to the chart's public example keys.
+      requireExplicitSecrets: true
+      docstore_bucket: plane
+      doc_upload_size_limit: "5242880"
+      cors_allowed_origins: https://plane.vzkn.eu
+
+    # Control planes have 12Gi soldered and already run at 70-85%.
+    web: &placement
+      replicas: 1
+      affinity: *offControlPlane
+    space: *placement
+    admin: *placement
+    live: *placement
+    api: *placement
+    worker: *placement
+    beatworker: *placement

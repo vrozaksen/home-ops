@@ -114,6 +114,16 @@
       matchPackageNames: ["/maziggy/bambuddy/"],
       sourceUrl: "https://github.com/maziggy/bambuddy",
     },
+    {
+      description: "Source for MinusPod",
+      matchPackageNames: ["/ttlequals0/minuspod/"],
+      sourceUrl: "https://github.com/ttlequals0/MinusPod",
+    },
+    {
+      description: "Source for github-exporter",
+      matchPackageNames: ["/githubexporter/github-exporter/"],
+      sourceUrl: "https://github.com/githubexporter/github-exporter",
+    },
     //
     // ── Helm charts in monorepos (sourceDirectory locates the CHANGELOG) ────
     //
@@ -219,6 +229,11 @@
       description: "Changelog link for Forgejo server",
       matchPackageNames: ["/code.forgejo.org/forgejo/forgejo/"],
       changelogUrl: "https://codeberg.org/forgejo/forgejo/releases",
+    },
+    {
+      description: "Changelog link for pgAdmin",
+      matchPackageNames: ["/dpage/pgadmin4/"],
+      changelogUrl: "https://www.pgadmin.org/docs/pgadmin4/latest/release_notes.html",
     },
     {
       // git.erwanleboucher.dev is not auto-detected as Forgejo by

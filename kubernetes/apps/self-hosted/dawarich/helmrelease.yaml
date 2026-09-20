@@ -38,6 +38,17 @@ spec:
               PHOTON_API_USE_HTTPS: "true"
               # One preloaded Puma worker is plenty for a household instance
               WEB_CONCURRENCY: "1"
+              # Password resets, family invites, year-end digests. Delivery
+              # happens in sidekiq, which shares this env block.
+              SMTP_SERVER: smtp-relay.network.svc.cluster.local
+              SMTP_PORT: "25"
+              SMTP_FROM: Dawarich <noreply@vzkn.eu>
+              # In-cluster relay, no auth and no TLS on 25.
+              SMTP_STARTTLS: "false"
+              # The web container fetches sidekiq's metrics and concatenates
+              # them into its own /metrics. Same pod here, so loopback.
+              PROMETHEUS_EXPORTER_ENABLED: "true"
+              SIDEKIQ_METRICS_URL: http://127.0.0.1:9394/metrics
               # Pool must cover sidekiq concurrency on the worker container
               RAILS_MAX_THREADS: "5"
               RAILS_LOG_TO_STDOUT: "true"
@@ -167,6 +178,22 @@ spec:
         ports:
           http:
             port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+            # /metrics returns 401 without these.
+            basicAuth:
+              username:
+                name: dawarich-secret
+                key: METRICS_USERNAME
+              password:
+                name: dawarich-secret
+                key: METRICS_PASSWORD
     route:
       app:
         annotations:

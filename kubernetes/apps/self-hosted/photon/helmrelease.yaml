@@ -62,9 +62,21 @@ spec:
                   failureThreshold: 3
               readiness: *probe
             securityContext:
+              # The image runs as root with a relative `sh entrypoint.sh`, and a
+              # bare drop-ALL takes DAC_OVERRIDE away -- root then cannot read
+              # its own entrypoint ("Permission denied"). It also chowns the
+              # data dir before dropping privileges.
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-              capabilities: {drop: ["ALL"]}
+              capabilities:
+                drop:
+                  - "ALL"
+                add:
+                  - "CHOWN"
+                  - "DAC_OVERRIDE"
+                  - "FOWNER"
+                  - "SETGID"
+                  - "SETUID"
             resources:
               requests:
                 cpu: 200m

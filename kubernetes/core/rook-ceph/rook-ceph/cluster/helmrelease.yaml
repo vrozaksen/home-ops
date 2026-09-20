@@ -49,6 +49,23 @@ spec:
       # Required: ceph-pool-single (size:1) makes ok-to-stop fail for all OSDs,
       # blocking rolling updates forever. CNPG handles replication so this is safe.
       skipUpgradeChecks: true
+      # CVE-2025-30156: AES service tickets carry no integrity check. What closes
+      # it is the mons issuing aes256k tickets, which daemon rotation delivers --
+      # clients may stay on aes safely after that.
+      security:
+        cephx:
+          daemon:
+            keyRotationPolicy: KeyGeneration
+            # Bump to rotate again; osd reports generation 1 today.
+            keyGeneration: 2
+            keyType: aes256k
+          csi:
+            # MUST stay aes: aes256k CSI keys need kernel 7.0 and the nodes run
+            # 6.18. Raising this would break every RBD mount. Revisit when Talos
+            # ships a 7.x kernel -- 1.13.x is pinned to the 6.18 series.
+            keyType: aes
+            # Keeps the previous key valid alongside the new one so PVCs survive.
+            keepPriorKeyCountMax: 1
       mon:
         count: 5
         allowMultiplePerNode: false  # Max 1 mon per node - forces distribution

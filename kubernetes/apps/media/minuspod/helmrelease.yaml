@@ -99,6 +99,26 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        # The UI lives under /ui/ and nothing is served at /, which just 404s.
+        rules:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /
+            filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /ui/
+                  statusCode: 302
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: minuspod
+                port: 8000
     persistence:
       data:
         existingClaim: minuspod

@@ -44,7 +44,7 @@ spec:
             namespace: network
     cephImage:
       repository: quay.io/ceph/ceph
-      tag: v19.2.6
+      tag: v21.1.0
     cephClusterSpec:
       # Required: ceph-pool-single (size:1) makes ok-to-stop fail for all OSDs,
       # blocking rolling updates forever. CNPG handles replication so this is safe.

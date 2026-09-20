@@ -222,13 +222,6 @@ data:
           "originLanding": "https://sure.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/maybe-finance.svg" }
-        },
-        "trek": {
-          "present": true, "displayName": "TREK",
-          "originUrl": "https://trek.vzkn.eu/api/auth/oidc/callback",
-          "originLanding": "https://trek.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/trek.svg" }
         }
       } } }
 ---

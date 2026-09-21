@@ -1,0 +1,220 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: whisper
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      whisper:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        # One pod per worker, pinned by the anti-affinity below, so all three
+        # iGPUs get used and no two pods contend for the same one.
+        replicas: 3
+        strategy: RollingUpdate
+        # A surge pod could not schedule -- every node already holds one.
+        rollingUpdate:
+          maxSurge: 0
+          maxUnavailable: 1
+        initContainers:
+          fetch-model:
+            # Same image as the server (it ships curl), so nothing extra to pull.
+            image: &whisperImage
+              # renovate: datasource=docker depName=ghcr.io/ggml-org/whisper.cpp
+              repository: ghcr.io/ggml-org/whisper.cpp
+              tag: main-vulkan@sha256:ee6734843c531c7cbc7911d45842a280327267f5168db199527b18f183cde193
+            # ENTRYPOINT is ["bash", "-c"], so the script goes in args as one
+            # element. No shell variables: Flux envsubst would eat them.
+            args:
+              - >-
+                set -e;
+                if [ ! -s /models/ggml-large-v3-turbo-q5_0.bin ]; then
+                curl -fsSL --retry 5 --retry-delay 5
+                -o /models/ggml-large-v3-turbo-q5_0.bin.part
+                https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin;
+                mv /models/ggml-large-v3-turbo-q5_0.bin.part
+                /models/ggml-large-v3-turbo-q5_0.bin;
+                fi
+            securityContext: &hardened
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - "ALL"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+        containers:
+          app:
+            image: *whisperImage
+            # ENTRYPOINT is ["bash", "-c"], so this is one shell string.
+            #
+            # large-v3-turbo is multilingual, which is the point: the podcasts
+            # are a mix of English and Polish and the `.en` models would be
+            # useless for half of them. Callers pass `language` per request
+            # (or `auto`), so nothing is pinned here.
+            #
+            # --dtw gives the word-level timestamps MinusPod needs to place ad
+            # boundaries, and flash attention silently disables it.
+            args:
+              - >-
+                whisper-server
+                --host 0.0.0.0
+                --port 8765
+                --model /models/ggml-large-v3-turbo-q5_0.bin
+                --inference-path /v1/audio/transcriptions
+                --dtw large.v3.turbo
+                --no-flash-attn
+                --threads 4
+            env:
+              # Read-only rootfs, so keep the Mesa pipeline cache on the tmp
+              # volume instead of letting it fail into $HOME.
+              MESA_SHADER_CACHE_DIR: /tmp/mesa
+              # Drop `--no-gpu` into here to force the CPU backend. See the
+              # note in ks.yaml about benchmarking before trusting the iGPU.
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8765
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              # Vulkan compiles its shaders on first init, which is not quick on
+              # a Gen9 iGPU, and the model load follows it.
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                  failureThreshold: 60
+              readiness: *probe
+            # Image default (root) on purpose: the DRA driver injects
+            # /dev/dri/* with the host's ownership and Talos has no render
+            # group to join, so a non-root UID cannot open the render node.
+            securityContext: *hardened
+            resources:
+              claims:
+                - name: gpu
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              # Model weights plus the Vulkan buffers, which the iGPU carves out
+              # of system RAM.
+              limits:
+                memory: 4Gi
+          bazarr-shim:
+            image:
+              # renovate: datasource=docker depName=docker.io/library/python
+              repository: docker.io/library/python
+              tag: 3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+            command:
+              - python3
+              - /app/bazarr_shim.py
+            env:
+              WHISPER_UPSTREAM: http://127.0.0.1:8765
+              # The script lives on a read-only ConfigMap mount.
+              PYTHONDONTWRITEBYTECODE: "1"
+              PYTHONUNBUFFERED: "1"
+            probes:
+              liveness: &shimProbe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &shimPort 9000
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *shimProbe
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - "ALL"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              # Bazarr hands over the whole decoded audio track in one POST:
+              # a 2h film is ~230MB of PCM, and the shim holds a WAV copy too.
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      labels:
+        # Explicit, so the anti-affinity does not depend on how Flux names the
+        # Helm release.
+        app.kubernetes.io/component: &component whisper
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: *component
+      securityContext:
+        seccompProfile: {type: RuntimeDefault}
+      # Claim template comes from ../../../components/gpu.
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: whisper-gpu
+    service:
+      app:
+        controller: whisper
+        ports:
+          http:
+            port: *port
+          bazarr:
+            port: *shimPort
+    persistence:
+      # ~574MB, re-fetched on every pod start. A shared claim is not an option
+      # here (ceph-block is RWO and there is no RWX class but NFS), and per-node
+      # copies are not worth a hand-made PV each.
+      models:
+        type: emptyDir
+        advancedMounts:
+          whisper:
+            fetch-model:
+              - path: /models
+            app:
+              - path: /models
+                readOnly: true
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          whisper:
+            fetch-model:
+              - path: /tmp
+            app:
+              - path: /tmp
+            bazarr-shim:
+              - path: /tmp
+      shim:
+        type: configMap
+        name: whisper-shim
+        advancedMounts:
+          whisper:
+            bazarr-shim:
+              - path: /app/bazarr_shim.py
+                subPath: bazarr_shim.py
+                readOnly: true

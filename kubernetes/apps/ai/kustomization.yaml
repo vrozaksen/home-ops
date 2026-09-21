@@ -10,6 +10,7 @@ resources:
   - ./agentmemory/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
+  - ./whisper/ks.yaml
   # MCP servers — Group 1 (upstream images / remote proxies)
   - ./mcp/siderolabs-docs/ks.yaml
   # - ./mcp/sentry/ks.yaml

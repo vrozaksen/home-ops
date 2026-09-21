@@ -6,6 +6,9 @@ metadata:
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
   labels:
+    # whisper claims the workers' iGPUs with adminAccess so it can share
+    # them with kyoo's transcoder; DRA refuses that without this label.
+    resource.kubernetes.io/admin-access: "true"
     # Verified with `kubectl label --dry-run=server`: no running pod here
     # violates baseline. Namespaces that do (development, downloads,
     # kube-system, observability, rook-ceph) are deliberately excluded.

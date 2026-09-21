@@ -14,23 +14,19 @@ spec:
       whisper:
         annotations:
           reloader.stakater.com/auto: "true"
-        # One pod per worker, pinned by the anti-affinity below, so all three
-        # iGPUs get used and no two pods contend for the same one.
+        # One per worker (anti-affinity below), so a surge pod has nowhere to go.
         replicas: 3
         strategy: RollingUpdate
-        # A surge pod could not schedule -- every node already holds one.
         rollingUpdate:
           maxSurge: 0
           maxUnavailable: 1
         initContainers:
           fetch-model:
-            # Same image as the server (it ships curl), so nothing extra to pull.
             image: &whisperImage
               # renovate: datasource=docker depName=ghcr.io/ggml-org/whisper.cpp
               repository: ghcr.io/ggml-org/whisper.cpp
               tag: main-vulkan@sha256:ee6734843c531c7cbc7911d45842a280327267f5168db199527b18f183cde193
-            # ENTRYPOINT is ["bash", "-c"], so the script goes in args as one
-            # element. No shell variables: Flux envsubst would eat them.
+            # ENTRYPOINT is ["bash", "-c"] -> one arg. No shell vars, Flux eats them.
             args:
               - >-
                 set -e;
@@ -56,15 +52,8 @@ spec:
         containers:
           app:
             image: *whisperImage
-            # ENTRYPOINT is ["bash", "-c"], so this is one shell string.
-            #
-            # large-v3-turbo is multilingual, which is the point: the podcasts
-            # are a mix of English and Polish and the `.en` models would be
-            # useless for half of them. Callers pass `language` per request
-            # (or `auto`), so nothing is pinned here.
-            #
-            # --dtw gives the word-level timestamps MinusPod needs to place ad
-            # boundaries, and flash attention silently disables it.
+            # --dtw = word timestamps for MinusPod's ad boundaries; flash attn
+            # silently kills it. Add --no-gpu to force CPU (see ks.yaml).
             args:
               - >-
                 whisper-server
@@ -76,11 +65,7 @@ spec:
                 --no-flash-attn
                 --threads 4
             env:
-              # Read-only rootfs, so keep the Mesa pipeline cache on the tmp
-              # volume instead of letting it fail into $HOME.
               MESA_SHADER_CACHE_DIR: /tmp/mesa
-              # Drop `--no-gpu` into here to force the CPU backend. See the
-              # note in ks.yaml about benchmarking before trusting the iGPU.
             probes:
               liveness: &probe
                 enabled: true
@@ -92,8 +77,8 @@ spec:
                   periodSeconds: 30
                   timeoutSeconds: 10
                   failureThreshold: 3
-              # Vulkan compiles its shaders on first init, which is not quick on
-              # a Gen9 iGPU, and the model load follows it.
+              readiness: *probe
+              # Shader compile + model load.
               startup:
                 enabled: true
                 custom: true
@@ -104,10 +89,8 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 10
                   failureThreshold: 60
-              readiness: *probe
-            # Image default (root) on purpose: the DRA driver injects
-            # /dev/dri/* with the host's ownership and Talos has no render
-            # group to join, so a non-root UID cannot open the render node.
+            # Root: Talos has no render group, so a non-root UID cannot open
+            # the /dev/dri node the DRA driver injects.
             securityContext: *hardened
             resources:
               claims:
@@ -115,14 +98,10 @@ spec:
               requests:
                 cpu: 500m
                 memory: 1Gi
-              # Model weights plus the Vulkan buffers, which the iGPU carves out
-              # of system RAM.
               limits:
                 memory: 4Gi
     defaultPodOptions:
       labels:
-        # Explicit, so the anti-affinity does not depend on how Flux names the
-        # Helm release.
         app.kubernetes.io/component: &component whisper
       affinity:
         podAntiAffinity:
@@ -133,7 +112,6 @@ spec:
                   app.kubernetes.io/component: *component
       securityContext:
         seccompProfile: {type: RuntimeDefault}
-      # Claim template comes from ../../../components/gpu.
       resourceClaims:
         - name: gpu
           resourceClaimTemplateName: whisper-gpu
@@ -144,9 +122,7 @@ spec:
           http:
             port: *port
     persistence:
-      # ~574MB, re-fetched on every pod start. A shared claim is not an option
-      # here (ceph-block is RWO and there is no RWX class but NFS), and per-node
-      # copies are not worth a hand-made PV each.
+      # ~574MB, re-fetched per pod start; no RWX class to share it from.
       models:
         type: emptyDir
         advancedMounts:

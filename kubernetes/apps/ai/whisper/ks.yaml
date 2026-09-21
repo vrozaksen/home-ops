@@ -5,23 +5,10 @@ kind: Kustomization
 metadata:
   name: &app whisper
 spec:
-  # Shared OpenAI-compatible transcription; MinusPod is the first caller.
-  #
-  # Bazarr cannot use this as-is: its Whisper provider only speaks
-  # ahmetoner/whisper-asr-webservice (POST /asr and /detect-language, taking
-  # headerless PCM), and bazarr/app/config.py exposes no backend selector. A
-  # translating shim is in git history on this branch if that comes up again.
-  #
-  # The iGPU claim is a bet, not a certainty. UHD 630 is Coffee Lake / Gen9,
-  # which Intel moved to `legacy1` compute-runtime packages, so OpenVINO and
-  # SYCL are both out and Vulkan (Mesa ANV) is the only path left -- and on
-  # Intel iGPUs Vulkan has measured *slower* than the CPU backend. Benchmark
-  # before trusting it:
-  #   kubectl exec deploy/whisper -c app -- \
-  #     whisper-bench -m /models/ggml-large-v3-turbo-q5_0.bin
-  #   kubectl exec deploy/whisper -c app -- \
-  #     whisper-bench -m /models/ggml-large-v3-turbo-q5_0.bin -ng
-  # If -ng (no GPU) wins, add --no-gpu to the server args and drop the claim.
+  # Gen9 iGPU: OpenVINO and SYCL are out (Intel moved it to legacy1 packages),
+  # Vulkan is all that is left and it has measured slower than CPU on Intel.
+  # Check before trusting it -- `whisper-bench -m <model>` with and without -ng;
+  # if -ng wins, add --no-gpu to the server args and drop this component.
   components:
     - ../../../components/gpu
   interval: 1h

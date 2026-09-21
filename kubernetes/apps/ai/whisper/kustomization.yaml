@@ -4,13 +4,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
-configMapGenerator:
-  # Bazarr's Whisper provider speaks whisper-asr-webservice, not the OpenAI
-  # API — see the module docstring.
-  - name: whisper-shim
-    files:
-      - bazarr_shim.py=./resources/bazarr_shim.py
-generatorOptions:
-  disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled

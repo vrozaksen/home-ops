@@ -5,8 +5,12 @@ kind: Kustomization
 metadata:
   name: &app whisper
 spec:
-  # Shared transcription for MinusPod (OpenAI API, port 8765) and Bazarr
-  # (whisper-asr-webservice API via the shim, port 9000).
+  # Shared OpenAI-compatible transcription; MinusPod is the first caller.
+  #
+  # Bazarr cannot use this as-is: its Whisper provider only speaks
+  # ahmetoner/whisper-asr-webservice (POST /asr and /detect-language, taking
+  # headerless PCM), and bazarr/app/config.py exposes no backend selector. A
+  # translating shim is in git history on this branch if that comes up again.
   #
   # The iGPU claim is a bet, not a certainty. UHD 630 is Coffee Lake / Gen9,
   # which Intel moved to `legacy1` compute-runtime packages, so OpenVINO and

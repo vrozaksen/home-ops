@@ -119,47 +119,6 @@ spec:
               # of system RAM.
               limits:
                 memory: 4Gi
-          bazarr-shim:
-            image:
-              # renovate: datasource=docker depName=docker.io/library/python
-              repository: docker.io/library/python
-              tag: 3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
-            command:
-              - python3
-              - /app/bazarr_shim.py
-            env:
-              WHISPER_UPSTREAM: http://127.0.0.1:8765
-              # The script lives on a read-only ConfigMap mount.
-              PYTHONDONTWRITEBYTECODE: "1"
-              PYTHONUNBUFFERED: "1"
-            probes:
-              liveness: &shimProbe
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health
-                    port: &shimPort 9000
-                  periodSeconds: 30
-                  timeoutSeconds: 10
-                  failureThreshold: 3
-              readiness: *shimProbe
-            securityContext:
-              runAsUser: 1000
-              runAsGroup: 1000
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - "ALL"
-            resources:
-              requests:
-                cpu: 10m
-                memory: 64Mi
-              # Bazarr hands over the whole decoded audio track in one POST:
-              # a 2h film is ~230MB of PCM, and the shim holds a WAV copy too.
-              limits:
-                memory: 1Gi
     defaultPodOptions:
       labels:
         # Explicit, so the anti-affinity does not depend on how Flux names the
@@ -184,8 +143,6 @@ spec:
         ports:
           http:
             port: *port
-          bazarr:
-            port: *shimPort
     persistence:
       # ~574MB, re-fetched on every pod start. A shared claim is not an option
       # here (ceph-block is RWO and there is no RWX class but NFS), and per-node
@@ -207,14 +164,3 @@ spec:
               - path: /tmp
             app:
               - path: /tmp
-            bazarr-shim:
-              - path: /tmp
-      shim:
-        type: configMap
-        name: whisper-shim
-        advancedMounts:
-          whisper:
-            bazarr-shim:
-              - path: /app/bazarr_shim.py
-                subPath: bazarr_shim.py
-                readOnly: true

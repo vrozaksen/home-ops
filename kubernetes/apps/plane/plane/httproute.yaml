@@ -11,7 +11,7 @@ spec:
   hostnames:
     - plane.vzkn.eu
   parentRefs:
-    - name: envoy-internal
+    - name: envoy-external
       namespace: network
   # Paths mirror the chart's Traefik rules; four frontends behind one host.
   rules:

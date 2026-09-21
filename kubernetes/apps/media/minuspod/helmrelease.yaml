@@ -14,12 +14,48 @@ spec:
       minuspod:
         annotations:
           reloader.stakater.com/auto: "true"
+        # Two ReadWriteOnce claims: a rolling update would deadlock the new pod
+        # against the old one's attachments.
+        strategy: Recreate
+        initContainers:
+          fetch-whisper-model:
+            # Same image as the sidecar (it ships curl), so nothing extra to pull.
+            image: &whisperImage
+              # renovate: datasource=docker depName=ghcr.io/ggml-org/whisper.cpp
+              repository: ghcr.io/ggml-org/whisper.cpp
+              tag: main-vulkan@sha256:ee6734843c531c7cbc7911d45842a280327267f5168db199527b18f183cde193
+            # ENTRYPOINT is ["bash", "-c"], so the script goes in args as one
+            # element. No shell variables: Flux envsubst would eat them.
+            args:
+              - >-
+                set -e;
+                if [ ! -s /models/ggml-large-v3-turbo-q5_0.bin ]; then
+                curl -fsSL --retry 5 --retry-delay 5
+                -o /models/ggml-large-v3-turbo-q5_0.bin.part
+                https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin;
+                mv /models/ggml-large-v3-turbo-q5_0.bin.part
+                /models/ggml-large-v3-turbo-q5_0.bin;
+                fi
+            securityContext: &hardened
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - "ALL"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
         containers:
           app:
             image:
               # renovate: datasource=docker depName=docker.io/ttlequals0/minuspod
               repository: docker.io/ttlequals0/minuspod
-              tag: 2.97.7@sha256:b4a53939353601b3b9a541efd8111ec5715416b6dc2c2c51a5665e528443a0c0
+              # -cpu variant: the default tag bundles ~9GB of NVIDIA/CUDA
+              # wheels that nothing here can use.
+              tag: 2.97.10-cpu@sha256:a5604e3030aed2e24d78f6474da7d2f87ebe2d95320b23f7bd558c3de97610d4
             env:
               TZ: Europe/Warsaw
               BASE_URL: https://minuspod.vzkn.eu
@@ -27,12 +63,27 @@ spec:
               # The LLM that locates ad segments in the transcript. Key comes
               # from Infisical; model choice is made in the UI.
               LLM_PROVIDER: anthropic
-              # Upstream defaults to cuda. There is no NVIDIA card in this
-              # cluster (workers have Intel iGPUs), so transcription runs on
-              # CPU -- slower, but it is a background job. Switch to
-              # WHISPER_BACKEND=openai-api against Groq if it drags.
+              # Transcription runs in the `whisper` sidecar (whisper.cpp on the
+              # Intel iGPU) and is reached over the pod's loopback. In-process
+              # faster-whisper on CPU is what OOM-killed this pod: it pins
+              # batch_size=8 with no way to lower it, and upstream asks for 8GB
+              # of RAM for a sub-hour episode.
+              WHISPER_BACKEND: openai-api
+              WHISPER_API_BASE_URL: http://127.0.0.1:8765/v1
+              # whisper.cpp serves whatever model it was started with and
+              # ignores this, but the app requires a value.
+              WHISPER_API_MODEL: whisper-1
+              # Keeps the app from initialising a local model at all.
               WHISPER_DEVICE: cpu
-              WHISPER_MODEL: small
+              # whisper.cpp takes the 16kHz mono WAV directly; the FLAC encode
+              # only exists to keep uploads small for cloud APIs.
+              SKIP_FLAC_COMPRESSION: "true"
+              # One chunk at a time -- whisper.cpp serialises requests behind a
+              # single context, so four parallel chunks only queue up and risk
+              # the 600s API timeout. This setting is DB-seeded, so the env var
+              # applies to fresh installs and to "reset ad-detection settings"
+              # only: also set Concurrent chunks = 1 in Settings > Transcription.
+              TRANSCRIBE_CONCURRENT_CHUNKS: "1"
               MINUSPOD_REQUIRE_AUTH: "true"
               # No OIDC support -- this app has its own login only.
               MINUSPOD_ALLOW_PUBLIC_PROCESSING: "false"
@@ -75,7 +126,68 @@ spec:
               requests:
                 cpu: 100m
                 memory: 512Mi
-              # Whisper on CPU is the heavy part; `small` fits comfortably here.
+              # ffmpeg splicing plus the whole transcript in the LLM step; the
+              # Whisper passes themselves moved to the sidecar.
+              limits:
+                memory: 6Gi
+          whisper:
+            image: *whisperImage
+            # ENTRYPOINT is ["bash", "-c"], so this is one shell string.
+            # --dtw gives the word-level timestamps the ad-boundary refinement
+            # needs, and it is silently disabled by flash attention.
+            args:
+              - >-
+                whisper-server
+                --host 127.0.0.1
+                --port 8765
+                --model /models/ggml-large-v3-turbo-q5_0.bin
+                --inference-path /v1/audio/transcriptions
+                --dtw large.v3.turbo
+                --no-flash-attn
+                --threads 4
+            env:
+              # Read-only rootfs, so keep the Mesa pipeline cache on the tmp
+              # volume instead of letting it fail into $HOME.
+              MESA_SHADER_CACHE_DIR: /tmp/mesa
+            probes:
+              # exec, not httpGet: the kubelet probes the pod IP and the server
+              # deliberately only listens on loopback.
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["curl", "-sf", "http://127.0.0.1:8765/health"]
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              # Vulkan compiles its shaders on first init, which is not quick on
+              # a Gen9 iGPU, and the model load follows it.
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["curl", "-sf", "http://127.0.0.1:8765/health"]
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                  failureThreshold: 60
+              # Left off on purpose: a wedged transcriber must not pull the whole
+              # pod out of the Gateway's backend set.
+              readiness:
+                enabled: false
+            # Image default (root) on purpose: the DRA driver injects
+            # /dev/dri/* with the host's ownership and Talos has no render
+            # group to join, so a non-root UID cannot open the render node.
+            securityContext: *hardened
+            resources:
+              claims:
+                - name: gpu
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              # large-v3-turbo-q5_0 weights plus the Vulkan buffers, which the
+              # iGPU carves out of system RAM.
               limits:
                 memory: 4Gi
     defaultPodOptions:
@@ -83,6 +195,10 @@ spec:
       terminationGracePeriodSeconds: 360
       securityContext:
         seccompProfile: {type: RuntimeDefault}
+      # Claim template comes from ../../../components/gpu.
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: minuspod-gpu
     service:
       app:
         controller: minuspod
@@ -122,5 +238,30 @@ spec:
     persistence:
       data:
         existingClaim: minuspod
-        globalMounts:
-          - path: /app/data
+        advancedMounts:
+          minuspod:
+            app:
+              - path: /app/data
+      # ~574MB of weights, re-downloadable -- deliberately outside the kopiur
+      # claim so it stays out of the backup series.
+      models:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        storageClass: ceph-block
+        retain: true
+        advancedMounts:
+          minuspod:
+            fetch-whisper-model:
+              - path: /models
+            whisper:
+              - path: /models
+                readOnly: true
+      whisper-tmp:
+        type: emptyDir
+        advancedMounts:
+          minuspod:
+            fetch-whisper-model:
+              - path: /tmp
+            whisper:
+              - path: /tmp

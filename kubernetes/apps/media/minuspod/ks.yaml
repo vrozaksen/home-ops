@@ -6,6 +6,7 @@ metadata:
   name: &app minuspod
 spec:
   components:
+    - ../../../components/gpu
     - ../../../components/kopiur
   dependsOn:
     - name: infisical-operator

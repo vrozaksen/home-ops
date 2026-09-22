@@ -46,7 +46,7 @@ spec:
     defaultPodOptions:
       securityContext:
         # The image was rebuilt to run nginx unprivileged on 8080.
-        runAsNonRoot: false
+        runAsNonRoot: true
         runAsUser: 65532
         runAsGroup: 65532
         seccompProfile: {type: RuntimeDefault}
@@ -74,7 +74,10 @@ spec:
           - name: envoy-internal
             namespace: network
     persistence:
-      # nginx writes its pid and temp dirs here; rootfs is read-only.
+      run:
+        type: emptyDir
+        globalMounts:
+          - path: /run
       tmp:
         type: emptyDir
         globalMounts:

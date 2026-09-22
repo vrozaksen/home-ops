@@ -29,25 +29,19 @@ spec:
       # renovate: datasource=docker depName=ghcr.io/squat/generic-device-plugin
       repository: ghcr.io/squat/generic-device-plugin
       pullPolicy: IfNotPresent
-      # Upstream ships no semver and does not tag every build, so the digest is
-      # the real pin and `latest` is only a handle Renovate can follow.
-      # Must be recent enough to know --config, which the chart passes: the
-      # older commit-SHA tags only accept --device and crash on startup with
-      # "unknown flag: --config".
+      # No semver upstream, so the digest is the real pin. Must be recent
+      # enough to know --config, which the chart passes.
       tag: latest@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
     controller:
       type: daemonset
-    # Privileged, and that is the whole point: privilege stays confined to this
-    # DaemonSet so consumers get /dev/fuse through the device-plugin API instead
-    # of running privileged themselves. A hostPath mount alone is not enough —
-    # the node appears in the pod but the container device cgroup denies open(),
-    # which is exactly what blocked fuse-overlayfs in buildkit.
+    # Privileged on purpose: it confines the privilege here so consumers get
+    # /dev/fuse through the device-plugin API instead of running privileged.
+    # hostPath alone is not enough — the device cgroup still denies open().
     securityContext:
       privileged: true
     env:
       DOMAIN: squat.ai
-    # Only fuse. The chart default also scans for serial, video, audio and
-    # capture devices, none of which exist on these nodes.
+    # Only fuse; the chart default also scans serial/video/audio devices.
     config:
       enabled: true
       data: |

@@ -7,7 +7,7 @@ metadata:
 spec:
   # Upstream publishes no semver or `latest` tag -- only branch names and
   # `stable`, so the digest is what actually pins this.
-  image: docker.io/makeplane/plane-mcp-server:stable@sha256:bed2527e6718d3a905fc913955a8493e423314fa880a92db7d11d3b38cc19623
+  image: docker.io/makeplane/plane-mcp-server:stable@sha256:87a5dbd0fcf0e6d0e271bdabd7a55b377915b550b588f94b22d5c6c55eb69e1e
   transport: stdio
   proxyPort: 8080
   args:

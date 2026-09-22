@@ -71,9 +71,13 @@ spec:
               - --addr=tcp://0.0.0.0:1234
               - --addr=unix:///run/user/1000/buildkit/buildkitd.sock
               - --oci-worker-no-process-sandbox
-              # native snapshotter — Talos doesn't expose /dev/fuse to pods,
-              # so overlayfs/fuse-overlayfs aren't options.
-              - --oci-worker-snapshotter=native
+              # fuse-overlayfs, not native. Rootless overlayfs is impossible on
+              # Talos (the kernel refuses an unprivileged overlay mount), and
+              # native full-copies the whole rootfs on every RUN — that tax is
+              # why a 34kB layer could take minutes. /dev/fuse does exist on the
+              # hosts; it reaches this pod through generic-device-plugin, which
+              # is what the squat.ai/fuse limit below asks for.
+              - --oci-worker-snapshotter=fuse-overlayfs
               # mTLS — server cert (DNS SANs cover buildkit Service) +
               # cluster-local CA. `--tlscacert` enforces client cert auth
               # automatically (any non-empty CA = mTLS required).
@@ -110,8 +114,13 @@ spec:
               requests:
                 cpu: 200m
                 memory: 1Gi
+                squat.ai/fuse: 1
               limits:
                 memory: 12Gi
+                # Extended resources must match requests; this is what makes the
+                # kubelet add /dev/fuse to the container's device allowlist. A
+                # hostPath mount alone leaves open() denied.
+                squat.ai/fuse: 1
             securityContext:
               allowPrivilegeEscalation: true
               capabilities:

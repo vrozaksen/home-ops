@@ -60,6 +60,10 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
+    # Hard dependency: buildkit requests squat.ai/fuse, so without the plugin
+    # advertising it the pod is simply unschedulable.
+    - name: generic-device-plugin
+      namespace: kube-system
     - name: infisical-operator
       namespace: security
   interval: 1h

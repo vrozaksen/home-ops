@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: generic-device-plugin
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.1.3
+  url: oci://ghcr.io/gabe565/charts/generic-device-plugin
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: generic-device-plugin
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: generic-device-plugin
+  values:
+    fullnameOverride: generic-device-plugin
+    image:
+      # renovate: datasource=docker depName=ghcr.io/squat/generic-device-plugin
+      repository: ghcr.io/squat/generic-device-plugin
+      pullPolicy: IfNotPresent
+      # Upstream publishes commit-SHA tags only, no semver — hence the digest
+      # pin; Renovate can still track the digest.
+      tag: 382f3461ae87b65c8a821ae65feccf346bbad792@sha256:5e7776ea980a0a3eaae673d093f10109213fe91caa1e41a359e1f23b74a0a328
+    controller:
+      type: daemonset
+    # Privileged, and that is the whole point: privilege stays confined to this
+    # DaemonSet so consumers get /dev/fuse through the device-plugin API instead
+    # of running privileged themselves. A hostPath mount alone is not enough —
+    # the node appears in the pod but the container device cgroup denies open(),
+    # which is exactly what blocked fuse-overlayfs in buildkit.
+    securityContext:
+      privileged: true
+    env:
+      DOMAIN: squat.ai
+    # Only fuse. The chart default also scans for serial, video, audio and
+    # capture devices, none of which exist on these nodes.
+    config:
+      enabled: true
+      data: |
+        devices:
+          - name: fuse
+            groups:
+              - count: 10
+                paths:
+                  - path: /dev/fuse
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        memory: 64Mi

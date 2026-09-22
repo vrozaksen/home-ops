@@ -15,3 +15,4 @@ spec:
     - "*.vzkn.eu"
     - "*.home.vzkn.eu"
     - "*.s3.vzkn.eu"
+    - "*.coder.vzkn.eu"

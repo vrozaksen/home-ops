@@ -1,3 +1,4 @@
+---
 # Custom sysfs settings # 5/6 nodes are 6c/12t and constantly throwing DMESG errors
 machine:
   sysfs:

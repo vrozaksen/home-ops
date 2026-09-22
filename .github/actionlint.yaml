@@ -1,0 +1,7 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/actionlint.json
+# Labels of the self-hosted runners served by actions-runner-system; without
+# these actionlint rejects them as unknown runner labels.
+self-hosted-runner:
+  labels:
+    - home-ops-runner

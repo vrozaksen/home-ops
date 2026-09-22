@@ -6,12 +6,29 @@ TALOSCONFIG = "{{config_root}}/talosconfig"
 JUST_UNSTABLE = "1"
 LEFTHOOK_OUTPUT = "false"
 
-_.file = [
-  "{{config_root}}/.secrets.env",
-]
+_.file = ["{{config_root}}/.secrets.env"]
+
+[hooks]
+postinstall = "lefthook install"
 
 [tools]
-"go:github.com/google/yamlfmt/cmd/yamlfmt" = "latest"
-"go:github.com/evilmartians/lefthook" = "latest"
-"uv" = "latest"
-"pipx:flux-local" = "latest"
+actionlint = "1.7.12"
+flux2 = "2.8.8"
+helm = "3.20.2"
+helmfile = "1.5.0"
+infisical = "0.41.91"
+jq = "1.8.1"
+just = "1.51.0"
+kubectl = "1.36.2"
+kustomize = "5.8.1"
+lefthook = "1.13.6"
+shellcheck = "0.11.0"
+talhelper = "3.1.12"
+talosctl = "1.13.5"
+task = "3.48.0"
+uv = "latest"
+yamlfmt = "0.21.0"
+zizmor = "1.30.1"
+"github:home-operations/flate" = "v0.6.5"
+"github:mitsuhiko/minijinja" = "2.20.0"
+"pipx:flux-local" = "8.2.0"

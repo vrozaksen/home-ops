@@ -1,0 +1,13 @@
+---
+# yayamlls workspace config — https://github.com/home-operations/yayamlls
+#
+# Kubernetes apiVersion+kind schema auto-detect and the schemastore catalog are
+# on by default, so they add nothing over the existing
+# `# yaml-language-server: $schema=https://schemas.vzkn.eu/...` headers. What is
+# new is the Flux renderer: flate expands HelmReleases and Kustomizations inline
+# (code lens + diagnostics) by following source refs from the cluster root, so
+# postBuild substitutions and component merges are visible without a build.
+renderers:
+  flate:
+    enabled: true
+    path: kubernetes

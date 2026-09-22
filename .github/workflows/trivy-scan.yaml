@@ -20,16 +20,20 @@ concurrency:
 
 permissions:
   contents: read
-  security-events: write  # For SARIF upload
-  issues: write  # For creating GitHub Issues
 
 jobs:
   kubernetes-manifests:
     name: Scan Kubernetes Manifests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run Trivy scanner on kubernetes directory
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
@@ -130,9 +134,14 @@ jobs:
   talos-manifests:
     name: Scan Talos Configurations
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run Trivy scanner on talos directory
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
@@ -155,9 +164,14 @@ jobs:
   bootstrap-manifests:
     name: Scan Bootstrap Configurations
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run Trivy scanner on bootstrap directory
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0

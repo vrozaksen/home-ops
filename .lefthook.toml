@@ -1,16 +1,34 @@
 [pre-commit]
 parallel = true
+skip = ["merge", "rebase"]
 
 [pre-commit.commands.format-just]
 run = """
 for file in {staged_files}; do
-    just --justfile "$file" --fmt --unstable
+    mise exec -- just --justfile "$file" --fmt --unstable
 done
 """
 glob = ["*.just", ".justfile"]
 stage_fixed = true
 
 [pre-commit.commands.format-yaml]
-run = "yamlfmt {staged_files}"
+run = "mise exec -- yamlfmt {staged_files}"
 glob = ["*.yaml"]
 stage_fixed = true
+
+[pre-commit.commands.format-mise]
+run = "mise fmt"
+glob = [".mise.toml"]
+stage_fixed = true
+
+[pre-commit.commands.shellcheck]
+run = "mise exec -- shellcheck {staged_files}"
+glob = ["*.sh"]
+
+[pre-commit.commands.actionlint]
+run = "mise exec -- actionlint {staged_files}"
+glob = [".github/workflows/*.yaml"]
+
+[pre-commit.commands.zizmor]
+run = "mise exec -- zizmor --no-progress --min-severity low {staged_files}"
+glob = [".github/workflows/*.yaml"]

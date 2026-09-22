@@ -51,9 +51,11 @@ jobs:
       - name: Extract Images
         id: extract
         run: |
-          echo 'images<<EOF' >> $GITHUB_OUTPUT
-          flate diff images -p ./kubernetes/flux/cluster -o json >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          {
+              echo 'images<<EOF'
+              flate diff images -p ./kubernetes/flux/cluster -o json
+              echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
   pull:
     if: ${{ needs.extract.outputs.images != '[]' }}

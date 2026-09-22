@@ -5,6 +5,8 @@ metadata:
   name: postgres-${APP}
 spec:
   postgresql:
+    parameters:
+      max_connections: "200"
     # Mount PostGIS into the stock PG18 base image (CNPG extension image volume,
     # 1.27+; operator is on 1.30) instead of maintaining a custom Postgres image.
     extensions:

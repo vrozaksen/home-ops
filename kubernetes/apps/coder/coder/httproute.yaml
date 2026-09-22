@@ -6,10 +6,11 @@ metadata:
   name: coder
   annotations:
     gatus.home-operations.com/endpoint: |-
-      group: development
+      group: coder
 spec:
+  # The wildcard carries workspace apps: <app>--<workspace>--<user>.coder.vzkn.eu
   hostnames:
-    - "coder.vzkn.eu"
+    - coder.vzkn.eu
     - "*.coder.vzkn.eu"
   parentRefs:
     - name: envoy-external
@@ -17,5 +18,4 @@ spec:
   rules:
     - backendRefs:
         - name: coder
-          namespace: development
           port: 80

@@ -7,7 +7,7 @@ metadata:
 spec:
   endpoints:
     - port: prom-http
-      interval: 10s
+      interval: 1m
       scrapeTimeout: 10s
   selector:
     matchLabels:

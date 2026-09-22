@@ -2,8 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: coder
+components:
+  - ../../components/common
 resources:
-  - ./externalsecret.yaml
-  - ./helmrelease.yaml
-  - ./httproute.yaml
-  - ./servicemonitor.yaml
+  - ./namespace.yaml
+  - ./coder/ks.yaml

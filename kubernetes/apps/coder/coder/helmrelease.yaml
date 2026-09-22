@@ -1,0 +1,168 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: coder
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 2.34.2
+  url: oci://ghcr.io/coder/chart/coder
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app coder
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: coder
+  values:
+    coder:
+      replicaCount: 1
+      envFrom:
+        - secretRef:
+            name: coder-secret
+      env:
+        # CNPG generates a ready connection string; no need to compose one.
+        - name: CODER_PG_CONNECTION_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgres-coder-app
+              key: fqdn-uri
+        - name: CODER_ACCESS_URL
+          value: https://coder.vzkn.eu
+        - name: CODER_WILDCARD_ACCESS_URL
+          value: "*.coder.vzkn.eu"
+        # With the wildcard in place, path-based apps only add risk: they share
+        # an origin with the API, so a workspace could reuse session cookies.
+        - name: CODER_DISABLE_PATH_APPS
+          value: "true"
+
+        # --- exposure hardening (this is reachable from the internet) ---
+        # All workspace traffic goes through the Coder relay instead of p2p.
+        # STUN is therefore moot -- and turn.vzkn.eu cannot serve it anyway: a
+        # binding request returns the SNATed pod IP (10.69.x.x), not the
+        # client's. Revisit if STUNner ever preserves source addresses.
+        - name: CODER_BLOCK_DIRECT
+          value: "true"
+        - name: CODER_DERP_SERVER_STUN_ADDRESSES
+          value: disable
+        - name: CODER_SECURE_AUTH_COOKIE
+          value: "true"
+        - name: CODER_STRICT_TRANSPORT_SECURITY
+          value: "31536000"
+        # Pins every request to the canonical host, so a stray Host header
+        # cannot drive the app.
+        - name: CODER_REDIRECT_TO_ACCESS_URL
+          value: "true"
+        # Without these the client IP in audit and connection logs is Envoy's.
+        - name: CODER_PROXY_TRUSTED_HEADERS
+          value: X-Forwarded-For
+        - name: CODER_PROXY_TRUSTED_ORIGINS
+          value: 10.69.0.0/16
+        # Owners can otherwise open anyone's workspace -- relevant once shared.
+        - name: CODER_DISABLE_OWNER_WORKSPACE_ACCESS
+          value: "true"
+
+        # --- auth ---
+        - name: CODER_DISABLE_PASSWORD_AUTH
+          value: "true"
+        - name: CODER_OIDC_ISSUER_URL
+          value: https://idm.vzkn.eu/oauth2/openid/coder
+        - name: CODER_OIDC_SIGN_IN_TEXT
+          value: Log in with Kanidm
+        - name: CODER_OIDC_SCOPES
+          value: openid,profile,email,groups
+        # Kanidm does not send email_verified.
+        - name: CODER_OIDC_IGNORE_EMAIL_VERIFIED
+          value: "true"
+        - name: CODER_OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: kanidm-coder-oidc
+              key: client-id
+        - name: CODER_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: kanidm-coder-oidc
+              key: client-secret
+        # Roles follow Kanidm groups. These are SPNs, not bare names.
+        - name: CODER_OIDC_GROUP_FIELD
+          value: groups
+        - name: CODER_OIDC_GROUP_AUTO_CREATE
+          value: "true"
+        - name: CODER_OIDC_USER_ROLE_FIELD
+          value: groups
+        - name: CODER_OIDC_USER_ROLE_MAPPING
+          value: '{"admins@idm.vzkn.eu": ["owner"]}'
+
+        # --- notifications via the in-cluster relay ---
+        - name: CODER_EMAIL_FROM
+          value: Coder <noreply@vzkn.eu>
+        - name: CODER_EMAIL_SMARTHOST
+          value: smtp-relay.network.svc.cluster.local:25
+        - name: CODER_EMAIL_TLS_STARTTLS
+          value: "false"
+
+        # --- observability / privacy ---
+        - name: CODER_PROMETHEUS_ENABLE
+          value: "true"
+        - name: CODER_PROMETHEUS_COLLECT_AGENT_STATS
+          value: "true"
+        - name: CODER_PROMETHEUS_COLLECT_DB_METRICS
+          value: "true"
+        - name: CODER_LOGGING_HUMAN
+          value: /dev/stderr
+        - name: CODER_TELEMETRY_ENABLE
+          value: "false"
+        - name: CODER_UPDATE_CHECK
+          value: "false"
+      # The chart's ingress only speaks networking.k8s.io; routing is in
+      # httproute.yaml instead.
+      ingress:
+        enable: false
+      # Chart default is LoadBalancer, which would take an LB-IPAM address and
+      # expose Coder next to the gateway rather than behind it.
+      service:
+        type: ClusterIP
+      serviceAccount:
+        # Coder creates workspace pods in this namespace.
+        workspacePerms: true
+        enableDeployments: true
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          memory: 2Gi
+      # Control planes have 12Gi soldered and already run at 70-85%.
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+  postRenderers:
+    # The chart exposes only the http port, so the metrics endpoint the
+    # ServiceMonitor scrapes has to be added here.
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: *app
+            patch: |-
+              - op: add
+                path: /spec/ports/-
+                value:
+                  name: prom-http
+                  port: 2112
+                  protocol: TCP
+                  targetPort: 2112

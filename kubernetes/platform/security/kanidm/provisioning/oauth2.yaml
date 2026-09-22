@@ -2,6 +2,29 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: kanidm-provision-oauth2-coder
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: coder
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "coder": {
+          "present": true, "displayName": "Coder",
+          "originUrl": "https://coder.vzkn.eu/api/v2/users/oidc/callback",
+          "originLanding": "https://coder.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "preferShortUsername": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/coder.svg" }
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: kanidm-provision-oauth2-observability
   labels:
     kanidm_config: "1"

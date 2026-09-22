@@ -1,0 +1,11 @@
+---
+# Kernel logs -> kmsg-bridge DaemonSet (hostNetwork) -> VictoriaLogs.
+# 127.0.0.1 on purpose: the receiving pod is the one on this node, so the node
+# identity comes from where the packet landed. The payload has no hostname.
+#
+# UDP, not TCP: Talos replays the whole ring buffer on apply and a wedged node
+# is exactly when this fires, so dropping datagrams beats back-pressuring it.
+apiVersion: v1alpha1
+kind: KmsgLogConfig
+name: kmsg-bridge
+url: udp://127.0.0.1:5514

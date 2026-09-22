@@ -1,0 +1,69 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/core/configmap_v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kmsg-bridge-config
+data:
+  vector.yaml: |-
+    # Talos KmsgLogConfig ships kernel logs as JSON lines over raw UDP, and the
+    # payload carries no hostname. Running this as a DaemonSet on host network
+    # means each Talos sends to its own 127.0.0.1, so the node identity is
+    # whichever pod received it -- no source-IP-to-name mapping to keep in sync.
+    data_dir: /vector-data-dir
+
+    api:
+      enabled: false
+
+    sources:
+      kmsg:
+        type: socket
+        mode: udp
+        address: 0.0.0.0:5514
+        # Kernel lines are short; this is generous and bounds memory per packet.
+        max_length: 65536
+        decoding:
+          codec: json
+
+    transforms:
+      enrich:
+        type: remap
+        inputs: [kmsg]
+        source: |
+          # Read at runtime, not via Vector's ${VAR} config interpolation --
+          # that is not applied inside a VRL source block, and silently yields
+          # the literal string.
+          .node = get_env_var("NODE_NAME") ?? "unknown"
+          # kube-controller-manager also emits a "node" field, so tag these so
+          # a query can select kernel logs without ambiguity.
+          .log_source = "talos-kmsg"
+          # Kernel messages arrive with a trailing newline.
+          if is_string(.msg) {
+            .msg = strip_whitespace!(.msg)
+          }
+          # Socket source metadata: host is always 127.0.0.1 here, and Vector's
+          # own timestamp would shadow talos-time.
+          del(.host)
+          del(.port)
+          del(.source_type)
+          del(.timestamp)
+
+    sinks:
+      victoria_logs:
+        type: http
+        inputs: [enrich]
+        uri: http://victoria-logs.observability.svc.cluster.local:9428/insert/jsonline?_stream_fields=log_source,node,facility&_time_field=talos-time&_msg_field=msg
+        method: post
+        encoding:
+          codec: json
+        framing:
+          method: newline_delimited
+        request:
+          headers:
+            Content-Type: application/stream+json
+        # Kernel logs are diagnostic, not audit. Dropping a batch beats applying
+        # backpressure to a node that is already in trouble.
+        buffer:
+          type: memory
+          max_events: 10000
+          when_full: drop_newest

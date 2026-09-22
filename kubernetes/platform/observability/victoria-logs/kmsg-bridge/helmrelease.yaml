@@ -1,0 +1,70 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app kmsg-bridge
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    fullnameOverride: *app
+    defaultPodOptions:
+      # Talos sends to 127.0.0.1, so the listener has to be in the host netns.
+      hostNetwork: true
+      # Without this, hostNetwork pods inherit the node resolver and cannot
+      # resolve victoria-logs.observability.svc.
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+    controllers:
+      kmsg-bridge:
+        type: daemonset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          vector:
+            image:
+              # renovate: datasource=docker depName=docker.io/timberio/vector
+              repository: docker.io/timberio/vector
+              tag: 0.58.0-distroless-libc
+            args:
+              - --config
+              - /etc/vector/vector.yaml
+            env:
+              NODE_NAME:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 48Mi
+              limits:
+                memory: 128Mi
+    persistence:
+      config:
+        type: configMap
+        name: kmsg-bridge-config
+        globalMounts:
+          - path: /etc/vector/vector.yaml
+            subPath: vector.yaml
+            readOnly: true
+      data:
+        type: emptyDir
+        globalMounts:
+          - path: /vector-data-dir

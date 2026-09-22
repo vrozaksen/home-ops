@@ -16,6 +16,14 @@ spec:
   # - restart: Fast but 5-15s downtime (works with instances = 1)
   primaryUpdateMethod: switchover
   primaryUpdateStrategy: unsupervised
+  # SHUTDOWN timing -- this is what a node drain waits on.
+  # CNPG defaults (smartShutdownTimeout 180, stopDelay 1800) cost ~30 min per
+  # worker during a Talos rolling upgrade: smart shutdown waits for clients to
+  # disconnect on their own, and a session-mode PgBouncer never releases them,
+  # so it runs out the full grace period and ends in a SIGKILL anyway.
+  # Short smart phase, then fast shutdown, which is clean and bounded.
+  smartShutdownTimeout: ${CNPG_SMART_SHUTDOWN_TIMEOUT:=30}
+  stopDelay: ${CNPG_STOP_DELAY:=180}
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

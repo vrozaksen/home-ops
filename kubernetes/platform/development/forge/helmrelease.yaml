@@ -17,12 +17,26 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          name: forge
         containers:
           app:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/forge
               repository: registry.vzkn.eu/containers/forge
-              tag: 2.35.2@sha256:e2bcc1767699b4d59686084bf8e32e9271398bd2d78ed3f9c8510356fce14e53
+              tag: 2.35.2@sha256:1b390acac1e642357ccf47d8bae040b9f85a961f4fa28d6bbf749dd17f9b17e9
+            env:
+              FORGE_HM_FLAKE: git+https://git.vzkn.eu/vrozaksen/nix-config
+              FORGE_HM_PROFILE: vrozaksen-forge
+              ATTIC_ENDPOINT: https://cache.vzkn.eu
+              ATTIC_CACHE: main
+            envFrom:
+              - secretRef:
+                  name: attic-push-secret
+                  optional: true
+              - secretRef:
+                  name: attic-cache-public-key
+                  optional: true
             resources:
               requests:
                 cpu: 100m
@@ -72,9 +86,12 @@ spec:
                   timeoutSeconds: 5
                   failureThreshold: 30
     defaultPodOptions:
-      automountServiceAccountToken: false
+      # The projected token is now the credential: short-lived, kubelet-rotated.
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 60
       securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
     service:
@@ -104,6 +121,16 @@ spec:
             app:
               - path: /etc/ssh/authorized_keys/authorized_keys
                 subPath: authorized_keys
+                readOnly: true
+      credentials:
+        type: secret
+        name: forge-secret
+        defaultMode: 0o440
+        advancedMounts:
+          forge:
+            app:
+              - path: /etc/forge/ssh/id_ed25519
+                subPath: git_ssh_key
                 readOnly: true
       tmp:
         type: emptyDir

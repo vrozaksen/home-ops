@@ -1,0 +1,119 @@
+---
+# forge faces the internet, so it gets a projected SA token instead of the
+# admin kubeconfig. Read plus Flux reconcile only — no Secrets, exec or delete.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: forge
+  namespace: development
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: forge
+rules:
+  # Secrets are absent on purpose: cluster-wide Secret read is cluster-admin
+  # in practice.
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - endpoints
+      - events
+      - namespaces
+      - nodes
+      - persistentvolumeclaims
+      - persistentvolumes
+      - pods
+      - pods/log
+      - services
+      - serviceaccounts
+      - resourcequotas
+      - limitranges
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "apps"
+    resources:
+      - "daemonsets"
+      - "deployments"
+      - "replicasets"
+      - "statefulsets"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "batch"
+    resources:
+      - "cronjobs"
+      - "jobs"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "metrics.k8s.io"
+    resources:
+      - "nodes"
+      - "pods"
+    verbs:
+      - "get"
+      - "list"
+  - apiGroups:
+      - "networking.k8s.io"
+      - "gateway.networking.k8s.io"
+      - "cilium.io"
+    resources:
+      - "*"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "storage.k8s.io"
+      - "snapshot.storage.k8s.io"
+    resources:
+      - "*"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  - apiGroups:
+      - "postgresql.cnpg.io"
+      - "ceph.rook.io"
+      - "kopiur.home-operations.com"
+    resources:
+      - "*"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  # Patch scoped to Flux objects: `flux reconcile` only writes an annotation.
+  - apiGroups:
+      - "source.toolkit.fluxcd.io"
+      - "kustomize.toolkit.fluxcd.io"
+      - "helm.toolkit.fluxcd.io"
+      - "notification.toolkit.fluxcd.io"
+    resources:
+      - "*"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+      - "patch"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: forge
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: forge
+subjects:
+  - kind: ServiceAccount
+    name: forge
+    namespace: development

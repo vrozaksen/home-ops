@@ -36,22 +36,26 @@ shell history, AI agent state — accessible from any device with SSH.
 
 ## Bring-up
 
-1. Add `AUTHORIZED_KEYS` (multi-line ssh pubkeys) to Infisical
-   `/kubernetes/development/forge/`.
-2. Flux reconciles; wait for `forge` Deployment ready.
-3. From any client:
-   ```sh
-   ssh forge.vzkn.eu -p 2222
-   ```
-4. First login — install tooling via home-manager:
-   ```sh
-   nix run home-manager -- switch \
-     --flake git+https://git.vzkn.eu/vrozaksen/nix-config#vrozaksen-forge
-   ```
-5. Copy your git ssh key once for forgejo/github push:
-   ```sh
-   scp ~/.ssh/id_ed25519 forge.vzkn.eu:~/.ssh/   # from your workstation
-   ```
+Nothing is copied onto the volume by hand. Everything the pod needs beyond its
+own data is either baked into the image or mounted from Infisical, so a rebuilt
+or restored PVC comes back ready.
+
+1. Populate Infisical `/kubernetes/development/forge/`:
+
+   | Key | What |
+   | --- | --- |
+   | `AUTHORIZED_KEYS` | multi-line, one ssh pubkey per line — add/remove devices here |
+   | `GIT_SSH_KEY` | private key for pushing to forgejo/github |
+   | `KUBECONFIG` | for in-pod kubectl / flux |
+   | `TALOSCONFIG` | for in-pod talosctl |
+
+2. Flux reconciles; wait for the `forge` Deployment to be ready.
+3. `ssh forge.vzkn.eu -p 2222` — the toolchain converges on its own in the
+   background, progress in `~/.forge-hm.log`.
+
+`~/.ssh/id_ed25519`, `~/.kube/config` and `~/.talos/config` are out-of-store
+symlinks onto the read-only mounts, so rotating any of them in Infisical is
+picked up without touching the pod.
 
 ## Claude Code from a phone (Remote Control)
 

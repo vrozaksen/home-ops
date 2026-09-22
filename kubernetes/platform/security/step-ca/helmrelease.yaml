@@ -46,57 +46,84 @@ spec:
         persistent: true
         size: 1Gi
         storageClass: ceph-block
-    inject:
-      enabled: true
-      config:
-        files:
-          ca.json:
-            root: /home/step/certs/root_ca.crt
-            federateRoots: []
-            crt: /home/step/certs/intermediate_ca.crt
-            key: /home/step/secrets/intermediate_ca_key
-            address: 0.0.0.0:9000
-            dnsNames:
-              - ca.vzkn.eu
-              - step-ca.security.svc.cluster.local
-              - 127.0.0.1
-            logger:
-              format: json
-            db:
-              type: badger
-              dataSource: /home/step/db
-            ssh:
-              hostKey: /home/step/secrets/ssh_host_ca_key
-              userKey: /home/step/secrets/ssh_user_ca_key
-            authority:
-              claims:
-                minTLSCertDuration: 5m
-                maxTLSCertDuration: 24h
-                defaultTLSCertDuration: 24h
-                disableRenewal: false
-                minHostSSHCertDuration: 5m
-                maxHostSSHCertDuration: 1680h
-                defaultHostSSHCertDuration: 720h
-                minUserSSHCertDuration: 5m
-                maxUserSSHCertDuration: 24h
-                defaultUserSSHCertDuration: 16h
-              provisioners:
-                - type: OIDC
-                  name: kanidm
-                  configurationEndpoint: https://idm.vzkn.eu/oauth2/openid/step-ca/.well-known/openid-configuration
-                  listenAddress: ":10000"
-                  claims:
-                    enableSSHCA: true
-            tls:
-              cipherSuites:
-                - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
-                - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-                - TLS_AES_128_GCM_SHA256
-              minVersion: 1.2
-              maxVersion: 1.3
-              renegotiation: false
-          defaults.json:
-            ca-url: https://ca.vzkn.eu
-            ca-config: /home/step/config/ca.json
-            fingerprint: a14616d00206a142b616ee62738f587f28778af01c4c93b97ccfd48b6eb04424
-            root: /home/step/certs/root_ca.crt
+    postRenderers:
+      - kustomize:
+          patches:
+            # Chart creates this ConfigMap empty and will not fill it while
+            # existingSecrets is on, so the config is patched in — in git,
+            # not in a secret.
+            - target:
+                kind: ConfigMap
+                name: step-ca-config
+              patch: |-
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: step-ca-config
+                data:
+                  ca.json: |
+                    {
+                      "root": "/home/step/certs/root_ca.crt",
+                      "federateRoots": [],
+                      "crt": "/home/step/certs/intermediate_ca.crt",
+                      "key": "/home/step/secrets/intermediate_ca_key",
+                      "address": "0.0.0.0:9000",
+                      "dnsNames": [
+                        "ca.vzkn.eu",
+                        "step-ca.security.svc.cluster.local",
+                        "127.0.0.1"
+                      ],
+                      "logger": {
+                        "format": "json"
+                      },
+                      "db": {
+                        "type": "badger",
+                        "dataSource": "/home/step/db"
+                      },
+                      "ssh": {
+                        "hostKey": "/home/step/secrets/ssh_host_ca_key",
+                        "userKey": "/home/step/secrets/ssh_user_ca_key"
+                      },
+                      "authority": {
+                        "claims": {
+                          "minTLSCertDuration": "5m",
+                          "maxTLSCertDuration": "24h",
+                          "defaultTLSCertDuration": "24h",
+                          "disableRenewal": false,
+                          "minHostSSHCertDuration": "5m",
+                          "maxHostSSHCertDuration": "1680h",
+                          "defaultHostSSHCertDuration": "720h",
+                          "minUserSSHCertDuration": "5m",
+                          "maxUserSSHCertDuration": "24h",
+                          "defaultUserSSHCertDuration": "16h"
+                        },
+                        "provisioners": [
+                          {
+                            "type": "OIDC",
+                            "name": "kanidm",
+                            "configurationEndpoint": "https://idm.vzkn.eu/oauth2/openid/step-ca/.well-known/openid-configuration",
+                            "listenAddress": ":10000",
+                            "claims": {
+                              "enableSSHCA": true
+                            }
+                          }
+                        ]
+                      },
+                      "tls": {
+                        "cipherSuites": [
+                          "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+                          "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                          "TLS_AES_128_GCM_SHA256"
+                        ],
+                        "minVersion": 1.2,
+                        "maxVersion": 1.3,
+                        "renegotiation": false
+                      }
+                    }
+                  defaults.json: |
+                    {
+                      "ca-url": "https://ca.vzkn.eu",
+                      "ca-config": "/home/step/config/ca.json",
+                      "fingerprint": "a14616d00206a142b616ee62738f587f28778af01c4c93b97ccfd48b6eb04424",
+                      "root": "/home/step/certs/root_ca.crt"
+                    }

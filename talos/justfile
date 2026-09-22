@@ -1,0 +1,204 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Talos node lifecycle.
+#
+#     just talos genconfig
+#     just talos apply-node alfheim
+#     just talos reboot-node alne
+#     just talos shutdown-cluster
+# ─────────────────────────────────────────────────────────────────────────────
+
+set unstable
+set quiet
+set script-interpreter := ['bash', '-euo', 'pipefail']
+set shell := ['bash', '-euo', 'pipefail', '-c']
+
+TALOS_DIR := justfile_directory()
+ROOT_DIR := parent_directory(justfile_directory())
+ROOT_JUST := ROOT_DIR / "justfile"
+INFISICAL_PROJECT := "da94b011-9a7d-408b-92d9-55be47efe750"
+
+[doc('Generate Talos configuration with talhelper')]
+genconfig:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ TALOS_DIR }}"
+    test -f talconfig.yaml && test -f talsecret.yaml
+    command -v talhelper >/dev/null
+    infisical secrets --env=prod --projectId={{ INFISICAL_PROJECT }} --path=/bootstrap --plain --silent >/dev/null
+    infisical run --env=prod --projectId={{ INFISICAL_PROJECT }} --path=/bootstrap --recursive -- talhelper genconfig
+
+[doc('Apply Talos config to one node [mode: auto, no-reboot, reboot, staged]')]
+apply-node hostname mode='auto':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ TALOS_DIR }}"
+    test -f talconfig.yaml && test -f "{{ ROOT_DIR }}/talosconfig"
+    talosctl --nodes {{ hostname }} get machineconfig >/dev/null
+    cp_node=$(talosctl config info --output json | jq --raw-output '.endpoints[0]')
+    just --justfile "{{ ROOT_JUST }}" talos _down
+    talosctl apply-config --nodes {{ hostname }} --mode={{ mode }} --file "clusterconfig/main-{{ hostname }}.yaml"
+    talosctl --nodes "$cp_node" health
+    just --justfile "{{ ROOT_JUST }}" talos _up
+
+[confirm('Apply machine config to every node in turn [y|N] ?')]
+[doc('Apply the Talos config on all nodes of an existing cluster')]
+apply-cluster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f "{{ TALOS_DIR }}/talconfig.yaml" && test -f "{{ ROOT_DIR }}/talosconfig"
+    talosctl config info >/dev/null
+    for hostname in $(kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'); do
+        just --justfile "{{ ROOT_JUST }}" talos apply-node "$hostname"
+    done
+
+[confirm('This destroys the cluster and resets nodes to maintenance mode [y|N] ?')]
+[doc('Reset nodes to maintenance mode, ready to re-deploy')]
+soft-nuke:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ TALOS_DIR }}"
+    talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml \
+        --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+
+[confirm('This destroys the cluster completely and reboots the nodes [y|N] ?')]
+[doc('Reset nodes completely and reboot them')]
+hard-nuke:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ TALOS_DIR }}"
+    talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml \
+        --extra-flags "--reboot --graceful=false --wait=false" | bash
+
+# Draining this node has hung on RBD unmount before, needing a power cycle.
+[confirm('Reboot the node? Workloads move off it and RBD volumes must detach [y|N] ?')]
+[doc('Reboot Talos on a single node')]
+reboot-node hostname:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f "{{ TALOS_DIR }}/talconfig.yaml"
+    talosctl --nodes {{ hostname }} get machineconfig >/dev/null
+    cp_node=$(talosctl config info --output json | jq --raw-output '.endpoints[0]')
+    just --justfile "{{ ROOT_JUST }}" talos _down
+    talosctl --nodes {{ hostname }} reboot
+    talosctl --nodes "$cp_node" health
+    just --justfile "{{ ROOT_JUST }}" talos _up
+
+[confirm('This reboots every node in the cluster [y|N] ?')]
+[doc('Reboot Talos across the whole cluster')]
+reboot-cluster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f "{{ TALOS_DIR }}/talconfig.yaml" && test -f "{{ ROOT_DIR }}/talosconfig"
+    for hostname in $(talosctl config info --output json | jq --raw-output '.nodes[]'); do
+        just --justfile "{{ ROOT_JUST }}" talos reboot-node "$hostname"
+    done
+    just --justfile "{{ ROOT_JUST }}" kube cleanse-pods
+
+[confirm('Shut the whole cluster down [y|N] ?')]
+[doc('Gracefully shut down: suspend Flux and Kopiur, prep Ceph, workers then control plane')]
+shutdown-cluster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f "{{ ROOT_DIR }}/talosconfig"
+    talosctl config info >/dev/null
+    kubectl --namespace rook-ceph get deploy rook-ceph-tools >/dev/null
+    addr='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{","}{end}'
+    workers=$(kubectl get nodes --selector '!node-role.kubernetes.io/control-plane' --output jsonpath="$addr" | sed 's/,$//')
+    cps=$(kubectl get nodes --selector 'node-role.kubernetes.io/control-plane' --output jsonpath="$addr" | sed 's/,$//')
+    [[ -n "$workers" && -n "$cps" ]]
+    just --justfile "{{ ROOT_JUST }}" kube ks suspend
+    just --justfile "{{ ROOT_JUST }}" kube kopiur-state suspend
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-jobs
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-ceph
+    kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set noout
+    kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd set norebalance
+    talosctl shutdown --nodes "$workers" --force
+    # No --wait on the control plane: apid endpoints die mid-shutdown, tracking would error
+    talosctl shutdown --nodes "$cps" --force --wait=false
+
+[doc('Resume the cluster after power-on: wait for nodes, clear Ceph flags, resume Flux and Kopiur')]
+startup-cluster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    until kubectl wait nodes --all --for=condition=Ready --timeout=15m &>/dev/null; do sleep 10; done
+    until kubectl --namespace rook-ceph wait deploy/rook-ceph-tools --for=condition=available --timeout=10m &>/dev/null; do sleep 10; done
+    kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
+    kubectl --namespace rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset norebalance
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-ceph 600 warn
+    just --justfile "{{ ROOT_JUST }}" kube ks resume
+    just --justfile "{{ ROOT_JUST }}" kube kopiur-state resume
+    just --justfile "{{ ROOT_JUST }}" kube cleanse-pods
+
+[doc('Generate the kubeconfig for the cluster')]
+kubeconfig:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f "{{ ROOT_DIR }}/talosconfig"
+    controller=$(talosctl config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1)
+    talosctl kubeconfig --nodes "$controller" --force "{{ ROOT_DIR }}"
+
+# Suspend first: kopiur is what creates the jobs, so waiting on them before
+# suspending is a race the wait can lose indefinitely.
+[private]
+_down:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just --justfile "{{ ROOT_JUST }}" kube kopiur-state suspend
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-ceph
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-jobs
+
+[private]
+_up:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-ceph 600 warn
+    just --justfile "{{ ROOT_JUST }}" talos _wait-for-jobs
+    just --justfile "{{ ROOT_JUST }}" kube kopiur-state resume
+
+# on_timeout: fail before a reboot, warn after one — blocking a recovery helps nobody.
+[private]
+_wait-for-ceph timeout='600' on_timeout='fail':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    deadline=$(( $(date +%s) + {{ timeout }} ))
+    while :; do
+        # HEALTH_WARN counts as good, matching the healthCheckExprs on the
+        # rook-ceph-cluster Kustomization. Waiting for HEALTH_OK hangs forever:
+        # the cephx insecure-key checks stay WARN until CSI keys can move to
+        # aes256k, which needs kernel 7.0 (nodes are on 6.18).
+        unhealthy="$(kubectl get cephcluster --all-namespaces \
+          --output jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}={.status.ceph.health}{"\n"}{end}' \
+          | grep -vE '=HEALTH_(OK|WARN)$' || true)"
+        [[ -z "${unhealthy}" ]] && break
+        if [[ "$(date +%s)" -ge "${deadline}" ]]; then
+            echo "Ceph not healthy after {{ timeout }}s:" >&2
+            echo "${unhealthy}" >&2
+            [[ "{{ on_timeout }}" == "warn" ]] && break
+            exit 1
+        fi
+        sleep 5
+    done
+
+# Bounded on purpose: a Job whose container never exits (a retry loop such as
+# wazuh-indexer's securityadmin.sh) would otherwise block a reboot forever.
+[private]
+_wait-for-jobs timeout='600':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    deadline=$(( $(date +%s) + {{ timeout }} ))
+    while :; do
+        # Only Jobs with a Running pod are actually draining. A pod stuck Pending/Init
+        # cannot finish — and is often stuck on the very node we are about to reboot,
+        # which deadlocks this wait against the thing that would unstick it.
+        draining="$(kubectl get pods --all-namespaces \
+          --selector batch.kubernetes.io/job-name \
+          --field-selector status.phase=Running \
+          --output jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}')"
+        [[ -z "${draining}" ]] && break
+        if [[ "$(date +%s)" -ge "${deadline}" ]]; then
+            echo "WARNING: continuing after {{ timeout }}s with Job pods still running:" >&2
+            echo "${draining}" >&2
+            break
+        fi
+        sleep 5
+    done

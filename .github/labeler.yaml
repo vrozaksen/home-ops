@@ -23,11 +23,12 @@ area/scripts:
 area/talos:
   - changed-files:
       - any-glob-to-any-file: "talos/**/*"
-area/taskfile:
+area/just:
   - changed-files:
       - any-glob-to-any-file:
-          - ".taskfiles/**/*"
-          - "Taskfile.yaml"
+          - "justfile"
+          - "**/justfile"
+          - "**/*.just"
 area/terraform:
   - changed-files:
       - any-glob-to-any-file: terraform/**/*

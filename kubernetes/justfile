@@ -1,0 +1,186 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cluster operations.
+#
+#     just kube apply-ks platform/security/kanidm
+#     just kube browse-pvc media emby-data
+#     just kube ks suspend
+#     just kube kopiur-restore media emby 1
+#
+# Paths are relative to kubernetes/ and carry their layer (core, platform or
+# apps) — ks.yaml lives in all three, not only apps/.
+# ─────────────────────────────────────────────────────────────────────────────
+
+set unstable
+set quiet
+set script-interpreter := ['bash', '-euo', 'pipefail']
+set shell := ['bash', '-euo', 'pipefail', '-c']
+
+KUBERNETES_DIR := justfile_directory()
+
+[doc('Apply a Flux Kustomization from the repo [path relative to kubernetes/]')]
+[group('Flux')]
+apply-ks path ns='flux-system':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ks_file="{{ KUBERNETES_DIR }}/{{ path }}/ks.yaml"
+    test -f "$ks_file" || { echo "no ks.yaml at {{ path }}" >&2; exit 1; }
+    name="$(basename "{{ path }}")"
+    # flux build needs --dry-run while the Kustomization does not exist yet
+    dry=()
+    flux --namespace {{ ns }} get kustomizations "$name" &>/dev/null || dry=(--dry-run)
+    flux build --namespace {{ ns }} ks "$name" \
+        --kustomization-file "$ks_file" \
+        --path "{{ KUBERNETES_DIR }}/{{ path }}" "${dry[@]}" \
+      | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "{{ ns }}")' - \
+      | kubectl apply --server-side --field-manager=kustomize-controller --filename -
+
+[doc('Force Flux to reconcile every Kustomization')]
+[group('Flux')]
+reconcile:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    flux get ks --all-namespaces --no-header \
+      | awk '{print $1, $2}' \
+      | xargs -L1 bash -c 'flux reconcile ks -n "$0" "$1"'
+
+[arg('state', pattern='suspend|resume')]
+[doc('Suspend or resume every Flux Kustomization')]
+[group('Flux')]
+ks state:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Only namespaces that hold Kustomizations — empty ones make flux exit non-zero
+    kubectl get kustomizations.kustomize.toolkit.fluxcd.io --all-namespaces --no-headers \
+        --output custom-columns=NS:.metadata.namespace \
+      | sort -u | xargs -n1 flux {{ state }} ks --all --namespace
+
+[doc('Suspend and resume every failing HelmRelease')]
+[group('Flux')]
+hr-restart:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    failing=$(kubectl get hr --all-namespaces --no-headers | awk '$4 == "False" {print $1, $2}')
+    [ -n "$failing" ] || { echo "no failing HelmReleases"; exit 0; }
+    echo "$failing" | xargs -L1 bash -c 'flux suspend hr -n "$0" "$1"'
+    echo "$failing" | xargs -L1 bash -c 'flux resume hr -n "$0" "$1"'
+
+[doc('Mount a PVC in a temporary pod')]
+[group('Debug')]
+browse-pvc ns claim:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl --namespace {{ ns }} get persistentvolumeclaims {{ claim }} >/dev/null
+    # Plain kubectl run rather than the browse-pvc krew plugin, so this works on
+    # any machine that has a kubeconfig and nothing else.
+    kubectl run --namespace {{ ns }} "browse-{{ claim }}" \
+        --image docker.io/library/alpine:latest --stdin --tty --rm --restart=Never --quiet \
+        --overrides='{"spec":{"containers":[{"name":"browse","image":"docker.io/library/alpine:latest","stdin":true,"tty":true,"command":["/bin/sh"],"workingDir":"/mnt","volumeMounts":[{"mountPath":"/mnt","name":"data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"{{ claim }}"}}]}}'
+
+[doc('Open a root shell on a node')]
+[group('Debug')]
+node-shell node:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl get node {{ node }} >/dev/null
+    # kubectl debug is built in; the node-shell krew plugin is not always present
+    kubectl debug node/{{ node }} --stdin --tty --profile=sysadmin \
+        --image docker.io/library/alpine:latest -- /bin/sh
+
+[doc('Delete pods stuck in Failed, Pending or Succeeded')]
+[group('Debug')]
+cleanse-pods:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for phase in Failed Pending Succeeded; do
+        kubectl delete pods --all-namespaces --field-selector "status.phase=$phase" --ignore-not-found=true
+    done
+
+# https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/deploying-runner-scale-sets-with-actions-runner-controller#upgrading-arc
+[confirm('Uninstall and re-reconcile the ARC controller and runners [y|N] ?')]
+[doc('Upgrade actions-runner-controller')]
+[group('Debug')]
+upgrade-arc:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    helm -n actions-runner-system uninstall home-ops-runner
+    helm -n actions-runner-system uninstall actions-runner-controller
+    sleep 5
+    flux -n actions-runner-system reconcile hr actions-runner-controller
+    flux -n actions-runner-system reconcile hr home-ops-runner
+
+[arg('state', pattern='suspend|resume')]
+[doc('Suspend or resume Kopiur, which stops it spawning mover Jobs')]
+[group('Kopiur')]
+kopiur-state state:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    flux --namespace kopiur-system {{ state }} kustomization kopiur
+    flux --namespace kopiur-system {{ state }} helmrelease kopiur
+    replicas=$([ "{{ state }}" = "suspend" ] && echo 0 || echo 1)
+    kubectl --namespace kopiur-system scale deployment kopiur-controller --replicas "$replicas"
+
+[doc('Delete completed Kopiur mover Jobs')]
+[group('Kopiur')]
+kopiur-cleanup-jobs:
+    kubectl delete jobs -A -l app.kubernetes.io/managed-by=kopiur --field-selector status.successful=1
+
+[doc('Snapshot an app now and wait for it to finish')]
+[group('Kopiur')]
+kopiur-snapshot ns app:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl --namespace {{ ns }} get snapshotpolicy {{ app }} >/dev/null
+    snap=$(kubectl --namespace {{ ns }} create -f - -o name <<EOF
+    apiVersion: kopiur.home-operations.com/v1alpha1
+    kind: Snapshot
+    metadata:
+      generateName: {{ app }}-manual-
+    spec:
+      policyRef:
+        name: {{ app }}
+    EOF
+    )
+    echo "$snap"
+    kubectl --namespace {{ ns }} wait "$snap" --for=jsonpath='{.status.phase}'=Succeeded --timeout=120m
+
+# Scales the app down, restores the chosen snapshot into the existing PVC, scales
+# back up. offset is how many snapshots back; pass an RFC3339 timestamp as asof
+# to pick one by time instead.
+[confirm('Restore over the live PVC. The app is scaled down first [y|N] ?')]
+[doc('Restore an app in place [offset=n back, or asof=RFC3339]')]
+[group('Kopiur')]
+kopiur-restore ns app offset='0' asof='':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl --namespace {{ ns }} get snapshotpolicy {{ app }} >/dev/null
+    ctrl=$(kubectl --namespace {{ ns }} get deploy {{ app }} -o name 2>/dev/null \
+        || kubectl --namespace {{ ns }} get statefulset {{ app }} -o name)
+    if [ -n "{{ asof }}" ]; then
+        pick="asOf: \"{{ asof }}\""
+    else
+        pick="offset: {{ offset }}"
+    fi
+    flux --namespace {{ ns }} suspend kustomization {{ app }}
+    kubectl --namespace {{ ns }} scale "$ctrl" --replicas 0
+    kubectl --namespace {{ ns }} wait pod --for=delete --selector="app.kubernetes.io/name={{ app }}" --timeout=5m
+    rst=$(kubectl --namespace {{ ns }} create -f - -o name <<EOF
+    apiVersion: kopiur.home-operations.com/v1alpha1
+    kind: Restore
+    metadata:
+      generateName: {{ app }}-manual-
+    spec:
+      policy:
+        onMissingSnapshot: Fail
+      source:
+        fromPolicy:
+          name: {{ app }}
+          $pick
+      target:
+        pvcRef:
+          name: {{ app }}
+    EOF
+    )
+    echo "$rst"
+    kubectl --namespace {{ ns }} wait "$rst" --for=jsonpath='{.status.phase}'=Completed --timeout=120m
+    flux --namespace {{ ns }} resume kustomization {{ app }}
+    kubectl --namespace {{ ns }} scale "$ctrl" --replicas 1

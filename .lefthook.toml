@@ -8,7 +8,7 @@ for file in {staged_files}; do
     mise exec -- just --justfile "$file" --fmt --unstable
 done
 """
-glob = ["*.just", ".justfile"]
+glob = ["*.just", "justfile", ".justfile"]
 stage_fixed = true
 
 [pre-commit.commands.format-yaml]

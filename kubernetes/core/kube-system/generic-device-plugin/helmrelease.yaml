@@ -29,9 +29,12 @@ spec:
       # renovate: datasource=docker depName=ghcr.io/squat/generic-device-plugin
       repository: ghcr.io/squat/generic-device-plugin
       pullPolicy: IfNotPresent
-      # Upstream publishes commit-SHA tags only, no semver — hence the digest
-      # pin; Renovate can still track the digest.
-      tag: 382f3461ae87b65c8a821ae65feccf346bbad792@sha256:5e7776ea980a0a3eaae673d093f10109213fe91caa1e41a359e1f23b74a0a328
+      # Upstream ships no semver and does not tag every build, so the digest is
+      # the real pin and `latest` is only a handle Renovate can follow.
+      # Must be recent enough to know --config, which the chart passes: the
+      # older commit-SHA tags only accept --device and crash on startup with
+      # "unknown flag: --config".
+      tag: latest@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
     controller:
       type: daemonset
     # Privileged, and that is the whole point: privilege stays confined to this

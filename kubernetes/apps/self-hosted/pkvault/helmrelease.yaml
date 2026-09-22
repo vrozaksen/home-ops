@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pkvault
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      pkvault:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/chnapy/pkvault
+              repository: ghcr.io/chnapy/pkvault
+              tag: 2.3.2@sha256:1c1605c792b699257789da09a23bb0ca54c8ab1f3cb8629b5357755b623fe572
+            env:
+              TZ: Europe/Warsaw
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 3000
+                  initialDelaySeconds: 15
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *probe
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: pkvault
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - pkvault.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      # Upstream splits data and saves into two mounts, but saves is just a
+      # subdirectory -- one claim keeps both under the same kopiur snapshot.
+      # Point the app at /pkvault/saves in its settings.
+      data:
+        existingClaim: pkvault
+        globalMounts:
+          - path: /pkvault

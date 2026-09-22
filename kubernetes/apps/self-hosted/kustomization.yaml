@@ -13,6 +13,7 @@ resources:
   - ./homebox/ks.yaml
   - ./it-tools/ks.yaml
   - ./photon/ks.yaml
+  - ./pkvault/ks.yaml
   # - ./rxresume/ks.yaml
   - ./searxng/ks.yaml
   - ./sure/ks.yaml

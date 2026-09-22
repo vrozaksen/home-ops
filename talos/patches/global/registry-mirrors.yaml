@@ -1,0 +1,116 @@
+---
+# Containerd mirror endpoints -> Harbor proxy cache projects.
+# Spegel prepends its peer endpoint (127.0.0.1:29999) at runtime, so the
+# effective resolution order is: peer -> Harbor proxy -> upstream.
+# overridePath tells containerd to use the endpoint path verbatim.
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: docker.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-dockerhub
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: ghcr.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-ghcr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: quay.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-quay
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: gcr.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-gcr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: registry.k8s.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-k8s
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: public.ecr.aws
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-ecr-public
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: mcr.microsoft.com
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-mcr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: nvcr.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-nvcr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: cgr.dev
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-cgr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: mirror.gcr.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-mirror-gcr
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: code.forgejo.org
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-forgejo
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: codeberg.org
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-codeberg
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: git.erwanleboucher.dev
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-eleboucher
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: cr.fluentbit.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-fluentbit
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: registry.access.redhat.com
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-redhat
+    overridePath: true
+---
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: gsoci.azurecr.io
+endpoints:
+  - url: https://registry.vzkn.eu/v2/proxy-gsoci
+    overridePath: true

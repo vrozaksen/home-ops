@@ -1,121 +1,48 @@
 ---
+# Base machine config, rendered by scripts/render-machine-config.sh with
+# `--define machinetype=<controlplane|worker>` and Infisical supplying the
+# secrets. Derived from talhelper's own output for a patch-free cluster, so it
+# holds only what is common to every node.
+#
+# Deliberately absent, because later layers own it:
+#   machine.install, hostname, network  -> talos/nodes/<role>/<node>.yaml.j2
+#   everything else                     -> talos/patches/{global,controller}/
+#
+# Workers get empty CA keys and no etcd section; that mirrors what talhelper
+# emits and is not an oversight.
 version: v1alpha1
+debug: false
+persist: true
 machine:
+  type: {{ machinetype }}
+  token: {{ ENV['MACHINE_TOKEN'] }}
   ca:
     crt: {{ ENV['MACHINE_CA_CRT'] }}
-    {% if machinetype == 'controlplane' %}
+{% if machinetype == 'controlplane' %}
     key: {{ ENV['MACHINE_CA_KEY'] }}
-    {% endif %}
-  certSANs:
-    - 10.10.0.20
-    - 127.0.0.1
+{% else %}
+    key: ""
+{% endif %}
+  certSANs: []
+  kubelet:
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+    image: ghcr.io/siderolabs/kubelet:v1.36.4
+    defaultRuntimeSeccompProfileEnabled: true
+    disableManifestsDirectory: true
   features:
-    apidCheckExtKeyUsage: true
     diskQuotaSupport: true
-    hostDNS:
-      enabled: true
-      forwardKubeDNSToHost: true # Requires Cilium socketLB features
-      resolveMemberNames: true
     kubePrism:
       enabled: true
       port: 7445
-    {% if machinetype == 'controlplane' %}
-    kubernetesTalosAPIAccess:
-      allowedKubernetesNamespaces:
-        - actions-runner-system
-        - system-upgrade
-      allowedRoles:
-        - os:admin
+    hostDNS:
       enabled: true
-    {% endif %}
-    rbac: true
-    stableHostname: true
-  files:
-    - op: create
-      path: /etc/cri/conf.d/20-customization.part
-      content: |
-        [plugins."io.containerd.cri.v1.images"]
-          discard_unpacked_layers = false
-        [plugins."io.containerd.cri.v1.runtime"]
-          device_ownership_from_security_context = true
-    - op: overwrite
-      path: /etc/nfsmount.conf
-      permissions: 0o644
-      content: |
-        [ NFSMount_Global_Options ]
-        nfsvers=4.2
-        hard=True
-        nconnect=8
-        noatime=True
-        rsize=1048576
-        wsize=1048576
-  install:
-    image: factory.talos.dev/metal-installer/59fbb820a54701d6aacf45e8f65adeba13a0ee2009cbca30e5b1ae6f4155e581:v1.13.7
-    wipe: false
-  kubelet:
-    defaultRuntimeSeccompProfileEnabled: true
-    disableManifestsDirectory: true
-    extraConfig:
-      maxPods: 200
-      serializeImagePulls: false
-    image: ghcr.io/siderolabs/kubelet:v1.36.4
-    nodeIP:
-      validSubnets:
-        - 10.10.0.0/24
-  network:
-    interfaces:
-      - interface: bond0
-        bond:
-          interfaces:
-            - enp1s0f0np0
-            - enp1s0f1np1
-          mode: 802.3ad
-          xmitHashPolicy: layer3+4
-          lacpRate: fast
-          miimon: 100
-          updelay: 200
-          downdelay: 200
-        dhcp: true
-        mtu: 9000
-  nodeLabels:
-    topology.kubernetes.io/region: main
-    topology.kubernetes.io/zone: {{ 'm' if machinetype == 'controlplane' else 'w' }}
-    intel.feature.node.kubernetes.io/gpu: true
-  sysctls:
-    fs.inotify.max_user_instances: "8192"
-    fs.inotify.max_user_watches: "1048576"
-    net.core.default_qdisc: fq
-    net.core.rmem_max: "67108864"
-    net.core.wmem_max: "67108864"
-    net.ipv4.neigh.default.gc_thresh1: "4096"
-    net.ipv4.neigh.default.gc_thresh2: "8192"
-    net.ipv4.neigh.default.gc_thresh3: "16384"
-    net.ipv4.tcp_congestion_control: bbr
-    net.ipv4.tcp_fastopen: "3"
-    net.ipv4.tcp_mtu_probing: "1"
-    net.ipv4.tcp_rmem: 4096 87380 33554432
-    net.ipv4.tcp_window_scaling: "1"
-    net.ipv4.tcp_wmem: 4096 65536 33554432
-    sunrpc.tcp_max_slot_table_entries: "128"
-    sunrpc.tcp_slot_table_entries: "128"
-    user.max_user_namespaces: "11255"
-    vm.nr_hugepages: "1024"
-  token: {{ ENV['MACHINE_TOKEN'] }}
+      forwardKubeDNSToHost: true
 cluster:
-  ca:
-    crt: {{ ENV['CLUSTER_CA_CRT'] }}
-    {% if machinetype == 'controlplane' %}
-    key: {{ ENV['CLUSTER_CA_KEY'] }}
-    {% endif %}
-  clusterName: main
+  id: {{ ENV['CLUSTER_ID'] }}
+  secret: {{ ENV['CLUSTER_SECRET'] }}
   controlPlane:
     endpoint: https://10.10.0.20:6443
-  discovery:
-    enabled: true
-    registries:
-      kubernetes: { disabled: true }
-      service: { disabled: false }
-  id: {{ ENV['CLUSTER_ID'] }}
+  clusterName: main
   network:
     cni:
       name: none
@@ -124,111 +51,51 @@ cluster:
       - 10.69.0.0/16
     serviceSubnets:
       - 10.96.0.0/16
-  secret: {{ ENV['CLUSTER_SECRET'] }}
   token: {{ ENV['CLUSTER_TOKEN'] }}
-  {% if machinetype == 'controlplane' %}
+  ca:
+    crt: {{ ENV['CLUSTER_CA_CRT'] }}
+{% if machinetype == 'controlplane' %}
+    key: {{ ENV['CLUSTER_CA_KEY'] }}
+{% else %}
+    key: ""
+{% endif %}
+{% if machinetype == 'controlplane' %}
+  secretboxEncryptionSecret: {{ ENV['CLUSTER_SECRETBOXENCRYPTIONSECRET'] }}
   aggregatorCA:
     crt: {{ ENV['CLUSTER_AGGREGATORCA_CRT'] }}
     key: {{ ENV['CLUSTER_AGGREGATORCA_KEY'] }}
-  allowSchedulingOnControlPlanes: true
+  serviceAccount:
+    key: {{ ENV['CLUSTER_SERVICEACCOUNT_KEY'] }}
   apiServer:
+    # renovate: datasource=docker depName=registry.k8s.io/kube-apiserver
+    image: registry.k8s.io/kube-apiserver:v1.36.4
+    certSANs:
+      - 10.10.0.20
+      - 127.0.0.1
     auditPolicy:
       apiVersion: audit.k8s.io/v1
       kind: Policy
       rules:
         - level: Metadata
-    certSANs:
-      - 10.10.0.20
-      - 127.0.0.1
-    disablePodSecurityPolicy: true
-    extraArgs:
-      enable-aggregator-routing: "true"
-      feature-gates: PersistentVolumeClaimUnusedSinceTime=true
-    image: registry.k8s.io/kube-apiserver:v1.36.4
   controllerManager:
-    extraArgs:
-      bind-address: 0.0.0.0
-      feature-gates: PersistentVolumeClaimUnusedSinceTime=true,HPAScaleToZero=true
+    # renovate: datasource=docker depName=registry.k8s.io/kube-controller-manager
     image: registry.k8s.io/kube-controller-manager:v1.36.4
-  coreDNS:
-    disabled: true
+  proxy:
+    # renovate: datasource=docker depName=registry.k8s.io/kube-proxy
+    image: registry.k8s.io/kube-proxy:v1.36.4
+  scheduler:
+    # renovate: datasource=docker depName=registry.k8s.io/kube-scheduler
+    image: registry.k8s.io/kube-scheduler:v1.36.4
+{% endif %}
+  discovery:
+    enabled: true
+    registries:
+      kubernetes:
+        disabled: true
+      service: {}
+{% if machinetype == 'controlplane' %}
   etcd:
-    advertisedSubnets:
-      - 10.10.0.0/24
     ca:
       crt: {{ ENV['CLUSTER_ETCD_CA_CRT'] }}
       key: {{ ENV['CLUSTER_ETCD_CA_KEY'] }}
-    extraArgs:
-      listen-metrics-urls: http://0.0.0.0:2381
-  proxy:
-    disabled: true
-    image: registry.k8s.io/kube-proxy:v1.36.4
-  scheduler:
-    config:
-      apiVersion: kubescheduler.config.k8s.io/v1
-      kind: KubeSchedulerConfiguration
-      profiles:
-        - schedulerName: default-scheduler
-          plugins:
-            score:
-              disabled:
-                - name: ImageLocality
-          pluginConfig:
-            - name: PodTopologySpread
-              args:
-                defaultingType: List
-                defaultConstraints:
-                  - maxSkew: 1
-                    topologyKey: kubernetes.io/hostname
-                    whenUnsatisfiable: ScheduleAnyway
-    extraArgs:
-      bind-address: 0.0.0.0
-    image: registry.k8s.io/kube-scheduler:v1.36.4
-  secretboxEncryptionSecret: {{ ENV['CLUSTER_SECRETBOXENCRYPTIONSECRET'] }}
-  serviceAccount:
-    key: {{ ENV['CLUSTER_SERVICEACCOUNT_KEY'] }}
-  {% endif %}
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: eno1
-features:
-    tx-tcp-segmentation: false
-    tx-tcp6-segmentation: false
-    tx-generic-segmentation: false
-    rx-gro: false
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp1s0f0np0
-rings:
-    rx: 4096
-    tx: 4096
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp1s0f1np1
-rings:
-    rx: 4096
-    tx: 4096
----
-apiVersion: v1alpha1
-kind: VolumeConfig
-name: EPHEMERAL
-provisioning:
-  diskSelector:
-    match: system_disk
-  maxSize: 200GiB
----
-apiVersion: v1alpha1
-kind: UserVolumeConfig
-name: local-hostpath
-provisioning:
-  diskSelector:
-    match: system_disk
-  maxSize: 100GiB
----
-apiVersion: v1alpha1
-kind: WatchdogTimerConfig
-device: /dev/watchdog0
-timeout: 2m
+{% endif %}

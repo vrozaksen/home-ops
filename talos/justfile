@@ -12,27 +12,29 @@ set quiet
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set shell := ['bash', '-euo', 'pipefail', '-c']
 
-TALOS_DIR := justfile_directory()
-ROOT_DIR := parent_directory(justfile_directory())
+TALOS_DIR := source_directory()
+ROOT_DIR := parent_directory(source_directory())
 ROOT_JUST := ROOT_DIR / "justfile"
 INFISICAL_PROJECT := "da94b011-9a7d-408b-92d9-55be47efe750"
 
-[doc('Generate Talos configuration with talhelper')]
+[doc('Render every node config into clusterconfig/')]
 genconfig:
     #!/usr/bin/env bash
     set -euo pipefail
-    cd "{{ TALOS_DIR }}"
-    test -f talconfig.yaml && test -f talsecret.yaml
-    command -v talhelper >/dev/null
-    infisical secrets --env=prod --projectId={{ INFISICAL_PROJECT }} --path=/bootstrap --plain --silent >/dev/null
-    infisical run --env=prod --projectId={{ INFISICAL_PROJECT }} --path=/bootstrap --recursive -- talhelper genconfig
+    mkdir -p "{{ TALOS_DIR }}/clusterconfig"
+    for patch in "{{ TALOS_DIR }}"/nodes/*/*.yaml.j2; do
+        node=$(basename "$patch" .yaml.j2)
+        just --justfile "{{ ROOT_JUST }}" talos render-config "$node" \
+            > "{{ TALOS_DIR }}/clusterconfig/main-$node.yaml"
+        echo "rendered $node"
+    done
 
 [doc('Apply Talos config to one node [mode: auto, no-reboot, reboot, staged]')]
 apply-node hostname mode='auto':
     #!/usr/bin/env bash
     set -euo pipefail
     cd "{{ TALOS_DIR }}"
-    test -f talconfig.yaml && test -f "{{ ROOT_DIR }}/talosconfig"
+    test -f "{{ ROOT_DIR }}/talosconfig"
     talosctl --nodes {{ hostname }} get machineconfig >/dev/null
     cp_node=$(talosctl config info --output json | jq --raw-output '.endpoints[0]')
     just --justfile "{{ ROOT_JUST }}" talos _down
@@ -45,7 +47,7 @@ apply-node hostname mode='auto':
 apply-cluster:
     #!/usr/bin/env bash
     set -euo pipefail
-    test -f "{{ TALOS_DIR }}/talconfig.yaml" && test -f "{{ ROOT_DIR }}/talosconfig"
+    test -f "{{ ROOT_DIR }}/talosconfig"
     talosctl config info >/dev/null
     for hostname in $(kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'); do
         just --justfile "{{ ROOT_JUST }}" talos apply-node "$hostname"
@@ -56,18 +58,19 @@ apply-cluster:
 soft-nuke:
     #!/usr/bin/env bash
     set -euo pipefail
-    cd "{{ TALOS_DIR }}"
-    talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml \
-        --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+    for node in $(talosctl config info --output json | jq --raw-output '.nodes[]'); do
+        talosctl reset --nodes "$node" --reboot --graceful=false --wait=false \
+            --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL
+    done
 
 [confirm('This destroys the cluster completely and reboots the nodes [y|N] ?')]
 [doc('Reset nodes completely and reboot them')]
 hard-nuke:
     #!/usr/bin/env bash
     set -euo pipefail
-    cd "{{ TALOS_DIR }}"
-    talhelper gencommand reset --out-dir clusterconfig --config-file talconfig.yaml \
-        --extra-flags "--reboot --graceful=false --wait=false" | bash
+    for node in $(talosctl config info --output json | jq --raw-output '.nodes[]'); do
+        talosctl reset --nodes "$node" --reboot --graceful=false --wait=false
+    done
 
 # Draining this node has hung on RBD unmount before, needing a power cycle.
 [confirm('Reboot the node? Workloads move off it and RBD volumes must detach [y|N] ?')]
@@ -75,7 +78,6 @@ hard-nuke:
 reboot-node hostname:
     #!/usr/bin/env bash
     set -euo pipefail
-    test -f "{{ TALOS_DIR }}/talconfig.yaml"
     talosctl --nodes {{ hostname }} get machineconfig >/dev/null
     cp_node=$(talosctl config info --output json | jq --raw-output '.endpoints[0]')
     just --justfile "{{ ROOT_JUST }}" talos _down
@@ -88,7 +90,7 @@ reboot-node hostname:
 reboot-cluster:
     #!/usr/bin/env bash
     set -euo pipefail
-    test -f "{{ TALOS_DIR }}/talconfig.yaml" && test -f "{{ ROOT_DIR }}/talosconfig"
+    test -f "{{ ROOT_DIR }}/talosconfig"
     for hostname in $(talosctl config info --output json | jq --raw-output '.nodes[]'); do
         just --justfile "{{ ROOT_JUST }}" talos reboot-node "$hostname"
     done
@@ -202,3 +204,13 @@ _wait-for-jobs timeout='600':
         fi
         sleep 5
     done
+
+[doc('Render a node machine config natively (minijinja + talosctl), print to stdout')]
+render-config node:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # The directory a node file sits in is what declares its role, so a node
+    # cannot claim one role by filename and another by content.
+    patch=$(find "{{ TALOS_DIR }}/nodes" -name "{{ node }}.yaml.j2" -mindepth 2 -maxdepth 2 | head -1)
+    [ -n "$patch" ] || { echo "no node patch for {{ node }} under nodes/{controlplane,worker}/" >&2; exit 1; }
+    "{{ ROOT_DIR }}/scripts/render-machine-config.sh" "{{ TALOS_DIR }}/machineconfig.yaml.j2" "$patch"

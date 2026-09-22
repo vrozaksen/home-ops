@@ -15,7 +15,7 @@ set quiet
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set shell := ['bash', '-euo', 'pipefail', '-c']
 
-KUBERNETES_DIR := justfile_directory()
+KUBERNETES_DIR := source_directory()
 
 [doc('Apply a Flux Kustomization from the repo [path relative to kubernetes/]')]
 [group('Flux')]

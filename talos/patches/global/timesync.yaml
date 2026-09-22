@@ -1,0 +1,8 @@
+---
+# Router runs the NTP server; nodes must agree on time or etcd leases misbehave.
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+enabled: true
+ntp:
+  servers:
+    - 10.10.0.1

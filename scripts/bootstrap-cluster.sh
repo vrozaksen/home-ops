@@ -27,7 +27,14 @@ function apply_talos_config() {
 	for node in ${nodes}; do
 		log debug "Applying Talos node configuration" "node=${node}"
 
-		if ! output=$(talhelper gencommand apply --node "${node}" --extra-flags="--insecure" | bash 2>&1);
+		# Rendered by render-machine-config.sh; node files are keyed by hostname
+		# under talos/nodes/<role>/, so look the config up rather than guessing.
+		cfg="${ROOT_DIR}/talos/clusterconfig/main-${node}.yaml"
+		if [[ ! -f "${cfg}" ]]; then
+			log error "No rendered config for node, run 'just talos genconfig' first" "node=${node}"
+			continue
+		fi
+		if ! output=$(talosctl apply-config --insecure --nodes "${node}" --file "${cfg}" 2>&1);
 		then
 			if [[ "${output}" == *"certificate required"* ]]; then
 				log warn "Talos node is already configured, skipping apply of config" "node=${node}"

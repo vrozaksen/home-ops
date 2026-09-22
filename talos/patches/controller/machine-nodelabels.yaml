@@ -1,0 +1,7 @@
+---
+# Role labels; talhelper takes these from controlPlane.nodeLabels in
+# talconfig.yaml, the native render from this patch.
+machine:
+  nodeLabels:
+    topology.kubernetes.io/region: main
+    topology.kubernetes.io/zone: controlPlane

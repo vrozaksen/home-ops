@@ -47,9 +47,28 @@ function main() {
 
     echo "${patch}" >"${tmpdir}/patch.yaml"
 
-    # Apply the patch to the base machine configuration
-    if ! result=$(talosctl machineconfig patch "${tmpdir}/base.yaml" --patch "@${tmpdir}/patch.yaml") || [[ -z "${result}" ]]; then
-        log fatal "Failed to apply patch to machine configuration" "base_file" "${tmpdir}/base.yaml" "patch_file" "${tmpdir}/patch.yaml"
+    # Layer the same patches talhelper applies, in the same order: every global
+    # patch, then the role patches, then this node. Keeping one set of patch
+    # files is the point -- the base template used to carry hand-copied
+    # duplicates of them, which is how it drifted out of sync.
+    local -a patches=()
+    local talosdir; talosdir="$(cd "$(dirname "${MACHINEBASE}")" && pwd)"
+
+    local f
+    local -a candidates=("${talosdir}"/patches/global/*.yaml)
+    if [[ "${type}" == "controlplane" ]]; then
+        candidates+=("${talosdir}"/patches/controller/*.yaml)
+    else
+        candidates+=("${talosdir}"/patches/worker/*.yaml)
+    fi
+    for f in "${candidates[@]}"; do
+        [[ -e "${f}" ]] && patches+=(--patch "@${f}")
+    done
+    patches+=(--patch "@${tmpdir}/patch.yaml")
+
+    # Apply the patches to the base machine configuration
+    if ! result=$(talosctl machineconfig patch "${tmpdir}/base.yaml" "${patches[@]}") || [[ -z "${result}" ]]; then
+        log fatal "Failed to apply patches to machine configuration" "base_file" "${tmpdir}/base.yaml" "patches" "${#patches[@]}"
     fi
 
     echo "${result}"

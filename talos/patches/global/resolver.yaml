@@ -1,0 +1,10 @@
+---
+# Router is the only resolver; it forwards upstream itself.
+# disableDefault replaces v1alpha1's machine.network.disableSearchDomain --
+# without it Talos derives a search domain from the hostname FQDN.
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+  - address: 10.10.0.1
+searchDomains:
+  disableDefault: true

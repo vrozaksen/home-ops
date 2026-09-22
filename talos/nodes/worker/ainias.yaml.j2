@@ -1,0 +1,35 @@
+# Node patch for ainias, layered onto machineconfig.yaml.j2 by
+# scripts/render-machine-config.sh. Derived from talhelper's own output so
+# the native path emits the same documents it does today.
+machine:
+  type: worker
+  install:
+    diskSelector:
+      model: Samsung*
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+    image: factory.talos.dev/installer/59fbb820a54701d6aacf45e8f65adeba13a0ee2009cbca30e5b1ae6f4155e581:v1.13.7
+    wipe: false
+    grubUseUKICmdline: true
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: ainias
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: bond0
+links:
+  - enp1s0f0np0
+  - enp1s0f1np1
+bondMode: 802.3ad
+miimon: 100
+updelay: 200
+downdelay: 200
+xmitHashPolicy: layer3+4
+lacpRate: fast
+mtu: 1500
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: bond0

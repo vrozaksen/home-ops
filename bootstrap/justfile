@@ -8,7 +8,7 @@ set shell := ['bash', '-euo', 'pipefail', '-c']
 default:
     #!/usr/bin/env bash
     set -euo pipefail
-    script="{{ justfile_directory() }}/../scripts/bootstrap-cluster.sh"
+    script="{{ parent_directory(source_directory()) }}/scripts/bootstrap-cluster.sh"
     test -f "$script"
     find --version | grep -q GNU
     command -v gum helm helmfile kubectl infisical talosctl yq >/dev/null

@@ -88,9 +88,9 @@ nodes:
     controlPlane: false
     installDiskSelector:
       model: "Samsung*"
-    extraManifests:
-      - ./manifests/i40e.yaml
-      - ./manifests/e1000e.yaml
+    patches:
+      - "@./manifests/i40e.yaml"
+      - "@./manifests/e1000e.yaml"
     networkInterfaces:
       # 1G Internal Port / eno1
       # - deviceSelector:
@@ -117,9 +117,9 @@ nodes:
     controlPlane: false
     installDiskSelector:
       model: "MTFD*"
-    extraManifests:
-      - ./manifests/i40e.yaml
-      - ./manifests/e1000e.yaml
+    patches:
+      - "@./manifests/i40e.yaml"
+      - "@./manifests/e1000e.yaml"
     networkInterfaces:
       # 1G Internal Port / eno1
       # - deviceSelector:
@@ -146,9 +146,9 @@ nodes:
     controlPlane: false
     installDiskSelector:
       model: "Samsung*"
-    extraManifests:
-      - ./manifests/i40e.yaml
-      - ./manifests/e1000e.yaml
+    patches:
+      - "@./manifests/i40e.yaml"
+      - "@./manifests/e1000e.yaml"
     networkInterfaces:
       # 1G Internal Port / eno1
       # - deviceSelector:

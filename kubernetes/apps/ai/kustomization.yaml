@@ -20,4 +20,5 @@ resources:
   - ./mcp/flux-operator/ks.yaml
   - ./mcp/forgejo/ks.yaml
   - ./mcp/nixos/ks.yaml
+  - ./mcp/plane/ks.yaml
   - ./mcp/talos/ks.yaml

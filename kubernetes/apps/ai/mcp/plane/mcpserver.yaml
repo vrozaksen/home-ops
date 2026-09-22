@@ -1,0 +1,28 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: plane
+spec:
+  # Upstream publishes no semver or `latest` tag -- only branch names and
+  # `stable`, so the digest is what actually pins this.
+  image: docker.io/makeplane/plane-mcp-server:stable@sha256:bed2527e6718d3a905fc913955a8493e423314fa880a92db7d11d3b38cc19623
+  transport: stdio
+  proxyPort: 8080
+  args:
+    - stdio
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  env:
+    - name: PLANE_BASE_URL
+      value: https://plane.vzkn.eu
+    - name: PLANE_WORKSPACE_SLUG
+      value: vzkn
+  secrets:
+    - name: plane-mcp-secret
+      key: PLANE_API_KEY
+      targetEnvName: PLANE_API_KEY

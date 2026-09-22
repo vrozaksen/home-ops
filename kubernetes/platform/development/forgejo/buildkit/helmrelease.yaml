@@ -158,8 +158,6 @@ spec:
               runAsUser: 1000
               runAsGroup: 1000
               runAsNonRoot: true
-    defaultPodOptions:
-      priorityClassName: cluster-low
     persistence:
       cache:
         type: persistentVolumeClaim

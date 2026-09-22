@@ -411,11 +411,11 @@ data:
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "step-ca": {
-          "present": true, "displayName": "step-ca (SSH certificates)",
+          "present": true, "public": true, "displayName": "step-ca (SSH certificates)",
           "originUrl": "http://127.0.0.1:10000",
           "originLanding": "https://ca.vzkn.eu/",
+          "enableLocalhostRedirects": true,
           "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "allowInsecureClientDisablePkce": false,
-          "k8s": { "clientIdKey": "key", "clientSecretKey": "secret" }
+          "k8s": { "clientIdKey": "key" }
         }
       } } }

@@ -101,6 +101,7 @@ spec:
                         {
                           "type": "OIDC",
                           "name": "kanidm",
+                          "clientID": "step-ca",
                           "configurationEndpoint": "https://idm.vzkn.eu/oauth2/openid/step-ca/.well-known/openid-configuration",
                           "listenAddress": ":10000",
                           "claims": {

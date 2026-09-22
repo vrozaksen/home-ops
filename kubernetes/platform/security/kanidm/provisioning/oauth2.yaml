@@ -369,3 +369,30 @@ data:
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/printer.svg" }
         }
       } } }
+---
+# step-ca issues SSH certificates after a login here, so this account's TOTP
+# is the second factor on the SSH path. The cert principal is the local part
+# of the email, so the account must be named `vrozaksen` to map onto forge's
+# unix user. 127.0.0.1 is where `step ssh login` listens for the callback.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-step-ca
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: security
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "step-ca": {
+          "present": true, "displayName": "step-ca (SSH certificates)",
+          "originUrl": "http://127.0.0.1:10000",
+          "originLanding": "https://ca.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": false,
+          "k8s": { "clientIdKey": "key", "clientSecretKey": "secret" }
+        }
+      } } }

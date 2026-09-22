@@ -9,5 +9,6 @@ resources:
   - ./namespace.yaml
   - ./infisical-operator/ks.yaml
   - ./kanidm/ks.yaml
+  - ./step-ca/ks.yaml
   - ./trivy-operator/ks.yaml
   - ./wazuh/ks.yaml

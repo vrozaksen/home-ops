@@ -132,6 +132,9 @@ spec:
               - path: /etc/forge/ssh/id_ed25519
                 subPath: git_ssh_key
                 readOnly: true
+              - path: /etc/ssh/ca/ssh_user_ca_key.pub
+                subPath: ssh_user_ca_pub
+                readOnly: true
       tmp:
         type: emptyDir
         globalMounts:

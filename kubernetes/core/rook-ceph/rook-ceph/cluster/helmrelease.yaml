@@ -164,6 +164,11 @@ spec:
           failureDomain: host
           replicated:
             size: 3
+          # Must live here, not in storageClass.parameters -- ceph-csi ignores it
+          # there, which is why it compressed nothing for months.
+          parameters:
+            compression_mode: aggressive
+            compression_algorithm: zstd
         storageClass:
           enabled: true
           name: ceph-block
@@ -174,8 +179,6 @@ spec:
           mountOptions:
             - "discard"
           parameters:
-            compression_mode: aggressive
-            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
@@ -185,7 +188,40 @@ spec:
             csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
             csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
             csi.storage.k8s.io/fstype: ext4
-      # Single-replica pool for apps with built-in replication (CNPG, Kafka, ClickHouse)
+      # Two copies for apps that replicate themselves (CNPG, Kafka, ClickHouse).
+      # Not one: an RBD image stripes across every PG and so every OSD, so a
+      # single OSD down took the whole pool -- and every CNPG replica with it.
+      # min_size 1 keeps serving while a copy is missing instead of blocking.
+      # No compression: Postgres pages compress poorly and CNPG compresses WAL.
+      - name: ceph-pool-thin
+        spec:
+          failureDomain: host
+          replicated:
+            size: 2
+          parameters:
+            min_size: "1"
+        storageClass:
+          enabled: true
+          name: ceph-block-thin
+          isDefault: false
+          reclaimPolicy: Delete
+          allowVolumeExpansion: true
+          volumeBindingMode: Immediate
+          mountOptions:
+            - "discard"
+          parameters:
+            imageFormat: "2"
+            imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+            csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/fstype: ext4
+      # DEPRECATED, being drained into ceph-pool-thin. Left exactly as it was:
+      # existing PVs record `pool: ceph-pool-single`, so it must outlive them.
+      # Delete once no PVC references ceph-block-single.
       - name: ceph-pool-single
         spec:
           failureDomain: host
@@ -201,8 +237,6 @@ spec:
           mountOptions:
             - "discard"
           parameters:
-            compression_mode: passive  # Compress only when client hints request it
-            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner

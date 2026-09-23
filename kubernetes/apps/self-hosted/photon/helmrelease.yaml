@@ -83,7 +83,7 @@ spec:
                   - "SETUID"
             resources:
               requests:
-                cpu: 200m
+                cpu: 20m
                 memory: 1Gi
               limits:
                 # Import is the peak; steady-state reverse lookups need far less.

@@ -150,8 +150,8 @@ spec:
       server:
         resources:
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 20m
+            memory: 192Mi
           limits:
             cpu: 1
             memory: 1Gi

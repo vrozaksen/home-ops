@@ -63,8 +63,8 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 200m
-                memory: 448Mi
+                cpu: 60m
+                memory: 320Mi
               limits:
                 memory: 896Mi
     defaultPodOptions:

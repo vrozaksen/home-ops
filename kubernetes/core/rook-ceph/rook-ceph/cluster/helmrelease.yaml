@@ -63,8 +63,10 @@ spec:
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2
             keyType: aes256k
-            # Keeps the previous key valid alongside the new one so PVCs survive.
-            keepPriorKeyCountMax: 1
+            # 0 now that aes256k is proven: a freshly provisioned RBD volume
+            # mounted and wrote fine. Keeping a prior aes key would leave the
+            # entity flagged insecure forever, which is the whole point of this.
+            keepPriorKeyCountMax: 0
           rbdMirrorPeer:
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2

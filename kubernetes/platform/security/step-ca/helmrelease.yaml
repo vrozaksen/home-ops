@@ -28,6 +28,11 @@ spec:
     # Chart bootstrap runs `step ca init` without --ssh — see README.
     bootstrap:
       enabled: false
+    service:
+      type: LoadBalancer
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: ca.vzkn.eu
+        lbipam.cilium.io/ips: 10.10.0.94
     existingSecrets:
       enabled: true
       ca: true

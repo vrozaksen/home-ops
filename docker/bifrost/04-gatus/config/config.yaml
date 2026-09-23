@@ -26,6 +26,18 @@ endpoints:
     alerts:
       - type: pushover
 
+  - name: step-ca
+    group: home
+    url: https://ca.vzkn.eu/health
+    interval: 1m
+    client:
+      insecure: true
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: pushover
+
 external-endpoints:
   - name: heartbeat
     group: home

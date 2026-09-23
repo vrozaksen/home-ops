@@ -50,3 +50,7 @@ spec:
       recordType: A
       targets:
         - ${VPS_IP}
+    - dnsName: ca.vzkn.eu
+      recordType: A
+      targets:
+        - ${VPS_IP}

@@ -63,6 +63,32 @@ as valid logins.
 
 Then `rm -rf "$STEPPATH"`.
 
+## Why it bypasses the gateway
+
+`ca.vzkn.eu` does not go through envoy. Off-site it is a towonel *TCP*
+service; on the LAN it resolves to the CA's own LoadBalancer:
+
+```
+remote  client:443 -> caddy-l4 (SNI, passthrough) -> towonel-hub:9000 -> agent -> step-ca:9000
+local   client:443 -> 10.10.0.94 -> step-ca:9000
+```
+
+Both records are generated: ovh-dns publishes the public name from the
+`DNSEndpoint` in towonel-agent, mikrotik-dns publishes the LAN name from the
+Service. Neither instance sees the other's source, so they cannot fight over
+the record.
+
+Terminating TLS at envoy would mean the client validates a Let's Encrypt leaf
+while `step` pins the CA's own root — so every client would need its `root`
+pointed at the system bundle by hand, forever, on every machine. That also
+moves trust for the CA channel from the CA's key to the proxy.
+
+The hostname path (`*.vzkn.eu`) cannot be used either: the hub sets
+`TOWONEL_EDGE_PROXY_PROTOCOL: "true"`, so origins there receive a PROXY v2
+header. step-ca speaks raw TLS and would read it as a malformed ClientHello.
+The TCP path carries no such header — the same reason `forge-ssh` reaches sshd
+unmodified.
+
 ## Client
 
 Installs into the user's home directory, no administrator rights:

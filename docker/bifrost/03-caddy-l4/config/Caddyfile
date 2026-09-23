@@ -26,6 +26,14 @@
 					upstream 127.0.0.1:8443
 				}
 			}
+			# No proxy_protocol: step-ca speaks raw TLS and the edge path
+			# (towonel-hub:4443) would prepend a PROXY v2 header it can't parse.
+			@ca tls sni ca.vzkn.eu
+			route @ca {
+				proxy {
+					upstream towonel-hub:9000
+				}
+			}
 			@tls tls
 			route @tls {
 				proxy {

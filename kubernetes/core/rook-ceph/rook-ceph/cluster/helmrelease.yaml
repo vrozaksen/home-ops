@@ -44,7 +44,7 @@ spec:
             namespace: network
     cephImage:
       repository: quay.io/ceph/ceph
-      tag: v19.2.6
+      tag: v21.1.0
     cephClusterSpec:
       # CVE-2025-30156: AES service tickets carry no integrity check. What closes
       # it is the mons issuing aes256k tickets, which daemon rotation delivers --

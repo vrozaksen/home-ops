@@ -51,6 +51,10 @@ spec:
       # clients may stay on aes safely after that.
       security:
         cephx:
+          # Safe only because no entity holds an aes key any more; while one did,
+          # forbidding the cipher would have locked it out instantly.
+          allowedCiphers:
+            - aes256k
           daemon:
             keyRotationPolicy: KeyGeneration
             # Bump to rotate again; osd reports generation 1 today.

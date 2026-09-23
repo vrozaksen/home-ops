@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/backendtlspolicy_v1.json
+# step-ca serves TLS on 9000 with a leaf from its own CA, so System trust
+# cannot validate it. The root comes from the same Infisical-synced secret the
+# CA itself uses — not a copy in git that would go stale on rotation.
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: step-ca-upstream
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: step-ca
+  validation:
+    caCertificateRefs:
+      - group: ""
+        kind: Secret
+        name: step-ca-certs
+    hostname: ca.vzkn.eu

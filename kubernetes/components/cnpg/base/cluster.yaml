@@ -35,12 +35,12 @@ spec:
       disabledDefaultServices: ${CNPG_DISABLED_SERVICES:=['ro', 'r']}
   storage:
     size: ${CNPG_SIZE:=2Gi}
-    storageClass: ${CNPG_STORAGECLASS:=ceph-block-single}
+    storageClass: ${CNPG_STORAGECLASS:=ceph-block-thin}
   # Dedicated WAL volume: isolates WAL from data so a lagging replica can't
   # pressure the data disk, and gives room to raise max_slot_wal_keep_size.
   walStorage:
     size: ${CNPG_WAL_SIZE:=6Gi}
-    storageClass: ${CNPG_WAL_STORAGECLASS:=ceph-block-single}
+    storageClass: ${CNPG_WAL_STORAGECLASS:=ceph-block-thin}
   superuserSecret:
     name: ${APP}-cnpg-secret
   enableSuperuserAccess: true

@@ -33,7 +33,7 @@ spec:
       kubernetesModeWorkVolumeClaim:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: ceph-block-single
+        storageClassName: ceph-block-thin
         resources:
           requests:
             storage: 5Gi

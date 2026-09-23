@@ -179,6 +179,11 @@ spec:
           mountOptions:
             - "discard"
           parameters:
+            # Inert here (ceph-csi ignores it) but StorageClass.parameters is
+            # immutable, so removing it fails the Helm upgrade. Real compression
+            # is set on the pool above.
+            compression_mode: aggressive
+            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
@@ -237,6 +242,9 @@ spec:
           mountOptions:
             - "discard"
           parameters:
+            # Inert, kept only because StorageClass.parameters is immutable.
+            compression_mode: passive
+            compression_algorithm: zstd
             imageFormat: "2"
             imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner

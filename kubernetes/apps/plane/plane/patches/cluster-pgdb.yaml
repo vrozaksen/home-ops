@@ -5,7 +5,7 @@ metadata:
   name: postgres-${APP}
 spec:
   bootstrap:
-    initdb:
+    recovery:
       # Plane takes only a whole DATABASE_URL, so the password must be pinned.
       secret:
         name: plane-pgdb

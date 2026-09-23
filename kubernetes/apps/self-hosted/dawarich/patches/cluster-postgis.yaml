@@ -20,7 +20,7 @@ spec:
           - system
         image:
           reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.1-18-trixie
-  bootstrap:
-    initdb:
-      postInitApplicationSQL:
-        - CREATE EXTENSION IF NOT EXISTS postgis;
+          # bootstrap:
+          #   initdb:
+          #     postInitApplicationSQL:
+          #       - CREATE EXTENSION IF NOT EXISTS postgis;

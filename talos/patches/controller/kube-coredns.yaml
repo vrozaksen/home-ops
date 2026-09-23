@@ -1,0 +1,5 @@
+---
+# CoreDNS is deployed by Flux, not Talos.
+apiVersion: v1alpha1
+kind: KubeCoreDNSConfig
+enabled: false

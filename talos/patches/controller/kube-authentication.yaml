@@ -1,0 +1,18 @@
+---
+apiVersion: v1alpha1
+kind: KubeAuthenticationConfig
+configuration:
+  apiVersion: apiserver.config.k8s.io/v1beta1
+  kind: AuthenticationConfiguration
+  jwt:
+    - issuer:
+        url: https://idm.vzkn.eu/oauth2/openid/headlamp
+        audiences:
+          - headlamp
+      claimMappings:
+        username:
+          claim: preferred_username
+          prefix: ""
+        groups:
+          claim: groups
+          prefix: ""

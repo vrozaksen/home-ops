@@ -1,0 +1,14 @@
+---
+# Talos supplied --authorization-mode=Node,RBAC implicitly while the apiserver
+# lived in v1alpha1; KubeAPIServerConfig does not, and the apiserver refuses to
+# start with none ("at least one authorization mode must be defined").
+# Order matters: Node is evaluated before RBAC.
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: node
+type: Node
+---
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: rbac
+type: RBAC

@@ -1,0 +1,11 @@
+---
+# Spegel needs unpacked layers kept; CDI dirs feed the GPU device plugin.
+apiVersion: v1alpha1
+kind: CRICustomizationConfig
+name: spegel-cdi
+content: |-
+  [plugins."io.containerd.cri.v1.images"]
+    discard_unpacked_layers = false
+  [plugins."io.containerd.cri.v1.runtime"]
+    cdi_spec_dirs = ["/var/cdi/static", "/var/cdi/dynamic"]
+    device_ownership_from_security_context = true

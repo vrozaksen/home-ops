@@ -66,26 +66,6 @@ cluster:
     key: {{ ENV['CLUSTER_AGGREGATORCA_KEY'] }}
   serviceAccount:
     key: {{ ENV['CLUSTER_SERVICEACCOUNT_KEY'] }}
-  apiServer:
-    # renovate: datasource=docker depName=registry.k8s.io/kube-apiserver
-    image: registry.k8s.io/kube-apiserver:v1.36.4
-    certSANs:
-      - 10.10.0.20
-      - 127.0.0.1
-    auditPolicy:
-      apiVersion: audit.k8s.io/v1
-      kind: Policy
-      rules:
-        - level: Metadata
-  controllerManager:
-    # renovate: datasource=docker depName=registry.k8s.io/kube-controller-manager
-    image: registry.k8s.io/kube-controller-manager:v1.36.4
-  proxy:
-    # renovate: datasource=docker depName=registry.k8s.io/kube-proxy
-    image: registry.k8s.io/kube-proxy:v1.36.4
-  scheduler:
-    # renovate: datasource=docker depName=registry.k8s.io/kube-scheduler
-    image: registry.k8s.io/kube-scheduler:v1.36.4
 {% endif %}
   discovery:
     enabled: true

@@ -17,6 +17,12 @@ set -Eeuo pipefail
 
 readonly MACHINEBASE="${1:?}" MACHINEPATCH="${2:?}"
 
+# Resolve talosctl through mise. A stale shell PATH can hold an older install
+# that silently drops config documents it does not know -- 1.13 rendering a
+# 1.14 config fails with "not registered", which is the good case; the bad one
+# is a version new enough to parse but old enough to mis-handle a field.
+talosctl() { mise exec -- talosctl "$@"; }
+
 # Log messages with structured output
 function log() {
     local lvl="${1:?}" msg="${2:?}"

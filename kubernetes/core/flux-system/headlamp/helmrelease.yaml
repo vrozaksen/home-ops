@@ -47,6 +47,7 @@ spec:
         externalSecret:
           enabled: true
           name: kanidm-headlamp-oidc
+          hasScopes: true
     env:
       - name: OIDC_ISSUER_URL
         value: https://idm.vzkn.eu/oauth2/openid/headlamp

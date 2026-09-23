@@ -1,0 +1,14 @@
+---
+apiVersion: v1alpha1
+kind: KubeAPIServerConfig
+# renovate: datasource=docker depName=registry.k8s.io/kube-apiserver
+image: registry.k8s.io/kube-apiserver:v1.36.4
+certExtraSANs:
+  - 10.10.0.20
+  - 127.0.0.1
+extraArgs:
+  enable-aggregator-routing: "true"
+  feature-gates: PersistentVolumeClaimUnusedSinceTime=true,HPAScaleToZero=true
+  # Faster pod eviction from unreachable nodes (default: 300s)
+  default-not-ready-toleration-seconds: "60"
+  default-unreachable-toleration-seconds: "60"

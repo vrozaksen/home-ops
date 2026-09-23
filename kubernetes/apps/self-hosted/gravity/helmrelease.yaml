@@ -19,7 +19,7 @@ spec:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/gravity
               repository: registry.vzkn.eu/containers/gravity
-              tag: rolling@sha256:cedc4ea9fe7b4df5d5ad0d58ec52fc42746be561fb64ebf365fe298233b57e59
+              tag: rolling@sha256:93db89d98e7aa9b71512c0523a73019dd5e9d5a6487cb6811ec9dbb1a73434c3
             probes:
               liveness: &probe
                 enabled: true

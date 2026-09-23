@@ -1,0 +1,6 @@
+---
+# Weekly fstrim. Matters most on alne, whose system SSD is already at 90%
+# endurance -- unreclaimed blocks make the controller work harder for longer.
+apiVersion: v1alpha1
+kind: FilesystemTrimConfig
+interval: 168h

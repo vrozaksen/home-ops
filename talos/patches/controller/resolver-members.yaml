@@ -1,0 +1,6 @@
+---
+# Control planes additionally resolve cluster member names.
+apiVersion: v1alpha1
+kind: ResolverConfig
+hostDNS:
+  resolveMemberNames: true

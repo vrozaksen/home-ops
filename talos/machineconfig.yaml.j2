@@ -31,12 +31,6 @@ machine:
     disableManifestsDirectory: true
   features:
     diskQuotaSupport: true
-    kubePrism:
-      enabled: true
-      port: 7445
-    hostDNS:
-      enabled: true
-      forwardKubeDNSToHost: true
 cluster:
   id: {{ ENV['CLUSTER_ID'] }}
   secret: {{ ENV['CLUSTER_SECRET'] }}

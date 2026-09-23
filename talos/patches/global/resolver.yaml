@@ -1,10 +1,13 @@
 ---
-# Router is the only resolver; it forwards upstream itself.
-# disableDefault replaces v1alpha1's machine.network.disableSearchDomain --
-# without it Talos derives a search domain from the hostname FQDN.
+# Router is the only resolver; it forwards upstream itself. disableDefault stops
+# Talos deriving a search domain from the hostname FQDN -- DHCP-provided ones
+# still land here, which is new in 1.14.
 apiVersion: v1alpha1
 kind: ResolverConfig
 nameservers:
   - address: 10.10.0.1
 searchDomains:
   disableDefault: true
+hostDNS:
+  enabled: true
+  forwardKubeDNSToHost: true  # Requires Cilium socketLB features

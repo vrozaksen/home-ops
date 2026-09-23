@@ -31,22 +31,24 @@ disk, NIC layout). Patches are static, so they stay plain `.yaml`.
 JSON6902 is not an option anywhere here: `talosctl machineconfig patch` rejects
 it whenever the config is multi-document, which this one always is.
 
-## Migration to Talos 1.14
+## The `machine-*` files are waiting on a release that does not exist yet
 
-1.14 moves nearly the whole `v1alpha1` surface into typed documents. Deprecated
-fields keep working, but **a deprecated field and its replacement document are
-mutually exclusive — a config setting both is rejected**, so each row has to
-move in one go rather than field by field.
+They move to typed documents (`SysctlConfig`, `EtcFileConfig`, `KubeletConfig`,
+`KubeAPIServerConfig`, …) when Talos ships them. **It has not, as of 1.14.1** —
+verified against the binary, not the changelog: 1.14.1 registers exactly the
+same 44 kinds as 1.13, and every one of those names fails with `not registered`.
 
-| File | Replacement document | Status |
-| --- | --- | --- |
-| `global/machine-sysctls.yaml` | `SysctlConfig` | waiting on 1.14 |
-| `global/machine-files.yaml` | `EtcFileConfig` (nfsmount.conf) + `CRICustomizationConfig` (containerd) | waiting on 1.14 |
-| `global/machine-kubelet.yaml` | `KubeletConfig` | waiting on 1.14 |
-| `global/machine-openebs.yaml` | `KubeletConfig` (extraMounts) | waiting on 1.14 |
-| `controller/cluster.yaml` | `KubeAPIServerConfig`, `KubeAuditPolicyConfig`, `KubeControllerManagerConfig`, `KubeSchedulerConfig`, `KubeProxyConfig`, `KubeCoreDNSConfig`, etcd | waiting on 1.14, split into several files |
-| `controller/machine-features.yaml` | not yet mapped | confirm against 1.14 docs |
-| `*/machine-nodelabels.yaml` | `KubeNodeConfig` | confirm against 1.14 docs |
+Other repos' "migrate to 1.14 multi-document kinds" PRs targeted alpha builds;
+talhelper 3.1.17 accepts `FilesystemTrimConfig` only because it pins
+`machinery v1.14.0-alpha.2`. Do not plan around a changelog — probe first:
+
+```bash
+printf -- '---\napiVersion: v1alpha1\nkind: SysctlConfig\nname: p\n' > /tmp/p.yaml
+talosctl validate --config /tmp/p.yaml --mode metal   # "not registered" = absent
+```
+
+On 1.14.1 the only deprecation `talosctl validate` actually raises is
+`.machine.files`. Everything else still validates clean.
 
 Already converted, on 1.13:
 

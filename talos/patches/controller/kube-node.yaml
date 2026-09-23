@@ -1,0 +1,13 @@
+---
+# KubeNodeConfig applies labels and taints AS-IS -- unlike .machine.nodeLabels,
+# Talos adds neither the control-plane role label nor the NoSchedule taint on
+# its own. Both are spelled out here; dropping either would open control planes
+# to general scheduling.
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+labels:
+  node-role.kubernetes.io/control-plane: ""
+  topology.kubernetes.io/region: main
+  topology.kubernetes.io/zone: controlPlane
+taints:
+  node-role.kubernetes.io/control-plane: ":NoSchedule"

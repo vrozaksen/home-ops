@@ -1,8 +1,7 @@
 ---
-# What is left here has no typed document in 1.14: KubeClusterConfig carries
-# only clusterName/endpoint, and etcd tuning never moved out of v1alpha1.
+# etcd tuning never moved out of v1alpha1. allowSchedulingOnControlPlanes did:
+# KubeNodeConfig owns it now, by carrying the taint explicitly.
 cluster:
-  allowSchedulingOnControlPlanes: false
   etcd:
     advertisedSubnets:
       - "10.10.0.0/24"

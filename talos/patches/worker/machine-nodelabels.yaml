@@ -1,6 +1,0 @@
----
-# Role labels; talhelper takes these from worker.nodeLabels in talconfig.yaml,
-# the native render from this patch.
-machine:
-  nodeLabels:
-    topology.kubernetes.io/zone: worker

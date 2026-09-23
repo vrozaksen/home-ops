@@ -1,0 +1,9 @@
+---
+# nodeIP has to live here rather than in machine.kubelet: KubeNodeConfig claims
+# that sub-field, and the exclusion is per sub-field, so the rest of
+# machine.kubelet (extraArgs, extraConfig, extraMounts) can stay in v1alpha1.
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+nodeIP:
+  validSubnets:
+    - 10.10.0.0/24

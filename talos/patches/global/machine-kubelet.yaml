@@ -7,6 +7,3 @@ machine:
       serializeImagePulls: false
       imageGCHighThresholdPercent: 60
       imageGCLowThresholdPercent: 50
-    nodeIP:
-      validSubnets:
-        - 10.10.0.0/24

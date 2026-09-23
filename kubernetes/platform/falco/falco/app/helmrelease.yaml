@@ -42,16 +42,6 @@ spec:
       crio:
         enabled: false
 
-    # SecureBoot pins the control planes to lockdown=confidentiality, which
-    # withholds the BPF kernel-read helpers Falco needs. Workers only.
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: DoesNotExist
-
     resources:
       requests:
         cpu: 100m

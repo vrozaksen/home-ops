@@ -72,7 +72,7 @@ spec:
       # agent must never be newer than the manager. All three must match.
       images:
         # renovate: datasource=docker depName=wazuh/wazuh-indexer
-        tag: 4.14.7
+        tag: 4.14.8
       replicas: 1
       cred:
         existingSecret: wazuh-credentials
@@ -116,7 +116,7 @@ spec:
     wazuh:
       images:
         # renovate: datasource=docker depName=wazuh/wazuh-manager
-        tag: 4.14.7
+        tag: 4.14.8
       apiCred:
         existingSecret: wazuh-credentials
       authd:
@@ -184,7 +184,7 @@ spec:
     dashboard:
       images:
         # renovate: datasource=docker depName=wazuh/wazuh-dashboard
-        tag: 4.14.7
+        tag: 4.14.8
       replicas: 1
       cred:
         existingSecret: wazuh-credentials

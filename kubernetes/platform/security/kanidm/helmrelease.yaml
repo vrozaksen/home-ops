@@ -85,6 +85,9 @@ spec:
         replicas: 1
         serviceAccount:
           identifier: provision
+        pod:
+          annotations:
+            reloader.stakater.com/search: "true"
         containers:
           app:
             image:

@@ -7,14 +7,11 @@ metadata:
 spec:
   components:
     - ../../../components/cnpg/initdb
-    - ../../../components/kopiur
   dependsOn:
     - name: infisical-operator
       namespace: security
     - name: kanidm
       namespace: security
-    - name: kopiur
-      namespace: kopiur-system
     - name: plugin-barman-cloud
       namespace: database
     - name: rook-ceph-cluster
@@ -30,10 +27,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns self-hosted
-      CNPG_SIZE: 5Gi
-      # PVC only holds uploaded attachments; notes live in Postgres.
-      KOPIUR_CAPACITY: 10Gi
-      KOPIUR_PGID: "1000"
+      CNPG_SIZE: 10Gi
   prune: true
   sourceRef:
     kind: GitRepository

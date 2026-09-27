@@ -83,7 +83,7 @@ spec:
             namespace: network
     persistence:
       data:
-        existingClaim: memos
+        type: emptyDir
         globalMounts:
           - path: /var/opt/memos
       tmp:

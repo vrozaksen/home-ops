@@ -232,6 +232,14 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/homebox.svg" }
         },
+        "memos": {
+          "present": true, "displayName": "Memos",
+          "originUrl": "https://memos.vzkn.eu/auth/callback",
+          "originLanding": "https://memos.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "preferShortUsername": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/memos.svg" }
+        },
         "rxresume": {
           "present": true, "displayName": "Reactive Resume",
           "originUrl": "https://rxresume.vzkn.eu/api/auth/callback/custom",

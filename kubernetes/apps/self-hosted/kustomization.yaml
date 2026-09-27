@@ -12,6 +12,7 @@ resources:
   - ./gravity/ks.yaml
   - ./homebox/ks.yaml
   - ./it-tools/ks.yaml
+  - ./memos/ks.yaml
   - ./photon/ks.yaml
   - ./pkvault/ks.yaml
   # - ./rxresume/ks.yaml

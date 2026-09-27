@@ -20,6 +20,9 @@ spec:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
+            # Secret volumes land as root-owned; without fsGroup the 0440 key
+            # is unreadable to uid 65534.
+            fsGroup: 65534
             seccompProfile:
               type: RuntimeDefault
           containers:
@@ -92,6 +95,6 @@ spec:
             - name: ssh-key
               secret:
                 secretName: mikrotik-cert-sync-secret
-                defaultMode: 0400
+                defaultMode: 0440
             - name: tmp
               emptyDir: {}

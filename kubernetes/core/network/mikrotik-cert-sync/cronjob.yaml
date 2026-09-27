@@ -16,20 +16,32 @@ spec:
         spec:
           serviceAccountName: mikrotik-cert-sync
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: cert-sync
-              image: alpine:3.24
+              # Tools baked in rather than `apk add`ed at runtime, which made
+              # every binary newer than the image layer and fired seven Falco
+              # criticals per run.
+              # renovate: datasource=docker depName=registry.vzkn.eu/containers/toolbox
+              image: registry.vzkn.eu/containers/toolbox:3.24@sha256:c1b864a0a0b227534844d801f145a9e64693d4f266dc2922a282a9d40ad43d28
               command:
                 - /bin/sh
                 - -c
                 - |
                   set -e
-                  apk add -q --no-cache curl openssl jq openssh-client
-
-                  mkdir -p ~/.ssh
-                  cat /ssh-key/SSH_PRIVATE_KEY > ~/.ssh/id_ed25519
-                  echo >> ~/.ssh/id_ed25519
-                  chmod 600 ~/.ssh/id_ed25519
+                  # -i everywhere: OpenSSH takes the default ~/.ssh from the
+                  # passwd entry rather than the HOME env var, and uid 65534
+                  # resolves to nobody, whose home is /.
+                  KEY=/tmp/.ssh/id_ed25519
+                  mkdir -p /tmp/.ssh
+                  cat /ssh-key/SSH_PRIVATE_KEY > "$$KEY"
+                  echo >> "$$KEY"
+                  chmod 600 "$$KEY"
 
                   KUBE_TOKEN=$$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
                   SECRET=$$(curl -sS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
@@ -43,7 +55,7 @@ spec:
                   openssl x509 -in /tmp/router.crt -noout -subject -dates | tr '\n' ' '
                   echo
 
-                  SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
+                  SSH_OPTS="-i $$KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
                   ROUTER_HOST="router.home.vzkn.eu"
                   ROUTER_USER="cert-sync"
 
@@ -58,10 +70,18 @@ spec:
                     /ip service set api-ssl certificate=router.crt_0
                   '
                   echo "Certificate synced to MikroTik router"
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - "ALL"
               volumeMounts:
                 - name: ssh-key
                   mountPath: /ssh-key
                   readOnly: true
+                - name: tmp
+                  mountPath: /tmp
               resources:
                 requests:
                   cpu: 50m
@@ -73,3 +93,5 @@ spec:
               secret:
                 secretName: mikrotik-cert-sync-secret
                 defaultMode: 0400
+            - name: tmp
+              emptyDir: {}

@@ -128,9 +128,8 @@ spec:
               type: vlogs
               interval: 1m
               rules:
-                # The manager syslogs alerts as JSON under app_name "ossec".
-                # Wazuh scores rules 0-15: 12+ is its "high importance" band
-                # (rootkits, tampering, repeated auth failures from one source).
+                # Alerts arrive as JSON under app_name "ossec"; level 12+ is
+                # Wazuh's "high importance" band on its 0-15 scale.
                 - alert: WazuhCriticalAlert
                   expr: >-
                     app_name:"ossec" AND _time:10m
@@ -181,12 +180,8 @@ spec:
                       Nothing has arrived from wazuh-csyslogd. Either the manager
                       stopped forwarding or the syslog path to VictoriaLogs broke.
 
-            # Kernel-level storage faults, read from logs rather than metrics.
-            # node_filesystem_readonly does NOT cover them: it exports 142 series
-            # cluster-wide and none under /var/lib/kubelet, so the 2026-09-20
-            # incident (90 RBD mounts remounted read-only on alfheim, unnoticed
-            # for 3.5 days) would not have fired it. These read what the kernel
-            # actually said, via the kmsg bridge.
+            # Kernel storage faults via the kmsg bridge. node_filesystem_readonly
+            # exports nothing under /var/lib/kubelet, so it misses RBD mounts.
             - name: node-storage
               type: vlogs
               interval: 1m
@@ -225,9 +220,8 @@ spec:
                       {{ $value }} in 10 minutes. Usually a Ceph blocklist entry;
                       check `ceph osd blocklist ls`.
 
-                # Fires on the backlog left by the 2026-09-23 cephx rotation
-                # until those pre-rotation RBD mappings are refreshed. That is
-                # the alert working, not a false positive.
+                # Expected to fire until the pre-rotation RBD mappings are
+                # remapped; that is the alert working, not a false positive.
                 - alert: CephxAuthFailure
                   expr: >-
                     log_source:"talos-kmsg" AND "msgr authentication failed" AND
@@ -244,11 +238,27 @@ spec:
                       using a cephx identity that no longer exists; remounting the
                       affected volume clears it.
 
-            # The other half of the VmalertDown symmetry in prometheusrule.yaml:
-            # Prometheus cannot alert on its own death either. vmalert is a
-            # separate process reading a separate store, so it survives it.
-            # Silence is a safe signal here -- the container logs continuously
-            # (~1000 lines per 10 min at steady state).
+                # Escalation of the above once cached OSD tickets expire: reads
+                # fail while Ceph still reports HEALTH_OK. Read-only mounts next.
+                - alert: CephxOsdAuthFailure
+                  expr: >-
+                    log_source:"talos-kmsg" AND
+                    ("authorization to osd failed" OR "read processing error") AND
+                    _time:15m
+                    | stats by (node) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: storage
+                  annotations:
+                    summary: "Ceph OSD authorization failing on {{ $labels.node }}"
+                    description: |-
+                      {{ $value }} in 15 minutes. Kernel RBD sessions can no longer
+                      reach the OSDs and I/O is degraded. Reboot the node to remap
+                      every volume with the current cephx key.
+
+            # Mirrors VmalertDown in prometheusrule.yaml. Silence is a safe signal:
+            # Prometheus logs ~1000 lines per 10 min at steady state.
             - name: prometheus-deadman
               type: vlogs
               interval: 1m

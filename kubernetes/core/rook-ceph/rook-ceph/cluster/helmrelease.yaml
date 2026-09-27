@@ -46,13 +46,11 @@ spec:
       repository: quay.io/ceph/ceph
       tag: v19.2.6
     cephClusterSpec:
-      # CVE-2025-30156: AES service tickets carry no integrity check. What closes
-      # it is the mons issuing aes256k tickets, which daemon rotation delivers --
-      # clients may stay on aes safely after that.
+      # CVE-2025-30156: closed once the mons issue aes256k tickets, which daemon
+      # rotation delivers; clients may stay on aes after that.
       security:
         cephx:
-          # Safe only because no entity holds an aes key any more; while one did,
-          # forbidding the cipher would have locked it out instantly.
+          # Only safe because no entity holds an aes key any more.
           allowedCiphers:
             - aes256k
           daemon:
@@ -61,16 +59,10 @@ spec:
             keyGeneration: 2
             keyType: aes256k
           csi:
-            # aes256k needed kernel 7.0 until Talos 1.14 backported it into the
-            # 6.18 series (siderolabs/pkgs@84c1b87), so CSI clients can finally
-            # leave the emergency cipher behind.
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2
             keyType: aes256k
-            # 0 now that aes256k is proven: a freshly provisioned RBD volume
-            # mounted and wrote fine. Keeping a prior aes key would leave the
-            # entity flagged insecure forever, which is the whole point of this.
-            keepPriorKeyCountMax: 0
+            keepPriorKeyCountMax: 1
           rbdMirrorPeer:
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2
@@ -186,9 +178,8 @@ spec:
           mountOptions:
             - "discard"
           parameters:
-            # Inert here (ceph-csi ignores it) but StorageClass.parameters is
-            # immutable, so removing it fails the Helm upgrade. Real compression
-            # is set on the pool above.
+            # Inert (ceph-csi ignores it) but StorageClass.parameters is
+            # immutable, so removing it fails the upgrade.
             compression_mode: aggressive
             compression_algorithm: zstd
             imageFormat: "2"
@@ -201,10 +192,7 @@ spec:
             csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
             csi.storage.k8s.io/fstype: ext4
       # Two copies for apps that replicate themselves (CNPG, Kafka, ClickHouse).
-      # Not one: an RBD image stripes across every PG and so every OSD, so a
-      # single OSD down took the whole pool -- and every CNPG replica with it.
-      # min_size 1 keeps serving while a copy is missing instead of blocking.
-      # No compression: Postgres pages compress poorly and CNPG compresses WAL.
+      # Not one: an RBD image stripes across every OSD, so one OSD down took all.
       - name: ceph-pool-thin
         spec:
           failureDomain: host

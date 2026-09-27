@@ -7,7 +7,14 @@ data:
   server.toml: |-
     listen = "[::]:8080"
     api-endpoint = "https://cache.vzkn.eu/"
-    allowed-hosts = ["cache.vzkn.eu"]
+    # Service name too: forge pushes via ClusterIP to avoid envoy's retry
+    # buffering, which rejects NAR uploads with 507. Both Host forms, with and
+    # without port, since clients send whichever their URL carried.
+    allowed-hosts = [
+      "cache.vzkn.eu",
+      "attic.development.svc.cluster.local",
+      "attic.development.svc.cluster.local:8080",
+    ]
     require-proof-of-possession = true
     soft-delete-caches = true
 

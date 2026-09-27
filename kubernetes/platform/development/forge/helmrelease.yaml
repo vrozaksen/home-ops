@@ -28,7 +28,7 @@ spec:
             env:
               FORGE_HM_FLAKE: git+https://git.vzkn.eu/vrozaksen/nix-config
               FORGE_HM_PROFILE: vrozaksen-forge
-              ATTIC_ENDPOINT: https://cache.vzkn.eu
+              ATTIC_ENDPOINT: http://attic.development.svc.cluster.local:8080
               ATTIC_CACHE: main
             envFrom:
               - secretRef:

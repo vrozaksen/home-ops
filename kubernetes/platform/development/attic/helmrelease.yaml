@@ -15,6 +15,8 @@ spec:
       attic:
         replicas: 2
         strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
         initContainers:
           # db-migrations runs only on Monolithic/DbMigrations modes — explicit
           # init step so api-server/garbage-collector modes have schema ready.
@@ -74,6 +76,8 @@ spec:
       # GC — single instance, runs sweep every 12h. No HTTP port, no probes.
       gc:
         replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
         initContainers:
           migrate: *migrate
         containers:

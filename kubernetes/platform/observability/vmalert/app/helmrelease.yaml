@@ -180,3 +180,89 @@ spec:
                     description: |-
                       Nothing has arrived from wazuh-csyslogd. Either the manager
                       stopped forwarding or the syslog path to VictoriaLogs broke.
+
+            # Kernel-level storage faults, read from logs rather than metrics.
+            # node_filesystem_readonly does NOT cover them: it exports 142 series
+            # cluster-wide and none under /var/lib/kubelet, so the 2026-09-20
+            # incident (90 RBD mounts remounted read-only on alfheim, unnoticed
+            # for 3.5 days) would not have fired it. These read what the kernel
+            # actually said, via the kmsg bridge.
+            - name: node-storage
+              type: vlogs
+              interval: 1m
+              rules:
+                - alert: NodeFilesystemError
+                  expr: >-
+                    log_source:"talos-kmsg" AND facility:"kern" AND
+                    ("EXT4-fs error" OR "remounting read-only" OR "I/O error") AND
+                    _time:10m
+                    | stats by (node) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: storage
+                  annotations:
+                    summary: "Kernel filesystem errors on {{ $labels.node }}"
+                    description: |-
+                      {{ $value }} kernel filesystem errors in 10 minutes. Check
+                      `talosctl -n {{ $labels.node }} read /proc/mounts | grep emergency_ro`
+                      -- a node in this state needs a reboot, not a pod delete.
+
+                # rbd map failing with -108 (ESHUTDOWN) means the client is
+                # blocklisted; it precedes mounts going read-only.
+                - alert: NodeRbdMapFailure
+                  expr: >-
+                    log_source:"talos-kmsg" AND facility:"kern" AND
+                    ("rbd: map failed" OR "result -108") AND _time:10m
+                    | stats by (node) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: storage
+                  annotations:
+                    summary: "RBD map failures on {{ $labels.node }}"
+                    description: |-
+                      {{ $value }} in 10 minutes. Usually a Ceph blocklist entry;
+                      check `ceph osd blocklist ls`.
+
+                # Fires on the backlog left by the 2026-09-23 cephx rotation
+                # until those pre-rotation RBD mappings are refreshed. That is
+                # the alert working, not a false positive.
+                - alert: CephxAuthFailure
+                  expr: >-
+                    log_source:"talos-kmsg" AND "msgr authentication failed" AND
+                    _time:30m
+                    | stats by (node) count() as hits
+                    | filter hits:>10
+                  labels:
+                    severity: warning
+                    category: storage
+                  annotations:
+                    summary: "Ceph client authentication failing on {{ $labels.node }}"
+                    description: |-
+                      {{ $value }} failures in 30 minutes. A kernel RBD session is
+                      using a cephx identity that no longer exists; remounting the
+                      affected volume clears it.
+
+            # The other half of the VmalertDown symmetry in prometheusrule.yaml:
+            # Prometheus cannot alert on its own death either. vmalert is a
+            # separate process reading a separate store, so it survives it.
+            # Silence is a safe signal here -- the container logs continuously
+            # (~1000 lines per 10 min at steady state).
+            - name: prometheus-deadman
+              type: vlogs
+              interval: 1m
+              rules:
+                - alert: PrometheusDeadman
+                  expr: >-
+                    kubernetes.container_name:"prometheus" AND _time:15m
+                    | stats count() as hits
+                    | filter hits:<1
+                  labels:
+                    severity: critical
+                    category: observability
+                  annotations:
+                    summary: "Prometheus has logged nothing for 15 minutes"
+                    description: |-
+                      Nothing from the prometheus container. It is down, wedged,
+                      or its node is gone -- and nothing it evaluates is firing.

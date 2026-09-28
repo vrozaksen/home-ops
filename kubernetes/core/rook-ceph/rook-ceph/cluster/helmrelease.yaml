@@ -99,8 +99,10 @@ spec:
             enabled: false  # not using NFS-Ganesha exports
           - name: pg_autoscaler
             enabled: true
+          # Rook recommends disabling this before Ceph Tentacle (v20); it has
+          # known stability issues there. Costs a few dashboard pages we do not use.
           - name: rook
-            enabled: true
+            enabled: false
       network:
         provider: host
         addressRanges:

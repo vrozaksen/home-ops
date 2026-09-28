@@ -33,6 +33,12 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["mirror.gcr.io/envoyproxy/envoy"],
       "extractVersion": "^distroless-(?<version>.+)$"
+    },
+    {
+      "description": "Ceph encodes stability in the minor: x.0.z is dev, x.1.z is a release candidate, only x.2.z is stable. Semver reads v21.1.1 as newer than v19.2.6 and kept opening PRs for an RC",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["quay.io/ceph/ceph"],
+      "allowedVersions": "/^v\\d+\\.2\\.\\d+$/"
     }
   ]
 }

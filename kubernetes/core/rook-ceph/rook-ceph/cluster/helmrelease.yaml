@@ -44,7 +44,7 @@ spec:
             namespace: network
     cephImage:
       repository: quay.io/ceph/ceph
-      tag: v19.2.6
+      tag: v20.2.4
     cephClusterSpec:
       # CVE-2025-30156: closed once the mons issue aes256k tickets, which daemon
       # rotation delivers; clients may stay on aes after that.

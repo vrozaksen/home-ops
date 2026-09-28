@@ -179,10 +179,12 @@ spec:
         ports:
           http:
             port: *port
+          metrics:
+            port: 9394
     serviceMonitor:
       app:
         endpoints:
-          - port: http
+          - port: metrics
             scheme: http
             path: /metrics
             interval: 1m

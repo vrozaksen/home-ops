@@ -1,0 +1,69 @@
+---
+name: wazuh-agent
+
+# Endpoint telemetry for the one host that is actually exposed to the internet.
+# Reaches the in-cluster manager over the towonel tunnel: the hub listens on
+# 1514/1515 for the TCP services declared by towonel-agent, and this container
+# talks to it over the `edge` network. Nothing is published to the host, so the
+# enrolment port stays off the public interface.
+
+services:
+  wazuh-agent:
+    # renovate: datasource=docker depName=wazuh/wazuh-agent
+    image: wazuh/wazuh-agent:4.14.7
+    container_name: wazuh-agent
+    restart: unless-stopped
+    # NO `pid: host`. This image runs s6, whose shutdown signals every process
+    # in its PID namespace -- sharing the host's turns `docker stop` into a kill
+    # of the entire machine's userspace. It did exactly that to the NAS.
+    cap_add:
+      - DAC_READ_SEARCH
+    environment:
+      TZ: Europe/Warsaw
+      # The agent drops to its own user before reading the password, so passing
+      # it as a file would need world-readable permissions. The image's init
+      # writes this to authd.pass itself, owned root:wazuh.
+      WAZUH_REGISTRATION_PASSWORD: ${WAZUH_REGISTRATION_PASSWORD}
+    volumes:
+      - ./config/ossec.conf:/wazuh-config-mount/etc/ossec.conf:ro
+      # Named volumes, not bind mounts: docker seeds them from the image on
+      # first use. client.keys lives here, so losing it means re-enrolling.
+      - wazuh-agent-etc:/var/ossec/etc
+      - wazuh-agent-queue:/var/ossec/queue
+      # journald reads the host's journal; without machine-id it would only find
+      # the container's own, which is empty.
+      - /var/log/journal:/var/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      # Watched by FIM under /host: mounting the host's /etc over the
+      # container's own would replace the passwd and resolv.conf it needs.
+      - /etc:/host/etc:ro
+      - /root:/host/root:ro
+      - /home:/home:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "/var/ossec/bin/wazuh-control status | grep -q 'wazuh-agentd is running'"
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  wazuh-agent-etc:
+  wazuh-agent-queue:
+
+networks:
+  default:
+    name: edge
+    external: true

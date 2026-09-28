@@ -135,6 +135,20 @@ spec:
             <format>json</format>
             <level>7</level>
           </syslog_output>
+          <ruleset>
+            <list>etc/lists/intel/abuseipdb</list>
+          </ruleset>
+        # The list has to be registered above and present on disk before the
+        # manager starts: it compiles declared lists into .cdb at boot and there
+        # is no makelists binary in this image, so a running manager will not
+        # pick up a replacement. Hence an initContainer, not a sidecar -- the
+        # list refreshes whenever the pod restarts.
+        additionalVolumes:
+          - name: intel-lists
+            emptyDir: {}
+        additionalVolumeMounts:
+          - name: intel-lists
+            mountPath: /var/ossec/etc/lists/intel
         networkPolicy:
           enabled: false
         # The chart ships only 1515 and 55000; agents also need 1514 to report
@@ -173,6 +187,41 @@ spec:
       # Four agents do not need a manager cluster.
       worker:
         enabled: false
+
+      # Populates the CDB list before the manager boots and compiles it. Fails
+      # soft: intel-hub answers 503 until it holds a snapshot, and an empty list
+      # would only cost enrichment -- never worth blocking the manager over.
+      extraInitContainers:
+        - name: fetch-intel-list
+          image: docker.io/curlimages/curl:8.16.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              curl -sSf --max-time 60 -o /lists/abuseipdb \
+                http://intel-hub.security.svc.cluster.local:8080/abuseipdb \
+                || echo "intel-hub unavailable, starting without the list"
+              touch /lists/abuseipdb
+          volumeMounts:
+            - name: intel-lists
+              mountPath: /lists
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+
+      # Raises the level when a source already known for abuse shows up, so it
+      # crosses the threshold the vmalert rule pages on. The edge already drops
+      # these for inbound WAN traffic -- this catches what does not pass the
+      # router, which is everything bifrost sees.
+      localRules: |
+        <group name="local,threat_intel,">
+          <rule id="100200" level="12">
+            <if_matched_sid>5710</if_matched_sid>
+            <list field="srcip" lookup="address_match_key">etc/lists/intel/abuseipdb</list>
+            <description>Connection attempt from an address on the AbuseIPDB blacklist</description>
+          </rule>
+        </group>
 
     # The bundled DaemonSet runs privileged with /proc, /sys, /etc and /boot from
     # the host, which PSA baseline rejects here. It would also see very little on

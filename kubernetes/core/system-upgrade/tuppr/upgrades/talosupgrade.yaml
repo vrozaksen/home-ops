@@ -18,7 +18,7 @@ spec:
   hooks:
     pre:
       - name: ceph-noout-set
-        image: registry.k8s.io/kubectl:v1.37.0
+        image: registry.k8s.io/kubectl:v1.37.1
         serviceAccountName: tuppr-ceph-hook
         command:
           - kubectl
@@ -32,7 +32,7 @@ spec:
           - noout
     post:
       - name: ceph-noout-unset
-        image: registry.k8s.io/kubectl:v1.37.0
+        image: registry.k8s.io/kubectl:v1.37.1
         serviceAccountName: tuppr-ceph-hook
         command:
           - kubectl

@@ -136,8 +136,14 @@ jobs:
             echo "Source: ${{ steps.source.outputs.url }}"
             echo
             echo "#### Signals"
+            # Upstream notes credit authors as @name and link PRs as #123.
+            # Pasted verbatim those become real notifications for people who
+            # have nothing to do with this repo -- two maintainers asked us to
+            # stop. Defuse them the way Renovate does, with a zero-width space.
             grep -inE 'breaking|no longer|removed|renamed|deprecat|must (now|be)|default (is|changed)' notes.md \
-              | head -25 | sed 's/^/- /' || echo "_none matched_"
+              | head -25 \
+              | python3 -c "import re,sys;sys.stdout.writelines('- '+re.sub(r'(?<=[@#])(?=[A-Za-z0-9])','&#8203;',l) for l in sys.stdin)" \
+              || echo "_none matched_"
             echo
             if [ -s hits.md ]; then
               echo "#### Mentioned identifiers found in this repo"

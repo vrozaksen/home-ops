@@ -41,3 +41,18 @@ spec:
               (new endpoints, route changes) will reach this proxy.
           labels:
             severity: warning
+
+        - alert: EnvoyConfigRejected
+          expr: sum by (nodeID, typeURL) (increase(xds_nack_total[15m])) > 0
+          annotations:
+            summary: >-
+              Envoy {{ $labels.nodeID }} rejected an xDS update ({{ $labels.typeURL }})
+            description: |-
+              Envoy sent a NACK, so it refused the config envoy-gateway pushed and is still
+              running the last one it accepted. Unlike EnvoyControlPlaneDisconnected the
+              stream is healthy, so nothing else reports a problem while route or endpoint
+              changes silently stop landing on this proxy.
+              Check the envoy-gateway logs for the rejection reason, then the proxy's
+              config_dump on :19000 to see how far behind it is.
+          labels:
+            severity: warning

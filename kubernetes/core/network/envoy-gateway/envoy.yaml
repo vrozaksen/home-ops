@@ -34,6 +34,9 @@ spec:
         externalTrafficPolicy: Local
   shutdown:
     drainTimeout: 180s
+    # With externalTrafficPolicy: Local the LB drops the node only after its own
+    # check interval; at the 0s default Envoy stops listening first and refuses.
+    healthCheckFailureDelay: 5s
   telemetry:
     metrics:
       prometheus:

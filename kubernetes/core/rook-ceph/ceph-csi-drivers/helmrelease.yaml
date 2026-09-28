@@ -53,6 +53,7 @@ spec:
           name: rook-csi-operator-image-set-configmap
         fsGroupPolicy: File
         cephFsClientType: kernel
+        snapshotPolicy: volumeSnapshot
         deployCsiAddons: false
         generateOMapInfo: false
         log:

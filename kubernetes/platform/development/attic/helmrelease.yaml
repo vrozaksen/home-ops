@@ -72,7 +72,7 @@ spec:
                 cpu: 50m
                 memory: 128Mi
               limits:
-                memory: 512Mi
+                memory: 2Gi
       # GC — single instance, runs sweep every 12h. No HTTP port, no probes.
       gc:
         replicas: 1

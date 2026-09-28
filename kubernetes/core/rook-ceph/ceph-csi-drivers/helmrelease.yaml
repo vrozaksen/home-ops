@@ -1,0 +1,135 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: ceph-csi-drivers
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.0.5
+  url: oci://ghcr.io/home-operations/charts-mirror/ceph-csi-drivers
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ceph-csi-drivers
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: ceph-csi-drivers
+  # rook 1.20 removed the csi.* values that fed CSI_* into rook-ceph-operator-config,
+  # so the operator no longer writes the Driver CRs. These values reproduce the CR
+  # rook 1.19 left behind; chart defaults would otherwise overwrite it on adoption.
+  values:
+    operatorConfig:
+      namespace: rook-ceph
+      driverSpecDefaults:
+        clusterName: rook-ceph
+        imageSet:
+          name: rook-csi-operator-image-set-configmap
+        # Chart default is on; the live CR has no rotation config.
+        log:
+          rotation:
+            enabled: false
+        nodePlugin:
+          priorityClassName: system-node-critical
+        controllerPlugin:
+          priorityClassName: system-cluster-critical
+    drivers:
+      rbd:
+        enabled: true
+        name: rook-ceph.rbd.csi.ceph.com
+        # Both must be set per-driver, not only in driverSpecDefaults -- that
+        # block feeds OperatorConfig and never reaches the Driver CR. imageSet
+        # is the ConfigMap rook keeps the CSI image versions in.
+        clusterName: rook-ceph
+        imageSet:
+          name: rook-csi-operator-image-set-configmap
+        fsGroupPolicy: File
+        cephFsClientType: kernel
+        deployCsiAddons: false
+        generateOMapInfo: false
+        log:
+          rotation:
+            enabled: false
+        nodePlugin:
+          priorityClassName: system-node-critical
+          kubeletDirPath: /var/lib/kubelet
+          enableSeLinuxHostMount: false
+          # Required: saga and skuld hold RBD volumes, so the nodeplugin has to
+          # run on the control planes too. Losing this strands them at remount.
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          # Right-sized against real usage; chart defaults reserve far more and
+          # the workers already sit near 100% of requestable CPU.
+          resources:
+            plugin:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            registrar:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+        controllerPlugin:
+          priorityClassName: system-cluster-critical
+          replicas: 2
+          resources:
+            attacher:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+            omapGenerator:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            plugin:
+              requests:
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            provisioner:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+            resizer:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+            snapshotter:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+      # All default to true in the chart. Only the RBD driver exists here, and
+      # each extra one would add a DaemonSet plus a 2-replica Deployment.
+      cephfs:
+        enabled: false
+        name: rook-ceph.cephfs.csi.ceph.com
+      nfs:
+        enabled: false
+        name: rook-ceph.nfs.csi.ceph.com
+      nvmeof:
+        enabled: false
+        name: rook-ceph.nvmeof.csi.ceph.com

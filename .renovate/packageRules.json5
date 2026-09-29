@@ -35,6 +35,14 @@
       "extractVersion": "^distroless-(?<version>.+)$"
     },
     {
+      // siderolabs pushes the git tag before publishing the release, and mise
+      // pulls talosctl from the release assets -- so a tag-only version 404s and
+      // breaks Setup Mise in every workflow. Wait for the assets to exist.
+      "description": "Let Talos releases settle before bumping talosctl",
+      "matchPackageNames": ["/talosctl/", "/siderolabs/talos/"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
       "description": "Ceph encodes stability in the minor: x.0.z is dev, x.1.z is a release candidate, only x.2.z is stable. Semver reads v21.1.1 as newer than v19.2.6 and kept opening PRs for an RC",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["quay.io/ceph/ceph"],

@@ -193,7 +193,7 @@ spec:
       # would only cost enrichment -- never worth blocking the manager over.
       extraInitContainers:
         - name: fetch-intel-list
-          image: docker.io/curlimages/curl:8.16.0
+          image: docker.io/curlimages/curl:8.22.0
           command:
             - /bin/sh
             - -c

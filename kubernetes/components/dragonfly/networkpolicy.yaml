@@ -23,3 +23,40 @@ spec:
       ports:
         - port: 9999
           protocol: TCP
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/networking.k8s.io/networkpolicy_v1.json
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ${APP}-dragonfly-access
+spec:
+  podSelector:
+    matchLabels:
+      app: ${APP}-dragonfly
+      app.kubernetes.io/name: dragonfly
+      app.kubernetes.io/part-of: dragonfly
+  policyTypes:
+    - Ingress
+  ingress:
+    # Redis port, only from workloads sharing the namespace with this instance.
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 6379
+          protocol: TCP
+    # Admin port: the operator reconciling the instance, and sibling replicas.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: database
+          podSelector:
+            matchLabels:
+              control-plane: controller-manager
+        - podSelector:
+            matchLabels:
+              app: ${APP}-dragonfly
+              app.kubernetes.io/name: dragonfly
+              app.kubernetes.io/part-of: dragonfly
+      ports:
+        - port: 9999
+          protocol: TCP

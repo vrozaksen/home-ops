@@ -10,7 +10,7 @@ name: wazuh-agent
 services:
   wazuh-agent:
     # renovate: datasource=docker depName=wazuh/wazuh-agent
-    image: wazuh/wazuh-agent:4.14.7
+    image: wazuh/wazuh-agent:4.14.8
     container_name: wazuh-agent
     restart: unless-stopped
     # NO `pid: host`. This image runs s6, whose shutdown signals every process

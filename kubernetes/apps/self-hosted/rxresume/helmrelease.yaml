@@ -14,8 +14,6 @@ spec:
       rxresume:
         annotations:
           reloader.stakater.com/auto: "true"
-        # Unpark stage 1: restore DB only; pre-flight + backup before migrations run
-        replicas: 0
         containers:
           app:
             image:

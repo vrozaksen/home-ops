@@ -34,11 +34,11 @@ default:
 onboard user name email +groups="users":
     #!/usr/bin/env bash
     set -euo pipefail
-    kanidm person create {{user}} "{{name}}" -D idm_admin
-    kanidm person update {{user}} --mail {{email}} -D idm_admin
-    for g in {{groups}}; do kanidm group add-members "$g" {{user}} -D idm_admin; done
+    kanidm person create {{user}} "{{name}}"
+    kanidm person update {{user}} --mail {{email}}
+    for g in {{groups}}; do kanidm group add-members "$g" {{user}}; done
     echo "### reset link for {{user}} ###"
-    kanidm person credential create-reset-token {{user}} -D idm_admin
+    kanidm person credential create-reset-token {{user}}
 
 # Bulk onboard from CSV: username,Full Name,email,space-separated-groups (path relative to where you run just)
 bulk file:
@@ -47,37 +47,37 @@ bulk file:
     cd "{{invocation_directory()}}"
     while IFS=, read -r user name mail groups; do
       [ -z "$user" ] && continue
-      kanidm person create "$user" "$name" -D idm_admin
-      kanidm person update "$user" --mail "$mail" -D idm_admin
-      for g in $groups; do kanidm group add-members "$g" "$user" -D idm_admin; done
+      kanidm person create "$user" "$name"
+      kanidm person update "$user" --mail "$mail"
+      for g in $groups; do kanidm group add-members "$g" "$user"; done
       echo "### reset link for $user ###"
-      kanidm person credential create-reset-token "$user" -D idm_admin
+      kanidm person credential create-reset-token "$user"
     done < {{file}}
 
 # (Re)issue a credential reset link (e.g. lost passkey)
 reset user:
-    kanidm person credential create-reset-token {{user}} -D idm_admin
+    kanidm person credential create-reset-token {{user}}
 
 # Add a person to a group
 group-add group user:
-    kanidm group add-members {{group}} {{user}} -D idm_admin
+    kanidm group add-members {{group}} {{user}}
 
 # Remove a person from a group
 group-rm group user:
-    kanidm group remove-members {{group}} {{user}} -D idm_admin
+    kanidm group remove-members {{group}} {{user}}
 
 # List all people
 list:
-    kanidm person list -D idm_admin
+    kanidm person list
 
 # Show one person
 get user:
-    kanidm person get {{user}} -D idm_admin
+    kanidm person get {{user}}
 
 # List members of a group (default "users")
 members group="users":
-    kanidm group list-members {{group}} -D idm_admin
+    kanidm group list-members {{group}}
 
 # Delete a person
 delete user:
-    kanidm person delete {{user}} -D idm_admin
+    kanidm person delete {{user}}

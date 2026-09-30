@@ -80,7 +80,15 @@ spec:
       port: 80
       allowedRoutes:
         namespaces:
-          from: Same
+          # network for the HTTPS redirect, omnichassis for cert-manager HTTP-01 solvers
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - network
+                  - omnichassis
     - name: https
       protocol: HTTPS
       port: 443
@@ -91,6 +99,28 @@ spec:
         certificateRefs:
           - kind: Secret
             name: vzkn-eu-tls
+    # Separate listeners so a missing omnichassis certificate cannot affect vzkn.eu.
+    - name: https-omnichassis
+      protocol: HTTPS
+      port: 443
+      hostname: omnichassis.dev
+      allowedRoutes: &omnichassisRoutes
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: omnichassis
+      tls: &omnichassisTls
+        certificateRefs:
+          - kind: Secret
+            name: omnichassis-dev-tls
+            namespace: omnichassis
+    - name: https-omnichassis-sub
+      protocol: HTTPS
+      port: 443
+      hostname: "*.omnichassis.dev"
+      allowedRoutes: *omnichassisRoutes
+      tls: *omnichassisTls
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1

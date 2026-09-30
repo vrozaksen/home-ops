@@ -30,3 +30,13 @@ spec:
         selector:
           dnsZones:
             - vzkn.eu
+      # Zones outside OVH (DNS at another provider) solve over HTTP-01, no wildcards.
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: envoy-external
+                namespace: network
+                sectionName: http
+        selector:
+          dnsZones:
+            - omnichassis.dev

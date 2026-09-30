@@ -1,0 +1,45 @@
+---
+# Flux applies Omnichassis/infra as this account, so that repository can only
+# change its own namespace.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnichassis-infra
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnichassis-infra-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+  - kind: ServiceAccount
+    name: omnichassis-infra
+---
+# The built-in admin role does not aggregate Gateway API resources.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: omnichassis-infra-gateway
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - httproutes
+      - referencegrants
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnichassis-infra-gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: omnichassis-infra-gateway
+subjects:
+  - kind: ServiceAccount
+    name: omnichassis-infra

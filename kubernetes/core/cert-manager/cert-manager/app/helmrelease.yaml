@@ -29,6 +29,10 @@ spec:
     crds:
       enabled: true
     replicaCount: 1
+    config:
+      apiVersion: controller.config.cert-manager.io/v1alpha1
+      kind: ControllerConfiguration
+      enableGatewayAPI: true
     dns01RecursiveNameservers: https://dns.quad9.net:443/dns-query
     dns01RecursiveNameserversOnly: true
     prometheus:

@@ -259,6 +259,11 @@ spec:
           autoDiscoverUrl: "https://idm.vzkn.eu/oauth2/openid/forgejo/.well-known/openid-configuration"
           scopes: "openid email profile groups"
           iconUrl: "https://idm.vzkn.eu/pkg/img/logo-square.svg"
+          # Kanidm group claims are SPNs. Membership syncs on every login;
+          # removal only touches mapped teams, so Owners stays manual.
+          groupClaimName: groups
+          groupTeamMap: '{"omnichassis@idm.vzkn.eu": {"Omnichassis": ["Developers"]}}'
+          groupTeamMapRemoval: true
       additionalConfigFromEnvs:
         - name: GITEA__DATABASE__HOST
           value: pooler-forgejo-rw

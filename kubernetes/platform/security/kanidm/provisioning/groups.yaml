@@ -17,7 +17,8 @@ data:
         "users":          { "present": true, "members": [], "overwriteMembers": false },
         "admins":         { "present": true, "members": [], "overwriteMembers": false },
         "ff":             { "present": true, "members": [], "overwriteMembers": false },
-        "household":      { "present": true, "members": [], "overwriteMembers": false }
+        "household":      { "present": true, "members": [], "overwriteMembers": false },
+        "omnichassis":    { "present": true, "members": [], "overwriteMembers": false }
       },
       "persons": {},
       "systems": { "oauth2": {} }

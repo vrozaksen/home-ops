@@ -26,3 +26,32 @@ spec:
     - name: plane-mcp-secret
       key: PLANE_API_KEY
       targetEnvName: PLANE_API_KEY
+---
+# Same image and token as `plane`; the server binds one workspace per process.
+# The API key is user-scoped (api_tokens.workspace_id is NULL), so it reaches
+# every workspace the owner is a member of.
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: plane-omnichassis
+spec:
+  image: docker.io/makeplane/plane-mcp-server:stable@sha256:87a5dbd0fcf0e6d0e271bdabd7a55b377915b550b588f94b22d5c6c55eb69e1e
+  transport: stdio
+  proxyPort: 8080
+  args:
+    - stdio
+  groupRef:
+    name: mcp-tools
+  permissionProfile:
+    type: builtin
+    name: network
+  env:
+    - name: PLANE_BASE_URL
+      value: https://plane.vzkn.eu
+    - name: PLANE_WORKSPACE_SLUG
+      value: omnichassis
+  secrets:
+    - name: plane-mcp-secret
+      key: PLANE_API_KEY
+      targetEnvName: PLANE_API_KEY

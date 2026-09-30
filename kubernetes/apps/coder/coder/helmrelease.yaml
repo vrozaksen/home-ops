@@ -98,6 +98,9 @@ spec:
           value: groups
         - name: CODER_OIDC_GROUP_AUTO_CREATE
           value: "true"
+        # Short Coder group names for template ACLs.
+        - name: CODER_OIDC_GROUP_MAPPING
+          value: '{"omnichassis@idm.vzkn.eu": "omnichassis"}'
         - name: CODER_OIDC_USER_ROLE_FIELD
           value: groups
         - name: CODER_OIDC_USER_ROLE_MAPPING

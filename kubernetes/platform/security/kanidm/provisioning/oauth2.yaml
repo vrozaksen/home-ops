@@ -16,7 +16,10 @@ data:
           "present": true, "displayName": "Coder",
           "originUrl": "https://coder.vzkn.eu/api/v2/users/oidc/callback",
           "originLanding": "https://coder.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "scopeMaps": {
+            "users": ["openid", "email", "profile", "groups"],
+            "omnichassis": ["openid", "email", "profile", "groups"]
+          },
           "preferShortUsername": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/coder.svg" }
         }
@@ -81,7 +84,10 @@ data:
           "present": true, "displayName": "Forgejo",
           "originUrl": "https://git.vzkn.eu/user/oauth2/kanidm/callback",
           "originLanding": "https://git.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "scopeMaps": {
+            "users": ["openid", "email", "profile", "groups"],
+            "omnichassis": ["openid", "email", "profile", "groups"]
+          },
           "k8s": { "clientIdKey": "key", "clientSecretKey": "secret", "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/forgejo.svg" }
         }
       } } }

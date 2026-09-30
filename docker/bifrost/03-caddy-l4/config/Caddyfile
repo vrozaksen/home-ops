@@ -50,9 +50,14 @@
 					upstream 127.0.0.1:8080
 				}
 			}
+			# Edge treats caddy as a trusted peer (TOWONEL_EDGE_PROXY_PROTOCOL) and drops
+			# connections without a PROXY v2 header, which broke ACME HTTP-01.
 			@http http
 			route @http {
-				proxy towonel-hub:8081
+				proxy {
+					proxy_protocol v2
+					upstream towonel-hub:8081
+				}
 			}
 		}
 	}

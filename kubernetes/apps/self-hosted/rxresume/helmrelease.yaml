@@ -14,13 +14,17 @@ spec:
       rxresume:
         annotations:
           reloader.stakater.com/auto: "true"
+        # Unpark stage 1: restore DB only; pre-flight + backup before migrations run
+        replicas: 0
         containers:
           app:
             image:
-              repository: ghcr.io/amruthpillai/reactive-resume
-              tag: v5.3.0@sha256:c487ec5edcfe054bcb312fcd498f868e56f274756d0046b01c83f210855017ab
+              repository: ghcr.io/reactive-resume/reactive-resume
+              tag: v5.3.2@sha256:b433dbe2fa2c23bfb7734d16380e4d703a05349db096113a18cb13b16f4c1fa0
             env:
               NODE_ENV: "production"
+              # Refuse startup if post-migration schema check finds missing tables
+              STRICT_SCHEMA_CHECK: "true"
               # URLs
               APP_URL: https://rxresume.vzkn.eu
               # S3 Storage

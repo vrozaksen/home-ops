@@ -227,4 +227,50 @@ spec:
       isDefault: false
       deletionPolicy: Delete
     cephFileSystems: []
-    cephObjectStores: []
+    # RGW alongside Garage, for buckets that are better off in-cluster.
+    # Never for kopiur: backing up Ceph-hosted PVCs into Ceph defeats the point.
+    cephObjectStores:
+      - name: ceph-objectstore
+        spec:
+          metadataPool:
+            failureDomain: host
+            replicated:
+              size: 3
+            parameters:
+              # An objectstore brings ~7 pools. At the 32 PG default that is
+              # 278 PG/OSD against a 250 hard cap, so creation would fail.
+              # Start at 8 (110/OSD) and let the autoscaler grow them.
+              pg_num: "8"
+              pg_num_min: "8"
+          dataPool:
+            failureDomain: host
+            erasureCoded:
+              dataChunks: 2
+              codingChunks: 1
+            parameters:
+              # 3 hosts with 1 OSD each: the EC default would block writes while a
+              # host is down. Allow writes on k shards, as ceph-pool-thin does.
+              min_size: "2"
+              pg_num: "8"
+              pg_num_min: "8"
+          preservePoolsOnDelete: true
+          gateway:
+            port: 80
+            instances: 2
+            priorityClassName: system-cluster-critical
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+          healthCheck:
+            bucket:
+              interval: 60s
+        storageClass:
+          enabled: true
+          name: ceph-bucket
+          reclaimPolicy: Delete
+          volumeBindingMode: Immediate
+          parameters:
+            region: eu-central-1

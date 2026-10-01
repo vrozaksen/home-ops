@@ -193,7 +193,7 @@ spec:
             csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
             csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
             csi.storage.k8s.io/fstype: ext4
-      # Two copies for apps that replicate themselves (CNPG, Kafka, ClickHouse).
+      # Two copies for apps that replicate themselves (CNPG).
       # Not one: an RBD image stripes across every OSD, so one OSD down took all.
       - name: ceph-pool-thin
         spec:
@@ -202,6 +202,10 @@ spec:
             size: 2
           parameters:
             min_size: "1"
+            # Postgres does not compress its data dir or local WAL -- barman only
+            # compresses what it ships to S3. Same placement caveat as above.
+            compression_mode: aggressive
+            compression_algorithm: zstd
         storageClass:
           enabled: true
           name: ceph-block-thin

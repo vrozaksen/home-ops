@@ -26,9 +26,6 @@ spec:
   values:
     coder:
       replicaCount: 1
-      envFrom:
-        - secretRef:
-            name: coder-secret
       env:
         # CNPG generates a ready connection string; no need to compose one.
         - name: CODER_PG_CONNECTION_URL

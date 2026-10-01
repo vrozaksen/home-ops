@@ -15,8 +15,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/vrozaksen/red-lavalink
-              tag: 3.7.13@sha256:c40674e8aed99e6ca742611ea5d4c495f8c3846073a3170c4ef9053a84e612df
+              repository: registry.vzkn.eu/containers/red-lavalink
+              tag: 3.7.13@sha256:d3ca248cd4af9db19c80671920a62f46568b749549c9512b290f156553e07b91
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000

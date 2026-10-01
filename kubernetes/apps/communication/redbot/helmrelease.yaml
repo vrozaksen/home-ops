@@ -20,7 +20,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/vrozaksen/red-discordbot
+              repository: registry.vzkn.eu/containers/red-discordbot
               tag: 3.5.24@sha256:0d1897b41cf467982dda5ad505caf95cb30dd231ae20c96fe5e5c076f9e755aa
             env:
               PREFIX: "."

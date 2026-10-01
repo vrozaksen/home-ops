@@ -18,7 +18,7 @@ releases:
   - name: external-dns
     namespace: network
     chart: oci://ghcr.io/home-operations/charts-mirror/external-dns
-    version: 1.22.0
+    version: 1.23.0
     values:
       - policy: sync  # chart schema rejects null policy
 

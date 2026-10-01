@@ -32,9 +32,6 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: security
             app.kubernetes.io/name: kanidm
-        - matchLabels:
-            io.kubernetes.pod.namespace: sentry
-            app.kubernetes.io/name: sentry
       toPorts:
         - ports:
             - protocol: TCP

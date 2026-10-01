@@ -7,8 +7,6 @@ locals {
     "kopiur",
     "plane",
     "rxresume",
-    "sentry",
-    "tekton-results-logs",
     "tfstate-mikrotik-terraform"
   ]
 }

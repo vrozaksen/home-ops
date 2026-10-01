@@ -13,7 +13,9 @@ spec:
     controllers:
       forge:
         type: deployment
-        replicas: 1
+        # Scaled to zero: never adopted it, and it reserved 2Gi on workers that
+        # sit at 92-98% memory. Kept in git so it can be raised again.
+        replicas: 0
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"

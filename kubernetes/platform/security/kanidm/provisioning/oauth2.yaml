@@ -294,11 +294,13 @@ metadata:
     reloader.stakater.com/match: "true"
 data:
   targetNamespace: sentry
+  # Sentry is archived; present:false makes kanidm delete the client instead of
+  # leaving a credential that still authenticates. Drop this ConfigMap once gone.
   oauth2.json: |
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "sentry": {
-          "present": true, "displayName": "Sentry",
+          "present": false, "displayName": "Sentry",
           "originUrl": "https://sentry.vzkn.eu/auth/sso/",
           "originLanding": "https://sentry.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },

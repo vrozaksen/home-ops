@@ -58,10 +58,6 @@ spec:
           value: "true"
         - name: CODER_STRICT_TRANSPORT_SECURITY
           value: "31536000"
-        # Pins every request to the canonical host, so a stray Host header
-        # cannot drive the app.
-        - name: CODER_REDIRECT_TO_ACCESS_URL
-          value: "true"
         # Without these the client IP in audit and connection logs is Envoy's.
         - name: CODER_PROXY_TRUSTED_HEADERS
           value: X-Forwarded-For

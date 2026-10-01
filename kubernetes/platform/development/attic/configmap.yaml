@@ -25,7 +25,9 @@ data:
     type = "s3"
     region = "eu-central-1"
     bucket = "attic"
-    endpoint = "https://api.s3.vzkn.eu"
+    # Ceph RGW, in-cluster. RGW does not enforce the signing region, so the
+    # eu-central-1 above stays valid even though the zonegroup is ceph-objectstore.
+    endpoint = "http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:80"
 
     # Upstream defaults — best dedup ratio across NARs with shared deps.
     # WARNING: changing these later breaks dedup for existing chunks.

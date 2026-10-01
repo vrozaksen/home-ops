@@ -37,6 +37,18 @@ spec:
                   secretKeyRef:
                     name: postgres-attic-app
                     key: uri
+              # S3 creds from the OBC. env wins over envFrom, so these override
+              # the Garage keys attic-secret still carries.
+              AWS_ACCESS_KEY_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: attic-bucket
+                    key: AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: attic-bucket
+                    key: AWS_SECRET_ACCESS_KEY
             envFrom: &envFrom
               - secretRef:
                   name: attic-secret

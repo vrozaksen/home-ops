@@ -155,7 +155,7 @@ spec:
           kubernetes.io/hostname: alfheim
         resources:
           requests:
-            cpu: 525m
+            cpu: 430m
             memory: 4Gi
           limits:
             memory: 8Gi

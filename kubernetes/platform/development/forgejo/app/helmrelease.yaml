@@ -131,8 +131,6 @@ spec:
           CRUD_ACTIONS: pubkey, parentsigned
           WIKI: never
           MERGES: pubkey
-        lfs:
-          PATH: /data/git/lfs
         security:
           PASSWORD_HASH_ALGO: argon2
           PASSWORD_COMPLEXITY: lower,upper,digit,spec
@@ -178,10 +176,10 @@ spec:
           FROM: noreply@vzkn.eu
         storage:
           STORAGE_TYPE: minio
-          MINIO_ENDPOINT: api.s3.vzkn.eu
+          MINIO_ENDPOINT: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:80
           MINIO_BUCKET: forgejo
           MINIO_LOCATION: eu-central-1
-          MINIO_USE_SSL: true
+          MINIO_USE_SSL: false
         cron:
           ENABLED: true
         cron.archive_cleanup:
@@ -287,16 +285,17 @@ spec:
             secretKeyRef:
               name: forgejo-secret
               key: SECRET_KEY
+        # Provisioned by the ceph-bucket OBC, not Infisical.
         - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: forgejo-secret
-              key: MINIO_ACCESS_KEY_ID
+              name: forgejo-bucket
+              key: AWS_ACCESS_KEY_ID
         - name: GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: forgejo-secret
-              key: MINIO_SECRET_ACCESS_KEY
+              name: forgejo-bucket
+              key: AWS_SECRET_ACCESS_KEY
       podAnnotations:
         reloader.stakater.com/search: "true"
 

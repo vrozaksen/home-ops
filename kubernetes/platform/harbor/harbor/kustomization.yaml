@@ -7,3 +7,4 @@ resources:
   - ./infisicalpushsecret.yaml
   - ./helmrepository.yaml
   - ./helmrelease.yaml
+  - ./objectbucketclaim.yaml

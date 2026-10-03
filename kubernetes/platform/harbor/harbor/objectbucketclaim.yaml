@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/objectbucket.io/objectbucketclaim_v1alpha1.json
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: harbor-bucket
+spec:
+  bucketName: harbor
+  storageClassName: ceph-bucket

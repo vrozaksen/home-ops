@@ -1,8 +1,6 @@
 locals {
   buckets = [
     "cnpg",
-    "forgejo",
-    "harbor",
     "kopiur",
     "plane",
     "rxresume",

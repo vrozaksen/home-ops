@@ -31,6 +31,8 @@ data "infisical_secrets" "provider_auth" {
   # template-admin; login-type none needs Premium service accounts)
 }
 
+# Templates go in ./templates/<name>/, each published by a coderd_template
+# resource whose versions[].directory points at it.
 provider "coderd" {
   url   = var.coder_url
   token = data.infisical_secrets.provider_auth.secrets["CODER_TOFU_TOKEN"].value

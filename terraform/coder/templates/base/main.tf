@@ -1,3 +1,6 @@
+# Minimal Kubernetes workspace: persistent home, terminal, SSH, VS Code Desktop.
+# Starting point for new templates -- copy the directory, swap the image, add
+# coder_app resources for whatever the image serves.
 terraform {
   required_providers {
     coder = {
@@ -27,9 +30,9 @@ data "coder_workspace_owner" "me" {}
 data "coder_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU limit"
-  description  = "Cores a simulation may burst to. The request stays small."
+  description  = "Cores the workspace may burst to. The request stays small."
   type         = "number"
-  default      = "4"
+  default      = "2"
   mutable      = true
   order        = 1
   option {
@@ -39,10 +42,6 @@ data "coder_parameter" "cpu" {
   option {
     name  = "4 cores"
     value = "4"
-  }
-  option {
-    name  = "5 cores"
-    value = "5"
   }
 }
 
@@ -98,26 +97,15 @@ resource "coder_agent" "main" {
   arch = "amd64"
   os   = "linux"
 
-  # Examples are seeded once and never overwritten, so edits survive restarts.
-  # Jupyter binds to loopback only: the agent tunnel is its sole way in.
+  # The home PVC hides the image's skeleton dotfiles; seed them once.
+  # Start long-running services here with nohup and expose them via coder_app.
   startup_script = <<-EOT
     set -e
     cp -r --update=none /etc/skel/. ~/
-    mkdir -p ~/examples
-    cp -r --update=none /opt/rebound/examples/. ~/examples/
-    # start_server() looks for its page in the cwd; link it where notebooks run.
-    ln -sfn /opt/rebound/rebound.html ~/rebound.html
-    ln -sfn /opt/rebound/rebound.html ~/examples/rebound.html
-    nohup jupyter lab --no-browser \
-      --ServerApp.ip=127.0.0.1 --ServerApp.port=8888 \
-      --ServerApp.allow_remote_access=True \
-      --IdentityProvider.token= --ServerApp.password= \
-      --ServerApp.root_dir="$HOME" \
-      > /tmp/jupyter.log 2>&1 &
   EOT
 
   display_apps {
-    vscode          = false
+    vscode          = true
     vscode_insiders = false
     web_terminal    = true
     ssh_helper      = true
@@ -146,33 +134,22 @@ resource "coder_agent" "main" {
   }
 }
 
-resource "coder_app" "jupyter" {
-  agent_id     = coder_agent.main.id
-  slug         = "jupyter"
-  display_name = "JupyterLab"
-  icon         = "/icon/jupyter.svg"
-  url          = "http://localhost:8888"
-  # Path-based apps are disabled server-side (CODER_DISABLE_PATH_APPS).
-  subdomain = true
-  share     = "owner"
-
-  healthcheck {
-    url       = "http://localhost:8888/api"
-    interval  = 5
-    threshold = 20
-  }
-}
-
-# REBOUND's WebGL viewer, live only while a notebook runs sim.start_server().
-resource "coder_app" "viewer" {
-  agent_id     = coder_agent.main.id
-  slug         = "viewer"
-  display_name = "Orbit viewer"
-  icon         = "/emojis/1f30c.png"
-  url          = "http://localhost:1234"
-  subdomain    = true
-  share        = "owner"
-}
+# Pattern for exposing a web UI the image serves on localhost. Path apps are
+# disabled server-side (CODER_DISABLE_PATH_APPS), so subdomain must be true.
+#
+# resource "coder_app" "web" {
+#   agent_id     = coder_agent.main.id
+#   slug         = "web"
+#   display_name = "Web UI"
+#   url          = "http://localhost:8080"
+#   subdomain    = true
+#   share        = "owner"
+#   healthcheck {
+#     url       = "http://localhost:8080/"
+#     interval  = 5
+#     threshold = 20
+#   }
+# }
 
 resource "kubernetes_persistent_volume_claim_v1" "home" {
   metadata {
@@ -236,8 +213,10 @@ resource "kubernetes_deployment_v1" "main" {
         }
 
         container {
-          name              = "dev"
-          image             = "registry.vzkn.eu/containers/rebound:5.2.1@sha256:712fe47c2d6b08221a8e651fa678555caccd98c0cf5935ce06527623e680abff"
+          name = "dev"
+          # Any image works if it has bash, curl and a uid-1000 user. sudo is
+          # blocked by allowPrivilegeEscalation below: bake tools into the image.
+          image             = "docker.io/codercom/enterprise-base:ubuntu@sha256:feefd9a4da419d69b98dce3bce6b9a36030f074b61b5e1bdb7239af1bff14e85"
           image_pull_policy = "IfNotPresent"
           command           = ["sh", "-c", coder_agent.main.init_script]
 
@@ -246,11 +225,10 @@ resource "kubernetes_deployment_v1" "main" {
             value = coder_agent.main.token
           }
 
-          # Idle Jupyter + kernel sits around 300Mi; simulations burst into the limit.
           resources {
             requests = {
-              cpu    = "50m"
-              memory = "384Mi"
+              cpu    = "20m"
+              memory = "256Mi"
             }
             limits = {
               cpu    = data.coder_parameter.cpu.value

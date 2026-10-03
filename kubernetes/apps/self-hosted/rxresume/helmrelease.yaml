@@ -40,6 +40,9 @@ spec:
                   secretKeyRef:
                     name: postgres-rxresume-app
                     key: uri
+              # Allow plain-http private AI base URLs (Ollama on ragnarok, 10.100.0.102:11434).
+              # SSRF surface limited to Kanidm-authenticated users (email auth disabled).
+              FLAG_ALLOW_UNSAFE_AI_BASE_URL: "true"
               # AI agent threads stream through Redis
               REDIS_URL: redis://rxresume-dragonfly.self-hosted.svc.cluster.local:6379/0
               OAUTH_PROVIDER_NAME: Kanidm

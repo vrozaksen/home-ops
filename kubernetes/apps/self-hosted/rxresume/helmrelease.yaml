@@ -40,6 +40,8 @@ spec:
                   secretKeyRef:
                     name: postgres-rxresume-app
                     key: uri
+              # AI agent threads stream through Redis
+              REDIS_URL: redis://rxresume-dragonfly.self-hosted.svc.cluster.local:6379/0
               OAUTH_PROVIDER_NAME: Kanidm
               OAUTH_DISCOVERY_URL: https://idm.vzkn.eu/oauth2/openid/rxresume/.well-known/openid-configuration
               OAUTH_CLIENT_ID:

@@ -57,7 +57,6 @@ spec:
             keyRotationPolicy: KeyGeneration
             # Bump to rotate again; osd reports generation 1 today.
             keyGeneration: 2
-            keyType: aes256k
           csi:
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2

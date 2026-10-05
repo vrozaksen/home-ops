@@ -1,0 +1,20 @@
+---
+apiVersion: kubevirt.io/v1
+kind: KubeVirt
+metadata:
+  name: kubevirt
+spec:
+  certificateRotateStrategy: {}
+  configuration:
+    developerConfiguration:
+      featureGates: []
+    # VMs on RWO ceph-block cannot live-migrate; without this a VM's PDB
+    # would block node drains (reboot-node, tuppr). The VM restarts elsewhere.
+    evictionStrategy: None
+  customizeComponents: {}
+  imagePullPolicy: IfNotPresent
+  # virt-operator creates the ServiceMonitor and PrometheusRule (KubeVirt alerts).
+  monitorAccount: kube-prometheus-stack-prometheus
+  monitorNamespace: observability
+  uninstallStrategy: BlockUninstallIfWorkloadsExist
+  workloadUpdateStrategy: {}

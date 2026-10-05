@@ -31,6 +31,17 @@
     },
     {
       customType: "regex",
+      description: "Process GitHub release asset URLs in Kustomize resources",
+      managerFilePatterns: [
+        "/(^|/)kustomization\\.yaml$/",
+      ],
+      matchStrings: [
+        "https://github\\.com/(?<depName>[^/\\s]+/[^/\\s]+)/releases/download/(?<currentValue>[^/\\s]+)/",
+      ],
+      datasourceTemplate: "github-releases",
+    },
+    {
+      customType: "regex",
       description: "Process Traefik plugin versions in Docker Compose",
       managerFilePatterns: [
         "/docker-compose\\.ya?ml$/",

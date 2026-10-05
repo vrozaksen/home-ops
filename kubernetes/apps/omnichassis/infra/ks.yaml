@@ -19,6 +19,12 @@ kind: Kustomization
 metadata:
   name: omnichassis-infra
 spec:
+  # VirtualMachine/DataVolume CRDs (kubernetes/sil-runner) must exist first.
+  dependsOn:
+    - name: cdi
+      namespace: cdi
+    - name: kubevirt
+      namespace: kubevirt
   interval: 1h
   path: ./kubernetes
   prune: true

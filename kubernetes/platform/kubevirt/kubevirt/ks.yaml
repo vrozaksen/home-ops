@@ -1,0 +1,41 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kubevirt-operator
+spec:
+  interval: 1h
+  path: ./kubernetes/platform/kubevirt/kubevirt/operator
+  # Pruning would delete the CRDs and with them every VM in the cluster.
+  prune: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kubevirt
+  wait: true
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kubevirt
+spec:
+  dependsOn:
+    - name: kubevirt-operator
+      namespace: kubevirt
+  healthCheckExprs:
+    - apiVersion: kubevirt.io/v1
+      kind: KubeVirt
+      current: status.phase == 'Deployed'
+  interval: 1h
+  path: ./kubernetes/platform/kubevirt/kubevirt/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kubevirt
+  timeout: 15m
+  wait: true

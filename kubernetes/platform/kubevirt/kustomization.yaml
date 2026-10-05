@@ -2,11 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: omnichassis
+namespace: kubevirt
 components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./rbac.yaml
-  - ./infra/ks.yaml
-  - ./sil-runner/ks.yaml
+  - ./kubevirt/ks.yaml

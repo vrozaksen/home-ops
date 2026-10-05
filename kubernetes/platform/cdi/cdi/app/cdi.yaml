@@ -1,0 +1,24 @@
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: CDI
+metadata:
+  name: cdi
+spec:
+  config:
+    featureGates:
+      - HonorWaitForFirstConsumer
+    # Default importer limits are too small for qcow2 conversion (Sidero guide).
+    podResourceRequirements:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        memory: 2Gi
+  imagePullPolicy: IfNotPresent
+  infra:
+    nodeSelector:
+      kubernetes.io/os: linux
+  uninstallStrategy: BlockUninstallIfWorkloadsExist
+  workload:
+    nodeSelector:
+      kubernetes.io/os: linux

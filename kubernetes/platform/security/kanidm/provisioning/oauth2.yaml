@@ -301,31 +301,6 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kanidm-provision-oauth2-sentry
-  labels:
-    kanidm_config: "1"
-  annotations:
-    reloader.stakater.com/match: "true"
-data:
-  targetNamespace: sentry
-  # Sentry is archived; present:false makes kanidm delete the client instead of
-  # leaving a credential that still authenticates. Drop this ConfigMap once gone.
-  oauth2.json: |
-    {
-      "groups": {}, "persons": {}, "systems": { "oauth2": {
-        "sentry": {
-          "present": false, "displayName": "Sentry",
-          "originUrl": "https://sentry.vzkn.eu/auth/sso/",
-          "originLanding": "https://sentry.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "allowInsecureClientDisablePkce": true,
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/sentry.svg" }
-        }
-      } } }
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
   name: kanidm-provision-oauth2-external
   labels:
     kanidm_config: "1"

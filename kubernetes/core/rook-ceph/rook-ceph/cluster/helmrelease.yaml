@@ -259,6 +259,9 @@ spec:
           preservePoolsOnDelete: true
           gateway:
             port: 80
+            # HTTPS for minio-go clients, see rgw-certificate.yaml.
+            securePort: 443
+            sslCertificateRef: rgw-ceph-objectstore-tls
             instances: 2
             priorityClassName: system-cluster-critical
             resources:

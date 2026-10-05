@@ -176,10 +176,13 @@ spec:
           FROM: noreply@vzkn.eu
         storage:
           STORAGE_TYPE: minio
-          MINIO_ENDPOINT: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:80
+          # HTTPS: over HTTP minio-go's aws-chunked PUTs leave Content-Type
+          # unsigned and Ceph 20.2.4 rejects them (CVE-2026-54330 fix).
+          MINIO_ENDPOINT: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:443
           MINIO_BUCKET: forgejo
           MINIO_LOCATION: eu-central-1
-          MINIO_USE_SSL: false
+          MINIO_USE_SSL: true
+          MINIO_INSECURE_SKIP_VERIFY: true  # self-signed, in-cluster only
         cron:
           ENABLED: true
         cron.archive_cleanup:

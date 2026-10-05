@@ -1,0 +1,38 @@
+---
+# TLS for in-cluster RGW clients on plain minio-go (Forgejo): over HTTP it signs
+# PUTs with aws-chunked, leaving Content-Type unsigned, which Ceph 20.2.4
+# rejects (CVE-2026-54330 fix). Over HTTPS it signs normally.
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: rgw-selfsigned
+spec:
+  selfSigned: {}
+---
+# Long-lived on purpose: RGW reads the cert only at start, so a renewal would
+# need a gateway restart. Clients skip verification (in-cluster only).
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rgw-ceph-objectstore
+spec:
+  secretName: rgw-ceph-objectstore-tls
+  duration: 87600h  # 10 years
+  renewBefore: 8760h  # 1 year
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  usages:
+    - server auth
+    - digital signature
+    - key encipherment
+  dnsNames:
+    - rook-ceph-rgw-ceph-objectstore
+    - rook-ceph-rgw-ceph-objectstore.rook-ceph
+    - rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+    - rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
+  issuerRef:
+    name: rgw-selfsigned
+    kind: Issuer

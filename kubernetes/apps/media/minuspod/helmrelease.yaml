@@ -24,9 +24,14 @@ spec:
               TZ: Europe/Warsaw
               BASE_URL: https://minuspod.vzkn.eu
               MINUSPOD_PORT: &port 8000
-              # The LLM that locates ad segments in the transcript. Key comes
-              # from Infisical; model choice is made in the UI.
-              LLM_PROVIDER: anthropic
+              # LLM (ad-segment detection) and Whisper both go through LiteLLM for
+              # one budget/spend view. Model choice in the UI can override these.
+              LLM_PROVIDER: openai
+              OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
+              OPENAI_MODEL: deepseek/deepseek-chat
+              WHISPER_BACKEND: openai-api
+              WHISPER_API_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
+              WHISPER_API_MODEL: groq/whisper-large-v3-turbo
               MINUSPOD_REQUIRE_AUTH: "true"
               # No OIDC support -- this app has its own login only.
               MINUSPOD_ALLOW_PUBLIC_PROCESSING: "false"

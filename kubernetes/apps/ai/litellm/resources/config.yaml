@@ -75,6 +75,9 @@ general_settings:
   database_url: os.environ/DATABASE_URL
   # Models are GitOps-managed here; keys/budgets live in the DB.
   store_model_in_db: false
+  # UI login is Kanidm SSO only; the master key still works for the API.
+  disable_env_credential_login: true
+  disable_password_login_when_sso_enabled: true
   proxy_batch_write_at: 60
   database_connection_pool_limit: 10
 

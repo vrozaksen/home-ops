@@ -57,6 +57,10 @@ spec:
                     key: password
               # Redis / Sidekiq (dedicated Dragonfly instance)
               REDIS_URL: redis://sure-dragonfly.self-hosted.svc.cluster.local:6379/0
+              OPENAI_URI_BASE: http://litellm.ai.svc.cluster.local:4000/v1
+              OPENAI_MODEL: qwen3-local
+              # Sure's own guidance: strict for thinking models (qwen) to skip <think>
+              LLM_JSON_MODE: strict
               # OIDC (Kanidm)
               OIDC_ISSUER: https://idm.vzkn.eu/oauth2/openid/sure
               OIDC_REDIRECT_URI: https://sure.vzkn.eu/auth/openid_connect/callback

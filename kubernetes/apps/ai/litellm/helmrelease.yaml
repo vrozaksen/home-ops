@@ -1,0 +1,150 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: litellm
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      litellm:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/berriai/litellm-non_root
+              # >= 1.100.4 required: older lines have the salt-key admin escalation (GHSA-7hp6-4w63-5g45)
+              tag: v1.104.0@sha256:37066242e6b8327fdd627682a66a9ae2a599553b4d5a84c905c6d8b9eb35c01e
+            args:
+              - --port
+              - "4000"
+              - --config
+              - /app/config.yaml
+            env:
+              LITELLM_MODE: production
+              LITELLM_LOG: INFO
+              LITELLM_DONT_SHOW_FEEDBACK_BOX: "True"
+              # Prisma baselining needs a writable dir (rootfs is read-only)
+              LITELLM_MIGRATION_DIR: /migrations
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-litellm-app
+                    key: uri
+              # Kanidm SSO (free tier: max 5 users, so scopeMap is admins-only)
+              PROXY_BASE_URL: https://litellm.vzkn.eu
+              GENERIC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-litellm-oidc
+                    key: client-id
+              GENERIC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-litellm-oidc
+                    key: client-secret
+              GENERIC_AUTHORIZATION_ENDPOINT: https://idm.vzkn.eu/ui/oauth2
+              GENERIC_TOKEN_ENDPOINT: https://idm.vzkn.eu/oauth2/token
+              GENERIC_USERINFO_ENDPOINT: https://idm.vzkn.eu/oauth2/openid/litellm/userinfo
+              GENERIC_SCOPE: openid email profile
+              GENERIC_CLIENT_USE_PKCE: "true"
+              GENERIC_USER_ID_ATTRIBUTE: preferred_username
+              GENERIC_USER_EMAIL_ATTRIBUTE: email
+              # Kanidm claimMap litellm_role -> "proxy_admin" for group admins
+              GENERIC_USER_ROLE_ATTRIBUTE: litellm_role
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/liveliness
+                    port: 4000
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness:
+                <<: *probe
+                spec:
+                  httpGet:
+                    path: /health/readiness
+                    port: 4000
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  # Prisma migrations run on first start
+                  httpGet:
+                    path: /health/liveliness
+                    port: 4000
+                  periodSeconds: 5
+                  failureThreshold: 60
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 20m
+                memory: 512Mi
+              limits:
+                memory: 1536Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        ports:
+          http:
+            port: 4000
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics/
+            interval: 1m
+            scrapeTimeout: 10s
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: ai
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      config:
+        type: configMap
+        name: "{{ .Release.Name }}-configmap"
+        globalMounts:
+          - path: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+            subPath: tmp
+          - path: /app/.cache
+            subPath: cache
+          - path: /migrations
+            subPath: migrations

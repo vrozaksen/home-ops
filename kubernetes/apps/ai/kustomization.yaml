@@ -8,6 +8,7 @@ components:
 resources:
   - ./namespace.yaml
   - ./agentmemory/ks.yaml
+  - ./litellm/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
   # MCP servers — Group 1 (upstream images / remote proxies)

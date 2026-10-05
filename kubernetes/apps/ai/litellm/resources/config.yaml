@@ -1,0 +1,89 @@
+---
+# Ollama runs on ragnarok (desktop, 10.100.0.102) and is often powered off.
+# Apps should call the hybrid aliases (writer/assistant): local first, Haiku when
+# ragnarok is down. *-local names never leave the house (no fallback) — use those
+# for private data (Sure / bank transactions).
+model_list:
+  # --- Local (ragnarok Ollama, zero cost) ---
+  - model_name: gemma3-local
+    litellm_params: &gemma3
+      model: ollama_chat/gemma3:12b
+      api_base: http://10.100.0.102:11434
+      # Also the connect timeout; a powered-off host must not hold requests long.
+      timeout: 120
+    model_info: &free
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+  - model_name: qwen3-local
+    litellm_params: &qwen3
+      model: ollama_chat/qwen3:14b
+      api_base: http://10.100.0.102:11434
+      timeout: 120
+    model_info: *free
+
+  # --- Hybrid aliases (fallbacks below) ---
+  - model_name: writer  # prose, Polish, CVs
+    litellm_params: *gemma3
+    model_info: *free
+  - model_name: assistant  # tool calling / JSON (Home Assistant)
+    litellm_params: *qwen3
+    model_info: *free
+
+  # --- Cloud ---
+  - model_name: claude-haiku
+    litellm_params:
+      model: anthropic/claude-haiku-4-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: claude-sonnet
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # Provider passthrough: request e.g. "deepseek/deepseek-chat".
+  # Only funded accounts; add openai/*, openrouter/*, together_ai/* the same way.
+  - model_name: anthropic/*
+    litellm_params:
+      model: anthropic/*
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: deepseek/*
+    litellm_params:
+      model: deepseek/*
+      api_key: os.environ/DEEPSEEK_API_KEY
+  - model_name: groq/*
+    litellm_params:
+      model: groq/*
+      api_key: os.environ/GROQ_API_KEY
+  - model_name: xai/*
+    litellm_params:
+      model: xai/*
+      api_key: os.environ/XAI_API_KEY
+
+router_settings:
+  num_retries: 0
+  # One failure parks the local deployment, so later requests skip straight to
+  # the fallback instead of each waiting on a dead host.
+  allowed_fails: 1
+  cooldown_time: 120
+  fallbacks:
+    - writer:
+        - claude-haiku
+    - assistant:
+        - claude-haiku
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  # Models are GitOps-managed here; keys/budgets live in the DB.
+  store_model_in_db: false
+  proxy_batch_write_at: 60
+  database_connection_pool_limit: 10
+
+litellm_settings:
+  drop_params: true
+  json_logs: true
+  # Spend is tracked, prompt/response bodies are not stored (bank data, CVs).
+  turn_off_message_logging: true
+  callbacks:
+    - "prometheus"
+  # Scraped in-cluster by Prometheus without a key.
+  require_auth_for_metrics_endpoint: false

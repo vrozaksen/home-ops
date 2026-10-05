@@ -12,3 +12,11 @@ patches:
       kind: Namespace
       metadata:
         name: cdi
+  # Idle usage is ~4m; upstream requests 100m.
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 10m
+    target:
+      kind: Deployment
+      name: cdi-operator

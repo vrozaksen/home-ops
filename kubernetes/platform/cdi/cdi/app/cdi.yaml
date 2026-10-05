@@ -14,6 +14,22 @@ spec:
         memory: 64Mi
       limits:
         memory: 2Gi
+  # Upstream requests 100m per component (~400m total) on CPU-tight workers;
+  # observed idle usage is 2-12m.
+  customizeComponents:
+    patches:
+      - resourceName: cdi-apiserver
+        resourceType: Deployment
+        type: strategic
+        patch: '{"spec":{"template":{"spec":{"containers":[{"name":"cdi-apiserver","resources":{"requests":{"cpu":"10m"}}}]}}}}'
+      - resourceName: cdi-deployment
+        resourceType: Deployment
+        type: strategic
+        patch: '{"spec":{"template":{"spec":{"containers":[{"name":"cdi-deployment","resources":{"requests":{"cpu":"10m"}}}]}}}}'
+      - resourceName: cdi-uploadproxy
+        resourceType: Deployment
+        type: strategic
+        patch: '{"spec":{"template":{"spec":{"containers":[{"name":"cdi-uploadproxy","resources":{"requests":{"cpu":"10m"}}}]}}}}'
   imagePullPolicy: IfNotPresent
   infra:
     nodeSelector:

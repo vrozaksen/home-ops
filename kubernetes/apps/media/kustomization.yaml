@@ -7,6 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./kyoo/ks.yaml
   - ./minuspod/ks.yaml
   - ./seerr/ks.yaml

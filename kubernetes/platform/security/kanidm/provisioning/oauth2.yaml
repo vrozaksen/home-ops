@@ -358,7 +358,7 @@ data:
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "kyoo": {
-          "present": true, "displayName": "Kyoo",
+          "present": false, "displayName": "Kyoo",
           "originUrl": "https://kyoo.vzkn.eu/auth/oidc/logged/kanidm",
           "originLanding": "https://kyoo.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },

@@ -78,6 +78,9 @@ spec:
       enabled: false
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
+      # KubeVirtNoAvailableNodesToRunVMs reads this label via kube_node_labels.
+      metricLabelsAllowlist:
+        - nodes=[kubevirt.io/schedulable]
       resources:
         requests:
           cpu: 15m

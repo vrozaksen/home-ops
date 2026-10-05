@@ -1,0 +1,12 @@
+---
+# CDI cannot infer access/volume modes for the OpenEBS hostpath provisioner
+# (CDIStorageProfilesIncomplete); declare them.
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: StorageProfile
+metadata:
+  name: local-hostpath
+spec:
+  claimPropertySets:
+    - accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem

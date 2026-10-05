@@ -13,6 +13,11 @@ spec:
     evictionStrategy: None
   customizeComponents: {}
   imagePullPolicy: IfNotPresent
+  # virt-api/controller/exportproxy off the 12Gi control-plane nodes.
+  infra:
+    nodePlacement:
+      nodeSelector:
+        topology.kubernetes.io/zone: worker
   # virt-operator creates the ServiceMonitor and PrometheusRule (KubeVirt alerts).
   monitorAccount: kube-prometheus-stack-prometheus
   monitorNamespace: observability

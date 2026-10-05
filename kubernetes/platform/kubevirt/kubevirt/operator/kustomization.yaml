@@ -12,3 +12,28 @@ patches:
       kind: Namespace
       metadata:
         name: kubevirt
+  # Upstream requires control-plane nodes; ours have 12Gi soldered RAM and the
+  # first rollout starved saga's apiserver. VMs only run on workers anyway.
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/affinity
+        value:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: kubevirt.io
+                        operator: In
+                        values:
+                          - virt-operator
+                  topologyKey: kubernetes.io/hostname
+                weight: 1
+      - op: remove
+        path: /spec/template/spec/tolerations
+      - op: add
+        path: /spec/template/spec/nodeSelector/topology.kubernetes.io~1zone
+        value: worker
+    target:
+      kind: Deployment
+      name: virt-operator

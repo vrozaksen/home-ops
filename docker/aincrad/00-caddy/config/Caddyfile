@@ -102,6 +102,13 @@ tdarr.vzkn.eu {
 	reverse_proxy tdarr:8265
 }
 
+silo.vzkn.eu {
+	import tls_wildcard
+	import security_headers
+	import block_world
+	reverse_proxy silo:8080
+}
+
 syncthing.vzkn.eu {
 	import tls_wildcard
 	import security_headers

@@ -1,0 +1,7 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  # SILO_SECRET_KEY encrypts credentials at rest: back it up outside the DB dumps.
+  SILO_SECRET_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/SILO_SECRET_KEY
+  SILO_POSTGRES_PASSWORD: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/SILO_POSTGRES_PASSWORD

@@ -1,0 +1,126 @@
+---
+# Trial of Silo (pre-1.0) next to Emby; libraries are mounted read-only.
+# Upstream: github.com/Silo-Server/silo-server (deploy shape from its compose).
+name: silo
+
+services:
+  silo:
+    # Upstream publishes only commit-SHA tags plus latest/nightly; pinned by
+    # digest (Renovate docker-compose manager bumps the digest).
+    image: ghcr.io/silo-server/silo-server:latest@sha256:1d72c4fe1ce3983b2483b8151174e35a7670139961e0792e91035cc2b0b071c3
+    container_name: silo
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/Silo-Server/silo-server/main/assets/icon.png"
+      net.unraid.docker.webui: "http://[IP]:[PORT:8090]"
+    user: "1000:100"
+    group_add:
+      - "18"  # /dev/dri group on Unraid
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      # Web UI goes through Caddy (silo.vzkn.eu); 8097 is the Jellyfin/Emby
+      # compatible API for LAN clients (8096 is taken by Emby).
+      - "8097:8096"
+    environment:
+      MODE: integrated
+      PORT: "8080"
+      JF_PORT: "8096"
+      TZ: Europe/Warsaw
+      SECRET_KEY: ${SILO_SECRET_KEY}
+      DATABASE_URL: postgres://silo:${SILO_POSTGRES_PASSWORD}@silo-postgres:5432/silo?sslmode=disable
+      REDIS_URL: redis://silo-redis:6379
+      SILO_PLUGIN_CACHE_DIR: /var/lib/silo/plugins
+      SILO_TRUSTED_PROXIES: 172.16.0.0/12,10.0.0.0/8,127.0.0.0/8
+      # Fixed budget; "auto" sizes Postgres from the whole NAS (75% of 32GB).
+      POSTGRES_TUNE: "on"
+      POSTGRES_TUNE_MEMORY: 2GB
+    volumes:
+      - /mnt/user/data/media:/mnt/media:ro
+      - /mnt/blaze/appdata/silo/plugins:/var/lib/silo/plugins
+      - /mnt/blaze/appdata/silo/artwork:/var/lib/silo/artwork
+      - /mnt/blaze/appdata/silo/compat:/var/lib/silo/compat
+      - /mnt/blaze/temp/silo:/tmp/silo-transcode
+    depends_on:
+      silo-postgres:
+        condition: service_healthy
+      silo-redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "curl"
+        - "-fsS"
+        - "http://127.0.0.1:8080/api/v1/health"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  silo-postgres:
+    # renovate: datasource=docker depName=pgvector/pgvector
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    container_name: silo-postgres
+    restart: unless-stopped
+    shm_size: 1g
+    environment:
+      POSTGRES_USER: silo
+      POSTGRES_PASSWORD: ${SILO_POSTGRES_PASSWORD}
+      POSTGRES_DB: silo
+    volumes:
+      - /mnt/blaze/appdata/silo/postgres:/var/lib/postgresql
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -U silo"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 3g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  silo-redis:
+    # renovate: datasource=docker depName=redis
+    image: redis:8.10.2-alpine
+    container_name: silo-redis
+    restart: unless-stopped
+    volumes:
+      - /mnt/blaze/appdata/silo/redis:/data
+    healthcheck:
+      test:
+        - "CMD"
+        - "redis-cli"
+        - "ping"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

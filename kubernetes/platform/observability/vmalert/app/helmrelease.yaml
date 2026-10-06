@@ -276,3 +276,50 @@ spec:
                     description: |-
                       Nothing from the prometheus container. It is down, wedged,
                       or its node is gone -- and nothing it evaluates is firing.
+
+            - name: backup-integrity
+              type: vlogs
+              interval: 2m
+              rules:
+                # Ransomware disables backups before encrypting. KopiurBackupStale
+                # would eventually notice the gap, but only after the staleness
+                # window -- this catches the act itself. The operator patches
+                # status constantly and Flux reconciles the spec, so both are
+                # expected; anyone else is not.
+                - alert: SnapshotPolicyUnauthorisedChange
+                  expr: >-
+                    app:"kube-apiserver-audit" AND _time:10m
+                    | unpack_json
+                    | filter objectRef.resource:"snapshotpolicies"
+                      (verb:"delete" OR verb:"update" OR verb:"patch")
+                      NOT user.username:"system:serviceaccount:kopiur-system:kopiur"
+                      NOT user.username:"system:serviceaccount:flux-system:kustomize-controller"
+                    | stats by (verb) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: security
+                  annotations:
+                    summary: "Backup policy changed by an unexpected identity"
+                    description: |-
+                      {{ $value }} {{ index .Labels "verb" }} calls on snapshotpolicies in
+                      10 minutes from something other than the kopiur operator or Flux.
+
+                # A delete is worth knowing about whoever issued it: removing the
+                # policy from git is legitimate, but it silently ends backups for
+                # that application.
+                - alert: SnapshotPolicyDeleted
+                  expr: >-
+                    app:"kube-apiserver-audit" AND _time:10m
+                    | unpack_json
+                    | filter objectRef.resource:"snapshotpolicies" verb:"delete"
+                    | stats by (objectRef.name) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "Backup policy {{ index .Labels \"objectRef.name\" }} was deleted"
+                    description: |-
+                      Backups for this application have stopped. Intentional if it
+                      was removed from git -- otherwise someone just turned them off.

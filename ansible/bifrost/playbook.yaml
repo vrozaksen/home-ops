@@ -9,6 +9,8 @@
     infisical_env: prod
     infisical_vps_path: /vps/bifrost
     infisical_shared_path: /shared
+    wazuh_manager_address: 127.0.0.1
+    wazuh_agent_version: 4.14.8-1
     blocked_countries:
       - RU
       - CN
@@ -444,6 +446,90 @@
             name: GeoIP country block restore on reboot
             special_time: reboot
             job: /opt/geo-block/update-country-blocks.sh {{ blocked_countries | join(' ') }} >> /var/log/geo-block.log 2>&1
+
+    - name: Wazuh agent (native)
+      tags:
+        - wazuh
+      block:
+        - name: Fetch Wazuh enrolment password
+          ansible.builtin.shell: >
+            infisical secrets get authd.pass
+            --projectId {{ infisical_project }}
+            --env {{ infisical_env }}
+            --path /kubernetes/security/wazuh
+            --plain 2>/dev/null || echo ""
+          delegate_to: localhost
+          become: false
+          check_mode: false
+          changed_when: false
+          no_log: true
+          register: wazuh_pass_raw
+
+        - name: Validate Wazuh enrolment password
+          ansible.builtin.fail:
+            msg: "authd.pass is empty in Infisical at /kubernetes/security/wazuh"
+          when: wazuh_pass_raw.stdout | default('', true) == ""
+
+        - name: Wazuh apt key
+          ansible.builtin.get_url:
+            url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+            dest: /etc/apt/keyrings/wazuh.asc
+            mode: "0644"
+
+        - name: Wazuh apt repository
+          ansible.builtin.deb822_repository:
+            name: wazuh
+            types: deb
+            uris: https://packages.wazuh.com/4.x/apt/
+            suites: stable
+            components: main
+            signed_by: /etc/apt/keyrings/wazuh.asc
+            state: present
+
+        # Pinned and held: an agent newer than the manager is unsupported, and
+        # unattended-upgrades would otherwise walk it forward on its own.
+        - name: Install Wazuh agent
+          ansible.builtin.apt:
+            name: "wazuh-agent={{ wazuh_agent_version }}"
+            state: present
+            update_cache: true
+
+        - name: Hold Wazuh agent version
+          ansible.builtin.dpkg_selections:
+            name: wazuh-agent
+            selection: hold
+
+        - name: Wazuh agent configuration
+          ansible.builtin.template:
+            src: wazuh-ossec.conf.j2
+            dest: /var/ossec/etc/ossec.conf
+            owner: root
+            group: wazuh
+            mode: "0640"
+          notify: Restart wazuh-agent
+
+        - name: Check whether the agent is already enrolled
+          ansible.builtin.stat:
+            path: /var/ossec/etc/client.keys
+          register: wazuh_keys
+
+        - name: Enrol the agent
+          ansible.builtin.command:
+            cmd: >
+              /var/ossec/bin/agent-auth
+              -m {{ wazuh_manager_address }}
+              -P {{ wazuh_pass_raw.stdout }}
+              -A {{ inventory_hostname }}
+          when: not wazuh_keys.stat.exists or wazuh_keys.stat.size == 0
+          no_log: true
+          notify: Restart wazuh-agent
+
+        - name: Enable and start the agent
+          ansible.builtin.systemd_service:
+            name: wazuh-agent
+            enabled: true
+            state: started
+            daemon_reload: true
 
   handlers:
     - name: Reload systemd daemon

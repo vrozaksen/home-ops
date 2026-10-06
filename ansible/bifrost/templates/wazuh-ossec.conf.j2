@@ -1,0 +1,95 @@
+<!--
+  Wazuh agent - bifrost. Managed by ansible/bifrost/playbook.yaml.
+  Native install rather than a container: syscollector, SCA and vulnerability
+  detection all need the real package database and the host's own processes,
+  none of which a container can see honestly.
+-->
+<ossec_config>
+  <client>
+    <server>
+      <address>{{ wazuh_manager_address }}</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+    <!-- The manager drops an agent to "disconnected" after 20s of silence. -->
+    <notify_time>10</notify_time>
+    <time-reconnect>60</time-reconnect>
+    <auto_restart>yes</auto_restart>
+    <crypto_method>aes</crypto_method>
+  </client>
+
+  <client_buffer>
+    <disabled>no</disabled>
+    <queue_size>5000</queue_size>
+    <events_per_second>500</events_per_second>
+  </client_buffer>
+
+  <!-- Accounts, sudo grants, scheduled jobs and the web root: what an intruder
+       edits to keep a foothold. /etc as a whole churns with package updates. -->
+  <syscheck>
+    <disabled>no</disabled>
+    <frequency>43200</frequency>
+    <scan_on_start>yes</scan_on_start>
+    <alert_new_files>yes</alert_new_files>
+    <process_priority>19</process_priority>
+    <max_eps>50</max_eps>
+
+    <directories check_all="yes" realtime="yes">/etc/ssh</directories>
+    <directories check_all="yes" realtime="yes">/etc/sudoers.d</directories>
+    <directories check_all="yes" realtime="yes">/etc/cron.d</directories>
+    <directories check_all="yes" realtime="yes">/etc/passwd,/etc/shadow,/etc/group,/etc/sudoers,/etc/crontab</directories>
+    <directories check_all="yes" realtime="yes">/root/.ssh</directories>
+    <directories check_all="yes" realtime="yes">/home/debian/.ssh</directories>
+
+    <ignore type="sregex">\.log$|\.tmp$|\.swp$</ignore>
+
+    <skip_nfs>yes</skip_nfs>
+    <skip_dev>yes</skip_dev>
+    <skip_proc>yes</skip_proc>
+    <skip_sys>yes</skip_sys>
+  </syscheck>
+
+  <!-- Native install, so these see the real host. -->
+  <rootcheck>
+    <disabled>no</disabled>
+    <check_files>yes</check_files>
+    <check_trojans>yes</check_trojans>
+    <check_dev>yes</check_dev>
+    <check_sys>yes</check_sys>
+    <check_pids>yes</check_pids>
+    <check_ports>yes</check_ports>
+    <check_if>yes</check_if>
+    <frequency>43200</frequency>
+  </rootcheck>
+
+  <!-- The point of going native: a real dpkg inventory, which is what feeds
+       Vulnerability Detection on the one host exposed to the internet. -->
+  <wodle name="syscollector">
+    <disabled>no</disabled>
+    <interval>1h</interval>
+    <scan_on_start>yes</scan_on_start>
+    <hardware>yes</hardware>
+    <os>yes</os>
+    <network>yes</network>
+    <packages>yes</packages>
+    <ports all="no">yes</ports>
+    <processes>yes</processes>
+  </wodle>
+
+  <!-- CIS benchmark against the actual system. -->
+  <sca>
+    <enabled>yes</enabled>
+    <scan_on_start>yes</scan_on_start>
+    <interval>12h</interval>
+  </sca>
+
+  <!-- sshd, sudo, CrowdSec decisions and kernel events. -->
+  <localfile>
+    <log_format>journald</log_format>
+    <location>journald</location>
+  </localfile>
+
+  <logging>
+    <log_format>plain</log_format>
+  </logging>
+</ossec_config>

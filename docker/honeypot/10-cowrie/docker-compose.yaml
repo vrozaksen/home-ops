@@ -1,0 +1,86 @@
+---
+name: cowrie
+
+# SSH/Telnet honeypot on an OVH VPS, deliberately outside doco-cd: this host is
+# meant to be attacked, so it holds no Infisical credentials and nothing pulls
+# from git onto it. Deployed by hand from this directory.
+#
+# Cowrie emulates a shell rather than exposing a real one, so a successful
+# "login" never yields the host. That also keeps the provider happy -- a
+# genuinely compromised honeypot used for outbound attacks gets an account
+# suspended.
+
+services:
+  cowrie:
+    # renovate: datasource=docker depName=cowrie/cowrie
+    image: docker.io/cowrie/cowrie:3.1.1
+    container_name: cowrie
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # The ports worth impersonating. Admin SSH lives on 22222.
+      - "22:2222"
+      - "23:2223"
+    volumes:
+      - ./config/cowrie.cfg:/cowrie/cowrie-git/etc/cowrie.cfg:ro
+      - cowrie-var:/cowrie/cowrie-git/var
+      - cowrie-etc:/cowrie/cowrie-git/etc/userdb
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Ships Cowrie's JSON straight into VictoriaLogs over the WireGuard tunnel.
+  # The AbuseIPDB reporting key stays in the cluster rather than on the machine
+  # designed to be broken into.
+  vlagent:
+    # renovate: datasource=docker datasource=docker depName=quay.io/victoriametrics/vlagent
+    image: quay.io/victoriametrics/vlagent:v1.52.0
+    container_name: vlagent
+    # vlagent tags every stream with its own hostname, which defaults to the
+    # container id. Setting it here beats adding a second one via extraFields:
+    # VictoriaLogs rejects an entry carrying two tags of the same name.
+    hostname: honeypot
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - -remoteWrite.url=http://10.10.0.92:9428/insert/native
+      - -fileCollector.glob=/logs/log/cowrie/cowrie.json
+      - -fileCollector.extraFields={"app":"cowrie"}
+      - -tmpDataPath=/vlagent-data
+    volumes:
+      - cowrie-var:/logs:ro
+      - vlagent-data:/vlagent-data
+    depends_on:
+      - cowrie
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  cowrie-var:
+  cowrie-etc:
+  vlagent-data:

@@ -21,7 +21,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/agentmemory
-              tag: 0.9.29
+              tag: 0.9.30
               digest: sha256:448068d08a85f664f1caa908c691e6b9a81851f94a74279638a4a4e60542ef73
             env:
               AGENTMEMORY_DATA_DIR: /data

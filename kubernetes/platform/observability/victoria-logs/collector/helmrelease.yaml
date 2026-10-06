@@ -43,5 +43,9 @@ spec:
         - kubernetes.pod_namespace
         - kubernetes.container_name
         - kubernetes.pod_labels.app.kubernetes.io/name
+    fileCollector:
+      - glob: /var/log/audit/kube/kube-apiserver.log
+        extraFields: '{"app":"kube-apiserver-audit"}'
+
     extraArgs:
       "kubernetesCollector.decolorizeFields": _msg

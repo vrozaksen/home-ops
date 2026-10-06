@@ -11,6 +11,14 @@ spec:
     # VMs on RWO ceph-block cannot live-migrate; without this a VM's PDB
     # would block node drains (reboot-node, tuppr). The VM restarts elsewhere.
     evictionStrategy: None
+    # Talos defaults every pod to RuntimeDefault seccomp, which denies unprivileged
+    # user namespaces; passt (passtBinding) always sandboxes itself in one and dies
+    # with "Couldn't create user namespace: Operation not permitted". kubevirt.json
+    # is installed on each node by virt-handler and allows it (still baseline-PSA ok).
+    seccompConfiguration:
+      virtualMachineInstanceProfile:
+        customProfile:
+          localhostProfile: kubevirt/kubevirt.json
   customizeComponents: {}
   imagePullPolicy: IfNotPresent
   # virt-api/controller/exportproxy off the 12Gi control-plane nodes.

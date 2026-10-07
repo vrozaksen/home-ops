@@ -348,23 +348,26 @@ spec:
                       {{ index .Labels "user" }} logged in from {{ index .Labels "src_ip" }}.
                       Expected only when you are working on the box yourself.
 
-                # Root on the host is a different machine than Cowrie's fake root.
-                - alert: HoneypotHostPrivilegeEscalation
+                # Deliberately not every sudo: routine administration produces a
+                # dozen of those per session and the login above already says
+                # someone is on the box. What is never routine here is an attacker
+                # arranging to come back, so this watches for persistence only.
+                - alert: HoneypotHostAccountChange
                   expr: >-
                     app:"honeypot-host" AND _time:10m
-                    AND ("COMMAND=" OR "session opened for user root"
-                         OR "useradd" OR "usermod" OR "new user")
+                    AND ("new user" OR "new group" OR "useradd" OR "usermod"
+                         OR "groupadd" OR "password changed")
                     | stats count() as hits
                     | filter hits:>0
                   labels:
                     severity: critical
                     category: security
                   annotations:
-                    summary: "Privilege escalation on the honeypot host"
+                    summary: "Account created or changed on the honeypot host"
                     description: |-
-                      {{ $value }} sudo/su/useradd events in 10 minutes on the host
-                      itself, not inside Cowrie. If that was not you, treat the VPS
-                      as compromised and rebuild it.
+                      {{ $value }} account changes in 10 minutes on the host itself,
+                      not inside Cowrie. Nothing legitimate does this here. If it was
+                      not you, treat the VPS as compromised and rebuild it.
 
                 # The one Cowrie event worth waking for: a payload was fetched, so
                 # there is a sample to pull apart rather than just another scan.

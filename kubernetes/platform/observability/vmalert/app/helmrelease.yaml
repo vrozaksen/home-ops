@@ -323,3 +323,78 @@ spec:
                     description: |-
                       Backups for this application have stopped. Intentional if it
                       was removed from git -- otherwise someone just turned them off.
+
+            # The honeypot is meant to be attacked, so Cowrie's own events are not
+            # alert-worthy. These watch the real host underneath it instead: the
+            # only interesting question is whether anything escaped the emulation.
+            - name: honeypot
+              type: vlogs
+              interval: 2m
+              rules:
+                # Password auth is off and Cowrie listens on 22/23, so a real
+                # login on the admin port is either the operator or a problem.
+                - alert: HoneypotHostLogin
+                  expr: >-
+                    app:"honeypot-host" AND "Accepted publickey" AND _time:10m
+                    | extract "Accepted publickey for <user> from <src_ip> port"
+                    | stats by (user, src_ip) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "SSH login to the honeypot host by {{ index .Labels \"user\" }}"
+                    description: |-
+                      {{ index .Labels "user" }} logged in from {{ index .Labels "src_ip" }}.
+                      Expected only when you are working on the box yourself.
+
+                # Root on the host is a different machine than Cowrie's fake root.
+                - alert: HoneypotHostPrivilegeEscalation
+                  expr: >-
+                    app:"honeypot-host" AND _time:10m
+                    AND ("COMMAND=" OR "session opened for user root"
+                         OR "useradd" OR "usermod" OR "new user")
+                    | stats count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: security
+                  annotations:
+                    summary: "Privilege escalation on the honeypot host"
+                    description: |-
+                      {{ $value }} sudo/su/useradd events in 10 minutes on the host
+                      itself, not inside Cowrie. If that was not you, treat the VPS
+                      as compromised and rebuild it.
+
+                # The one Cowrie event worth waking for: a payload was fetched, so
+                # there is a sample to pull apart rather than just another scan.
+                - alert: HoneypotMalwareDownload
+                  expr: >-
+                    app:"cowrie" AND _time:10m
+                    AND eventid:~"cowrie.session.file_(download|upload)"
+                    | stats by (src_ip) count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "Malware dropped on the honeypot by {{ index .Labels \"src_ip\" }}"
+                    description: |-
+                      {{ $value }} file transfers in 10 minutes. The shasum is in the
+                      Cowrie dashboard at https://grafana.vzkn.eu/d/cowrie-honeypot
+
+                # Silence means the VPS, the container or the tunnel died. Baseline
+                # is a few hundred events a day, so six empty hours is abnormal.
+                - alert: HoneypotStreamSilent
+                  expr: >-
+                    app:"cowrie" AND _time:6h
+                    | stats count() as hits
+                    | filter hits:<1
+                  labels:
+                    severity: warning
+                    category: security
+                  annotations:
+                    summary: "No honeypot events for 6 hours"
+                    description: |-
+                      Cowrie stopped reporting. Either the OVH VPS is down, the
+                      container died, or the WireGuard tunnel to VictoriaLogs broke.

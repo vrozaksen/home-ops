@@ -11,8 +11,6 @@ spec:
   datasource:
     type: prometheus
     name: prometheus
-    # Deterministic uid = name, so the operator's ${DS_*} input substitution
-    # (which injects the NAME into panel uid fields) resolves correctly
     uid: prometheus
     access: proxy
     isDefault: true
@@ -35,3 +33,22 @@ spec:
     jsonData:
       implementation: prometheus
     url: http://alertmanager-operated.observability.svc.cluster.local:9093
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/grafana.integreatly.org/grafanadatasource_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: victorialogs
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  plugins:
+    - name: victoriametrics-logs-datasource
+      version: 0.32.0
+  datasource:
+    type: victoriametrics-logs-datasource
+    name: victorialogs
+    uid: victorialogs
+    access: proxy
+    url: http://victoria-logs.observability.svc.cluster.local:9428

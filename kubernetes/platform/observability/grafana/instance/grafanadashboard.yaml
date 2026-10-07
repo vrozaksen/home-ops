@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: cowrie-honeypot
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  resyncPeriod: 5m
+  configMapRef:
+    name: cowrie-dashboard
+    key: cowrie.json

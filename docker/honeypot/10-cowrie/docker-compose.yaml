@@ -64,9 +64,17 @@ services:
       - -remoteWrite.url=http://10.10.0.92:9428/insert/native
       - -fileCollector.glob=/logs/log/cowrie/cowrie.json
       - -fileCollector.extraFields={"app":"cowrie"}
+      # The host's own logs. Cowrie only reports the emulated shell, so without
+      # these nothing would notice the real box being broken into: admin SSH on
+      # 22222, sudo, or a container escape. glob and extraFields pair by index.
+      - -fileCollector.glob=/hostlog/auth.log
+      - -fileCollector.extraFields={"app":"honeypot-host"}
+      - -fileCollector.glob=/hostlog/syslog
+      - -fileCollector.extraFields={"app":"honeypot-host"}
       - -tmpDataPath=/vlagent-data
     volumes:
       - cowrie-var:/logs:ro
+      - /var/log:/hostlog:ro
       - vlagent-data:/vlagent-data
     depends_on:
       - cowrie

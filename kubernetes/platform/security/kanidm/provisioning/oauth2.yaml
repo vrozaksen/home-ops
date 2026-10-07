@@ -400,3 +400,30 @@ data:
           "k8s": { "clientIdKey": "key" }
         }
       } } }
+---
+# Omnichassis fleet back end (Go, confidential client with PKCE). Roles come from
+# the groups claim as SPNs (fleet-owner@idm.vzkn.eu); no mapped group = no access.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-omnichassis
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: omnichassis
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "fleet": {
+          "present": true, "displayName": "Omnichassis Fleet",
+          "originUrl": "https://fleet.omnichassis.dev/api/v1/auth/callback",
+          "originLanding": "https://fleet.omnichassis.dev/",
+          "scopeMaps": {
+            "fleet-owner": ["openid", "email", "profile", "groups"],
+            "fleet-technician": ["openid", "email", "profile", "groups"],
+            "fleet-viewer": ["openid", "email", "profile", "groups"]
+          }
+        }
+      } } }

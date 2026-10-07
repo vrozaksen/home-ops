@@ -18,7 +18,10 @@ data:
         "admins":         { "present": true, "members": [], "overwriteMembers": false },
         "ff":             { "present": true, "members": [], "overwriteMembers": false },
         "household":      { "present": true, "members": [], "overwriteMembers": false },
-        "omnichassis":    { "present": true, "members": [], "overwriteMembers": false }
+        "omnichassis":    { "present": true, "members": [], "overwriteMembers": false },
+        "fleet-owner":      { "present": true, "members": [], "overwriteMembers": false },
+        "fleet-technician": { "present": true, "members": [], "overwriteMembers": false },
+        "fleet-viewer":     { "present": true, "members": [], "overwriteMembers": false }
       },
       "persons": {},
       "systems": { "oauth2": {} }

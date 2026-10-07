@@ -43,3 +43,34 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: omnichassis-infra
+---
+# Nor does it aggregate these CRDs; the fleet manifests in Omnichassis/infra need them.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: omnichassis-infra-fleet
+rules:
+  - apiGroups:
+      - objectbucket.io
+    resources:
+      - objectbucketclaims
+    verbs:
+      - "*"
+  - apiGroups:
+      - secrets.infisical.com
+    resources:
+      - infisicalsecrets
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnichassis-infra-fleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: omnichassis-infra-fleet
+subjects:
+  - kind: ServiceAccount
+    name: omnichassis-infra

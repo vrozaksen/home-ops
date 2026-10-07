@@ -48,7 +48,7 @@ services:
   # designed to be broken into.
   vlagent:
     # renovate: datasource=docker datasource=docker depName=quay.io/victoriametrics/vlagent
-    image: quay.io/victoriametrics/vlagent:v1.52.0
+    image: quay.io/victoriametrics/vlagent:v1.53.0
     container_name: vlagent
     # vlagent tags every stream with its own hostname, which defaults to the
     # container id. Setting it here beats adding a second one via extraFields:

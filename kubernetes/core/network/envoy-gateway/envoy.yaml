@@ -121,6 +121,14 @@ spec:
       hostname: "*.omnichassis.dev"
       allowedRoutes: *omnichassisRoutes
       tls: *omnichassisTls
+    # Vehicle API only. The mTLS policy targets this section; scoped to the wildcard
+    # listener it would demand a client cert from every *.omnichassis.dev host.
+    - name: https-omnichassis-gw
+      protocol: HTTPS
+      port: 443
+      hostname: gw.omnichassis.dev
+      allowedRoutes: *omnichassisRoutes
+      tls: *omnichassisTls
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1
@@ -217,6 +225,54 @@ spec:
     alpnProtocols:
       - h2
       - http/1.1
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/clienttrafficpolicy_v1alpha1.json
+# mTLS for Omnichassis vehicle gateways. A section-scoped policy REPLACES the one
+# above for its listener (no merge), so every field of it is restated here; keep in sync.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: fleet-gateway-mtls
+spec:
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs:
+        - 10.69.0.0/16
+  headers:
+    # XFCC is the gateway identity for the fleet back end: drop any client-sent
+    # copy, then set our own with the cert subject (CN = gateway id).
+    xForwardedClientCert:
+      mode: SanitizeSet
+      certDetailsToAdd:
+        - Subject
+  proxyProtocol:
+    optional: true
+  http2:
+    onInvalidMessage: TerminateStream
+    connectionKeepalive:
+      interval: 30s
+      timeout: 5s
+  path:
+    escapedSlashesAction: KeepUnchanged
+    disableMergeSlashes: true
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-external
+      sectionName: https-omnichassis-gw
+  tcpKeepalive: {}
+  tls:
+    minVersion: "1.2"
+    alpnProtocols:
+      - h2
+      - http/1.1
+    clientValidation:
+      mode: RequireAndVerify
+      # Gateway CA lives in omnichassis; needs a ReferenceGrant there (Omnichassis/infra).
+      caCertificateRefs:
+        - kind: Secret
+          name: fleet-gateway-ca
+          namespace: omnichassis
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
 apiVersion: gateway.networking.k8s.io/v1

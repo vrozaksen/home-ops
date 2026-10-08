@@ -122,10 +122,3 @@ syncthing.vzkn.eu {
 	import block_world
 	reverse_proxy syncthing:8384
 }
-
-# === immich (stays plugin-managed until it migrates TO the cluster) ======
-immich.vzkn.eu {
-	import tls_wildcard
-	import security_headers
-	reverse_proxy 10.10.0.11:2283
-}

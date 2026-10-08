@@ -301,6 +301,33 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: kanidm-provision-oauth2-media
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: media
+  # Mobile app uses Immich's https mobile-redirect override, not app.immich:///
+  oauth2.json: |
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "immich": {
+          "present": true, "displayName": "Immich",
+          "originUrl": [
+            "https://immich.vzkn.eu/auth/login",
+            "https://immich.vzkn.eu/user-settings",
+            "https://immich.vzkn.eu/api/oauth/mobile-redirect"
+          ],
+          "originLanding": "https://immich.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/immich.svg" }
+        }
+      } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: kanidm-provision-oauth2-external
   labels:
     kanidm_config: "1"

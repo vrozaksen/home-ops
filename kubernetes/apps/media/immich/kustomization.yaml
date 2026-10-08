@@ -2,11 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: media
-components:
-  - ../../components/common
 resources:
-  - ./namespace.yaml
-  - ./immich/ks.yaml
-  - ./minuspod/ks.yaml
-  - ./seerr/ks.yaml
+  - ./db
+  - ./helmrelease.yaml
+  - ./pvc.yaml
+patches:
+  - path: ./patches/cluster-vectorchord.yaml
+  - path: ./patches/dragonfly-bullmq.yaml

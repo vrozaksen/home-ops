@@ -1,0 +1,209 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        # /dev/dri for QSV on the server; pod-level securityContext would
+        # replace this whole block, so it lives here
+        supplementalGroups:
+          - 44  # video
+          - 109  # render
+      # Control planes have 12Gi soldered RAM -- keep the photo stack on workers
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+    controllers:
+      server:
+        # MIGRATION: stays 0 until the DB is restored and /data copied
+        replicas: 0
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          # QSV transcoding (system-config ffmpeg.accel=qsv)
+          resourceClaims:
+            - name: gpu
+              resourceClaimTemplateName: immich-gpu
+        containers:
+          app:
+            image:
+              repository: ghcr.io/immich-app/immich-server
+              tag: v2.5.6@sha256:aa163d2e1cc2b16a9515dd1fef901e6f5231befad7024f093d7be1f2da14341a
+            env:
+              TZ: Europe/Warsaw
+              IMMICH_MEDIA_LOCATION: /data
+              IMMICH_TELEMETRY_INCLUDE: all
+              # PgBouncer (session mode) in front of CNPG, generated app credentials
+              DB_HOSTNAME: pooler-immich-rw.media.svc.cluster.local
+              DB_PORT: "5432"
+              DB_DATABASE_NAME: immich
+              DB_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-immich-app
+                    key: username
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-immich-app
+                    key: password
+              DB_VECTOR_EXTENSION: vectorchord
+              REDIS_HOSTNAME: immich-dragonfly.media.svc.cluster.local
+              REDIS_PORT: "6379"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/server/ping
+                    port: &port 2283
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/server/ping
+                    port: *port
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  # first boot runs DB migrations + vchord index (re)build
+                  failureThreshold: 120
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              claims:
+                - name: gpu
+              requests:
+                cpu: 100m
+                memory: 768Mi
+              limits:
+                memory: 4Gi
+      machine-learning:
+        # MIGRATION: stays 0 until the DB is restored and /data copied
+        replicas: 0
+        containers:
+          app:
+            image:
+              repository: ghcr.io/immich-app/immich-machine-learning
+              tag: v2.5.6@sha256:b213fa3c82d27a21a299c46ffbb38a091f18384db1ad67d409a3b34fe0fce556
+            env:
+              TZ: Europe/Warsaw
+              MACHINE_LEARNING_CACHE_FOLDER: /cache
+              # image's HOME is unwritable for uid 1000
+              HOME: /cache
+              # unload models after 5 min idle instead of pinning ~2GB forever
+              MACHINE_LEARNING_MODEL_TTL: "300"
+            probes:
+              liveness: &mlprobes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: &mlport 3003
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *mlprobes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *mlport
+                  periodSeconds: 5
+                  failureThreshold: 60
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 6Gi
+    service:
+      app:
+        controller: server
+        ports:
+          http:
+            port: *port
+          metrics-api:
+            port: 8081
+          metrics-microservices:
+            port: 8082
+      machine-learning:
+        # renders as immich-machine-learning = Immich's default ML URL host
+        controller: machine-learning
+        ports:
+          http:
+            port: *mlport
+    serviceMonitor:
+      app:
+        service:
+          identifier: app
+        endpoints:
+          - port: metrics-api
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+          - port: metrics-microservices
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: media
+        hostnames:
+          - "{{ .Release.Name }}.vzkn.eu"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        advancedMounts:
+          server:
+            app:
+              - path: /data
+      cache:
+        existingClaim: immich-ml-cache
+        advancedMounts:
+          machine-learning:
+            app:
+              - path: /cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

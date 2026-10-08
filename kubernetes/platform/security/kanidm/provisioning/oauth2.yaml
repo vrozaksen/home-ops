@@ -313,8 +313,11 @@ data:
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "unraid": {
           "present": true, "displayName": "Unraid",
-          "originUrl": "https://aincrad.home.vzkn.eu:4443/graphql/api/auth/oidc/callback",
-          "originLanding": "https://aincrad.home.vzkn.eu:4443/",
+          "originUrl": [
+            "https://aincrad.home.vzkn.eu:4443/graphql/api/auth/oidc/callback",
+            "https://10-10-0-11.3828b3207b44b41ec022cef26f1c8d3490778869.myunraid.net:4443/graphql/api/auth/oidc/callback"
+          ],
+          "originLanding": "https://10-10-0-11.3828b3207b44b41ec022cef26f1c8d3490778869.myunraid.net:4443/",
           "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] }
         }
       } } }

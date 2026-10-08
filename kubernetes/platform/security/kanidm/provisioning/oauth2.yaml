@@ -308,6 +308,7 @@ metadata:
     reloader.stakater.com/match: "true"
 data:
   # External app (aincrad NAS) — no k8s block, no secret write-back; manage its secret manually.
+  # unraid-api 4.37 sends PKCE only for its built-in Unraid.net provider and strips usePkce from custom ones.
   oauth2.json: |-
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
@@ -318,7 +319,8 @@ data:
             "https://10-10-0-11.3828b3207b44b41ec022cef26f1c8d3490778869.myunraid.net:4443/graphql/api/auth/oidc/callback"
           ],
           "originLanding": "https://10-10-0-11.3828b3207b44b41ec022cef26f1c8d3490778869.myunraid.net:4443/",
-          "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] }
+          "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true
         }
       } } }
 ---

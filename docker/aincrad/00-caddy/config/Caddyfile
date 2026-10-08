@@ -109,6 +109,13 @@ silo.vzkn.eu {
 	reverse_proxy silo:8080
 }
 
+dedupe.vzkn.eu {
+	import tls_wildcard
+	import security_headers
+	import block_world
+	reverse_proxy media-dedupe:8080
+}
+
 syncthing.vzkn.eu {
 	import tls_wildcard
 	import security_headers

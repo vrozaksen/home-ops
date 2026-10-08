@@ -1,0 +1,9 @@
+---
+# Merged on top of ../.doco-cd.yaml. Only this stack's secrets live here so
+# doco-cd doesn't resolve them for every other auto-discovered stack.
+external_secrets:
+  RADARR_API_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/kubernetes/downloads/radarr/RADARR_API_KEY
+  RADARR_ANIME_API_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/kubernetes/downloads/radarr-anime/RADARR_ANIME_API_KEY
+  SONARR_API_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/kubernetes/downloads/sonarr/SONARR_API_KEY
+  SONARR_ANIME_API_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/kubernetes/downloads/sonarr-anime/SONARR_ANIME_API_KEY
+  MEDIA_DEDUPE_EMBY_API_KEY: da94b011-9a7d-408b-92d9-55be47efe750:prod:/vps/aincrad/MEDIA_DEDUPE_EMBY_API_KEY

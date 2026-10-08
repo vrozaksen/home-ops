@@ -1,0 +1,61 @@
+---
+# Duplicate movie/episode finder with an expiring trash (dedupe.vzkn.eu).
+# Source: git.vzkn.eu/vrozaksen/containers apps/media-dedupe.
+name: media-dedupe
+
+services:
+  media-dedupe:
+    image: registry.vzkn.eu/containers/media-dedupe:1.0.0@sha256:9ebea7dbabc8f48d43f160148bbdb43b5e5d00f53658edc5092b462ec850036d
+    container_name: media-dedupe
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/emby.png"
+      net.unraid.docker.webui: "https://dedupe.vzkn.eu"
+    user: "1000:100"
+    environment:
+      TZ: Europe/Warsaw
+      # Same /data layout as the *arr pods (NFS aincrad:/mnt/user/data -> /data),
+      # so their file paths match ours without mapping.
+      MEDIA_ROOTS: /data/media
+      TRASH_DIR: /data/.dedupe-trash
+      TRASH_DAYS: "14"
+      STATE_DIR: /state
+      RADARR_URL: https://radarr.vzkn.eu
+      RADARR_API_KEY: ${RADARR_API_KEY}
+      RADARR_ANIME_URL: https://radarr-anime.vzkn.eu
+      RADARR_ANIME_API_KEY: ${RADARR_ANIME_API_KEY}
+      SONARR_URL: https://sonarr.vzkn.eu
+      SONARR_API_KEY: ${SONARR_API_KEY}
+      SONARR_ANIME_URL: https://sonarr-anime.vzkn.eu
+      SONARR_ANIME_API_KEY: ${SONARR_ANIME_API_KEY}
+      EMBY_URL: http://emby:8096
+      EMBY_API_KEY: ${MEDIA_DEDUPE_EMBY_API_KEY}
+      # Emby mounts /mnt/user/data/media at /data
+      EMBY_PATH_MAP: /data/media=/data
+    volumes:
+      - /mnt/user/data:/data
+      - /mnt/blaze/appdata/media-dedupe:/state
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1:8080/healthz"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

@@ -12,6 +12,7 @@ spec:
   values:
     controllers:
       orcaslicer:
+        replicas: 0
         containers:
           app:
             image:
@@ -59,8 +60,7 @@ spec:
     route:
       app:
         annotations:
-          gatus.home-operations.com/endpoint: |-
-            group: home-automation
+          gatus.home-operations.com/enabled: "false"
         hostnames:
           - orcaslicer.vzkn.eu
         parentRefs:

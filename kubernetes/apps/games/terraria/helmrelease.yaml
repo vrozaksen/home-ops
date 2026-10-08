@@ -13,6 +13,7 @@ spec:
     controllers:
       terraria:
         type: statefulset
+        replicas: 0
         strategy: RollingUpdate
         containers:
           app:
@@ -35,7 +36,7 @@ spec:
             resources:
               requests:
                 cpu: 250m
-                memory: 1Gi
+                memory: 1536Mi
               limits:
                 memory: 2Gi
     defaultPodOptions:

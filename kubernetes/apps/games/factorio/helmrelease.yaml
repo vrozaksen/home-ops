@@ -13,6 +13,7 @@ spec:
     controllers:
       factorio:
         type: statefulset
+        replicas: 0
         strategy: RollingUpdate
         containers:
           app:
@@ -37,7 +38,7 @@ spec:
             resources:
               requests:
                 cpu: 100m
-                memory: 1Gi
+                memory: 4Gi
               limits:
                 cpu: 1
                 memory: 6Gi

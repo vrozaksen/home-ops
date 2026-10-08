@@ -5,7 +5,7 @@ name: media-dedupe
 
 services:
   media-dedupe:
-    image: registry.vzkn.eu/containers/media-dedupe:1.1.0@sha256:02ea0d5266389426b3a90ddc6051ae8b1dee865f8da8b5c9b6466137068fcf29
+    image: registry.vzkn.eu/containers/media-dedupe:1.2.0@sha256:4c7465b607ab0b2fbbbc22310b8c5cb08c1b4089fd4c6b903edf716a354fa689
     container_name: media-dedupe
     restart: unless-stopped
     labels:
@@ -32,9 +32,22 @@ services:
       EMBY_API_KEY: ${MEDIA_DEDUPE_EMBY_API_KEY}
       # Emby mounts /mnt/user/data/media at /data
       EMBY_PATH_MAP: /data/media=/data
+      # Array disks: finds files stored on more than one disk (shfs shows one,
+      # the rest waste space) and trashes every physical copy on its own disk.
+      DISKS_DIR: /disks
+      SHARE_ROOT: /data
+      SHARE_NAME: data
     volumes:
       - /mnt/user/data:/data
       - /mnt/blaze/appdata/media-dedupe:/state
+      - /mnt/disk1:/disks/disk1
+      - /mnt/disk2:/disks/disk2
+      - /mnt/disk3:/disks/disk3
+      - /mnt/disk4:/disks/disk4
+      - /mnt/disk5:/disks/disk5
+      - /mnt/disk6:/disks/disk6
+      - /mnt/disk7:/disks/disk7
+      - /mnt/disk8:/disks/disk8
     healthcheck:
       test:
         - "CMD"

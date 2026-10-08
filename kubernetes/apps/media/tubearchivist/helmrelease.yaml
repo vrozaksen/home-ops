@@ -148,6 +148,22 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
+      # short alias; a redirect, not a 2nd hostname, since the OIDC redirect
+      # URL and cookie domain are bound to the canonical host
+      alias:
+        annotations:
+          gatus.home-operations.com/enabled: "false"
+        hostnames:
+          - ta.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  hostname: tubearchivist.vzkn.eu
+                  statusCode: 301
     persistence:
       cache:
         existingClaim: "{{ .Release.Name }}"

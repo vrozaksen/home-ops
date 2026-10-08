@@ -32,6 +32,8 @@ spec:
               memory: 256Mi
       envoyService:
         externalTrafficPolicy: Local
+        labels:
+          home-ops.io/l2-announce: "true"
   shutdown:
     drainTimeout: 180s
     # With externalTrafficPolicy: Local the LB drops the node only after its own

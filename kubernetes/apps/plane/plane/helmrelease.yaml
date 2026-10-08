@@ -80,5 +80,7 @@ spec:
     admin: *placement
     live: *placement
     api: *placement
-    worker: *placement
+    worker:
+      <<: *placement
+      memoryRequest: 640Mi
     beatworker: *placement

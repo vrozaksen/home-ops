@@ -32,6 +32,7 @@ spec:
       NS: &ns harbor
       CNPG_SIZE: 5Gi
       DRAGONFLY_MEMORY: 1536Mi
+      DRAGONFLY_MEMORY_REQUEST: 640Mi
   prune: true
   sourceRef:
     kind: GitRepository

@@ -75,7 +75,7 @@ spec:
             plugin:
               requests:
                 cpu: 50m
-                memory: 256Mi
+                memory: 128Mi
               limits:
                 memory: 1Gi
             registrar:
@@ -91,7 +91,7 @@ spec:
             attacher:
               requests:
                 cpu: 25m
-                memory: 128Mi
+                memory: 64Mi
               limits:
                 memory: 256Mi
             omapGenerator:
@@ -102,25 +102,25 @@ spec:
                 memory: 1Gi
             plugin:
               requests:
-                memory: 256Mi
+                memory: 128Mi
               limits:
                 memory: 1Gi
             provisioner:
               requests:
                 cpu: 25m
-                memory: 128Mi
+                memory: 64Mi
               limits:
                 memory: 256Mi
             resizer:
               requests:
                 cpu: 25m
-                memory: 128Mi
+                memory: 64Mi
               limits:
                 memory: 256Mi
             snapshotter:
               requests:
                 cpu: 25m
-                memory: 128Mi
+                memory: 64Mi
               limits:
                 memory: 256Mi
       # All default to true in the chart. Only the RBD driver exists here, and

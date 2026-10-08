@@ -73,9 +73,9 @@ spec:
             resources:
               requests:
                 cpu: 50m
-                memory: 512Mi
+                memory: 1536Mi
               limits:
-                memory: 2Gi
+                memory: 3Gi
     defaultPodOptions:
       # Transcoding a backlog must not be interrupted mid-episode.
       terminationGracePeriodSeconds: 360

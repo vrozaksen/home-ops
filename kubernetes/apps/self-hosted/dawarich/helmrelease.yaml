@@ -122,7 +122,7 @@ spec:
                   timeoutSeconds: 5
                   failureThreshold: 5
               readiness: *probe
-            securityContext: &securityContext
+            securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities: {drop: ["ALL"]}
@@ -140,7 +140,7 @@ spec:
             resources:
               requests:
                 cpu: 250m
-                memory: 512Mi
+                memory: 384Mi
               limits:
                 memory: 4Gi
           sidekiq:
@@ -162,7 +162,7 @@ spec:
             resources:
               requests:
                 cpu: 250m
-                memory: 512Mi
+                memory: 384Mi
               limits:
                 memory: 4Gi
     defaultPodOptions:

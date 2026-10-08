@@ -38,7 +38,7 @@ spec:
               # UPDATE_STRATEGY only applies to db mode, so there is no
               # auto-refresh here: re-import by deleting the PVC when stale.
               LOG_LEVEL: INFO
-              JAVA_PARAMS: -Xmx3g
+              JAVA_PARAMS: -Xmx1g
             probes:
               # The first start downloads the dump and builds the index, which
               # takes far longer than a liveness probe tolerates.
@@ -84,10 +84,10 @@ spec:
             resources:
               requests:
                 cpu: 20m
-                memory: 1Gi
+                memory: 768Mi
               limits:
-                # Import is the peak; steady-state reverse lookups need far less.
-                memory: 4Gi
+                # Re-import (PVC deleted) needs -Xmx3g and a 4Gi limit temporarily.
+                memory: 1536Mi
     defaultPodOptions:
       securityContext:
         seccompProfile: {type: RuntimeDefault}

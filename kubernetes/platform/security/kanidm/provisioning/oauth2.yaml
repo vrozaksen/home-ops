@@ -315,7 +315,7 @@ data:
           "present": true, "displayName": "Unraid",
           "originUrl": "https://aincrad.home.vzkn.eu:4443/graphql/api/auth/oidc/callback",
           "originLanding": "https://aincrad.home.vzkn.eu:4443/",
-          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] }
+          "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] }
         }
       } } }
 ---

@@ -31,7 +31,6 @@ spec:
       APP: *app
       NS: &ns media
       KOPIUR_CAPACITY: 2Gi
-      DRAGONFLY_MEMORY: 256Mi
   prune: true
   sourceRef:
     kind: GitRepository

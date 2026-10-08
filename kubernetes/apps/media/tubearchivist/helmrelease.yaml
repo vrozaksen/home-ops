@@ -83,7 +83,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/library/elasticsearch
-              tag: 8.19.23@sha256:8b1751877c984f3e4f59bafb15fc890e01969a744255fd5f6860c060b62cff36
+              tag: 9.5.5@sha256:320bef0140dcaa30527babaae9d7a41c0ccc001e97ab87c08171d867b89e8f4f
             env:
               # ~1700 videos; TA's 1g default is sized for much bigger libraries
               ES_JAVA_OPTS: -Xms768m -Xmx768m

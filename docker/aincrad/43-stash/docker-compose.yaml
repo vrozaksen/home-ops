@@ -29,7 +29,7 @@ services:
       - /mnt/blaze/appdata/stash/blobs:/blobs
       - /mnt/blaze/appdata/stash/cache:/cache
       - /mnt/blaze/appdata/stash/gallery:/gallery
-      - /mnt/blaze/appdata/stash/generated:/generated
+      - /mnt/cache/stash-generated:/generated
       - /mnt/blaze/appdata/stash/metadata:/metadata
       - /mnt/user/data/om:/data
     healthcheck:

@@ -5,7 +5,7 @@ name: media-dedupe
 
 services:
   media-dedupe:
-    image: registry.vzkn.eu/containers/media-dedupe:1.0.0@sha256:9ebea7dbabc8f48d43f160148bbdb43b5e5d00f53658edc5092b462ec850036d
+    image: registry.vzkn.eu/containers/media-dedupe:1.1.0@sha256:02ea0d5266389426b3a90ddc6051ae8b1dee865f8da8b5c9b6466137068fcf29
     container_name: media-dedupe
     restart: unless-stopped
     labels:

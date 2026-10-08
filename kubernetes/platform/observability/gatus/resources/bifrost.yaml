@@ -31,6 +31,29 @@ endpoints:
       - "[BODY].status == ok"
       - "[CERTIFICATE_EXPIRATION] > 72h"
 
+  # Plain :80 path (caddy-l4 -> towonel edge -> envoy-external) that ACME HTTP-01
+  # depends on. Can't catch per-source-IP drops (CrowdSec CAPI), only full outages.
+  - name: bifrost | http :80
+    group: vps
+    url: http://omnichassis.dev/
+    interval: 5m
+    client:
+      ignore-redirect: true
+    ui:
+      hide-url: true
+    conditions:
+      - "[STATUS] == 301"
+
+  # shortlived profile = 160h, renewal at 2/3 leaves ~53h; <36h = renewal stuck ~17h
+  - name: omnichassis.dev | cert
+    group: vps
+    url: https://omnichassis.dev/
+    interval: 1h
+    ui:
+      hide-url: true
+    conditions:
+      - "[CERTIFICATE_EXPIRATION] > 36h"
+
   # Push our liveness to bifrost gatus so it can alert via Pushover
   # if the cluster gatus stops pushing (independent alert path).
   - name: bifrost | heartbeat push

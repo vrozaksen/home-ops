@@ -424,6 +424,7 @@ data:
             "fleet-owner": ["openid", "email", "profile", "groups"],
             "fleet-technician": ["openid", "email", "profile", "groups"],
             "fleet-viewer": ["openid", "email", "profile", "groups"]
-          }
+          },
+          "k8s": {}
         }
       } } }

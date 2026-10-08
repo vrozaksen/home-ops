@@ -9,7 +9,7 @@ metadata:
   name: omnichassis-fleet-db
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
   dependsOn:
     - name: infisical-operator
       namespace: security

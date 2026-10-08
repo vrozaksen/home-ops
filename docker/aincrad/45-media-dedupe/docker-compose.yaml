@@ -48,7 +48,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256m
+          # 4 parallel ffprobe runs on HEVC remuxes peak at ~150Mi each
+          memory: 1g
     logging:
       driver: json-file
       options:

@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-server
-              tag: v2.5.6@sha256:aa163d2e1cc2b16a9515dd1fef901e6f5231befad7024f093d7be1f2da14341a
+              tag: v3.3.0@sha256:be56bc12c17a84617a979ad1eab1d9105bbec1955ffa7da09b3f9cf79d3bd09d
             env:
               TZ: Europe/Warsaw
               IMMICH_MEDIA_LOCATION: /data
@@ -105,10 +105,11 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.5.6@sha256:b213fa3c82d27a21a299c46ffbb38a091f18384db1ad67d409a3b34fe0fce556
+              tag: v3.3.0@sha256:aa88ec3aef3bdc97ab31eff66acecc98bb6ee14d47b6122c25e761ed9f31a7da
             env:
               TZ: Europe/Warsaw
               MACHINE_LEARNING_CACHE_FOLDER: /cache
+              MACHINE_LEARNING_MODEL_REVISION: v2
               # image's HOME is unwritable for uid 1000
               HOME: /cache
               # unload models after 5 min idle instead of pinning ~2GB forever

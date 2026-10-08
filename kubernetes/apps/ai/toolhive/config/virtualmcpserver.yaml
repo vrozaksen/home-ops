@@ -47,7 +47,8 @@ spec:
         prefixFormat: "{workload}_"
     operational:
       failureHandling:
-        healthCheckInterval: 5m
+        healthCheckInterval: 30s
+        unhealthyThreshold: 3
         statusReportingInterval: 5m
   incomingAuth:
     type: oidc

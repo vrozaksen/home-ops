@@ -32,8 +32,6 @@ spec:
                     operator: DoesNotExist
     controllers:
       server:
-        # MIGRATION: stays 0 until the DB is restored and /data copied
-        replicas: 0
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -103,8 +101,6 @@ spec:
               limits:
                 memory: 4Gi
       machine-learning:
-        # MIGRATION: stays 0 until the DB is restored and /data copied
-        replicas: 0
         containers:
           app:
             image:

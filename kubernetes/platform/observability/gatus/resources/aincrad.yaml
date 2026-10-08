@@ -27,13 +27,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: aincrad | immich
-    group: aincrad
-    url: https://immich.vzkn.eu
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-
   # garage daemon health (admin API, no token required)
   - name: aincrad | garage
     group: aincrad

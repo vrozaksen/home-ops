@@ -23,6 +23,8 @@ spec:
                 metadata:
                   name: _
                 spec:
+                  # Helm release Secrets were ~118MB of a 215MB etcd; 5 copies is the default.
+                  maxHistory: 3
                   install:
                     crds: CreateReplace
                     strategy:

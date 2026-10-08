@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: tubearchivist
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/tubearchivist
+    clientID: tubearchivist
+    clientSecret:
+      name: kanidm-tubearchivist-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://tubearchivist.vzkn.eu/oauth2/callback
+    # /logout is taken by TA itself
+    logoutPath: /oauth2/logout
+    cookieDomain: tubearchivist.vzkn.eu
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: tubearchivist

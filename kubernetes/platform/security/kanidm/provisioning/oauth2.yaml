@@ -322,6 +322,14 @@ data:
           "originLanding": "https://immich.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/immich.svg" }
+        },
+        "tubearchivist": {
+          "present": true, "displayName": "TubeArchivist",
+          "originUrl": "https://tubearchivist.vzkn.eu/oauth2/callback",
+          "originLanding": "https://tubearchivist.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/tube-archivist.svg" }
         }
       } } }
 ---

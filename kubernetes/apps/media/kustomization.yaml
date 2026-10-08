@@ -10,3 +10,4 @@ resources:
   - ./immich/ks.yaml
   - ./minuspod/ks.yaml
   - ./seerr/ks.yaml
+  - ./tubearchivist/ks.yaml

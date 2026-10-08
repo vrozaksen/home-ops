@@ -1,0 +1,14 @@
+---
+# Elasticsearch index; rebuildable from TA's own backup zips in /cache/backup
+# (kopiur-backed), so no backup of its own
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tubearchivist-es
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ceph-block

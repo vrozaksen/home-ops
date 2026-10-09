@@ -1,0 +1,17 @@
+---
+# 12Gi CP nodes thrash long before the 100Mi default kicks in (eir wedged 2026-10-08).
+# Setting evictionHard drops all defaults, so the non-memory ones are repeated.
+machine:
+  kubelet:
+    extraConfig:
+      evictionHard:
+        memory.available: 500Mi
+        nodefs.available: 10%
+        nodefs.inodesFree: 5%
+        imagefs.available: 15%
+        imagefs.inodesFree: 5%
+      evictionSoft:
+        memory.available: 1Gi
+      evictionSoftGracePeriod:
+        memory.available: 1m
+      evictionMaxPodGracePeriod: 60

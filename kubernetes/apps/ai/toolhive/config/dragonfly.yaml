@@ -17,6 +17,8 @@ spec:
   args:
     - --proactor_threads=1
     - --maxmemory=256Mi
+    # toolhive's Lua scripts touch keys not passed in KEYS (all share one hashtag).
+    - --default_lua_flags=allow-undeclared-keys
   # Snapshots survive a full restart of both replicas.
   snapshot:
     cron: "*/5 * * * *"

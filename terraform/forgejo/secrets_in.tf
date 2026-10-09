@@ -44,3 +44,20 @@ data "infisical_secrets" "vroxide_log" {
   folder_path  = "/vroxide/log"
   # expected keys: RECIPIENT  (age1… public recipient)
 }
+
+# ─── Omnichassis fleet upload token (shared with the fleet back end) ──
+data "infisical_secrets" "omnichassis_fleet" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/kubernetes/omnichassis/fleet"
+  # expected keys: FLEET_UPLOAD_TOKEN  (also read by kubernetes/fleet in
+  # Omnichassis/infra, so the back end and the firmware CI hold one value)
+}
+
+# ─── Omnichassis firmware release signing (Ed25519, MCUboot imgtool) ──
+data "infisical_secrets" "omnichassis_firmware_ci" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/omnichassis/firmware-ci"
+  # expected keys: RELEASE_SIGNING_KEY  (PEM private key, imgtool keygen -t ed25519)
+}

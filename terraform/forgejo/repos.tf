@@ -1,6 +1,7 @@
 # Map: repository -> { secret name -> Infisical value }.
 #
-# Add a new repo by inserting another key; add a new secret to an existing
+# Add a new repo by inserting another key ("owner/name" for a repository
+# outside var.forgejo_owner, e.g. an organisation); add a new secret to an existing
 # repo by extending its inner map. `gitea_repository_action_secret` is
 # created per (repo, name) pair via the flatten loop in `actions.tf`.
 locals {
@@ -68,6 +69,14 @@ locals {
 
       PUSHOVER_USER_KEY  = data.infisical_secrets.forgejo_actions.secrets["PUSHOVER_USER_KEY"].value
       PUSHOVER_APP_TOKEN = data.infisical_secrets.forgejo_actions.secrets["PUSHOVER_APP_TOKEN"].value
+    }
+
+    # Omnichassis firmware CI (org repository): a tagged release build signs
+    # the MCUboot images with the release key and uploads them to the fleet
+    # back end at fleet.omnichassis.dev.
+    "Omnichassis/firmware" = {
+      FLEET_UPLOAD_TOKEN       = data.infisical_secrets.omnichassis_fleet.secrets["FLEET_UPLOAD_TOKEN"].value
+      OMNI_RELEASE_SIGNING_KEY = data.infisical_secrets.omnichassis_firmware_ci.secrets["RELEASE_SIGNING_KEY"].value
     }
   }
 

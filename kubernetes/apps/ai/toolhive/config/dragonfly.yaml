@@ -7,7 +7,7 @@ kind: Dragonfly
 metadata:
   name: vmcp-dragonfly
 spec:
-  image: ghcr.io/dragonflydb/dragonfly:v2.0.0
+  image: ghcr.io/dragonflydb/dragonfly:v2.0.2
   replicas: 2
   authentication:
     passwordFromSecret:

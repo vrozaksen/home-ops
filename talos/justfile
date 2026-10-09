@@ -37,10 +37,11 @@ apply-node hostname mode='auto':
     test -f "{{ ROOT_DIR }}/talosconfig"
     talosctl --nodes {{ hostname }} get machineconfig >/dev/null
     cp_node=$(talosctl config info --output json | jq --raw-output '.endpoints[0]')
-    just --justfile "{{ ROOT_JUST }}" talos _down
+    # no-reboot never takes the node down, so suspending kopiur and draining Jobs only adds waiting.
+    [[ "{{ mode }}" == "no-reboot" ]] || just --justfile "{{ ROOT_JUST }}" talos _down
     talosctl apply-config --nodes {{ hostname }} --mode={{ mode }} --file "clusterconfig/main-{{ hostname }}.yaml"
     talosctl --nodes "$cp_node" health
-    just --justfile "{{ ROOT_JUST }}" talos _up
+    [[ "{{ mode }}" == "no-reboot" ]] || just --justfile "{{ ROOT_JUST }}" talos _up
 
 [confirm('Apply machine config to every node in turn [y|N] ?')]
 [doc('Apply the Talos config on all nodes of an existing cluster')]

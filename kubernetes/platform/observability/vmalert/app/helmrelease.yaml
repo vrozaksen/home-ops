@@ -386,11 +386,13 @@ spec:
                       {{ $value }} file transfers in 10 minutes. The shasum is in the
                       Cowrie dashboard at https://grafana.vzkn.eu/d/cowrie-honeypot
 
-                # Silence means the VPS, the container or the tunnel died. Baseline
-                # is a few hundred events a day, so six empty hours is abnormal.
+                # Silence means the VPS, the container or the tunnel died. The
+                # baseline is ~30k events a day, so two empty hours is already
+                # unambiguous -- six let a 2026-10-09 tunnel outage run for
+                # nearly four hours without anyone being told.
                 - alert: HoneypotStreamSilent
                   expr: >-
-                    app:"cowrie" AND _time:6h
+                    app:"cowrie" AND _time:2h
                     | stats count() as hits
                     | filter hits:<1
                   labels:

@@ -1,0 +1,7 @@
+[Unit]
+Description=Restart WireGuard when its handshake goes stale
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/wg-watchdog.sh

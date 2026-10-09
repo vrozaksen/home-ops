@@ -399,7 +399,7 @@ spec:
                     severity: warning
                     category: security
                   annotations:
-                    summary: "No honeypot events for 6 hours"
+                    summary: "No honeypot events for 2 hours"
                     description: |-
                       Cowrie stopped reporting. Either the OVH VPS is down, the
                       container died, or the WireGuard tunnel to VictoriaLogs broke.

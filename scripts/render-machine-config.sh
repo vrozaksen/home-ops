@@ -39,8 +39,16 @@ function main() {
         log fatal "Failed to determine machine type from patch file" "file" "${MACHINEPATCH}"
     fi
 
+    local talosdir; talosdir="$(cd "$(dirname "${MACHINEBASE}")" && pwd)"
+
+    # tuppr owns the running Kubernetes version, so the kubelet tag is taken from it.
+    local kubeversion
+    if ! kubeversion=$(yq --exit-status '.spec.kubernetes.version' "${talosdir}/../kubernetes/core/system-upgrade/tuppr/upgrades/kubernetesupgrade.yaml"); then
+        log fatal "Failed to read Kubernetes version from tuppr KubernetesUpgrade"
+    fi
+
     # Render the base machine configurations
-    if ! base=$(infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --define "machinetype=${type}" --env "${MACHINEBASE}") || [[ -z "${base}" ]]; then
+    if ! base=$(infisical run --env=prod --projectId=da94b011-9a7d-408b-92d9-55be47efe750 --path=/bootstrap --recursive -- minijinja-cli --define "machinetype=${type}" --define "kubeversion=${kubeversion}" --env "${MACHINEBASE}") || [[ -z "${base}" ]]; then
         log fatal "Failed to render base machine configuration" "file" "${MACHINEBASE}"
     fi
 
@@ -58,7 +66,6 @@ function main() {
     # files is the point -- the base template used to carry hand-copied
     # duplicates of them, which is how it drifted out of sync.
     local -a patches=()
-    local talosdir; talosdir="$(cd "$(dirname "${MACHINEBASE}")" && pwd)"
 
     local f
     local -a candidates=("${talosdir}"/patches/global/*.yaml)
@@ -77,9 +84,8 @@ function main() {
         log fatal "Failed to apply patches to machine configuration" "base_file" "${tmpdir}/base.yaml" "patches" "${#patches[@]}"
     fi
 
-    # tuppr owns the running Kubernetes version; a stale pin here downgrades the node on apply.
-    local want img
-    want=$(yq '.spec.kubernetes.version' "${talosdir}/../kubernetes/core/system-upgrade/tuppr/upgrades/kubernetesupgrade.yaml")
+    # The control-plane patches still pin their own tags; a stale one downgrades the node on apply.
+    local want="${kubeversion}" img
     for img in $(echo "${result}" | grep -oE '(siderolabs/kubelet|kube-(apiserver|controller-manager|scheduler|proxy)):v[0-9.]+'); do
         if [[ "${img##*:}" != "${want}" ]]; then
             log fatal "Kubernetes image does not match tuppr version" "image" "${img}" "want" "${want}"

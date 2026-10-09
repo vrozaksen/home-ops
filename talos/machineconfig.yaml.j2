@@ -1,7 +1,7 @@
 ---
 # Base machine config, rendered by scripts/render-machine-config.sh with
-# `--define machinetype=<controlplane|worker>` and Infisical supplying the
-# secrets. Derived from talhelper's own output for a patch-free cluster, so it
+# `--define machinetype=<controlplane|worker>`, `--define kubeversion=` (read
+# from the tuppr KubernetesUpgrade) and Infisical supplying the secrets. Derived from talhelper's own output for a patch-free cluster, so it
 # holds only what is common to every node.
 #
 # Deliberately absent, because later layers own it:
@@ -25,8 +25,7 @@ machine:
 {% endif %}
   certSANs: []
   kubelet:
-    # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-    image: ghcr.io/siderolabs/kubelet:v1.37.1
+    image: ghcr.io/siderolabs/kubelet:{{ kubeversion }}
     defaultRuntimeSeccompProfileEnabled: true
     disableManifestsDirectory: true
   features:

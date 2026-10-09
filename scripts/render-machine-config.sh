@@ -77,6 +77,15 @@ function main() {
         log fatal "Failed to apply patches to machine configuration" "base_file" "${tmpdir}/base.yaml" "patches" "${#patches[@]}"
     fi
 
+    # tuppr owns the running Kubernetes version; a stale pin here downgrades the node on apply.
+    local want img
+    want=$(yq '.spec.kubernetes.version' "${talosdir}/../kubernetes/core/system-upgrade/tuppr/upgrades/kubernetesupgrade.yaml")
+    for img in $(echo "${result}" | grep -oE '(siderolabs/kubelet|kube-(apiserver|controller-manager|scheduler|proxy)):v[0-9.]+'); do
+        if [[ "${img##*:}" != "${want}" ]]; then
+            log fatal "Kubernetes image does not match tuppr version" "image" "${img}" "want" "${want}"
+        fi
+    done
+
     echo "${result}"
 }
 

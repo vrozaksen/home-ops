@@ -211,6 +211,6 @@ render-config node:
     set -euo pipefail
     # The directory a node file sits in is what declares its role, so a node
     # cannot claim one role by filename and another by content.
-    patch=$(find "{{ TALOS_DIR }}/nodes" -name "{{ node }}.yaml.j2" -mindepth 2 -maxdepth 2 | head -1)
+    patch=$(find "{{ TALOS_DIR }}/nodes" -mindepth 2 -maxdepth 2 -name "{{ node }}.yaml.j2" | head -1)
     [ -n "$patch" ] || { echo "no node patch for {{ node }} under nodes/{controlplane,worker}/" >&2; exit 1; }
     "{{ ROOT_DIR }}/scripts/render-machine-config.sh" "{{ TALOS_DIR }}/machineconfig.yaml.j2" "$patch"

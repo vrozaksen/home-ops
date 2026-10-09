@@ -25,7 +25,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256m
+          # 256m OOM'd once (2026-10-03) despite ~30Mi steady state
+          memory: 512m
         reservations:
           memory: 64m
     logging:

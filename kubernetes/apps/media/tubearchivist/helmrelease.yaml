@@ -49,6 +49,10 @@ spec:
                   httpGet:
                     path: /api/health/
                     port: &port 8000
+                    # Django ALLOWED_HOSTS comes from TA_HOST; pod-IP Host header gets a 400
+                    httpHeaders: &hostHeader
+                      - name: Host
+                        value: tubearchivist.vzkn.eu
                   periodSeconds: 30
                   timeoutSeconds: 10
                   failureThreshold: 3
@@ -60,6 +64,7 @@ spec:
                   httpGet:
                     path: /api/health/
                     port: *port
+                    httpHeaders: *hostHeader
                   periodSeconds: 10
                   timeoutSeconds: 10
                   # first start migrates the v0.4 ES indices

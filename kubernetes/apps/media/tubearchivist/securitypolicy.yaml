@@ -19,7 +19,13 @@ spec:
       - "openid"
       - "email"
       - "profile"
+  # app-template names the route `tubearchivist` with one route and
+  # `tubearchivist-app` with several; cover both so a Helm rollback across
+  # that change never leaves the app ungated
   targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: tubearchivist
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       name: tubearchivist-app

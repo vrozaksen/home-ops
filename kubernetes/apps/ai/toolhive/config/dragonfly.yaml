@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/dragonflydb.io/dragonfly_v1alpha1.json
+# Persistent store for the vMCP embedded auth server (DCR clients, refresh tokens).
+# In-memory storage lost every registration on pod restart -> "invalid_client".
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: vmcp-dragonfly
+spec:
+  image: ghcr.io/dragonflydb/dragonfly:v2.0.0
+  replicas: 2
+  authentication:
+    passwordFromSecret:
+      name: vmcp-auth-server-secret
+      key: redis-password
+  args:
+    - --proactor_threads=1
+  # Snapshots survive a full restart of both replicas.
+  snapshot:
+    cron: "*/5 * * * *"
+    persistentVolumeClaimSpec:
+      accessModes:
+        - "ReadWriteOnce"
+      storageClassName: ceph-block
+      resources:
+        requests:
+          storage: 1Gi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 256Mi
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: "kubernetes.io/hostname"
+      whenUnsatisfiable: "DoNotSchedule"
+      nodeTaintsPolicy: Honor
+      labelSelector:
+        matchLabels:
+          app: vmcp-dragonfly
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/networking.k8s.io/networkpolicy_v1.json
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vmcp-dragonfly-access
+spec:
+  podSelector:
+    matchLabels:
+      app: vmcp-dragonfly
+      app.kubernetes.io/name: dragonfly
+  policyTypes:
+    - Ingress
+  ingress:
+    # Redis port: the vMCP gateway, plus replication between replicas.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: mcp-gateway
+        - podSelector:
+            matchLabels:
+              app: vmcp-dragonfly
+      ports:
+        - port: 6379
+          protocol: TCP
+    # Admin port: the operator and sibling replicas.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: database
+          podSelector:
+            matchLabels:
+              control-plane: controller-manager
+        - podSelector:
+            matchLabels:
+              app: vmcp-dragonfly
+      ports:
+        - port: 9999
+          protocol: TCP

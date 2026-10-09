@@ -14,6 +14,15 @@ spec:
     hmacSecretRefs:
       - name: vmcp-auth-server-secret
         key: hmac-key
+    # Persist DCR clients/tokens; in-memory lost them on every restart.
+    storage:
+      type: redis
+      redis:
+        addr: vmcp-dragonfly.ai.svc.cluster.local:6379
+        aclUserConfig:
+          passwordSecretRef:
+            name: vmcp-auth-server-secret
+            key: redis-password
     tokenLifespans:
       accessTokenLifespan: 1h
       refreshTokenLifespan: 168h

@@ -51,6 +51,8 @@ metadata:
   name: toolhive-config
 spec:
   dependsOn:
+    - name: dragonfly-operator
+      namespace: database
     - name: infisical-operator
       namespace: security
     - name: kanidm

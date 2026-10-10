@@ -19,7 +19,7 @@ spec:
             image:
               # renovate: datasource=docker depName=docker.io/ttlequals0/minuspod
               repository: docker.io/ttlequals0/minuspod
-              tag: 2.97.40-cpu@sha256:23a42bf37d81eff2e64245cce5353872fc6bbfcf4b66a6d82e32a845610c7011
+              tag: 2.99.4-cpu@sha256:fbb409888fd98dfad44f1c3d4b97164fcd199aae99b27c82d7272c60e6699f60
             env:
               TZ: Europe/Warsaw
               BASE_URL: https://minuspod.vzkn.eu

@@ -52,7 +52,7 @@ services:
       - "8080:8080"
     volumes:
       - /mnt/blaze/appdata/navidrome:/config
-      - /mnt/cache/z_media/music:/music:ro
+      - /mnt/user/data/media/music:/music:ro
     healthcheck:
       test:
         - "CMD"

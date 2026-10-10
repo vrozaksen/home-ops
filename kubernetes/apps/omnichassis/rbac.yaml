@@ -82,3 +82,32 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: omnichassis-infra
+---
+# Fleet backend signs gateway CSRs via cert-manager; the device key never leaves the gateway.
+# Lives here, not in Omnichassis/infra: omnichassis-infra lacks `bind`, so its dry-run
+# can't bind a Role created in the same apply.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fleet-certificate-requests
+rules:
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificaterequests
+    verbs:
+      - create
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fleet-certificate-requests
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fleet-certificate-requests
+subjects:
+  # Created by the fleet app-template release
+  - kind: ServiceAccount
+    name: fleet

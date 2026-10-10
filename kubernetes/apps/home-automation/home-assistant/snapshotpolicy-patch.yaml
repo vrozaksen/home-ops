@@ -1,0 +1,16 @@
+---
+# Skip reinstallable code-server extensions/caches and HA logs; keep
+# .vscode/User, settings.json, extensions.json
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: ${APP}
+spec:
+  files:
+    ignoreRules:
+      - /lost+found
+      - /.cache/
+      - /.vscode/*.*-[0-9]*/
+      - /.vscode/Cached*/
+      - /.vscode/logs/
+      - /home-assistant.log*

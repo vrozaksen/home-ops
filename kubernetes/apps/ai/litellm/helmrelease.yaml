@@ -19,7 +19,7 @@ spec:
             image:
               repository: ghcr.io/berriai/litellm-non_root
               # >= 1.100.4 required: older lines have the salt-key admin escalation (GHSA-7hp6-4w63-5g45)
-              tag: v1.104.0@sha256:37066242e6b8327fdd627682a66a9ae2a599553b4d5a84c905c6d8b9eb35c01e
+              tag: v1.104.3@sha256:dbe7a657361a0aa8e4434a1f852ed66df7936e30b81b0a9315175ccab9e4c1dd
             args:
               - --port
               - "4000"

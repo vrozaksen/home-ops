@@ -48,3 +48,32 @@ spec:
               Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
           labels:
             severity: critical
+
+        # Sync source health (HOPS-67). SourceVerified=False also flips Ready.
+        - alert: FluxSyncSourceNotReady
+          expr: |-
+            gotk_resource_info{customresource_kind=~"GitRepository|OCIRepository", exported_namespace="flux-system", name="flux-system", ready!="True"} == 1
+          for: 15m
+          annotations:
+            summary: >-
+              Flux sync source {{ $labels.customresource_kind }}/flux-system is not ready
+            description: |
+              The cluster keeps running the last good artifact but receives no new changes.
+              Check the source conditions (fetch, cosign verification) and the flux-publish workflow.
+          labels:
+            severity: critical
+
+        # Dual-run only: the OCI artifact must follow Git. Remove with the GitRepository.
+        - alert: FluxOCIArtifactBehindGit
+          expr: |-
+            label_replace(gotk_resource_info{customresource_kind="GitRepository", exported_namespace="flux-system", name="flux-system"}, "sha", "$1", "revision", ".*sha1:([0-9a-f]+)")
+            unless on (sha)
+            label_replace(gotk_resource_info{customresource_kind="OCIRepository", exported_namespace="flux-system", name="flux-system"}, "sha", "$1", "revision", ".*sha1:([0-9a-f]+)")
+          for: 30m
+          annotations:
+            summary: OCI artifact flux-system lags behind the Git revision for 30m
+            description: |
+              Git is at {{ $labels.revision }} but the OCIRepository has not caught up.
+              Likely a failed flux-publish run or a failed signature verification.
+          labels:
+            severity: warning

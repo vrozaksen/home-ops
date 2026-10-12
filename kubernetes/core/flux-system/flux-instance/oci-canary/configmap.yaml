@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-oci-canary
+data:
+  purpose: Applied from the OCI artifact by Kustomization flux-oci-canary (HOPS-64).

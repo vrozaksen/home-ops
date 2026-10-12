@@ -4,9 +4,13 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
+  - ./infisicalsecret-oci.yaml
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
+  - ./oci-canary.yaml
+  - ./ocirepository.yaml
   - ./httproute.yaml
   - ./podmonitor.yaml
   - ./prometheusrule.yaml
   - ./receiver.yaml
+  - ./receiver-oci.yaml

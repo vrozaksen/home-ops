@@ -4,12 +4,11 @@ name: "Publish Flux Artifact"
 
 on:
   workflow_dispatch:
+  # No paths filter: every commit gets an artifact, so the synced revision always
+  # equals main HEAD (commit statuses, FluxOCIArtifactBehindGit alert).
   push:
     branches:
       - "main"
-    paths:
-      - "kubernetes/**"
-      - ".github/workflows/flux-publish.yaml"
 
 permissions:
   contents: read

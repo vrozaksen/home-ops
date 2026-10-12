@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/source.toolkit.fluxcd.io/ocirepository_v1.json
+# Dual-run source (HOPS-64): published by .github/workflows/flux-publish.yaml,
+# consumed only by the flux-oci-canary Kustomization until the cutover.
+# Pre-creating it is what lets the cutover commit avoid a deadlock; at cutover
+# drop it from kustomization.yaml (prune disabled keeps it) and FluxInstance
+# adopts it, with verify moved into the FluxInstance kustomize patches.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: flux-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  interval: 10m
+  url: oci://ghcr.io/vrozaksen/manifests/home-ops
+  ref:
+    tag: main
+  verify:
+    provider: cosign
+    matchOIDCIdentity:
+      - issuer: ^https://token\.actions\.githubusercontent\.com$
+        subject: ^https://github\.com/vrozaksen/home-ops/\.github/workflows/flux-publish\.yaml@refs/heads/main$

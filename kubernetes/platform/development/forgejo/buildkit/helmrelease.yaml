@@ -139,8 +139,6 @@ spec:
           ttlSecondsAfterFinished: 86400
           backoffLimit: 1
         pod:
-          labels:
-            app.kubernetes.io/name: buildkit-prune
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch

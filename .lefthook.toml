@@ -32,3 +32,18 @@ glob = [".github/workflows/*.yaml"]
 [pre-commit.commands.zizmor]
 run = "mise exec -- zizmor --no-progress --min-severity low {staged_files}"
 glob = [".github/workflows/*.yaml"]
+
+# bootstrap/values.yaml.gotmpl reads values from in-repo HelmReleases by path;
+# a layer move silently broke DR bootstrap once (apps/ -> core/).
+[pre-commit.commands.bootstrap-values-paths]
+run = """
+set -o pipefail
+tmpl=$(grep -o '\\.\\./kubernetes/[^"]*' bootstrap/values.yaml.gotmpl)
+yq -r '.releases[] | select(.values[]? == "../values.yaml.gotmpl") | .namespace + " " + .name' bootstrap/helmfile.d/01-apps.yaml \
+  | while read -r ns name; do
+      # shellcheck disable=SC2059
+      f="bootstrap/$(printf "$tmpl" "$ns" "$name")"
+      [ -f "$f" ] || { echo "bootstrap: $ns/$name values source missing: $f"; exit 1; }
+    done
+"""
+glob = ["bootstrap/**", "kubernetes/core/**"]

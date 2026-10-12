@@ -19,7 +19,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/chnapy/pkvault
               repository: ghcr.io/chnapy/pkvault
-              tag: 2.3.4@sha256:49cffcb01fa12e25819ab5b948f8a7e5de28952bb710e66887ea5f29b728389b
+              tag: 2.4.3@sha256:33c0480a6e9857b5f797667645270bb9a99b220b804e65f6245afbbaff58a3e0
             env:
               TZ: Europe/Warsaw
             probes:

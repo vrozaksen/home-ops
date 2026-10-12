@@ -25,6 +25,8 @@ spec:
               STRICT_SCHEMA_CHECK: "true"
               # URLs
               APP_URL: https://rxresume.vzkn.eu
+              # Envoy pod CIDR, trusted for X-Forwarded-* headers
+              TRUSTED_PROXIES: 10.69.0.0/16
               # S3 Storage
               S3_ENDPOINT: https://api.s3.vzkn.eu
               S3_BUCKET: rxresume

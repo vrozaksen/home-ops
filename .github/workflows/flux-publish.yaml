@@ -14,7 +14,9 @@ on:
 permissions:
   contents: read
 
-# Never cancel: a cancelled run can leave `main` behind HEAD. Runs queue in order.
+# Never cancel a running publish (it could stop between push and tag). GitHub
+# keeps one pending run per group, so superseded pending runs are cancelled and
+# `main` always ends on the newest commit.
 concurrency:
   group: flux-publish
   cancel-in-progress: false

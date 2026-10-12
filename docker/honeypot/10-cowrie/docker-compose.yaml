@@ -13,7 +13,7 @@ name: cowrie
 services:
   cowrie:
     # renovate: datasource=docker depName=cowrie/cowrie
-    image: docker.io/cowrie/cowrie:3.1.1
+    image: docker.io/cowrie/cowrie:3.1.2
     container_name: cowrie
     restart: unless-stopped
     read_only: true

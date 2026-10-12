@@ -70,6 +70,17 @@ spec:
             target:
               kind: OCIRepository
               name: flux-system
+          - # Operator GC deleted this source when an old artifact bounced sync back to Git (2026-10-12)
+            patch: |
+              apiVersion: source.toolkit.fluxcd.io/v1
+              kind: OCIRepository
+              metadata:
+                name: flux-system
+                annotations:
+                  fluxcd.controlplane.io/prune: disabled
+            target:
+              kind: OCIRepository
+              name: flux-system
           - # Increase the number of workers
             patch: |
               - op: add

@@ -7,7 +7,7 @@ kind: Dragonfly
 metadata:
   name: vmcp-dragonfly
 spec:
-  image: ghcr.io/dragonflydb/dragonfly:v2.0.0
+  image: ghcr.io/dragonflydb/dragonfly:v2.0.2
   replicas: 2
   authentication:
     passwordFromSecret:
@@ -19,6 +19,7 @@ spec:
     - --maxmemory=256Mi
     # toolhive's Lua scripts touch keys not passed in KEYS (all share one hashtag).
     - --default_lua_flags=allow-undeclared-keys
+    - --version_check=false
   # Snapshots survive a full restart of both replicas.
   snapshot:
     cron: "*/5 * * * *"

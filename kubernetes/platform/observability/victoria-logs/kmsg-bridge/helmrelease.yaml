@@ -37,7 +37,7 @@ spec:
             image:
               # renovate: datasource=docker depName=docker.io/timberio/vector
               repository: docker.io/timberio/vector
-              tag: 0.58.0-distroless-libc
+              tag: 0.59.0-distroless-libc
             args:
               - --config
               - /etc/vector/vector.yaml

@@ -35,7 +35,7 @@ spec:
       DRAGONFLY_MEMORY_REQUEST: 640Mi
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns

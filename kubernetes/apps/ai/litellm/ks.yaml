@@ -30,7 +30,7 @@ spec:
       CNPG_SIZE: 5Gi
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns

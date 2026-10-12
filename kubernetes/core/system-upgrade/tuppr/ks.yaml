@@ -14,7 +14,7 @@ spec:
   path: ./kubernetes/core/system-upgrade/tuppr/app
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: system-upgrade
@@ -33,7 +33,7 @@ spec:
   path: ./kubernetes/core/system-upgrade/tuppr/upgrades
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: system-upgrade

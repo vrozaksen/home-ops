@@ -34,13 +34,14 @@ spec:
         - kustomize-controller
         - helm-controller
         - notification-controller
+      # Signed artifact from .github/workflows/flux-publish.yaml (HOPS-65).
+      # Rollback: revert to GitRepository; it survives via the prune patch below.
       sync:
-        kind: GitRepository
-        url: https://github.com/vrozaksen/home-ops
-        ref: refs/heads/main
+        kind: OCIRepository
+        url: oci://ghcr.io/vrozaksen/manifests/home-ops
+        ref: main
         path: kubernetes/flux/cluster
-        interval: 1h
-        timeout: 5m
+        interval: 10m
       commonMetadata:
         labels:
           app.kubernetes.io/name: flux
@@ -56,6 +57,18 @@ spec:
                   fluxcd.controlplane.io/prune: disabled
             target:
               kind: GitRepository
+              name: flux-system
+          - # FluxInstance sync has no verify field; only accept artifacts signed by flux-publish on main
+            patch: |
+              - op: add
+                path: /spec/verify
+                value:
+                  provider: cosign
+                  matchOIDCIdentity:
+                    - issuer: ^https://token\.actions\.githubusercontent\.com$
+                      subject: ^https://github\.com/vrozaksen/home-ops/\.github/workflows/flux-publish\.yaml@refs/heads/main$
+            target:
+              kind: OCIRepository
               name: flux-system
           - # Increase the number of workers
             patch: |

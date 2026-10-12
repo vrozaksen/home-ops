@@ -8,7 +8,6 @@ resources:
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
   - ./oci-canary.yaml
-  - ./ocirepository.yaml
   - ./httproute.yaml
   - ./podmonitor.yaml
   - ./prometheusrule.yaml

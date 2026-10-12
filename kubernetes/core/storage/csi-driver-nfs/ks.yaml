@@ -9,7 +9,7 @@ spec:
   path: ./kubernetes/core/storage/csi-driver-nfs
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: storage

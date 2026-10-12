@@ -17,7 +17,7 @@ spec:
   path: ./kubernetes/core/rook-ceph/ceph-csi-drivers
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: rook-ceph

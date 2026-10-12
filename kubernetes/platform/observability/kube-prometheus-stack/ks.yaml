@@ -14,7 +14,7 @@ spec:
   path: ./kubernetes/platform/observability/kube-prometheus-stack
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: observability

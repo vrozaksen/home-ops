@@ -24,7 +24,7 @@ spec:
       KOPIUR_PGID: "1000"  # home is 1000:1000; default PGID 100 would restore wrong group
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns

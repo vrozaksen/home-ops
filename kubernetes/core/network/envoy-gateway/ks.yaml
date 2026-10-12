@@ -12,7 +12,7 @@ spec:
   path: ./kubernetes/core/network/envoy-gateway
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: network

@@ -45,7 +45,7 @@ spec:
       ANUBIS_TARGET: "http://forgejo-http.development.svc.cluster.local:3000"
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns
@@ -74,7 +74,7 @@ spec:
       NS: &ns development
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns
@@ -97,7 +97,7 @@ spec:
       NS: &ns development
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns

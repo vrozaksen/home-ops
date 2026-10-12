@@ -12,7 +12,7 @@ spec:
   path: ./kubernetes/core/flux-system/tofu-controller/controller
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: flux-system
@@ -31,7 +31,7 @@ spec:
   path: ./kubernetes/core/flux-system/tofu-controller/terraform
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: flux-system

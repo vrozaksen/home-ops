@@ -26,7 +26,7 @@ spec:
       KOPIUR_PGID: "2000"
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *ns

@@ -12,7 +12,7 @@ spec:
   path: ./kubernetes/core/flux-system/priority-classes
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   wait: true

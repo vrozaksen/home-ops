@@ -10,7 +10,7 @@ spec:
   # Pruning would delete the CRDs and with them every VM in the cluster.
   prune: false
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: kubevirt
@@ -33,7 +33,7 @@ spec:
   path: ./kubernetes/platform/kubevirt/kubevirt/app
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: kubevirt

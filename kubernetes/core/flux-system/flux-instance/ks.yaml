@@ -15,7 +15,7 @@ spec:
   path: ./kubernetes/core/flux-system/flux-instance/app
   prune: false  # Never delete this
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: flux-system

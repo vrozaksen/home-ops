@@ -9,7 +9,7 @@ spec:
   path: ./kubernetes/platform/database/cloudnative-pg/app
   prune: false
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: database
@@ -28,7 +28,7 @@ spec:
   path: ./kubernetes/platform/database/cloudnative-pg/plugin-barman-cloud
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: database

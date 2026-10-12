@@ -9,7 +9,7 @@ spec:
   path: ./kubernetes/apps/self-hosted/it-tools
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: self-hosted

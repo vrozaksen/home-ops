@@ -7,8 +7,7 @@ metadata:
 spec:
   providerRef:
     name: github-status
+  # Kustomization events carry the origin Git revision (OCI artifact metadata).
   eventSources:
-    - kind: GitRepository
-      name: flux-system
     - kind: Kustomization
       name: "*"

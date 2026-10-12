@@ -12,7 +12,7 @@ spec:
   path: ./kubernetes/platform/observability/victoria-logs/app
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: observability
@@ -30,7 +30,7 @@ spec:
   path: ./kubernetes/platform/observability/victoria-logs/collector
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: observability
@@ -48,7 +48,7 @@ spec:
   path: ./kubernetes/platform/observability/victoria-logs/kmsg-bridge
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: observability

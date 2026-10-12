@@ -12,7 +12,7 @@ spec:
   path: ./kubernetes/platform/actions-runner-system/actions-runner-controller/app
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: actions-runner-system
@@ -30,7 +30,7 @@ spec:
   path: ./kubernetes/platform/actions-runner-system/actions-runner-controller/runners
   prune: true
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: actions-runner-system

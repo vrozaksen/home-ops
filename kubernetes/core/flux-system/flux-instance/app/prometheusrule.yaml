@@ -63,12 +63,13 @@ spec:
           labels:
             severity: critical
 
-        # Dual-run only: the OCI artifact must follow Git. Remove with the GitRepository.
+        # Dual-run only: the OCI artifact must follow Git. OCI revision is tag@digest,
+        # so compare the commit from origin_revision. Remove with the GitRepository.
         - alert: FluxOCIArtifactBehindGit
           expr: |-
             label_replace(gotk_resource_info{customresource_kind="GitRepository", exported_namespace="flux-system", name="flux-system"}, "sha", "$1", "revision", ".*sha1:([0-9a-f]+)")
             unless on (sha)
-            label_replace(gotk_resource_info{customresource_kind="OCIRepository", exported_namespace="flux-system", name="flux-system"}, "sha", "$1", "revision", ".*sha1:([0-9a-f]+)")
+            label_replace(gotk_resource_info{customresource_kind="OCIRepository", exported_namespace="flux-system", name="flux-system"}, "sha", "$1", "origin_revision", ".*sha1:([0-9a-f]+)")
           for: 30m
           annotations:
             summary: OCI artifact flux-system lags behind the Git revision for 30m

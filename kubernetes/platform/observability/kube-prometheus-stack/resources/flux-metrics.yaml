@@ -285,6 +285,12 @@ kube-state-metrics:
                     - status
                     - artifact
                     - revision
+                  # revision is tag@digest; the Git commit lives in the artifact metadata
+                  origin_revision:
+                    - status
+                    - artifact
+                    - metadata
+                    - org.opencontainers.image.revision
                   url:
                     - spec
                     - url

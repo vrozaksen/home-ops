@@ -22,6 +22,16 @@
       "minimumGroupSize": 2
     },
     {
+      // Same CLI pinned in .mise.toml and image-pull.yaml; keep them in lockstep.
+      "description": ["Flate Group (mise + workflow pin)"],
+      "groupName": "flate",
+      "matchPackageNames": ["home-operations/flate", "/github:home-operations/flate/"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "minimumGroupSize": 2
+    },
+    {
       // Webhook solver links cert-manager's apiextensions lib; a cert-manager
       // bump that breaks it breaks the 7-day wildcard renewal.
       "description": ["Cert-Manager Group (chart + OVH DNS-01 webhook)"],

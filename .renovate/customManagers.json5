@@ -51,5 +51,19 @@
       ],
       datasourceTemplate: "github-releases",
     },
+    {
+      customType: "regex",
+      description: "Process mise-action tool_versions in GitHub workflows",
+      managerFilePatterns: [
+        "/^\\.github/workflows/.+\\.ya?ml$/",
+      ],
+      matchStrings: [
+        // tool_versions: |
+        //   github:home-operations/flate 0.6.5
+        "\\s+github:(?<depName>[\\w.-]+/[\\w.-]+) (?<currentValue>v?\\d+\\.\\d+\\.\\d+)\\s",
+      ],
+      datasourceTemplate: "github-releases",
+      extractVersionTemplate: "^v?(?<version>.+)$",
+    },
   ],
 }

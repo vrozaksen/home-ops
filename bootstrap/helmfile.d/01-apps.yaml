@@ -98,7 +98,6 @@ releases:
               kubectl annotate crd $crd meta.helm.sh/release-namespace=security --overwrite
             done
         showlogs: true
-    force: true
 
   - name: flux-operator
     namespace: flux-system

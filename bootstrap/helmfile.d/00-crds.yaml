@@ -8,20 +8,19 @@ helmDefaults:
   args:
     - --include-crds
     - --no-hooks
-  postRenderer: bash
-  postRendererArgs:
-    - -c
-    - yq ea -e 'select(.kind == "CustomResourceDefinition")'
+    # CRD filtering is done by the bootstrap script (helm 4 postRenderer = plugin only)
 
 repositories:
   - name: infisical
     url: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
 
 releases:
-  - name: cloudflare-dns
+  - name: external-dns
     namespace: network
     chart: oci://ghcr.io/home-operations/charts-mirror/external-dns
     version: 1.22.0
+    values:
+      - policy: sync  # chart schema rejects null policy
 
   - name: infisical-secrets-operator
     namespace: security

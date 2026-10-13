@@ -26,6 +26,13 @@ spec:
   values:
     fullnameOverride: crd-schema-publisher
     mode: controller
+    # Chart default 500Mi: each publish cycle (319 schemas) peaks ~490Mi, 17 OOMKills/24h.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
     strategy:
       type: Recreate
     extraVolumes:

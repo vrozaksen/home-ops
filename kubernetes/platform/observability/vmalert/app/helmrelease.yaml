@@ -369,23 +369,6 @@ spec:
                       not inside Cowrie. Nothing legitimate does this here. If it was
                       not you, treat the VPS as compromised and rebuild it.
 
-                # The one Cowrie event worth waking for: a payload was fetched, so
-                # there is a sample to pull apart rather than just another scan.
-                - alert: HoneypotMalwareDownload
-                  expr: >-
-                    app:"cowrie" AND _time:10m
-                    AND eventid:~"cowrie.session.file_(download|upload)"
-                    | stats by (src_ip) count() as hits
-                    | filter hits:>0
-                  labels:
-                    severity: warning
-                    category: security
-                  annotations:
-                    summary: "Malware dropped on the honeypot by {{ index .Labels \"src_ip\" }}"
-                    description: |-
-                      {{ $value }} file transfers in 10 minutes. The shasum is in the
-                      Cowrie dashboard at https://grafana.vzkn.eu/d/cowrie-honeypot
-
                 # Silence means the VPS, the container or the tunnel died. The
                 # baseline is ~30k events a day, so two empty hours is already
                 # unambiguous -- six let a 2026-10-09 tunnel outage run for

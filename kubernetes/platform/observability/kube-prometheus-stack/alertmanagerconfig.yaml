@@ -34,6 +34,16 @@ spec:
           - name: severity
             value: info
             matchType: =
+      # Flux notification-controller events (one per reconcile, per namespace).
+      # Duplicates the gotk_resource_info rules, which have a `for:` window.
+      - receiver: blackhole
+        matchers:
+          - name: alertname
+            value: Flux.*
+            matchType: =~
+          - name: severity
+            value: error
+            matchType: =
       - receiver: pushover
         matchers:
           - name: severity

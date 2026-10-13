@@ -32,22 +32,22 @@ spec:
         - alert: HelmReleaseReconciliationFailure
           expr: |-
             gotk_resource_info{customresource_kind="HelmRelease", ready!="True"} == 1
-          for: 5m
+          for: 30m
           annotations:
             summary: >-
               HelmRelease {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
           labels:
-            severity: critical
+            severity: warning
 
         - alert: KustomizationReconciliationFailure
           expr: |-
             gotk_resource_info{customresource_kind="Kustomization", ready!="True"} == 1
-          for: 5m
+          for: 30m
           annotations:
             summary: >-
               Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
           labels:
-            severity: critical
+            severity: warning
 
         # Sync source health (HOPS-67). SourceVerified=False also flips Ready.
         - alert: FluxSyncSourceNotReady

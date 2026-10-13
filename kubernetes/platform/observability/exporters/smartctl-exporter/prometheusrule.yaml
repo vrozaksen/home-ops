@@ -9,12 +9,13 @@ spec:
     - name: smartctl-exporter.rules
       rules:
         - alert: SmartDeviceHighTemperature
+          # 30m average above the 70°C spec limit; worker SSDs sit at 60-68°C.
           expr: |-
-            smartctl_device_temperature{temperature_type="current"} > 65
-          for: 5m
+            avg_over_time(smartctl_device_temperature{temperature_type="current"}[30m]) > 70
+          for: 15m
           annotations:
             summary: >-
-              Mounted drive {{ $labels.device }} on device {{ $labels.instance }} has a temperature higher than 65°C
+              Mounted drive {{ $labels.device }} on device {{ $labels.instance }} has averaged above 70°C for 30m
           labels:
             severity: critical
 

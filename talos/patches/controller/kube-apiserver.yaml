@@ -11,3 +11,7 @@ extraArgs:
   # Faster pod eviction from unreachable nodes (default: 300s)
   default-not-ready-toleration-seconds: "60"
   default-unreachable-toleration-seconds: "60"
+  # HTTP/2 clients never leave an apiserver once connected, so every restart piles
+  # them onto the survivors (eir: 5.3Gi live heap vs 1.3Gi on skuld, 2026-10-13).
+  # 1-in-1000 GOAWAY makes them reconnect and spreads load back out (upstream rec).
+  goaway-chance: "0.001"

@@ -14,6 +14,13 @@ spec:
     - action: replace
       targetLabel: job
       replacement: node-exporter
+  # Unraid /mnt/user0 is /mnt/user minus cache: same array, second identical alert.
+  metricRelabelings:
+    - action: drop
+      sourceLabels:
+        - instance
+        - mountpoint
+      regex: aincrad\.home\.vzkn\.eu:9100;/mnt/user0
 # ---
 # # yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/scrapeconfig_v1alpha1.json
 # apiVersion: monitoring.coreos.com/v1alpha1

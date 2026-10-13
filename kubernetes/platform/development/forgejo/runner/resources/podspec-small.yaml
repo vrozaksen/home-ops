@@ -4,8 +4,9 @@
 activeDeadlineSeconds: 900
 serviceAccountName: forgejo-runner
 automountServiceAccountToken: true
-# CI yields to cluster workloads instead of preempting them.
-priorityClassName: cluster-low
+# Never preempts anything and normal pods cannot preempt it (cluster-low
+# let kopiur movers kill builds mid-run, 2026-10-13).
+priorityClassName: ci-task
 securityContext:
   fsGroup: 1000
   fsGroupChangePolicy: OnRootMismatch

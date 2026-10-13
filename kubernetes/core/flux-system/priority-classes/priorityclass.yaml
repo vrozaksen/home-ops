@@ -7,3 +7,14 @@ value: -100
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority
 description: "Low priority workloads - can be preempted by normal priority pods"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: ci-task
+# Same value as unclassed pods, so they can't preempt a running CI job;
+# Never keeps a pending CI job from preempting cluster-low pods (runners).
+value: 0
+globalDefault: false
+preemptionPolicy: Never
+description: "Forgejo CI task pods - never preempt, not preemptible by normal pods"

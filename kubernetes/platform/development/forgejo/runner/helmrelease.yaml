@@ -10,83 +10,10 @@ spec:
     kind: OCIRepository
     name: app-template
   values:
-    configMaps:
-      config:
-        suffix: config
-        data:
-          runner.yaml: |-
-            cache:
-              enabled: true
-              dir: /data/cache
-            container:
-              docker_host: "-"
-              workdir_parent: shared/workdir
-            host:
-              workdir_parent: /data/act
-            kubernetes:
-              namespace: development
-              poll_timeout: 30m
-            log:
-              level: info
-            plugins:
-              k8s:
-                address: unix:///plugin/forgejo-runner-k8s.sock
-                options:
-                  namespace: development
-                  poll_timeout: 30m
-                  labels: "app.kubernetes.io/name=forgejo-runner-instance,app.kubernetes.io/instance=forgejo-runner"
-            runner:
-              capacity: 3
-              file: /persistent/.runner
-              labels:
-                - cluster:k8s:/config/podspec-default.yaml
-                - ubuntu-latest:k8s:/config/podspec-default.yaml
-                - ubuntu-24.04:k8s:/config/podspec-default.yaml
-                - default:k8s:/config/podspec-default.yaml
-                - docker:k8s:/config/podspec-default.yaml
-              timeout: 3h
-          podspec-default.yaml: |-
-            serviceAccountName: forgejo-runner
-            automountServiceAccountToken: true
-            securityContext:
-              fsGroup: 1000
-              fsGroupChangePolicy: OnRootMismatch
-            containers:
-              - env:
-                  - name: DEBIAN_FRONTEND
-                    value: noninteractive
-                  - name: BUILDKIT_HOST
-                    value: tcp://buildkit.development.svc.cluster.local:1234
-                image: ghcr.io/catthehacker/ubuntu:act-latest
-                imagePullPolicy: IfNotPresent
-                name: main
-                resources:
-                  limits:
-                    memory: 12Gi
-                  # Realistic request so the scheduler won't pack several nix
-                  # builds onto one node (ainias OOM-wedged 2026-10-01).
-                  requests:
-                    cpu: 100m
-                    memory: 4Gi
-                volumeMounts:
-                  - name: buildkit-tls
-                    mountPath: /etc/buildkit-tls
-                    readOnly: true
-            volumes:
-              - name: buildkit-tls
-                secret:
-                  secretName: buildkit-client-tls
-                  defaultMode: 0440
-            topologySpreadConstraints:
-              - maxSkew: 1
-                topologyKey: kubernetes.io/hostname
-                whenUnsatisfiable: ScheduleAnyway
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: forgejo-runner-instance
-            restartPolicy: Never
+    # One runner per size class: capacity is per runner process, so this is
+    # the only way to cap concurrency per class. Config lives in ./resources.
     controllers:
-      forgejo-runner:
+      small: &controller
         type: deployment
         annotations:
           reloader.stakater.com/auto: "true"
@@ -100,55 +27,84 @@ spec:
             runAsGroup: 100
             runAsNonRoot: true
             runAsUser: 1000
-        containers:
-          runner:
+          # Covers runner shutdown_timeout (3m) plus the plugin's job cleanup.
+          terminationGracePeriodSeconds: 300
+        initContainers:
+          # Native sidecar: outlives the runner, so jobs drain on shutdown.
+          k8s-plugin:
             image:
-              repository: git.erwanleboucher.dev/eleboucher/runner
-              tag: 12.13.0@sha256:b71959782cea9cbc86eaeb47e5ba32bf8179fbd117dd849e001c9a13807b1a07
+              repository: git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
+              tag: 13.2.1@sha256:d62811841a20fd1a311b2c90c6ffcec37d09e52ebb46834b0c04f3ad2a3bcbe7
+            args:
+              - --listen
+              - unix:///plugin/forgejo-runner-k8s.sock
+            restartPolicy: Always
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32Mi
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+        containers:
+          runner: &runner
+            image:
+              repository: data.forgejo.org/forgejo/runner
+              tag: 13.2.0@sha256:ca3d5eea46004789a175d1369eec6829d3ea9bfbe2011a06625b4bdaa55f7552
             command:
               - sh
               - -ec
               - |
                 exec /bin/forgejo-runner daemon \
-                  --config /config/runner.yaml \
+                  --config /config/runner-small.yaml \
                   --url "http://forgejo-http:3000" \
-                  --uuid "$(cat /etc/forgejo-runner-secret/uuid)" \
-                  --token-url file:///etc/forgejo-runner-secret/token
+                  --uuid "$(cat /etc/forgejo-runner-secret/small-uuid)" \
+                  --token-url file:///etc/forgejo-runner-secret/small-token
             resources:
               requests:
                 cpu: 5m
                 memory: 32Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities:
-                drop:
-                  - ALL
-              readOnlyRootFilesystem: true
-          k8s-plugin:
-            image:
-              repository: git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
-              tag: 12.10.9@sha256:7fb94371ccc6ef3ff7e2110b2c04050a68bb8031d3224ed8aee2cd5e1d31c673
-            args:
-              - --listen
-              - unix:///plugin/forgejo-runner-k8s.sock
-            resources:
-              requests:
-                cpu: 5m
-                memory: 32Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
+            securityContext: *securityContext
+      medium:
+        <<: *controller
+        containers:
+          runner:
+            <<: *runner
+            command:
+              - sh
+              - -ec
+              - |
+                exec /bin/forgejo-runner daemon \
+                  --config /config/runner-medium.yaml \
+                  --url "http://forgejo-http:3000" \
+                  --uuid "$(cat /etc/forgejo-runner-secret/medium-uuid)" \
+                  --token-url file:///etc/forgejo-runner-secret/medium-token
+      large:
+        <<: *controller
+        containers:
+          runner:
+            <<: *runner
+            command:
+              - sh
+              - -ec
+              - |
+                exec /bin/forgejo-runner daemon \
+                  --config /config/runner-large.yaml \
+                  --url "http://forgejo-http:3000" \
+                  --uuid "$(cat /etc/forgejo-runner-secret/large-uuid)" \
+                  --token-url file:///etc/forgejo-runner-secret/large-token
     defaultPodOptions:
       priorityClassName: cluster-low
     persistence:
       config:
         type: configMap
-        identifier: config
+        name: forgejo-runner-resources
         globalMounts:
           - path: /config
+            readOnly: true
       plugin:
         type: emptyDir
         globalMounts:

@@ -91,12 +91,11 @@
       "minimumGroupSize": 2
     },
     {
-      // The k8s plugin is the runner's execution backend from the same release
-      // train; already skewed by three minors.
+      // The k8s plugin speaks the runner's plugin protocol; bump both together.
       "description": ["Forgejo Runner Group (runner + k8s plugin)"],
       "groupName": "forgejo-runner",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["/eleboucher/runner/"],
+      "matchPackageNames": ["/forgejo/runner$/", "/eleboucher/runner-k8s-plugin/"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },

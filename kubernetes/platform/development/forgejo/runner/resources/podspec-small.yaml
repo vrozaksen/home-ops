@@ -1,0 +1,43 @@
+---
+# Lint, change detection. Measured peak ~300Mi (2026-10-13).
+# The pod deadline bounds an orphan if the plugin fails to delete its Job.
+activeDeadlineSeconds: 900
+serviceAccountName: forgejo-runner
+automountServiceAccountToken: true
+# CI yields to cluster workloads instead of preempting them.
+priorityClassName: cluster-low
+securityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+containers:
+  - name: main
+    image: ghcr.io/catthehacker/ubuntu:act-latest
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: DEBIAN_FRONTEND
+        value: noninteractive
+      - name: BUILDKIT_HOST
+        value: tcp://buildkit.development.svc.cluster.local:1234
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+    volumeMounts:
+      - name: buildkit-tls
+        mountPath: /etc/buildkit-tls
+        readOnly: true
+volumes:
+  - name: buildkit-tls
+    secret:
+      secretName: buildkit-client-tls
+      defaultMode: 0440
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: forgejo-runner-instance
+restartPolicy: Never

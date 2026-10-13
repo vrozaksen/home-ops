@@ -1,0 +1,26 @@
+---
+cache:
+  enabled: true
+  dir: /data/cache
+container:
+  docker_host: "-"
+  workdir_parent: shared/workdir
+host:
+  workdir_parent: /data/act
+log:
+  level: info
+plugins:
+  k8s:
+    address: unix:///plugin/forgejo-runner-k8s.sock
+    options:
+      namespace: development
+      poll_timeout: 30m
+      labels: "app.kubernetes.io/name=forgejo-runner-instance,app.kubernetes.io/instance=forgejo-runner"
+runner:
+  # 8 x 256Mi. Lint and change detection.
+  capacity: 8
+  labels:
+    - ubuntu-small:k8s:/config/podspec-small.yaml
+  timeout: 2h
+  # Lets in-flight jobs finish on rollout; within terminationGracePeriodSeconds.
+  shutdown_timeout: 3m

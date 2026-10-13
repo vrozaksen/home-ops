@@ -236,13 +236,13 @@
       changelogUrl: "https://www.pgadmin.org/docs/pgadmin4/latest/release_notes.html",
     },
     {
-      // git.erwanleboucher.dev is not auto-detected as Forgejo by
-      // detectPlatform(); enabling notes would need a hostRules entry.
-      description: "Changelog link for Forgejo runner (eleboucher fork)",
-      matchPackageNames: ["/eleboucher/runner$/"],
+      description: "Changelog link for Forgejo runner",
+      matchPackageNames: ["data.forgejo.org/forgejo/runner"],
       changelogUrl: "https://code.forgejo.org/forgejo/runner",
     },
     {
+      // git.erwanleboucher.dev is not auto-detected as Forgejo by
+      // detectPlatform(); enabling notes would need a hostRules entry.
       description: "Changelog link for Forgejo runner-k8s-plugin",
       matchPackageNames: ["/eleboucher/runner-k8s-plugin/"],
       changelogUrl: "https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin",

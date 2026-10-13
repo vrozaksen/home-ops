@@ -8,4 +8,4 @@ spec:
   policyRef:
     name: ${APP}
   schedule:
-    cron: ${KOPIUR_SCHEDULE:=H * * * *}
+    cron: ${KOPIUR_SCHEDULE:=H */2 * * *}

@@ -26,6 +26,12 @@ spec:
       value: "Renovate Bot <renovate@vzkn.eu>"
     - name: RENOVATE_USERNAME
       value: "renovate-bot"
+    # github.com lookups + release notes; anonymous API is rate-limited
+    - name: RENOVATE_GITHUB_COM_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: renovate-forgejo-token
+          key: RENOVATE_GITHUB_COM_TOKEN
   resources:
     requests:
       cpu: 100m

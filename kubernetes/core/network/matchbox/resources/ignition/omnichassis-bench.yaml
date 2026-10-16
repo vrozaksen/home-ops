@@ -1,7 +1,24 @@
 ---
+# Omnichassis HIL bench (ThinkCentre M920q), Fedora CoreOS live from PXE.
+# Only /var (Intel DC S4600) survives a reboot. No secrets here: plain HTTP on the LAN.
 variant: fcos
 version: 1.5.0
 storage:
+  disks:
+    - device: /dev/disk/by-id/ata-INTEL_SSDSC2KG480G7_PHYM811503B7480BGN
+      wipe_table: false
+      partitions:
+        - number: 1
+          label: bench-var
+          size_mib: 0
+          wipe_partition_entry: false
+  filesystems:
+    - device: /dev/disk/by-partlabel/bench-var
+      path: /var
+      format: xfs
+      label: bench-var
+      wipe_filesystem: false
+      with_mount_unit: true
   directories:
     - path: /home/core/.ssh
       mode: 0700
@@ -11,6 +28,10 @@ storage:
       mode: 0700
       user: {name: core}
       group: {name: core}
+    - path: /var/lib/bench
+      mode: 0700
+    - path: /var/lib/bench/data
+      mode: 0700
   files:
     - path: /home/core/.ssh/authorized_keys.d/matchbox
       mode: 0600
@@ -18,3 +39,138 @@ storage:
       group: {name: core}
       contents:
         source: http://10.10.0.30/generic?{{.request.raw_query}}
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: cardinal
+    - path: /etc/NetworkManager/conf.d/90-unmanaged-can.conf
+      mode: 0644
+      contents:
+        inline: |
+          [keyfile]
+          unmanaged-devices=interface-name:can*
+    - path: /etc/udev/rules.d/90-omnichassis-bench.rules
+      mode: 0644
+      contents:
+        inline: |
+          SUBSYSTEM=="net", KERNEL=="can*", TAG+="systemd", ENV{SYSTEMD_WANTS}+="bench-can@%k.service"
+    # Built on the host, no registry needed.
+    - path: /etc/bench/Containerfile
+      mode: 0644
+      contents:
+        inline: |
+          FROM code.forgejo.org/forgejo/runner:13.2.0 AS runner
+          FROM registry.fedoraproject.org/fedora:44
+          RUN dnf -y install git nodejs python3 libusb1 systemd-libs can-utils iproute \
+                tar xz gzip unzip curl findutils procps-ng && dnf clean all
+          RUN curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
+          COPY --from=runner /bin/forgejo-runner /usr/local/bin/forgejo-runner
+          ENV MISE_DATA_DIR=/data/mise MISE_CACHE_DIR=/data/cache/mise UV_CACHE_DIR=/data/cache/uv
+          ENTRYPOINT ["/usr/local/bin/forgejo-runner"]
+    - path: /etc/containers/systemd/bench-runner.build
+      mode: 0644
+      contents:
+        inline: |
+          [Build]
+          File=/etc/bench/Containerfile
+          ImageTag=localhost/bench-runner:latest
+          SetWorkingDirectory=/etc/bench
+    # Reads /var/lib/bench/runner.env, placed once over SSH (mode 0600)
+    - path: /etc/bench/runner-config.sh
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          set -euo pipefail
+          umask 077
+          mkdir -p /run/bench
+          set -a; . /var/lib/bench/runner.env; set +a
+          printf '%s' "$RUNNER_TOKEN" > /run/bench/token
+          uuid=$RUNNER_UUID
+          cat > /run/bench/config.yaml <<EOF
+          log: {level: info}
+          runner: {capacity: 1, timeout: 3h}
+          cache: {enabled: false}
+          host: {workdir_parent: /data/work}
+          server:
+            connections:
+              omnichassis:
+                url: https://git.vzkn.eu/
+                uuid: $uuid
+                token_url: file:/run/bench/token
+                labels: ["bench:host"]
+          EOF
+    - path: /etc/containers/systemd/forgejo-bench-runner.container
+      mode: 0644
+      contents:
+        inline: |
+          [Unit]
+          Description=Forgejo Actions runner (Omnichassis HIL bench)
+          Requires=bench-runner-config.service
+          After=bench-runner-config.service
+          [Container]
+          Image=bench-runner.build
+          ContainerName=forgejo-bench-runner
+          Exec=daemon --config /run/bench/config.yaml
+          Network=host
+          PodmanArgs=--privileged
+          Volume=/dev:/dev
+          Volume=/run/udev:/run/udev:ro
+          Volume=/run/bench:/run/bench:ro
+          Volume=/var/lib/bench/data:/data:Z
+          [Service]
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+    - path: /etc/containers/systemd/node-exporter.container
+      mode: 0644
+      contents:
+        inline: |
+          [Container]
+          Image=quay.io/prometheus/node-exporter:latest
+          Network=host
+          PodmanArgs=--pid=host
+          Volume=/:/host:ro,rslave
+          Exec=--path.rootfs=/host
+          [Service]
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+    - path: /etc/containers/systemd/cockpit-ws.container
+      mode: 0644
+      contents:
+        inline: |
+          [Container]
+          Image=quay.io/cockpit/ws:latest
+          ContainerName=cockpit-ws
+          Network=host
+          PodmanArgs=--privileged --pid=host
+          Volume=/:/host
+          [Service]
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+systemd:
+  units:
+    - name: bench-can@.service
+      contents: |
+        [Unit]
+        Description=Bring %i up at 500 kbit/s
+        BindsTo=sys-subsystem-net-devices-%i.device
+        After=sys-subsystem-net-devices-%i.device
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/sbin/ip link set %i type can bitrate 500000 restart-ms 100
+        ExecStart=/usr/sbin/ip link set %i up
+    - name: bench-runner-config.service
+      contents: |-
+        [Unit]
+        Description=Write the bench runner configuration
+        Wants=network-online.target
+        After=network-online.target var.mount
+        ConditionPathExists=/var/lib/bench/runner.env
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/etc/bench/runner-config.sh

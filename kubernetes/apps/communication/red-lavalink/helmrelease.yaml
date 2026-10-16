@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/red-lavalink
-              tag: 3.7.13@sha256:d3ca248cd4af9db19c80671920a62f46568b749549c9512b290f156553e07b91
+              tag: 3.7.13@sha256:d7d7fe0368b1e351fd0ed51e2ff0a9a5897cfa3ccceeee3bb77189811ab1d8d2
             env:
               JAVA_OPTS: "-Xmx4G"
               PUID: &uid 1000

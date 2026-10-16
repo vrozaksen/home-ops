@@ -73,10 +73,12 @@ locals {
 
     # Omnichassis firmware CI (org repository): a tagged release build signs
     # the MCUboot images with the release key and uploads them to the fleet
-    # back end at fleet.omnichassis.dev.
+    # back end at fleet.omnichassis.dev; the HIL job on the bench runner
+    # unlocks the ECUs with the tester master key.
     "Omnichassis/firmware" = {
       FLEET_UPLOAD_TOKEN       = data.infisical_secrets.omnichassis_fleet.secrets["FLEET_UPLOAD_TOKEN"].value
       OMNI_RELEASE_SIGNING_KEY = data.infisical_secrets.omnichassis_firmware_ci.secrets["RELEASE_SIGNING_KEY"].value
+      OMNI_TESTER_MASTER_KEY   = data.infisical_secrets.omnichassis_tester.secrets["OMNI_TESTER_MASTER_KEY"].value
     }
   }
 

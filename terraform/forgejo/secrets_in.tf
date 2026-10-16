@@ -61,3 +61,12 @@ data "infisical_secrets" "omnichassis_firmware_ci" {
   folder_path  = "/omnichassis/firmware-ci"
   # expected keys: RELEASE_SIGNING_KEY  (PEM private key, imgtool keygen -t ed25519)
 }
+
+# ─── Omnichassis tester master key (UDS SecurityAccess, ECU key derivation) ─
+data "infisical_secrets" "omnichassis_tester" {
+  env_slug     = "prod"
+  workspace_id = var.infisical_workspace_id
+  folder_path  = "/omnichassis"
+  # expected keys: OMNI_TESTER_MASTER_KEY  (64 hex digits; the HIL job on the
+  # bench runner unlocks the ECUs with it)
+}

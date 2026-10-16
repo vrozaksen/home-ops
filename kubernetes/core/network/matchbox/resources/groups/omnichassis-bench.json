@@ -1,0 +1,8 @@
+{
+  "id": "omnichassis-bench",
+  "name": "Omnichassis HIL bench host (i3-9100)",
+  "profile": "fcos-live",
+  "selector": {
+    "mac": "00:e0:4c:68:07:2c"
+  }
+}

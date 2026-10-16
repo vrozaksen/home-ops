@@ -1,0 +1,17 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  customDatasources: {
+    "fedora-coreos": {
+      defaultRegistryUrlTemplate: "https://builds.coreos.fedoraproject.org/streams/{{packageName}}.json",
+      format: "json",
+      transformTemplates: ['{"releases":[{"version": architectures.x86_64.artifacts.metal.release}]}'],
+    },
+  },
+  packageRules: [
+    {
+      matchDatasources: ["custom.fedora-coreos"],
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d{8})\\.(?<patch>\\d+)\\.(?<build>\\d+)$",
+      commitMessageTopic: "fedora-coreos {{depName}}",
+    },
+  ],
+}

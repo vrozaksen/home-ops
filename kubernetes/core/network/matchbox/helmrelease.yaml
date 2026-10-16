@@ -1,0 +1,183 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: matchbox
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  interval: 1h
+  values:
+    controllers:
+      matchbox:
+        strategy: RollingUpdate
+        initContainers:
+          assets:
+            image:
+              repository: quay.io/coreos/coreos-installer
+              tag: v0.27.0@sha256:c4667e07d14a69523c8bfd77d245b390cfbf719d4c4ee62ad3f76ecde24b5ba2
+            command:
+              - "/bin/bash"
+              - "-euo"
+              - "pipefail"
+              - "-c"
+            args:
+              - |
+                dir=/var/lib/matchbox/assets/fedora-coreos
+                base="https://builds.coreos.fedoraproject.org/prod/streams/$FCOS_STREAM/builds/$FCOS_VERSION/x86_64"
+                mkdir -p "$dir"
+                for kind in live-kernel.x86_64 live-initramfs.x86_64.img live-rootfs.x86_64.img; do
+                  file="fedora-coreos-$FCOS_VERSION-$kind"
+                  rm -f "$dir/$file" "$dir/$file.sig"
+                  coreos-installer download --fetch-retries 3 -C "$dir" -u "$base/$file"
+                  ln -sfn "$file" "$dir/${kind%.x86_64*}${kind#*.x86_64}"
+                done
+                echo "$FCOS_VERSION" > "$dir/VERSION"
+                ls -l "$dir"
+            env:
+              FCOS_STREAM: stable
+              # renovate: datasource=custom.fedora-coreos depName=stable
+              FCOS_VERSION: 44.20260928.3.1
+              HOME: /tmp
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+        containers:
+          app:
+            image:
+              repository: quay.io/poseidon/matchbox
+              tag: v0.11.0@sha256:06bcdae85335fd00e8277b007b55cfb49d96a0114628c0f70db2b92b079d246a
+            args:
+              - -address=0.0.0.0:8080
+              - -log-level=info
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8080
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 256Mi
+          tftp:
+            image:
+              repository: quay.io/poseidon/dnsmasq
+              tag: v0.5.0-29-g038ac27@sha256:4cbd11c88111d3799cf4b181a3177a50ce7c3e4efe479616d69c969f1c60633e
+            args:
+              - --keep-in-foreground
+              - --log-facility=-
+              - --port=0
+              - --pid-file
+              - --enable-tftp
+              - --tftp-root=/var/lib/tftpboot
+              - --tftp-single-port
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "0"
+    service:
+      app:
+        type: LoadBalancer
+        labels:
+          home-ops.io/l2-announce: "true"
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: infrastructure
+            url: http://matchbox.network.svc.cluster.local/
+            conditions: ["[STATUS] == 200"]
+          lbipam.cilium.io/ips: 10.10.0.30
+        externalTrafficPolicy: Cluster
+        ports:
+          http:
+            port: 80
+            targetPort: *port
+          tftp:
+            port: 69
+            protocol: UDP
+    persistence:
+      assets:
+        type: emptyDir
+        sizeLimit: 3Gi
+        advancedMounts:
+          matchbox:
+            assets: &assets
+              - path: /var/lib/matchbox/assets
+            app: *assets
+      groups:
+        type: configMap
+        name: matchbox-groups
+        advancedMounts:
+          matchbox:
+            app:
+              - path: /var/lib/matchbox/groups
+                readOnly: true
+      profiles:
+        type: configMap
+        name: matchbox-profiles
+        advancedMounts:
+          matchbox:
+            app:
+              - path: /var/lib/matchbox/profiles
+                readOnly: true
+      ignition:
+        type: configMap
+        name: matchbox-ignition
+        advancedMounts:
+          matchbox:
+            app:
+              - path: /var/lib/matchbox/ignition
+                readOnly: true
+      generic:
+        type: secret
+        name: matchbox-generic
+        advancedMounts:
+          matchbox:
+            app:
+              - path: /var/lib/matchbox/generic
+                readOnly: true
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          matchbox:
+            assets:
+              - path: /tmp

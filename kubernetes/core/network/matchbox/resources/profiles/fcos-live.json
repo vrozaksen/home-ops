@@ -1,0 +1,21 @@
+{
+  "id": "fcos-live",
+  "name": "Fedora CoreOS live (PXE, nothing written to disk)",
+  "ignition_id": "omnichassis-bench.yaml",
+  "boot": {
+    "kernel": "/assets/fedora-coreos/live-kernel",
+    "initrd": [
+      "--name main /assets/fedora-coreos/live-initramfs.img"
+    ],
+    "args": [
+      "initrd=main",
+      "coreos.live.rootfs_url=http://10.10.0.30/assets/fedora-coreos/live-rootfs.img",
+      "ignition.firstboot",
+      "ignition.platform.id=metal",
+      "ignition.config.url=http://10.10.0.30/ignition?uuid=${uuid}&mac=${mac:hexhyp}",
+      "console=tty0",
+      "console=ttyS0,115200n8"
+    ]
+  },
+  "generic_id": "authorized-keys"
+}

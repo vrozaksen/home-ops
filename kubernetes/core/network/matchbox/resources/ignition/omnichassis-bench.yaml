@@ -1,0 +1,20 @@
+---
+variant: fcos
+version: 1.5.0
+storage:
+  directories:
+    - path: /home/core/.ssh
+      mode: 0700
+      user: {name: core}
+      group: {name: core}
+    - path: /home/core/.ssh/authorized_keys.d
+      mode: 0700
+      user: {name: core}
+      group: {name: core}
+  files:
+    - path: /home/core/.ssh/authorized_keys.d/matchbox
+      mode: 0600
+      user: {name: core}
+      group: {name: core}
+      contents:
+        source: http://10.10.0.30/generic?{{.request.raw_query}}

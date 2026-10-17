@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# Toolhive optimizer — embeddings for smart tool selection via LiteLLM.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: toolhive
+spec:
+  proxyRef: litellm
+  keyAlias: toolhive
+  secretName: litellm-key-toolhive
+  secretKey: api-key
+  models:
+    - embed

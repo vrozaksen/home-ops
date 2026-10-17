@@ -8,6 +8,16 @@ spec:
   applyMode: file
   image: ghcr.io/berriai/litellm-non_root:v1.105.0@sha256:763ad5871b2747fba2c4872b504ac43ca452a6fbf49fb2b0345a42abacf6f91a
   replicas: 1
+  volumes:
+    - name: migrations
+      emptyDir: {}
+    - name: cache
+      emptyDir: {}
+  volumeMounts:
+    - name: migrations
+      mountPath: /migrations
+    - name: cache
+      mountPath: /app/cache
   service:
     port: 4000
     type: ClusterIP
@@ -18,7 +28,7 @@ spec:
       value: INFO
     - name: LITELLM_DONT_SHOW_FEEDBACK_BOX
       value: "True"
-    # Prisma baselining needs a writable dir (rootfs is read-only)
+    # Prisma baselining needs a writable dir; emptyDir mounted at /migrations
     - name: LITELLM_MIGRATION_DIR
       value: /migrations
     - name: DATABASE_URL
@@ -101,8 +111,18 @@ spec:
     turn_off_message_logging: true
     callbacks:
       - prometheus
-    # Redis-backed rate limiting per virtual key
+    # Redis-backed rate limiting + caching per virtual key
     rate_limit: true
+    cache: true
+    cache_params:
+      type: redis
+      host: litellm-dragonfly.ai.svc.cluster.local
+      port: "6379"
+      ttl: 300
+      supported_call_types:
+        - embedding
+        - aembedding
+    request_timeout: 900
   generalSettings:
     master_key: os.environ/LITELLM_MASTER_KEY
     database_url: os.environ/DATABASE_URL

@@ -38,6 +38,8 @@ spec:
                     key: uri
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
               ANTHROPIC_BASE_URL: http://litellm.ai.svc.cluster.local:4000
+              # In-cluster HTTP is intentional; Hermes gateway is not exposed via TLS internally.
+              dangerouslyAllowInsecureRemoteHttp: "true"
             envFrom:
               - secretRef:
                   name: paperclip-secret

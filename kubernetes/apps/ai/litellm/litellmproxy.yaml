@@ -66,6 +66,10 @@ spec:
     # Kanidm claimMap litellm_role -> "proxy_admin" for group admins
     - name: GENERIC_USER_ROLE_ATTRIBUTE
       value: litellm_role
+  apiAccess:
+    masterKeyRef:
+      name: litellm-secret
+      key: LITELLM_MASTER_KEY
   envFrom:
     - secretRef:
         name: litellm-secret

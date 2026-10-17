@@ -101,4 +101,7 @@ data:
         model: assistant
         timeout: 120
     gateway:
-      multiplex_profiles: false
+      # Serve every profile under /p/<profile>/... on the single gateway.
+      # Paperclip agent adapters point at per-profile base URLs so each agent
+      # can run a different model without a second gateway deployment.
+      multiplex_profiles: true

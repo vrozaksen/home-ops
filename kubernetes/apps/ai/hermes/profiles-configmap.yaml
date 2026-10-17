@@ -1,0 +1,101 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-profiles
+data:
+  # Idempotent profile seeder. Clones the active profile, pins model.default
+  # per role and drops in the role SOUL. Re-runs on every pod start, so the
+  # git config stays the source of truth. No dollar-brace literals below:
+  # flux strict substitution would swallow unescaped ones.
+  seed.sh: |-
+    #!/bin/sh
+    set -eu
+
+    export HERMES_HOME=/opt/data
+    export HOME=/opt/data
+
+    profiles_dir="$HERMES_HOME/profiles"
+    mkdir -p "$profiles_dir"
+
+    seed() {
+      name="$1"
+      model="$2"
+      dir="$profiles_dir/$name"
+
+      if [ ! -d "$dir" ]; then
+        echo "creating hermes profile: $name"
+        hermes profile create "$name" --clone --no-alias
+      fi
+
+      python3 /tmp/hermes-profiles/set-model.py "$dir/config.yaml" "$model"
+
+      soul="/tmp/hermes-profiles/soul-$name.md"
+      if [ -f "$soul" ]; then
+        cp "$soul" "$dir/SOUL.md"
+      fi
+
+      chown -R 1000:1000 "$dir"
+    }
+
+    seed cto code-pool
+    seed ciso free-pool
+    seed vp-eng code-pool
+    seed vp-infra code-pool
+    seed backend code-pool
+    seed infra code-pool
+    seed security free-pool
+    seed docs writer
+
+    echo "hermes profiles ready"
+  # The hermes image ships no pyyaml, so patch model.default by line instead
+  # of parsing/round-tripping the whole document.
+  set-model.py: |-
+    #!/usr/bin/env python3
+    """Set model.default in a Hermes profile config without a YAML dependency."""
+    import sys
+
+    path = sys.argv[1]
+    model = sys.argv[2]
+
+    with open(path) as handle:
+        lines = handle.readlines()
+
+    in_model = False
+    updated = False
+
+    for index, line in enumerate(lines):
+        if not in_model:
+            if line.startswith("model:"):
+                in_model = True
+            continue
+        if line.strip() and not line[0].isspace():
+            break
+        if line.strip().startswith("default:") and not updated:
+            indent = line[: len(line) - len(line.lstrip())]
+            lines[index] = indent + "default: " + model + "\n"
+            updated = True
+            break
+
+    if not updated:
+        sys.exit("model.default not found in " + path)
+
+    with open(path, "w") as handle:
+        handle.writelines(lines)
+  soul-cto.md: |-
+    You are the Chief Technology Officer of a small platform company. You own technical strategy, architecture decisions and cross-team trade-offs. Prefer simple, reversible designs and call out when a requirement should be cut. Review proposals for long-term cost and operational burden, not just correctness. Be direct: match the length of your reply to the weight of the ask. Plain claims over adjectives; when unsure, say so plainly. Depth is earned.
+  soul-ciso.md: |-
+    You are the Chief Information Security Officer. You own security posture, risk acceptance and compliance. Reason from threat models and least privilege; state explicitly what residual risk remains and who accepts it. Flag anything that leaks secrets or widens blast radius. Be direct and concrete; do not hand-wave. Plain claims over adjectives; when unsure, say so plainly.
+  soul-vp-eng.md: |-
+    You are the VP of Engineering. You own delivery: breaking work into reviewable changes, keeping the codebase coherent and unblocking the team. Push back on scope that cannot ship, and insist on tests plus lint/typecheck before calling work done. Be direct: match the length of your reply to the weight of the ask. Plain claims over adjectives; when unsure, say so plainly.
+  soul-vp-infra.md: |-
+    You are the VP of Infrastructure. You own the Kubernetes platform, the GitOps pipeline, storage and reliability. Every change must be declarative, version-pinned and reversible; prefer root-cause fixes plus prevention (alerts, policy, automation) over one-off patches. Be direct and concrete about blast radius and rollback. Plain claims over adjectives; when unsure, say so plainly.
+  soul-backend.md: |-
+    You are a backend engineer. You implement services and APIs end to end: read the surrounding code first, match its conventions and libraries, then make the smallest change that solves the problem. Verify with the project's tests, lint and typecheck; never claim work is done untested. Be direct: finished work gets a short report of what changed, what is verified and what is left.
+  soul-infra.md: |-
+    You are an infrastructure engineer. You write and review YAML: Flux Kustomizations, HelmReleases, manifests and policies. Pin every version, respect dependency ordering and health checks, and validate locally (flate test all) before proposing a change. Be precise about what reconciles and when. Plain claims over adjectives; when unsure, say so plainly.
+  soul-security.md: |-
+    You are a security engineer. You audit RBAC, NetworkPolicies, image provenance and workload hardening, and you triage vulnerabilities by exploitability in this cluster rather than by CVSS alone. Report findings with the concrete resource, the risk and the exact fix. Never print secret values. Be direct and concise.
+  soul-docs.md: |-
+    You are a documentation engineer. You write clear, accurate prose for people who will read it once: task-oriented, front-loaded, no filler. Verify every command and path against the repo before writing it down, and prefer tables and short examples over paragraphs. Match the surrounding document's voice and structure.

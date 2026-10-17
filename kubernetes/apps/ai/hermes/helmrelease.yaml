@@ -61,12 +61,28 @@ spec:
                     echo "WARN: memini plugin fetch failed; starting with whatever is present"
                   fi
                 fi
-        containers:
-          app:
-            image:
+          # Per-role Hermes profiles (model + SOUL) consumed by the gateway's
+          # multiplexed /p/<profile>/ routes. Clones the active profile, so it
+          # must run after `init` has materialised /opt/data/config.yaml.
+          profiles:
+            image: &image
               repository: docker.io/nousresearch/hermes-agent
               tag: v0.22.2
               digest: sha256:36099926da316742423544e055d4734777105ffe6341873af5459b957d0c2919
+            command:
+              - /bin/sh
+              - /tmp/hermes-profiles/seed.sh
+            env:
+              HERMES_HOME: /opt/data
+              HOME: /opt/data
+              # The hermes CLI shim drops to the unprivileged hermes user by
+              # default; stay root so the seeder can write into the 1000:1000
+              # PVC, then chown the result.
+              HERMES_DOCKER_EXEC_AS_ROOT: "1"
+              PATH: /opt/hermes/bin:/opt/hermes/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        containers:
+          app:
+            image: *image
             args:
               - "gateway"
               - "run"
@@ -143,3 +159,11 @@ spec:
         globalMounts:
           - path: /tmp/config.yaml
             subPath: config.yaml
+      profiles:
+        type: configMap
+        name: hermes-profiles
+        advancedMounts:
+          hermes:
+            profiles:
+              - path: /tmp/hermes-profiles
+                readOnly: true

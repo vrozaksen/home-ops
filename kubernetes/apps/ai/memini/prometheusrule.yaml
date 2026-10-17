@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: memini
+spec:
+  groups:
+    - name: memini.rules
+      rules:
+        - alert: MeminiRecallDegraded
+          expr: |-
+            sum(increase(memini_recall_degraded_total[30m])) > 0
+          annotations:
+            summary: >-
+              Memini recall degraded — embed unavailable, results are falling back
+              to keyword-only order
+          labels:
+            severity: warning
+        - alert: MeminiEmbedErrors
+          expr: |-
+            sum by (backend) (increase(memini_embed_errors_total[30m])) > 0
+          for: 10m
+          annotations:
+            summary: >-
+              Memini embed backend {{ $labels.backend }} returning errors
+          labels:
+            severity: warning
+        - alert: MeminiLifecycleStalled
+          expr: |-
+            sum(increase(memini_store_upserts_total{op="insert",tier=~"semantic|procedural"}[7d])) > 100
+            and
+            sum(increase(memini_demoted_total[7d]) + increase(memini_dedup_tombstoned_total[7d])) < 5
+          for: 6h
+          annotations:
+            summary: >-
+              Memini is accumulating durable facts with almost no demotion or dedup — debris is
+              piling up in recall
+          labels:
+            severity: warning

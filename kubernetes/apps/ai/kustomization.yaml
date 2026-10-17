@@ -11,6 +11,7 @@ resources:
   - ./litellm/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
+  - ./paperclip/ks.yaml
   # MCP servers — Group 1 (upstream images / remote proxies)
   - ./mcp/siderolabs-docs/ks.yaml
   - ./mcp/context7/ks.yaml

@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: mcp-forgejo
+  name: mcp-talos
 spec:
   dependsOn:
     - name: infisical-operator
@@ -11,7 +11,7 @@ spec:
     - name: toolhive-config
       namespace: ai
   interval: 1h
-  path: ./kubernetes/apps/ai/mcp/forgejo
+  path: ./kubernetes/apps/ai/toolhive/mcp-servers/talos
   prune: true
   sourceRef:
     kind: OCIRepository

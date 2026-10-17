@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./agentmemory/ks.yaml
+  - ./context7/ks.yaml
+  - ./flux-operator/ks.yaml
+  - ./forgejo/ks.yaml
+  - ./kubectl/ks.yaml
+  - ./nixos/ks.yaml
+  - ./plane/ks.yaml
+  - ./siderolabs-docs/ks.yaml
+  - ./talos/ks.yaml

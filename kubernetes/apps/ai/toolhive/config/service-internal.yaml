@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/networking.k8s.io/service_v1.json
+# Internal gateway service — for in-cluster clients (Hermes, Paperclip).
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmcp-mcp-gateway-internal
+  labels:
+    app.kubernetes.io/name: virtualmcpserver
+    app.kubernetes.io/instance: mcp-gateway-internal
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 4483
+      targetPort: 4483
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: virtualmcpserver
+    app.kubernetes.io/instance: mcp-gateway-internal

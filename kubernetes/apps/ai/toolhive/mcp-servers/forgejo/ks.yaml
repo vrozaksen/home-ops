@@ -3,15 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: mcp-agentmemory
+  name: mcp-forgejo
 spec:
   dependsOn:
-    - name: agentmemory
-      namespace: ai
+    - name: infisical-operator
+      namespace: security
     - name: toolhive-config
       namespace: ai
   interval: 1h
-  path: ./kubernetes/apps/ai/mcp/agentmemory
+  path: ./kubernetes/apps/ai/toolhive/mcp-servers/forgejo
   prune: true
   sourceRef:
     kind: OCIRepository

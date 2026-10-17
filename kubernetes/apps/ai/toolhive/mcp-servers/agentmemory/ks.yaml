@@ -3,13 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: mcp-nixos
+  name: mcp-agentmemory
 spec:
   dependsOn:
+    - name: agentmemory
+      namespace: ai
     - name: toolhive-config
       namespace: ai
   interval: 1h
-  path: ./kubernetes/apps/ai/mcp/nixos
+  path: ./kubernetes/apps/ai/toolhive/mcp-servers/agentmemory
   prune: true
   sourceRef:
     kind: OCIRepository

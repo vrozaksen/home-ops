@@ -54,6 +54,12 @@ spec:
       conflictResolution: prefix
       conflictResolutionConfig:
         prefixFormat: "{workload}_"
+    # Embedding-based optimizer
+    optimizer:
+      embeddingModel: embed
+      embeddingProvider: openai
+      embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
+      embeddingServiceTimeout: 180s
     operational:
       failureHandling:
         healthCheckInterval: 30s
@@ -85,3 +91,63 @@ spec:
           env:
             - name: INSECURE_DISABLE_URL_VALIDATION
               value: "true"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-key-toolhive
+                  key: api-key
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
+# Internal gateway — for in-cluster clients (Hermes, Paperclip agents).
+# Anonymous auth (NetworkPolicy isolates); no OIDC friction.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: VirtualMCPServer
+metadata:
+  name: mcp-gateway-internal
+spec:
+  groupRef:
+    name: mcp-tools
+  telemetryConfigRef:
+    name: prometheus
+  config:
+    aggregation:
+      conflictResolution: prefix
+      conflictResolutionConfig:
+        prefixFormat: "{workload}_"
+    optimizer:
+      embeddingModel: embed
+      embeddingProvider: openai
+      embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
+      embeddingServiceTimeout: 180s
+    operational:
+      failureHandling:
+        healthCheckInterval: 30s
+        unhealthyThreshold: 3
+        statusReportingInterval: 5m
+  incomingAuth:
+    type: anonymous
+  outgoingAuth:
+    source: discovered
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: vmcp
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-key-toolhive
+                  key: api-key
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 2Gi
+  sessionStorage:
+    address: vmcp-dragonfly.ai.svc.cluster.local:6379
+    db: 0
+    keyPrefix: "toolhive:vmcp:"
+    passwordRef:
+      key: redis-password
+      name: vmcp-auth-server-secret
+    provider: redis

@@ -57,6 +57,8 @@ spec:
       namespace: security
     - name: kanidm
       namespace: security
+    - name: litellm
+      namespace: ai
     - name: toolhive-operator
       namespace: ai
   interval: 1h

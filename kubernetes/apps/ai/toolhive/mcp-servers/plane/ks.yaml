@@ -11,7 +11,7 @@ spec:
     - name: toolhive-config
       namespace: ai
   interval: 1h
-  path: ./kubernetes/apps/ai/mcp/plane
+  path: ./kubernetes/apps/ai/toolhive/mcp-servers/plane
   prune: true
   sourceRef:
     kind: OCIRepository

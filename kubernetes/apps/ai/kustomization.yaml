@@ -13,15 +13,5 @@ resources:
   - ./litellm/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
+  - ./toolhive/mcp-servers
   - ./paperclip/ks.yaml
-  # MCP servers — Group 1 (upstream images / remote proxies)
-  - ./mcp/siderolabs-docs/ks.yaml
-  - ./mcp/context7/ks.yaml
-  - ./mcp/kubernetes/ks.yaml
-  # MCP servers — Group 2 (own builds in ~/git/containers)
-  - ./mcp/agentmemory/ks.yaml
-  - ./mcp/flux-operator/ks.yaml
-  - ./mcp/forgejo/ks.yaml
-  - ./mcp/nixos/ks.yaml
-  - ./mcp/plane/ks.yaml
-  - ./mcp/talos/ks.yaml

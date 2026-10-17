@@ -8,7 +8,7 @@ spec:
   modelName: embed
   proxyRef: litellm
   params:
-    model: BAAI/bge-m3
+    model: openai/BAAI/bge-m3
     apiBase: http://text-embeddings-inference.ai.svc.cluster.local:8080/v1
   info:
     mode: embedding

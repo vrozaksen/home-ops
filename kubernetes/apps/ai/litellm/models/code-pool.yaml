@@ -2,6 +2,7 @@
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 # Coding pool: local first (free), then cheap cloud, then Anthropic credit.
 # Fallback chain: qwen3-local → Gemini → DeepSeek → Haiku → Sonnet.
+# Local pricing = electricity marginal cost (9070 XT, ~300W inference, 1.50 PLN/kWh).
 apiVersion: litellm.home-operations.com/v1alpha1
 kind: LiteLLMModel
 metadata:
@@ -22,8 +23,8 @@ spec:
     maxOutputTokens: 8192
     supportsFunctionCalling: true
     extra:
-      input_cost_per_token: 0
-      output_cost_per_token: 0
+      input_cost_per_token: 1e-07
+      output_cost_per_token: 1e-06
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 # Gemini 2.5 Flash — free tier, strong reasoning, good at code.
@@ -46,8 +47,8 @@ spec:
     supportsFunctionCalling: true
     supportsVision: true
     extra:
-      input_cost_per_token: 0
-      output_cost_per_token: 0
+      input_cost_per_token: 1.5e-07
+      output_cost_per_token: 6e-07
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 # DeepSeek V3 — very cheap ($0.27/1M input), excellent at code.

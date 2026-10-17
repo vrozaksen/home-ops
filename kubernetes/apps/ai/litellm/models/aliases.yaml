@@ -1,7 +1,7 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 # Assistant alias — tool calling / JSON tasks (Home Assistant, APIs).
-# Local first, Haiku fallback.
+# Local first, Haiku fallback. Local pricing = electricity marginal cost.
 apiVersion: litellm.home-operations.com/v1alpha1
 kind: LiteLLMModel
 metadata:
@@ -21,8 +21,8 @@ spec:
     maxOutputTokens: 8192
     supportsFunctionCalling: true
     extra:
-      input_cost_per_token: 0
-      output_cost_per_token: 0
+      input_cost_per_token: 1e-07
+      output_cost_per_token: 1e-06
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 apiVersion: litellm.home-operations.com/v1alpha1
@@ -67,8 +67,8 @@ spec:
     maxInputTokens: 131072
     maxOutputTokens: 8192
     extra:
-      input_cost_per_token: 0
-      output_cost_per_token: 0
+      input_cost_per_token: 1e-07
+      output_cost_per_token: 8e-07
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 apiVersion: litellm.home-operations.com/v1alpha1

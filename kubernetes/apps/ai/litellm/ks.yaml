@@ -23,6 +23,10 @@ spec:
       namespace: database
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: text-embeddings-inference
+      namespace: ai
+    - name: text-embeddings-optimizer
+      namespace: ai
   healthCheckExprs:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster

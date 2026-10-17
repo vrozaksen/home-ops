@@ -12,3 +12,4 @@ spec:
   secretKey: api-key
   models:
     - embed
+    - embed-tools

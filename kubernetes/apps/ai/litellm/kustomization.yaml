@@ -9,6 +9,7 @@ resources:
   - ./litellmproxy.yaml
   - ./models/aliases.yaml
   - ./models/code-pool.yaml
+  - ./models/embed-tools.yaml
   - ./models/embed.yaml
   - ./models/free-pool.yaml
   - ./models/local-pool.yaml

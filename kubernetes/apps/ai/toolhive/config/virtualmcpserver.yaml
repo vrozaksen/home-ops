@@ -56,7 +56,9 @@ spec:
         prefixFormat: "{workload}_"
     # Embedding-based optimizer
     optimizer:
-      embeddingModel: embed
+      # Dedicated small multilingual model — the shared memini/TEI bge-m3 backend
+      # OOMs when embedding all ~540 aggregated tools in one request.
+      embeddingModel: embed-tools
       embeddingProvider: openai
       embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
       embeddingServiceTimeout: 180s
@@ -115,7 +117,9 @@ spec:
       conflictResolutionConfig:
         prefixFormat: "{workload}_"
     optimizer:
-      embeddingModel: embed
+      # Dedicated small multilingual model — the shared memini/TEI bge-m3 backend
+      # OOMs when embedding all ~540 aggregated tools in one request.
+      embeddingModel: embed-tools
       embeddingProvider: openai
       embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
       embeddingServiceTimeout: 180s

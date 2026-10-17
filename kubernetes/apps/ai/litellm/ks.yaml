@@ -7,11 +7,18 @@ metadata:
 spec:
   components:
     - ../../../components/cnpg/restore
+    - ../../../components/dragonfly
   dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+    - name: headroom
+      namespace: ai
     - name: infisical-operator
       namespace: security
     - name: kanidm
       namespace: security
+    - name: litellm-operator
+      namespace: ai
     - name: plugin-barman-cloud
       namespace: database
     - name: rook-ceph-cluster
@@ -21,6 +28,10 @@ spec:
       kind: Cluster
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      failed: status.phase != 'ready'
+      current: status.phase == 'ready'
   interval: 1h
   path: ./kubernetes/apps/ai/litellm
   postBuild:

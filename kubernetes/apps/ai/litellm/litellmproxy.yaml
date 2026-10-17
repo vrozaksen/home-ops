@@ -1,0 +1,115 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmproxy_v1alpha1.json
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMProxy
+metadata:
+  name: litellm
+spec:
+  applyMode: file
+  image: ghcr.io/berriai/litellm-non_root:v1.105.0@sha256:763ad5871b2747fba2c4872b504ac43ca452a6fbf49fb2b0345a42abacf6f91a
+  replicas: 1
+  service:
+    port: 4000
+    type: ClusterIP
+  env:
+    - name: LITELLM_MODE
+      value: PRODUCTION
+    - name: LITELLM_LOG
+      value: INFO
+    - name: LITELLM_DONT_SHOW_FEEDBACK_BOX
+      value: "True"
+    # Prisma baselining needs a writable dir (rootfs is read-only)
+    - name: LITELLM_MIGRATION_DIR
+      value: /migrations
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          key: uri
+          name: postgres-litellm-app
+    # Kanidm SSO (free tier: max 5 users, so scopeMap is admins-only)
+    - name: PROXY_BASE_URL
+      value: https://litellm.vzkn.eu
+    - name: GENERIC_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          key: client-id
+          name: kanidm-litellm-oidc
+    - name: GENERIC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          key: client-secret
+          name: kanidm-litellm-oidc
+    - name: GENERIC_AUTHORIZATION_ENDPOINT
+      value: https://idm.vzkn.eu/ui/oauth2
+    - name: GENERIC_TOKEN_ENDPOINT
+      value: https://idm.vzkn.eu/oauth2/token
+    - name: GENERIC_USERINFO_ENDPOINT
+      value: https://idm.vzkn.eu/oauth2/openid/litellm/userinfo
+    - name: GENERIC_SCOPE
+      value: openid email profile
+    - name: GENERIC_CLIENT_USE_PKCE
+      value: "true"
+    - name: GENERIC_USER_ID_ATTRIBUTE
+      value: preferred_username
+    - name: GENERIC_USER_EMAIL_ATTRIBUTE
+      value: email
+    # Kanidm claimMap litellm_role -> "proxy_admin" for group admins
+    - name: GENERIC_USER_ROLE_ATTRIBUTE
+      value: litellm_role
+  envFrom:
+    - secretRef:
+        name: litellm-secret
+  resources:
+    requests:
+      cpu: 20m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
+  livenessProbe:
+    httpGet:
+      path: /health/liveliness
+      port: 4000
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /health/readiness
+      port: 4000
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  routerSettings:
+    redis_host: litellm-dragonfly.ai.svc.cluster.local
+    redis_port: "6379"
+    num_retries: 0
+    # One failure parks the local deployment, so later requests skip straight to
+    # the fallback instead of each waiting on a dead host.
+    allowed_fails: 1
+    cooldown_time: 120
+    fallbacks:
+      - writer:
+          - claude-haiku
+      - assistant:
+          - claude-haiku
+      - code-pool:
+          - claude-haiku
+  litellmSettings:
+    drop_params: true
+    json_logs: true
+    # Spend is tracked, prompt/response bodies are not stored (bank data, CVs).
+    turn_off_message_logging: true
+    callbacks:
+      - prometheus
+    # Redis-backed rate limiting per virtual key
+    rate_limit: true
+  generalSettings:
+    master_key: os.environ/LITELLM_MASTER_KEY
+    database_url: os.environ/DATABASE_URL
+    # Models are GitOps-managed here as LiteLLMModel CRs; keys/budgets in DB.
+    store_model_in_db: false
+    # UI login is Kanidm SSO only; the master key still works for the API.
+    disable_env_credential_login: true
+    disable_password_login_when_sso_enabled: true
+    proxy_batch_write_at: 60
+    database_connection_pool_limit: 10

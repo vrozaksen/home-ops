@@ -1,0 +1,136 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Assistant alias — tool calling / JSON tasks (Home Assistant, APIs).
+# Local first, Haiku fallback.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: assistant-local
+spec:
+  modelName: assistant
+  proxyRef: litellm
+  params:
+    model: ollama_chat/qwen3:14b
+    apiBase: http://10.100.0.102:11434
+    timeout: 120
+    additional:
+      order: 1
+  info:
+    mode: chat
+    maxInputTokens: 40960
+    maxOutputTokens: 8192
+    supportsFunctionCalling: true
+    extra:
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: assistant-haiku
+spec:
+  modelName: assistant
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-haiku-4-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+    additional:
+      order: 2
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 1e-06
+      output_cost_per_token: 5e-06
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Writer alias — prose, Polish, CVs. Gemma3 excels at multilingual prose.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: writer-local
+spec:
+  modelName: writer
+  proxyRef: litellm
+  params:
+    model: ollama_chat/gemma3:12b
+    apiBase: http://10.100.0.102:11434
+    timeout: 120
+    additional:
+      order: 1
+  info:
+    mode: chat
+    maxInputTokens: 131072
+    maxOutputTokens: 8192
+    extra:
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: writer-haiku
+spec:
+  modelName: writer
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-haiku-4-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+    additional:
+      order: 2
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsVision: true
+    extra:
+      input_cost_per_token: 1e-06
+      output_cost_per_token: 5e-06
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Claude Haiku standalone — for keys that need it directly.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: claude-haiku
+spec:
+  modelName: claude-haiku
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-haiku-4-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 1e-06
+      output_cost_per_token: 5e-06
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: claude-sonnet
+spec:
+  modelName: claude-sonnet
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-sonnet-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 3e-06
+      output_cost_per_token: 1.5e-05

@@ -29,9 +29,19 @@ spec:
               LLM_PROVIDER: openai
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
               OPENAI_MODEL: deepseek/deepseek-chat
+              OPENAI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: litellm-key-minuspod
+                    key: api-key
               WHISPER_BACKEND: openai-api
               WHISPER_API_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
               WHISPER_API_MODEL: groq/whisper-large-v3-turbo
+              WHISPER_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: litellm-key-minuspod
+                    key: api-key
               MINUSPOD_REQUIRE_AUTH: "true"
               # No OIDC support -- this app has its own login only.
               MINUSPOD_ALLOW_PUBLIC_PROCESSING: "false"

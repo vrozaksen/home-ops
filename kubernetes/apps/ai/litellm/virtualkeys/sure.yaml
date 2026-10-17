@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# Sure — bank transactions (PRIVATE data). Local pool only, no cloud fallback.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: sure
+spec:
+  proxyRef: litellm
+  keyAlias: sure
+  secretName: litellm-key-sure
+  secretKey: api-key
+  models:
+    - local-pool

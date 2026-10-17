@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# Hermes gateway — all Paperclip agents go through here.
+# Role-to-pool routing is in Hermes config, not here.
+# This key defines what Hermes CAN access.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: hermes
+spec:
+  proxyRef: litellm
+  keyAlias: hermes
+  secretName: litellm-key-hermes
+  secretKey: api-key
+  models:
+    - assistant
+    - writer
+    - code-pool
+    - free-pool
+    - claude-haiku
+    - claude-sonnet

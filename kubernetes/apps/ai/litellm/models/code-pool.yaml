@@ -1,0 +1,121 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Coding pool: local first (free), then cheap cloud, then Anthropic credit.
+# Fallback chain: qwen3-local → Gemini → DeepSeek → Haiku → Sonnet.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: code-local-qwen3
+spec:
+  modelName: code-pool
+  proxyRef: litellm
+  params:
+    model: ollama_chat/qwen3:14b
+    apiBase: http://10.100.0.102:11434
+    timeout: 120
+    additional:
+      order: 1
+      max_parallel_requests: 2
+  info:
+    mode: chat
+    maxInputTokens: 40960
+    maxOutputTokens: 8192
+    supportsFunctionCalling: true
+    extra:
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Gemini 2.5 Flash — free tier, strong reasoning, good at code.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: code-gemini-flash
+spec:
+  modelName: code-pool
+  proxyRef: litellm
+  params:
+    model: gemini/gemini-2.5-flash
+    apiKey: os.environ/GEMINI_API_KEY
+    additional:
+      order: 2
+  info:
+    mode: chat
+    maxInputTokens: 1048576
+    maxOutputTokens: 65536
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# DeepSeek V3 — very cheap ($0.27/1M input), excellent at code.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: code-deepseek
+spec:
+  modelName: code-pool
+  proxyRef: litellm
+  params:
+    model: deepseek/deepseek-chat
+    apiKey: os.environ/DEEPSEEK_API_KEY
+    additional:
+      order: 3
+  info:
+    mode: chat
+    maxInputTokens: 65536
+    maxOutputTokens: 8192
+    supportsFunctionCalling: true
+    extra:
+      input_cost_per_token: 2.7e-07
+      output_cost_per_token: 1.1e-06
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Claude Haiku 4.5 — fallback from Anthropic credit ($200).
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: code-haiku
+spec:
+  modelName: code-pool
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-haiku-4-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+    additional:
+      order: 4
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 1e-06
+      output_cost_per_token: 5e-06
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
+# Claude Sonnet 5 — final fallback, more capable than Haiku.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMModel
+metadata:
+  name: code-sonnet
+spec:
+  modelName: code-pool
+  proxyRef: litellm
+  params:
+    model: anthropic/claude-sonnet-5
+    apiKey: os.environ/ANTHROPIC_API_KEY
+    additional:
+      order: 5
+  info:
+    mode: chat
+    maxInputTokens: 200000
+    maxOutputTokens: 64000
+    supportsFunctionCalling: true
+    supportsVision: true
+    extra:
+      input_cost_per_token: 3e-06
+      output_cost_per_token: 1.5e-05

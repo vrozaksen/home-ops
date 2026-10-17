@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# MinusPod — ad-segment detection + Whisper. DeepSeek + Groq only.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: minuspod
+spec:
+  proxyRef: litellm
+  keyAlias: minuspod
+  secretName: litellm-key-minuspod
+  secretKey: api-key
+  models:
+    - deepseek/*
+    - groq/*

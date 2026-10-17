@@ -3,11 +3,14 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./helmrelease.yaml
+  - ./dashboard
+  - ./guardrail.yaml
   - ./infisicalsecret.yaml
-configMapGenerator:
-  - name: litellm-configmap
-    files:
-      - config.yaml=./resources/config.yaml
-generatorOptions:
-  disableNameSuffixHash: true
+  - ./litellmproxy.yaml
+  - ./models/aliases.yaml
+  - ./models/code-pool.yaml
+  - ./models/free-pool.yaml
+  - ./models/local-pool.yaml
+  - ./prometheusrule.yaml
+  - ./servicemonitor.yaml
+  - ./virtualkeys

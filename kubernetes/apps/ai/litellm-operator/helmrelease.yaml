@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: litellm-operator
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: litellm-operator
+  values:
+    controller:
+      logLevel: info
+      leaderElection:
+        enabled: true
+      metrics:
+        port: 8081
+    # No llmkube — Ollama directly
+    llmkube:
+      autoRegister: false
+    webhook:
+      enabled: true
+    resources:
+      requests:
+        cpu: 25m
+        memory: 128Mi
+      limits:
+        memory: 512Mi

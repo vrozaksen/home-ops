@@ -23,13 +23,14 @@ spec:
               tag: 2026.1012.0
               digest: sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
             env:
-              HOST: "0.0.0.0"
-              PORT: "3100"
+              HOST: 0.0.0.0
+              PORT: &port 3100
               SERVE_UI: "true"
               PAPERCLIP_HOME: /paperclip
               PAPERCLIP_PUBLIC_URL: https://paperclip.vzkn.eu
               PAPERCLIP_DEPLOYMENT_MODE: authenticated
               PAPERCLIP_DEPLOYMENT_EXPOSURE: private
+              BETTER_AUTH_URL: https://paperclip.vzkn.eu
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
@@ -40,28 +41,21 @@ spec:
             envFrom:
               - secretRef:
                   name: paperclip-secret
-            # probes:
-            #   liveness: &probe
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /api/health
-            #         port: 3100
-            #       periodSeconds: 30
-            #       timeoutSeconds: 5
-            #       failureThreshold: 3
-            #   readiness: *probe
-            #   startup:
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /api/health
-            #         port: 3100
-            #       periodSeconds: 10
-            #       timeoutSeconds: 5
-            #       failureThreshold: 30
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *port
+                    httpHeaders:
+                      - name: Host
+                        value: paperclip.${SECRET_DOMAIN}
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probe
             resources:
               requests:
                 cpu: 50m
@@ -82,7 +76,7 @@ spec:
         controller: paperclip
         ports:
           http:
-            port: 3100
+            port: *port
     route:
       app:
         annotations:

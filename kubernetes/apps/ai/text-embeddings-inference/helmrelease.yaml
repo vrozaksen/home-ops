@@ -30,6 +30,8 @@ spec:
               - --huggingface-hub-cache
               - /data
               - --auto-truncate
+              - --max-client-batch-size
+              - "1024"
             probes:
               liveness:
                 enabled: true

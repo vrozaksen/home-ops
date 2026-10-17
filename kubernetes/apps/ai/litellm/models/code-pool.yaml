@@ -12,8 +12,8 @@ spec:
   params:
     model: ollama_chat/qwen3:14b
     apiBase: http://10.100.0.102:11434
-    timeout: 120
     additional:
+      timeout: 120
       order: 1
       max_parallel_requests: 2
   info:

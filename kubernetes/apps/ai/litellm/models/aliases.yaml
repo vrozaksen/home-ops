@@ -12,8 +12,8 @@ spec:
   params:
     model: ollama_chat/qwen3:14b
     apiBase: http://10.100.0.102:11434
-    timeout: 120
     additional:
+      timeout: 120
       order: 1
   info:
     mode: chat
@@ -59,8 +59,8 @@ spec:
   params:
     model: ollama_chat/gemma3:12b
     apiBase: http://10.100.0.102:11434
-    timeout: 120
     additional:
+      timeout: 120
       order: 1
   info:
     mode: chat

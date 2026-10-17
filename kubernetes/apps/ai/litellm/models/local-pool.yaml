@@ -1,7 +1,7 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmmodel_v1alpha1.json
 # Local Ollama models (ragnarok, 10.100.0.102). Zero cost, often powered off.
-# Timeout 120s = connect timeout; powered-off host must not hold requests long.
+# Timeout in additional = connect timeout; powered-off host must not hold requests long.
 apiVersion: litellm.home-operations.com/v1alpha1
 kind: LiteLLMModel
 metadata:
@@ -12,8 +12,8 @@ spec:
   params:
     model: ollama_chat/qwen3:14b
     apiBase: http://10.100.0.102:11434
-    timeout: 120
     additional:
+      timeout: 120
       order: 1
       max_parallel_requests: 2
   info:
@@ -36,8 +36,8 @@ spec:
   params:
     model: ollama_chat/gemma3:12b
     apiBase: http://10.100.0.102:11434
-    timeout: 120
     additional:
+      timeout: 120
       order: 2
       max_parallel_requests: 2
   info:

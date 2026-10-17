@@ -51,7 +51,7 @@ spec:
                     port: *port
                     httpHeaders:
                       - name: Host
-                        value: paperclip.${SECRET_DOMAIN}
+                        value: paperclip.vzkn.eu
                   periodSeconds: 30
                   timeoutSeconds: 5
                   failureThreshold: 3

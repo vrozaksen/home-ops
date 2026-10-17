@@ -21,6 +21,12 @@ spec:
   service:
     port: 4000
     type: ClusterIP
+  route:
+    hostnames:
+      - litellm.vzkn.eu
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
   env:
     - name: LITELLM_MODE
       value: PRODUCTION

@@ -40,28 +40,28 @@ spec:
             envFrom:
               - secretRef:
                   name: paperclip-secret
-            probes:
-              liveness: &probe
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /api/health
-                    port: 3100
-                  periodSeconds: 30
-                  timeoutSeconds: 5
-                  failureThreshold: 3
-              readiness: *probe
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /api/health
-                    port: 3100
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 30
+            # probes:
+            #   liveness: &probe
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /api/health
+            #         port: 3100
+            #       periodSeconds: 30
+            #       timeoutSeconds: 5
+            #       failureThreshold: 3
+            #   readiness: *probe
+            #   startup:
+            #     enabled: true
+            #     custom: true
+            #     spec:
+            #       httpGet:
+            #         path: /api/health
+            #         port: 3100
+            #       periodSeconds: 10
+            #       timeoutSeconds: 5
+            #       failureThreshold: 30
             resources:
               requests:
                 cpu: 50m

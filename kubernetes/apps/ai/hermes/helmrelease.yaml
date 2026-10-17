@@ -1,0 +1,145 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: hermes
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      hermes:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+        strategy: Recreate
+        initContainers:
+          init:
+            image:
+              repository: docker.io/library/alpine
+              tag: "3.24"
+            env:
+              LITELLM_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: litellm-key-hermes
+                    key: api-key
+            command:
+              - sh
+              - -c
+              - |
+                set -euo pipefail
+                apk add --no-cache gettext >/dev/null
+                cp /tmp/config.yaml /opt/data/config.yaml
+                # Expand env-var references ($${LITELLM_API_KEY} after flux
+                # rendering) before hermes reads the config. No dollar-brace
+                # literals in this script: flux strict substitution would eat
+                # unescaped ones.
+                envsubst < /opt/data/config.yaml > /opt/data/config.yaml.tmp
+                mv /opt/data/config.yaml.tmp /opt/data/config.yaml
+                chown 1000:1000 /opt/data/config.yaml
+                # Install the memini memory-provider plugin (release-synced
+                # mirror of integrations/hermes/plugin/memini). Pinned to a
+                # commit; .ref marker keeps restarts offline unless the pin
+                # changes. The handle_tool_call **kwargs fix landed in
+                # memini v0.7.29; bump this SHA when upgrading.
+                MEMINI_PLUGIN_REF=ad5e12b3ade70e0afaa011513aa97920d2b66b46
+                PLUGIN_DIR=/opt/data/plugins/memini
+                if [ "$(cat "$PLUGIN_DIR/.ref" 2>/dev/null)" != "$MEMINI_PLUGIN_REF" ]; then
+                  BASE="https://raw.githubusercontent.com/eleboucher/memini-hermes/$MEMINI_PLUGIN_REF"
+                  if wget -qO /tmp/memini-init.py "$BASE/__init__.py" && wget -qO /tmp/memini-plugin.yaml "$BASE/plugin.yaml"; then
+                    rm -rf "$PLUGIN_DIR"
+                    mkdir -p "$PLUGIN_DIR"
+                    mv /tmp/memini-init.py "$PLUGIN_DIR/__init__.py"
+                    mv /tmp/memini-plugin.yaml "$PLUGIN_DIR/plugin.yaml"
+                    printf '%s' "$MEMINI_PLUGIN_REF" > "$PLUGIN_DIR/.ref"
+                    chown -R 1000:1000 "$PLUGIN_DIR"
+                  else
+                    echo "WARN: memini plugin fetch failed; starting with whatever is present"
+                  fi
+                fi
+        containers:
+          app:
+            image:
+              repository: docker.io/nousresearch/hermes-agent
+              tag: v0.22.2
+              digest: sha256:36099926da316742423544e055d4734777105ffe6341873af5459b957d0c2919
+            args:
+              - "gateway"
+              - "run"
+            env:
+              HERMES_HOME: /opt/data
+              HOME: /opt/data
+              TZ: Europe/Warsaw
+              # Remap the image's hermes user to match the kopiur PVC owner.
+              HERMES_UID: "1000"
+              HERMES_GID: "1000"
+              # Memini memory provider (plugin reads these).
+              MEMINI_URL: http://memini.ai.svc.cluster.local:8080
+              MEMINI_NAMESPACE: hermes
+              # OpenAI-compatible API server for programmatic clients (Paperclip).
+              API_SERVER_ENABLED: "true"
+              API_SERVER_HOST: 0.0.0.0
+              API_SERVER_PORT: &port 8642
+              API_SERVER_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: hermes
+                    key: API_SERVER_KEY
+            envFrom:
+              - secretRef:
+                  name: hermes
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        # Image starts as root, remaps hermes user via HERMES_UID/HERMES_GID,
+        # then drops via s6 — do not pin runAsUser here.
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    service:
+      app:
+        controller: hermes
+        ports:
+          http:
+            port: *port
+    persistence:
+      data:
+        existingClaim: hermes
+        globalMounts:
+          - path: /opt/data
+      config:
+        type: configMap
+        name: hermes-config
+        globalMounts:
+          - path: /tmp/config.yaml
+            subPath: config.yaml

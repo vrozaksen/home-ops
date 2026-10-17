@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-config
+data:
+  config.yaml: |-
+    model:
+      default: code-pool
+      provider: litellm
+    fallback_providers:
+      - provider: litellm
+        model: claude-haiku
+      - provider: litellm
+        model: claude-sonnet
+    providers:
+      litellm:
+        base_url: http://litellm.ai.svc.cluster.local:4000/v1
+        api_key: $${LITELLM_API_KEY}
+    toolsets:
+      - hermes-cli
+    terminal:
+      backend: local
+      cwd: /opt/data/workspace
+      timeout: 180
+      persistent_shell: true
+    memory:
+      provider: memini
+      auto_migrate: true
+    compression:
+      enabled: true
+      threshold: 0.50
+      target_ratio: 0.20
+      protect_last_n: 20
+    agent:
+      max_turns: 90
+      gateway_timeout: 1800
+      restart_drain_timeout: 60
+      api_max_retries: 2
+      reasoning_effort: medium
+    delegation:
+      roles:
+        # CTO (Director) — strategy, architecture review
+        cto:
+          provider: litellm
+          model: code-pool
+        # CISO (Director) — security, audit. Free pool only.
+        ciso:
+          provider: litellm
+          model: free-pool
+        # VP Eng (Lead) — application logic, code review
+        vp-eng:
+          provider: litellm
+          model: code-pool
+        # VP Infra (Lead) — k8s, GitOps, storage
+        vp-infra:
+          provider: litellm
+          model: code-pool
+        # Backend Worker — Go/Node/Python code
+        backend:
+          provider: litellm
+          model: code-pool
+        # Infra Worker — YAML manifests, HelmRelease
+        infra:
+          provider: litellm
+          model: code-pool
+        # Security Worker — RBAC/NetworkPolicy audit
+        security:
+          provider: litellm
+          model: free-pool
+        # Docs Worker — README, documentation, prose
+        docs:
+          provider: litellm
+          model: writer
+      max_iterations: 50
+    approvals:
+      mode: smart
+    security:
+      redact_secrets: true
+    privacy:
+      redact_pii: true
+    mcp_servers:
+      toolhive:
+        url: http://vmcp-mcp-gateway-internal.ai.svc.cluster.local:4483/mcp
+    auxiliary:
+      compression:
+        provider: litellm
+        model: assistant
+        timeout: 180
+      web_extract:
+        provider: litellm
+        model: assistant
+        timeout: 120
+      approval:
+        provider: litellm
+        model: assistant
+        timeout: 60
+      session_search:
+        provider: litellm
+        model: assistant
+        timeout: 120
+    gateway:
+      multiplex_profiles: false

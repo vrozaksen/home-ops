@@ -10,6 +10,8 @@ spec:
   params:
     model: openai/BAAI/bge-m3
     apiBase: http://text-embeddings-inference.ai.svc.cluster.local:8080/v1
+    # TEI doesn't authenticate, but LiteLLM's OpenAI client requires a non-empty key.
+    apiKey: not-needed
   info:
     mode: embedding
     maxInputTokens: 8192

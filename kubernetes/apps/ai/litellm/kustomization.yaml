@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./dashboard
   - ./guardrail.yaml
+  - ./httproute.yaml
   - ./infisicalsecret.yaml
   - ./litellmproxy.yaml
   - ./models/aliases.yaml

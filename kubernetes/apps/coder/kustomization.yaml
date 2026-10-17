@@ -7,4 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./namespace.yaml
-  - ./coder/ks.yaml
+  # - ./coder/ks.yaml

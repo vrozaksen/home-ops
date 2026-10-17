@@ -12,5 +12,5 @@ resources:
   - ./home-assistant/ks.yaml
   - ./mesh-bridge/ks.yaml
   - ./music-assistant/ks.yaml
-  - ./orcaslicer/ks.yaml
+  # - ./orcaslicer/ks.yaml
   - ./zigbee/ks.yaml

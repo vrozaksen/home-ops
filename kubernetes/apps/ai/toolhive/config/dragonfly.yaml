@@ -58,11 +58,14 @@ spec:
   policyTypes:
     - Ingress
   ingress:
-    # Redis port: the vMCP gateway, plus replication between replicas.
+    # Redis port: both vMCP gateways, plus replication between replicas.
     - from:
         - podSelector:
             matchLabels:
               app.kubernetes.io/instance: mcp-gateway
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: mcp-gateway-internal
         - podSelector:
             matchLabels:
               app: vmcp-dragonfly

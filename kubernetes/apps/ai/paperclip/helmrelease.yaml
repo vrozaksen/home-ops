@@ -37,6 +37,9 @@ spec:
                     name: postgres-paperclip-app
                     key: uri
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
+              # memini plugin for claude_local agents; namespace is set per agent env.
+              MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
+              MEMINI_HOME: personal/vrozaksen
               # No ANTHROPIC_BASE_URL: claude_local must reach Anthropic directly on
               # the Max subscription. Agents meant for LiteLLM set it in adapter env.
             envFrom:

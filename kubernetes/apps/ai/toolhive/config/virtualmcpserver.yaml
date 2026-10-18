@@ -56,9 +56,6 @@ spec:
         prefixFormat: "{workload}_"
       # Optimizer dropped: re-embedded all tools on every session (~2 min on CPU TEI).
       tools:
-        - workload: agentmemory-mcp
-          toolConfigRef:
-            name: agentmemory-tools
         - workload: forgejo-mcp
           toolConfigRef:
             name: forgejo-tools
@@ -117,9 +114,6 @@ spec:
         prefixFormat: "{workload}_"
       # Optimizer dropped: re-embedded all tools on every session (~2 min on CPU TEI).
       tools:
-        - workload: agentmemory-mcp
-          toolConfigRef:
-            name: agentmemory-tools
         - workload: forgejo-mcp
           toolConfigRef:
             name: forgejo-tools

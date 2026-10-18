@@ -27,6 +27,11 @@ spec:
                   secretKeyRef:
                     name: litellm-key-hermes
                     key: api-key
+              API_SERVER_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: hermes
+                    key: API_SERVER_KEY
             command:
               - sh
               - -c
@@ -41,12 +46,29 @@ spec:
                 envsubst < /opt/data/config.yaml > /opt/data/config.yaml.tmp
                 mv /opt/data/config.yaml.tmp /opt/data/config.yaml
                 chown 1000:1000 /opt/data/config.yaml
+                # Hermes resolves platform credentials through the per-profile
+                # secret scope (gateway.multiplex_profiles is on by default and
+                # has no opt-out), NOT through os.environ. API_SERVER_KEY is
+                # deliberately absent from agent/secret_scope.py's global-env
+                # allowlist, so a key that only exists as a container env var is
+                # invisible to config_env._api_server(), which then skips the
+                # platform silently: nothing binds the probe port, the startup
+                # probe never passes and the container is killed every 5m.
+                # Keep the key in the root profile's .env, which is what the
+                # scope reads. No dollar-brace literals here (flux substitution).
+                ENV_FILE=/opt/data/.env
+                touch "$ENV_FILE"
+                grep -v -e '^API_SERVER_ENABLED=' -e '^API_SERVER_KEY=' "$ENV_FILE" > "$ENV_FILE.new" || true
+                printf 'API_SERVER_ENABLED=true\nAPI_SERVER_KEY=%s\n' "$API_SERVER_KEY" >> "$ENV_FILE.new"
+                chown 1000:1000 "$ENV_FILE.new"
+                chmod 600 "$ENV_FILE.new"
+                mv "$ENV_FILE.new" "$ENV_FILE"
                 # Install the memini memory-provider plugin (release-synced
                 # mirror of integrations/hermes/plugin/memini). Pinned to a
                 # commit; .ref marker keeps restarts offline unless the pin
-                # changes. The handle_tool_call **kwargs fix landed in
-                # memini v0.7.29; bump this SHA when upgrading.
-                MEMINI_PLUGIN_REF=ad5e12b3ade70e0afaa011513aa97920d2b66b46
+                # changes. Matches memini v0.7.36; bump with the server.
+                # The profiles seeder patches it for per-profile scope.
+                MEMINI_PLUGIN_REF=b76a0576eff7cd89dbed34835bc20db7bd4c548b
                 PLUGIN_DIR=/opt/data/plugins/memini
                 if [ "$(cat "$PLUGIN_DIR/.ref" 2>/dev/null)" != "$MEMINI_PLUGIN_REF" ]; then
                   BASE="https://raw.githubusercontent.com/eleboucher/memini-hermes/$MEMINI_PLUGIN_REF"
@@ -73,6 +95,12 @@ spec:
               - /bin/sh
               - /tmp/hermes-profiles/seed.sh
             env:
+              SKILLS_REPO: http://forgejo-http.development.svc.cluster.local:3000/vrozaksen/agent-skills.git
+              API_SERVER_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: hermes
+                    key: API_SERVER_KEY
               HERMES_HOME: /opt/data
               HOME: /opt/data
               # The hermes CLI shim drops to the unprivileged hermes user by
@@ -93,9 +121,10 @@ spec:
               # Remap the image's hermes user to match the kopiur PVC owner.
               HERMES_UID: "1000"
               HERMES_GID: "1000"
-              # Memini memory provider (plugin reads these).
-              MEMINI_URL: http://memini.ai.svc.cluster.local:8080
-              MEMINI_NAMESPACE: hermes
+              # Memini memory provider; profiles override namespace via their .env.
+              MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
+              MEMINI_NAMESPACE: vzkn/hermes
+              MEMINI_HOME: personal/vrozaksen
               # OpenAI-compatible API server for programmatic clients (Paperclip).
               API_SERVER_ENABLED: "true"
               API_SERVER_HOST: 0.0.0.0

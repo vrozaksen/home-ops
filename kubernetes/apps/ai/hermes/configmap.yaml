@@ -41,38 +41,28 @@ data:
       reasoning_effort: medium
     delegation:
       roles:
-        # CTO (Director) — strategy, architecture review
-        cto:
+        # Mirrors the profile roster in profiles-configmap.yaml.
+        apps:
           provider: litellm
           model: code-pool
-        # CISO (Director) — security, audit. Free pool only.
-        ciso:
-          provider: litellm
-          model: free-pool
-        # VP Eng (Lead) — application logic, code review
-        vp-eng:
+        deps:
           provider: litellm
           model: code-pool
-        # VP Infra (Lead) — k8s, GitOps, storage
-        vp-infra:
+        watch:
+          provider: litellm
+          model: assistant
+        verification:
           provider: litellm
           model: code-pool
-        # Backend Worker — Go/Node/Python code
-        backend:
+        platform:
           provider: litellm
           model: code-pool
-        # Infra Worker — YAML manifests, HelmRelease
-        infra:
+        mechanical:
           provider: litellm
           model: code-pool
-        # Security Worker — RBAC/NetworkPolicy audit
-        security:
+        procurement:
           provider: litellm
-          model: free-pool
-        # Docs Worker — README, documentation, prose
-        docs:
-          provider: litellm
-          model: writer
+          model: assistant
       max_iterations: 50
     approvals:
       mode: smart

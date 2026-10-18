@@ -37,7 +37,8 @@ spec:
                     name: postgres-paperclip-app
                     key: uri
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
-              ANTHROPIC_BASE_URL: http://litellm.ai.svc.cluster.local:4000
+              # No ANTHROPIC_BASE_URL: claude_local must reach Anthropic directly on
+              # the Max subscription. Agents meant for LiteLLM set it in adapter env.
             envFrom:
               - secretRef:
                   name: paperclip-secret

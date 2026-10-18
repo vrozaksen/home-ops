@@ -54,14 +54,18 @@ spec:
       conflictResolution: prefix
       conflictResolutionConfig:
         prefixFormat: "{workload}_"
+      # Optimizer dropped: re-embedded all tools on every session (~2 min on CPU TEI).
+      tools:
+        - workload: agentmemory-mcp
+          toolConfigRef:
+            name: agentmemory-tools
+        - workload: forgejo-mcp
+          toolConfigRef:
+            name: forgejo-tools
+        - workload: kubectl
+          toolConfigRef:
+            name: kubectl-tools
     # Embedding-based optimizer
-    optimizer:
-      # Dedicated small multilingual model — the shared memini/TEI bge-m3 backend
-      # OOMs when embedding all ~540 aggregated tools in one request.
-      embeddingModel: embed-tools
-      embeddingProvider: openai
-      embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
-      embeddingServiceTimeout: 180s
     operational:
       failureHandling:
         healthCheckInterval: 30s
@@ -116,13 +120,17 @@ spec:
       conflictResolution: prefix
       conflictResolutionConfig:
         prefixFormat: "{workload}_"
-    optimizer:
-      # Dedicated small multilingual model — the shared memini/TEI bge-m3 backend
-      # OOMs when embedding all ~540 aggregated tools in one request.
-      embeddingModel: embed-tools
-      embeddingProvider: openai
-      embeddingService: http://litellm.ai.svc.cluster.local:4000/v1
-      embeddingServiceTimeout: 180s
+      # Optimizer dropped: re-embedded all tools on every session (~2 min on CPU TEI).
+      tools:
+        - workload: agentmemory-mcp
+          toolConfigRef:
+            name: agentmemory-tools
+        - workload: forgejo-mcp
+          toolConfigRef:
+            name: forgejo-tools
+        - workload: kubectl
+          toolConfigRef:
+            name: kubectl-tools
     operational:
       failureHandling:
         healthCheckInterval: 30s

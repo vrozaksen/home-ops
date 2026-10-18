@@ -1,0 +1,118 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
+# Allow-lists for the fattest backends; shared by both VirtualMCPServers.
+# kubectl: 275 -> read/debug + basic ops. No get_secrets, no kind/vind/capi/istio.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: kubectl-tools
+spec:
+  toolsFilter:
+    - check_dns_resolution
+    - delete_resource
+    - detect_pending_pods
+    - diagnose_network_connectivity
+    - diagnose_pod_crash
+    - exec_in_pod
+    - get_api_resources
+    - get_configmaps
+    - get_crds
+    - get_daemonsets
+    - get_deployments
+    - get_endpoints
+    - get_events
+    - get_jobs
+    - get_logs
+    - get_namespaces
+    - get_node_metrics
+    - get_nodes
+    - get_nodes_summary
+    - get_persistent_volumes
+    - get_pod_events
+    - get_pod_metrics
+    - get_pods
+    - get_previous_logs
+    - get_pvcs
+    - get_resource_usage
+    - get_services
+    - get_statefulsets
+    - get_storage_classes
+    - helm_get_values
+    - helm_history
+    - helm_list
+    - helm_status
+    - hubble_flows_query_tool
+    - kubectl_apply
+    - kubectl_describe
+    - kubectl_explain
+    - kubectl_generic
+    - kubectl_patch
+    - kubectl_rollout
+    - node_logs_tool
+    - node_top_tool
+    - restart_deployment
+    - scale_deployment
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
+# forgejo: 103 -> repos/issues/PRs. No admin_*, org/team mgmt, repo delete/transfer.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: forgejo-tools
+spec:
+  toolsFilter:
+    - add_issue_labels
+    - create_branch
+    - create_file
+    - create_issue
+    - create_issue_comment
+    - create_pr_review
+    - create_pull_request
+    - edit_issue
+    - edit_pull_request
+    - get_authenticated_user
+    - get_file_contents
+    - get_issue
+    - get_pr_diff
+    - get_pull_request
+    - get_repo
+    - list_action_runners_jobs
+    - list_branches
+    - list_issue_comments
+    - list_issues
+    - list_labels
+    - list_milestones
+    - list_my_notifications
+    - list_org_repos
+    - list_pr_commits
+    - list_pr_files
+    - list_pr_reviews
+    - list_pull_requests
+    - list_releases
+    - list_repo_commits
+    - list_tags
+    - mark_notifications_read
+    - merge_pull_request
+    - remove_issue_label
+    - search_repos
+    - update_file
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
+# agentmemory: 54 -> recall/save/search core.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: agentmemory-tools
+spec:
+  toolsFilter:
+    - memory_commit_lookup
+    - memory_commits
+    - memory_file_history
+    - memory_lesson_recall
+    - memory_lesson_save
+    - memory_profile
+    - memory_recall
+    - memory_save
+    - memory_sessions
+    - memory_smart_search
+    - memory_timeline

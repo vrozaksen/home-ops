@@ -33,12 +33,13 @@ spec:
               - --max-client-batch-size
               - "1024"
             probes:
+              # /health runs a forward pass behind the batch queue; under load it
+              # times out and liveness killed busy pods. TCP = process alive.
               liveness:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /health
+                  tcpSocket:
                     port: 8080
                   periodSeconds: 30
                   timeoutSeconds: 5
@@ -51,7 +52,7 @@ spec:
                     path: /health
                     port: 8080
                   periodSeconds: 10
-                  timeoutSeconds: 5
+                  timeoutSeconds: 15
                   failureThreshold: 3
               startup:
                 enabled: true
@@ -69,7 +70,7 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 50m
+                cpu: "1"
                 memory: 3Gi
               limits:
                 cpu: "4"

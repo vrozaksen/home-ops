@@ -14,7 +14,6 @@ resources:
   - ./memini/ks.yaml
   - ./hermes/ks.yaml
   - ./text-embeddings-inference/ks.yaml
-  - ./text-embeddings-optimizer/ks.yaml
   - ./toolhive/ks.yaml
   - ./toolhive/mcp-servers
   - ./paperclip/ks.yaml

@@ -7,4 +7,3 @@ resources:
   - ./memini-llm.yaml
   - ./minuspod.yaml
   - ./sure.yaml
-  - ./toolhive.yaml

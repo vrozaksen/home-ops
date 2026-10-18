@@ -97,11 +97,6 @@ spec:
           env:
             - name: INSECURE_DISABLE_URL_VALIDATION
               value: "true"
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: litellm-key-toolhive
-                  key: api-key
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
 # Internal gateway — for in-cluster clients (Hermes, Paperclip agents).
@@ -144,12 +139,6 @@ spec:
     spec:
       containers:
         - name: vmcp
-          env:
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: litellm-key-toolhive
-                  key: api-key
           resources:
             requests:
               memory: 256Mi

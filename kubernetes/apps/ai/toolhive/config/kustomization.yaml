@@ -13,5 +13,4 @@ resources:
   - ./mcp-telemetry.yaml
   - ./podmonitor.yaml
   - ./httproute.yaml
-  - ./securitypolicy.yaml
   - ./service-internal.yaml

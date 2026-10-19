@@ -49,7 +49,20 @@ spec:
         enabled: true
       # Syslog receiver for RouterOS (RB5009/CRS326), which sits outside the
       # cluster and needs a routable address.
+      extraVolumes:
+        - name: auth-keys
+          secret:
+            secretName: victoria-logs-auth
+            defaultMode: 0440
+      extraVolumeMounts:
+        - name: auth-keys
+          mountPath: /etc/victoria-logs-auth
+          readOnly: true
       extraArgs:
+        partitionManageAuthKey: file:///etc/victoria-logs-auth/partition-manage
+        forceMergeAuthKey: file:///etc/victoria-logs-auth/force-merge
+        forceFlushAuthKey: file:///etc/victoria-logs-auth/force-flush
+        logNewStreamsAuthKey: file:///etc/victoria-logs-auth/log-new-streams
         syslog.listenAddr.udp: :514
         syslog.useLocalTimestamp.udp: "true"
         syslog.streamFields.udp: '["hostname","app_name"]'

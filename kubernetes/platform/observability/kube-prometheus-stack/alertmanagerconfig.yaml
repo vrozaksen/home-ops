@@ -44,6 +44,13 @@ spec:
           - name: severity
             value: error
             matchType: =
+      # Copy of warning/critical to the Paperclip "Alert triage" routine (Watch agent).
+      - receiver: paperclip
+        continue: true
+        matchers:
+          - name: severity
+            value: critical|warning
+            matchType: =~
       - receiver: pushover
         matchers:
           - name: severity
@@ -101,6 +108,18 @@ spec:
 
   receivers:
     - name: blackhole
+    - name: paperclip
+      webhookConfigs:
+        - sendResolved: true
+          urlSecret:
+            name: alertmanager-secret
+            key: PAPERCLIP_ALERTS_WEBHOOK_URL
+          httpConfig:
+            authorization:
+              type: Bearer
+              credentials:
+                name: alertmanager-secret
+                key: PAPERCLIP_ALERTS_WEBHOOK_SECRET
     - name: heartbeat
       webhookConfigs:
         - urlSecret:

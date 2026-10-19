@@ -7,7 +7,7 @@ metadata:
 spec:
   interval: 1h
   refreshBeforeApply: true
-  approvePlan: auto
+  approvePlan: manual
   backendConfig:
     customConfiguration: |
       backend "s3" {

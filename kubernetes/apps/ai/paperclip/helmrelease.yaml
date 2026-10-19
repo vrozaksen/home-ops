@@ -37,6 +37,10 @@ spec:
                     name: postgres-paperclip-app
                     key: uri
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
+              # Agent toolchains: static mise on the PVC, tools installed per repo by mise.
+              PATH: /paperclip/.local/bin:/paperclip/.local/share/mise/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              MISE_TRUSTED_CONFIG_PATHS: /paperclip
+              MISE_YES: "1"
               # memini plugin for claude_local agents; namespace is set per agent env.
               MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
               MEMINI_HOME: personal/vrozaksen

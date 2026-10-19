@@ -112,16 +112,6 @@ spec:
                 subPath: home
               - path: /etc/ssh/keys
                 subPath: keys
-      authorized-keys:
-        type: secret
-        name: forge-secret
-        defaultMode: 0o444
-        advancedMounts:
-          forge:
-            app:
-              - path: /etc/ssh/authorized_keys/authorized_keys
-                subPath: authorized_keys
-                readOnly: true
       credentials:
         type: secret
         name: forge-secret

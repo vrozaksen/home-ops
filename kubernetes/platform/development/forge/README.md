@@ -27,10 +27,10 @@ shell history, AI agent state — accessible from any device with SSH.
 ## SSH security
 
 - OpenSSH 9.9+ with post-quantum hybrid KEX (`mlkem768x25519-sha256`).
-- Pubkey auth only — no password, no PAM, no challenge-response.
+- Certificate auth only (step-ca, `TrustedUserCAKeys`) — no static keys, no password, no PAM, no challenge-response.
 - `AllowUsers vrozaksen`, `MaxAuthTries 3`, `ClientAliveInterval 60`.
-- Authorized keys mounted from Infisical (`/kubernetes/development/forge/AUTHORIZED_KEYS`,
-  multi-line value, one pubkey per line).
+- Revocation is disabling the account in Kanidm. Emergency access if the CA is
+  unavailable: `kubectl exec -it -n development deploy/forge -- bash`.
 - Host keys persisted on PVC — clients never see "host key changed" after restart.
 - Pod runs with minimal sshd capability set, seccomp RuntimeDefault, no SA token mounted.
 
@@ -44,7 +44,7 @@ or restored PVC comes back ready.
 
    | Key | What |
    | --- | --- |
-   | `AUTHORIZED_KEYS` | multi-line, one ssh pubkey per line — add/remove devices here |
+   | `SSH_USER_CA_PUB` | step-ca SSH user CA public key |
    | `GIT_SSH_KEY` | private key for pushing to forgejo/github |
    | `KUBECONFIG` | for in-pod kubectl / flux |
    | `TALOSCONFIG` | for in-pod talosctl |

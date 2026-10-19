@@ -6,4 +6,5 @@ resources:
   - ./infisicalsecret.yaml
   - ./home-ops.yaml
   - ./infisicalsecret-forgejo.yaml
+  - ./infisicalsecret-webhook.yaml
   - ./forgejo.yaml

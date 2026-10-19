@@ -61,15 +61,17 @@ spec:
                       - name: Host
                         value: paperclip.vzkn.eu
                   periodSeconds: 30
-                  timeoutSeconds: 5
-                  failureThreshold: 3
+                  # Busy agent runs stall /api/health; a liveness kill drops every in-flight run.
+                  timeoutSeconds: 15
+                  failureThreshold: 6
               readiness: *probe
             resources:
+              # All claude_local agent processes run inside this pod.
               requests:
-                cpu: 50m
-                memory: 512Mi
-              limits:
+                cpu: 1000m
                 memory: 2Gi
+              limits:
+                memory: 8Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

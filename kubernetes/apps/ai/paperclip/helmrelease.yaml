@@ -52,9 +52,9 @@ spec:
               GIT_CONFIG_VALUE_2: 344950406+vzkn-agents[bot]@users.noreply.github.com
               # Forgejo bot user vzkn-agents (write on Omnichassis repos; main is push/merge-whitelisted to the owner).
               GIT_CONFIG_KEY_3: credential.http://forgejo-http.development.svc.cluster.local:3000.helper
-              GIT_CONFIG_VALUE_3: "!f() { test \"$1\" = get && echo username=vzkn-agents && echo password=$FORGEJO_BOT_TOKEN; }; f"
+              GIT_CONFIG_VALUE_3: "!/etc/github-app-bin/forgejo-cred"
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
-              GIT_CONFIG_VALUE_4: "!f() { test \"$1\" = get && echo username=vzkn-agents && echo password=$FORGEJO_BOT_TOKEN; }; f"
+              GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
               # memini plugin for claude_local agents; namespace is set per agent env.
               MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
               MEMINI_HOME: personal/vrozaksen
@@ -131,6 +131,16 @@ spec:
         defaultMode: 0400
         globalMounts:
           - path: /etc/github-app
+            readOnly: true
+      forgejo-bot:
+        type: secret
+        name: paperclip-secret
+        defaultMode: 0400
+        items:
+          - key: FORGEJO_BOT_TOKEN
+            path: token
+        globalMounts:
+          - path: /etc/forgejo-bot
             readOnly: true
       refs:
         type: nfs

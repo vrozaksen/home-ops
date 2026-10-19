@@ -12,7 +12,7 @@ data:
     import { createSign } from "node:crypto";
     import { readFileSync, writeFileSync } from "node:fs";
 
-    const appId = process.env.GITHUB_APP_ID;
+    const appId = process.env.GITHUB_APP_ID || "5384873";  // agent runs get a filtered env
     const keyFile = process.env.GITHUB_APP_KEY_FILE || "/etc/github-app/private-key.pem";
     const repo = process.env.GITHUB_APP_REPO || "vrozaksen/home-ops";
     const cache = `/tmp/gh-app-token-$${appId}.json`;
@@ -42,6 +42,10 @@ data:
     #!/bin/sh
     # gh with a fresh App installation token: `ghx pr create ...`
     GH_TOKEN=$(node /etc/github-app-bin/gh-app-token.mjs) exec gh "$@"
+  forgejo-cred: |-
+    #!/bin/sh
+    # git credential helper for the Forgejo bot; agent runs get a filtered env, so the token comes from a file.
+    test "$1" = get && echo username=vzkn-agents && echo "password=$(cat /etc/forgejo-bot/token)"
 ---
 apiVersion: secrets.infisical.com/v1alpha1
 kind: InfisicalSecret

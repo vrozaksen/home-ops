@@ -8,6 +8,8 @@ spec:
   dependsOn:
     - name: infisical-operator
       namespace: security
+    - name: kanidm
+      namespace: security
   interval: 1h
   path: ./kubernetes/platform/observability/gatus
   prune: true

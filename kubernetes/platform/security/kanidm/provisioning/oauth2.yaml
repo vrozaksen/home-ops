@@ -64,6 +64,17 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/prometheus.svg" }
+        },
+        "gatus": {
+          "present": true, "displayName": "Gatus",
+          "originUrl": [
+            "https://gatus.vzkn.eu/oauth2/callback",
+            "https://status.vzkn.eu/oauth2/callback"
+          ],
+          "originLanding": "https://status.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/gatus.svg" }
         }
       } } }
 ---
@@ -198,6 +209,14 @@ data:
           "originUrl": "https://flux.vzkn.eu/oauth2/callback",
           "originLanding": "https://flux.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/flux-cd.svg" }
+        },
+        "konflate": {
+          "present": true, "displayName": "Konflate",
+          "originUrl": "https://konflate.vzkn.eu/oauth2/callback",
+          "originLanding": "https://konflate.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/flux-cd.svg" }
         }
       } } }

@@ -36,8 +36,8 @@ spec:
     httpRoute:
       enabled: true
       annotations:
-        gatus.home-operations.com/endpoint: |-
-          conditions: ["[STATUS] == 200"]
+        # behind Kanidm OIDC: a probe would only ever see the IdP redirect
+        gatus.home-operations.com/enabled: "false"
       parentRefs:
         - name: envoy-external
           namespace: network

@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: konflate
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/konflate
+    clientID: konflate
+    clientSecret:
+      name: kanidm-konflate-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://konflate.vzkn.eu/oauth2/callback
+    logoutPath: /oauth2/logout
+    cookieDomain: konflate.vzkn.eu
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: konflate

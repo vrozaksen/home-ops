@@ -11,7 +11,6 @@ resources:
   - ./litellm-operator/ks.yaml
   - ./litellm/ks.yaml
   - ./memini/ks.yaml
-  - ./hermes/ks.yaml
   - ./text-embeddings-inference/ks.yaml
   - ./toolhive/ks.yaml
   - ./toolhive/mcp-servers

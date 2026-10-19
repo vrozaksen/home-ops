@@ -8,6 +8,7 @@ components:
 replacements:
   - path: ../../components/replacements/ks.yaml
 resources:
+  # - ./hermes/ks.yaml
   # - ./litellm/ks.yaml
   # - ./open-webui/ks.yaml
   # - ./perplexica/ks.yaml

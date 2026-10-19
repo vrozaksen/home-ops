@@ -67,9 +67,10 @@ spec:
               readiness: *probe
             resources:
               # All claude_local agent processes run inside this pod.
+              # Workers are ~98% CPU-requested; 400m is what still schedules (alfheim).
               requests:
-                cpu: 1000m
-                memory: 2Gi
+                cpu: 400m
+                memory: 1536Mi
               limits:
                 memory: 8Gi
     defaultPodOptions:

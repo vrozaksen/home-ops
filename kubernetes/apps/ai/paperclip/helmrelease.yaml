@@ -96,3 +96,11 @@ spec:
         existingClaim: paperclip
         globalMounts:
           - path: /paperclip
+      # reference docs for agents; never committed anywhere.
+      refs:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/blaze/refs
+        globalMounts:
+          - path: /refs
+            readOnly: true

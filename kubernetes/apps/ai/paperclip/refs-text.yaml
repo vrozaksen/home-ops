@@ -1,0 +1,95 @@
+---
+# Mirrors documents under the refs share as Markdown in /refs/_text so agents can grep
+# them (requirement IDs, register names, API calls). Incremental: only new or changed files.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperclip-refs-text
+data:
+  convert.py: |-
+    import pathlib
+    from markitdown import MarkItDown
+
+    root = pathlib.Path("/refs")
+    out = root / "_text"
+    convertible = {".pdf", ".docx", ".pptx", ".xlsx", ".epub", ".html", ".htm"}
+    md = MarkItDown()
+    done = failed = skipped = 0
+    for src in sorted(p for p in root.rglob("*") if p.is_file()):
+        if out in src.parents or src.suffix.lower() not in convertible:
+            continue
+        dst = out / src.relative_to(root).with_suffix(src.suffix + ".md")
+        if dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+            skipped += 1
+            continue
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            dst.write_text(md.convert(str(src)).text_content)
+            done += 1
+        except Exception as exc:  # broken or encrypted file: leave a marker, keep going
+            dst.write_text(f"CONVERSION FAILED: {exc}\n")
+            failed += 1
+    print(f"converted={done} skipped={skipped} failed={failed}")
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperclip-refs-text
+spec:
+  schedule: "41 4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 14400
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 100
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: convert
+              image: ghcr.io/astral-sh/uv:python3.14-alpine
+              command:
+                - "uv"
+                - "run"
+                - "--no-project"
+                - "--with"
+                - "markitdown[pdf,docx,pptx,xlsx]"
+                - "python"
+                - "/etc/refs-text/convert.py"
+              env:
+                - name: UV_CACHE_DIR
+                  value: /tmp/uv
+                - name: HOME
+                  value: /tmp
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: {drop: ["ALL"]}
+              resources:
+                requests: {cpu: 100m, memory: 512Mi}
+                limits: {memory: 2Gi}
+              volumeMounts:
+                - name: script
+                  mountPath: /etc/refs-text
+                - name: refs
+                  mountPath: /refs
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: script
+              configMap:
+                name: paperclip-refs-text
+            - name: refs
+              nfs:
+                server: aincrad.home.vzkn.eu
+                path: /mnt/blaze/refs
+            - name: tmp
+              emptyDir: {}

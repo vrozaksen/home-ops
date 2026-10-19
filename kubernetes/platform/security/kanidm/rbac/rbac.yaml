@@ -1,0 +1,395 @@
+---
+# One Role per namespace that has a kanidm-provision-oauth2-* ConfigMap (data.targetNamespace in
+# ../provisioning/oauth2.yaml); keep the two lists in sync. Lives in its own Flux Kustomization
+# (kanidm-rbac) because the kanidm one forces targetNamespace: security.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: ai
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: ai
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: coder
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: coder
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: database
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: database
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: development
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: development
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: downloads
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: downloads
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: flux-system
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: flux-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: harbor
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: harbor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: home-automation
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: home-automation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: media
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: media
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: observability
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: observability
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: omnichassis
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: omnichassis
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: security
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: security
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: self-hosted
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: self-hosted
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: social
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kanidm-provision-write-secret
+  namespace: social
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kanidm-provision-write-secret
+subjects:
+  - kind: ServiceAccount
+    name: kanidm-provision
+    namespace: security

@@ -150,16 +150,6 @@ spec:
               - path: /data/icons
     rbac:
       roles:
-        kanidm-write-secret:
-          type: ClusterRole
-          rules:
-            - apiGroups:
-                - ""
-              resources:
-                - "secrets"
-              verbs:
-                - "create"
-                - "patch"
         kanidm-read-cm:
           type: ClusterRole
           rules:
@@ -172,12 +162,6 @@ spec:
                 - "list"
                 - "watch"
       bindings:
-        kanidm-write-secret:
-          type: ClusterRoleBinding
-          roleRef:
-            identifier: kanidm-write-secret
-          subjects:
-            - identifier: provision
         kanidm-read-cm:
           type: ClusterRoleBinding
           roleRef:

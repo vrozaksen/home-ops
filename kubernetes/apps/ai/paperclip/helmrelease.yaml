@@ -38,9 +38,18 @@ spec:
                     key: uri
               OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
               # Agent toolchains: static mise on the PVC, tools installed per repo by mise.
-              PATH: /paperclip/.local/bin:/paperclip/.local/share/mise/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              PATH: /etc/github-app-bin:/paperclip/.local/bin:/paperclip/.local/share/mise/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
               MISE_TRUSTED_CONFIG_PATHS: /paperclip
               MISE_YES: "1"
+              # GitHub App vzkn-agents: git push / ghx on home-ops via short-lived installation tokens.
+              GITHUB_APP_ID: "5384873"
+              GIT_CONFIG_COUNT: "3"
+              GIT_CONFIG_KEY_0: credential.https://github.com.helper
+              GIT_CONFIG_VALUE_0: "!node /etc/github-app-bin/gh-app-token.mjs"
+              GIT_CONFIG_KEY_1: user.name
+              GIT_CONFIG_VALUE_1: vzkn-agents[bot]
+              GIT_CONFIG_KEY_2: user.email
+              GIT_CONFIG_VALUE_2: 344950406+vzkn-agents[bot]@users.noreply.github.com
               # memini plugin for claude_local agents; namespace is set per agent env.
               MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
               MEMINI_HOME: personal/vrozaksen
@@ -104,6 +113,20 @@ spec:
         globalMounts:
           - path: /paperclip
       # reference docs for agents; never committed anywhere.
+      github-app-bin:
+        type: configMap
+        name: paperclip-github-app
+        defaultMode: 0755
+        globalMounts:
+          - path: /etc/github-app-bin
+            readOnly: true
+      github-app-key:
+        type: secret
+        name: paperclip-github-app
+        defaultMode: 0400
+        globalMounts:
+          - path: /etc/github-app
+            readOnly: true
       refs:
         type: nfs
         server: aincrad.home.vzkn.eu

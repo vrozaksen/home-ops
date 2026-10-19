@@ -1,0 +1,96 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: orphan-secrets
+spec:
+  # Flux never prunes Secrets an operator wrote, so a disabled InfisicalSecret
+  # leaves its Secret behind. Weekly report of namespace/name only, in Job logs.
+  schedule: "23 5 * * 1"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          serviceAccountName: orphan-secrets
+          automountServiceAccountToken: true
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            # Python stdlib: no runtime package install (Falco flags it). Only
+            # namespace/name is ever printed; Secret .data is never touched.
+            - name: orphan-secrets
+              image: docker.io/library/python:3.14-alpine
+              command:
+                - python
+                - -c
+                - |
+                  import json
+                  import ssl
+                  import urllib.parse
+                  import urllib.request
+
+                  SA = "/var/run/secrets/kubernetes.io/serviceaccount/"
+                  API = "https://kubernetes.default.svc"
+                  PREFIX = "secrets.infisical.com/"
+
+                  token = open(SA + "token").read().strip()
+                  ctx = ssl.create_default_context(cafile=SA + "ca.crt")
+
+                  def items(path):
+                      cont = None
+                      while True:
+                          query = {"limit": "250"}
+                          if cont:
+                              query["continue"] = cont
+                          req = urllib.request.Request(
+                              API + path + "?" + urllib.parse.urlencode(query),
+                              headers={"Authorization": "Bearer " + token},
+                          )
+                          with urllib.request.urlopen(req, context=ctx, timeout=60) as resp:
+                              page = json.load(resp)
+                          yield from page["items"]
+                          cont = page["metadata"].get("continue")
+                          if not cont:
+                              return
+
+                  live = set()
+                  for obj in items("/apis/secrets.infisical.com/v1alpha1/infisicalsecrets"):
+                      for ref in obj.get("spec", {}).get("managedKubeSecretReferences") or []:
+                          live.add(f"{ref['secretNamespace']}/{ref['secretName']}")
+
+                  orphans = set()
+                  for sec in items("/api/v1/secrets"):
+                      meta = sec["metadata"]
+                      if any(k.startswith(PREFIX) for k in meta.get("annotations") or {}):
+                          name = f"{meta['namespace']}/{meta['name']}"
+                          if name not in live:
+                              orphans.add(name)
+
+                  print(f"infisicalsecret references: {len(live)}, orphaned secrets: {len(orphans)}")
+                  for name in sorted(orphans):
+                      print(f"orphan {name}")
+              env:
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - "ALL"
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 64Mi
+                limits:
+                  memory: 256Mi

@@ -9,11 +9,10 @@ data:
     model:
       default: code-pool
       provider: litellm
+    # Free models only
     fallback_providers:
       - provider: litellm
-        model: claude-haiku
-      - provider: litellm
-        model: claude-sonnet
+        model: free-pool
     providers:
       litellm:
         base_url: http://litellm.ai.svc.cluster.local:4000/v1
@@ -50,7 +49,7 @@ data:
           model: code-pool
         watch:
           provider: litellm
-          model: assistant
+          model: free-pool
         verification:
           provider: litellm
           model: code-pool
@@ -62,7 +61,7 @@ data:
           model: code-pool
         procurement:
           provider: litellm
-          model: assistant
+          model: free-pool
       max_iterations: 50
     approvals:
       mode: smart

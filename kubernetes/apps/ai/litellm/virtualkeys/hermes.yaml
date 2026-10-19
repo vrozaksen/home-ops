@@ -17,5 +17,5 @@ spec:
     - writer
     - code-pool
     - free-pool
-    - claude-haiku
-    - claude-sonnet
+  maxBudget: "1"
+  budgetDuration: 30d

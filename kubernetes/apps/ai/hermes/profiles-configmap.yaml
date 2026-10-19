@@ -85,12 +85,12 @@ data:
     # Vzkn.eu — Paperclip agents Apps, Deps, Watch (CEO/Review/SRE/SecOps run on Claude Max)
     seed apps         code-pool vzkn/home-ops/apps          "vzkn"
     seed deps         code-pool vzkn/home-ops/deps          "vzkn"
-    seed watch        assistant vzkn/home-ops/watch         "vzkn"
+    seed watch        free-pool vzkn/home-ops/watch         "vzkn"
     # Omnichassis — Paperclip agents on Hermes (Chief/Firmware/OS/Security/Hardware run on Claude Max)
     seed verification code-pool omnichassis/verification    "vzkn omnichassis"
     seed platform     code-pool omnichassis/platform        "vzkn omnichassis"
     seed mechanical   code-pool omnichassis/mechanical      "vzkn omnichassis"
-    seed procurement  assistant omnichassis/procurement     "vzkn omnichassis"
+    seed procurement  free-pool omnichassis/procurement     "vzkn omnichassis"
 
     # Profiles dropped from the roster are archived, not deleted (sessions, state.db).
     for dir in "$profiles_dir"/*/; do

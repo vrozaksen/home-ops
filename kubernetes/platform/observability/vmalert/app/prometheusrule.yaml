@@ -17,7 +17,7 @@ spec:
           for: 5m
           annotations:
             summary: >-
-              vmalert is down — Suricata, Kanidm and Wazuh alerting is not being evaluated
+              vmalert is down — Kanidm and Wazuh alerting is not being evaluated
           labels:
             severity: critical
 

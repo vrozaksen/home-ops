@@ -15,7 +15,7 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          # Consumers (RouterOS, Wazuh, Security Onion) pull their formats from
+          # Consumers (RouterOS, Wazuh) pull their formats from
           # here rather than from the upstreams. AbuseIPDB's blacklist quota is
           # five calls per day per ACCOUNT, so four clients querying directly
           # would exhaust it on the first day -- and the key would have to be

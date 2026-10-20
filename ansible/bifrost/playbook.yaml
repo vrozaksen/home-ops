@@ -94,7 +94,6 @@
               - ufw
               - ipset
               - cron
-              - fail2ban
               - unattended-upgrades
               - apt-listchanges
               - mmdb-bin  # mmdblookup for geo-block
@@ -103,6 +102,14 @@
               - curl
             state: present
             update_cache: true
+
+        # SSH brute-force is covered by CrowdSec (crowdsecurity/sshd + firewall bouncer).
+        # Purge stops the service and removes /etc/fail2ban, incl. jail.local.
+        - name: Remove fail2ban
+          ansible.builtin.apt:
+            name: fail2ban
+            state: absent
+            purge: true
 
     - name: SSH hardening
       tags:
@@ -176,18 +183,6 @@
         group: root
         mode: "0644"
       notify: Apply sysctl
-
-    - name: Configure fail2ban
-      tags:
-        - hardening
-        - fail2ban
-      ansible.builtin.template:
-        src: jail.local.j2
-        dest: /etc/fail2ban/jail.local
-        owner: root
-        group: root
-        mode: "0644"
-      notify: Restart fail2ban
 
     - name: Configure unattended-upgrades
       tags:
@@ -567,11 +562,6 @@
     - name: Apply sysctl
       ansible.builtin.command: sysctl --system
       changed_when: false
-
-    - name: Restart fail2ban
-      ansible.builtin.service:
-        name: fail2ban
-        state: restarted
 
     - name: Restart crowdsec-firewall-bouncer
       ansible.builtin.service:

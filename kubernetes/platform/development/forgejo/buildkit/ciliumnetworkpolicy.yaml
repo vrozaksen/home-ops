@@ -11,6 +11,16 @@ spec:
   enableDefaultDeny:
     ingress: false
   egress:
+    - # registry.vzkn.eu resolves to envoy-external; with socket-LB the
+      # policy sees the envoy pod, not an IP.
+      toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "10443"
     - toFQDNs:
         - matchName: registry.vzkn.eu
       toPorts:
@@ -27,3 +37,12 @@ spec:
         - ports:
             - protocol: TCP
               port: "443"
+    - # apt over plain HTTP, Ubuntu mirrors only
+      toFQDNs:
+        - matchName: archive.ubuntu.com
+        - matchName: security.ubuntu.com
+        - matchName: ports.ubuntu.com
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "80"

@@ -22,9 +22,23 @@ spec:
         - ports:
             - protocol: TCP
               port: "3000"
+    - # git.vzkn.eu resolves to envoy-external; with socket-LB the
+      # policy sees the envoy pod, not an IP.
+      toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "10443"
     - # Forgejo (External URL)
       toFQDNs:
         - matchName: git.vzkn.eu
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "443"
     - # Buildkit
       toEndpoints:
         - matchLabels:
@@ -44,3 +58,12 @@ spec:
         - ports:
             - protocol: TCP
               port: "443"
+    - # apt over plain HTTP, Ubuntu mirrors only
+      toFQDNs:
+        - matchName: archive.ubuntu.com
+        - matchName: security.ubuntu.com
+        - matchName: ports.ubuntu.com
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "80"

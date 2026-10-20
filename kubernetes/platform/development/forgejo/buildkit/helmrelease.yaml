@@ -18,6 +18,8 @@ spec:
         pod:
           labels:
             app.kubernetes.io/name: *app
+            # Opts out of the allow-cluster-egress CCNP so the CNP applies.
+            egress.home.arpa/custom-egress: "true"
           annotations:
             container.apparmor.security.beta.kubernetes.io/app: unconfined
             container.apparmor.security.beta.kubernetes.io/binfmt: unconfined

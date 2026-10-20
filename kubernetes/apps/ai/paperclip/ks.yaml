@@ -29,7 +29,7 @@ spec:
       APP: *app
       NS: &ns ai
       CNPG_SIZE: 5Gi
-      KOPIUR_CAPACITY: 10Gi
+      KOPIUR_CAPACITY: 40Gi
       KOPIUR_PUID: "1000"
       KOPIUR_PGID: "1000"
   prune: true

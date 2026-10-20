@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
+# Machine endpoints that cannot do an OIDC browser flow: the signed GitHub
+# webhook (HMAC-verified by konflate, 501 without KONFLATE_WEBHOOK_SECRET).
+# Deliberately not targeted by the konflate SecurityPolicy.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: konflate-hooks
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  hostnames:
+    - konflate.vzkn.eu
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: konflate
+          port: 8080
+      matches:
+        - path:
+            type: Exact
+            value: /hooks
+          method: POST

@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.networking.k8s.io/httproute_v1.json
+# MCP clients cannot do an OIDC browser flow and konflate has no auth of its
+# own on /mcp, so it is served only on the internal gateway (no SecurityPolicy).
+# The public konflate.vzkn.eu host stays behind Kanidm OIDC.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: konflate-mcp
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  hostnames:
+    - konflate-mcp.vzkn.eu
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: konflate
+          port: 8080
+      matches:
+        - path:
+            type: PathPrefix
+            value: /mcp

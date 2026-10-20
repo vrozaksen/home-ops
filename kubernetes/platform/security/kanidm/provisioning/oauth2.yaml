@@ -199,6 +199,14 @@ data:
           "originLanding": "https://flux.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/flux-cd.svg" }
+        },
+        "konflate": {
+          "present": true, "displayName": "Konflate",
+          "originUrl": "https://konflate.vzkn.eu/oauth2/callback",
+          "originLanding": "https://konflate.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/flux-cd.svg" }
         }
       } } }
 ---

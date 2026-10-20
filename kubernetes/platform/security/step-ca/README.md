@@ -107,13 +107,11 @@ ssh forge.vzkn.eu -p 2222        # the agent now holds a certificate
 The certificate lands in `ssh-agent` and expires on its own. Revocation is
 disabling the account in Kanidm — no secret to rotate, no pod to restart.
 
-## The fallback stays
+## No fallback
 
-`forge` keeps `AuthorizedKeysFile` alongside `TrustedUserCAKeys` on purpose.
-An internet-facing box whose only way in is a CA you just deployed is one
-misconfiguration away from locking you out of your own workstation. Drop the
-`authorized_keys` path only once certificate login has actually worked, and
-delete `AUTHORIZED_KEYS` from Infisical at the same time — not before.
+`forge` trusts only `TrustedUserCAKeys` (`AuthorizedKeysFile none`); the static
+`AUTHORIZED_KEYS` path is gone, since it bypassed Kanidm revocation. If the CA
+is unreachable, get in with `kubectl exec -it -n development deploy/forge -- bash`.
 
 ## Wiring forge to the CA (after bootstrap)
 

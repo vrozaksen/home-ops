@@ -8,7 +8,7 @@ terraform {
 
     forgejo = {
       source  = "svalabs/forgejo"
-      version = "1.6.1"
+      version = "1.7.0"
     }
   }
 }

@@ -15,12 +15,6 @@ spec:
     - # Allow SMTP submission only from explicit apps (namespace + app name match)
       fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: social
-            app.kubernetes.io/name: gotosocial
-        - matchLabels:
-            io.kubernetes.pod.namespace: social
-            app.kubernetes.io/name: bluesky
-        - matchLabels:
             io.kubernetes.pod.namespace: development
             app.kubernetes.io/name: forgejo
         - matchLabels:

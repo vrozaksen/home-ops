@@ -12,6 +12,8 @@ spec:
   values:
     controllers:
       paperclip:
+        serviceAccount:
+          name: paperclip
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
@@ -88,6 +90,8 @@ spec:
               limits:
                 memory: 8Gi
     defaultPodOptions:
+      # Token for the read-only paperclip SA (rbac.yaml); kubectl/flux fall back to in-cluster config.
+      automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

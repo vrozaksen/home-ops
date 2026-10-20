@@ -86,8 +86,11 @@ Full plan + per-app mapping: `.private/kanidm-migration/PLAN.md`.
   namespace. Apps are rewired to these secrets in Phase 2.
 
 ## Notes
-- RBAC (secrets create/patch, configmaps read) is scoped to the `provision` ServiceAccount only;
-  the internet-facing server pod uses a separate powerless `kanidm` SA.
+- RBAC is scoped to the `provision` ServiceAccount only: configmaps read (ClusterRole), and secrets
+  create/patch via a Role + RoleBinding in each target namespace (`rbac/rbac.yaml`, own Flux
+  Kustomization `kanidm-rbac` because `kanidm` forces `targetNamespace`). Adding a
+  `targetNamespace` ConfigMap for a new namespace requires adding its Role there.
+  The internet-facing server pod uses a separate powerless `kanidm` SA.
 - `/status` is a public unauthenticated health endpoint (used by the probes).
 - OIDC redirect URLs in `provisioning/oauth2.yaml` come from the Authentik era — verify each against
   the app's real callback when you flip it from Authentik to Kanidm in Phase 2. `forgejo` assumes the

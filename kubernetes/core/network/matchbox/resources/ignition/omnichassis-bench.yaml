@@ -42,7 +42,7 @@ storage:
     - path: /etc/hostname
       mode: 0644
       contents:
-        inline: cardinal
+        inline: omnichassis-bench
     - path: /etc/NetworkManager/conf.d/90-unmanaged-can.conf
       mode: 0644
       contents:

@@ -13,7 +13,7 @@ spec:
     controllers:
       forge:
         type: deployment
-        replicas: 1
+        replicas: 0  # scaled up by hand when needed
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"

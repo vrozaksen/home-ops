@@ -6,4 +6,5 @@ resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
   - ./httproute-hooks.yaml
+  - ./httproute-mcp.yaml
   - ./securitypolicy.yaml

@@ -37,11 +37,13 @@ spec:
         - ports:
             - protocol: TCP
               port: "443"
-    - # apt over plain HTTP, Ubuntu mirrors only
+    - # apt over plain HTTP, Ubuntu and Debian mirrors only
       toFQDNs:
         - matchName: archive.ubuntu.com
         - matchName: security.ubuntu.com
         - matchName: ports.ubuntu.com
+        - matchName: deb.debian.org
+        - matchName: security.debian.org
       toPorts:
         - ports:
             - protocol: TCP

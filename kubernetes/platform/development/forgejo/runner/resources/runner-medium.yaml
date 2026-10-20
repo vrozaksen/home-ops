@@ -1,6 +1,8 @@
 ---
 cache:
   enabled: true
+  # Pinned so the job-pod CNP can allow it (random port otherwise).
+  port: 8088
   dir: /data/cache
 container:
   docker_host: "-"

@@ -64,17 +64,6 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/prometheus.svg" }
-        },
-        "gatus": {
-          "present": true, "displayName": "Gatus",
-          "originUrl": [
-            "https://gatus.vzkn.eu/oauth2/callback",
-            "https://status.vzkn.eu/oauth2/callback"
-          ],
-          "originLanding": "https://status.vzkn.eu/",
-          "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "allowInsecureClientDisablePkce": true,
-          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/gatus.svg" }
         }
       } } }
 ---

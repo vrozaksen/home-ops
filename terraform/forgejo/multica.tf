@@ -35,12 +35,20 @@ resource "forgejo_repository_webhook" "multica" {
   repository_id = each.value.id
   type          = "forgejo"
   active        = true
-  # Multica also reads "status" (CI state), but svalabs/forgejo 1.7.0 rejects it.
+  # The whole pull_request family: Forgejo expands "pull_request" into it, and a
+  # partial list makes the provider fail with an inconsistent result. Multica also
+  # reads "status" (CI state), but svalabs/forgejo 1.7.0 rejects that event.
   events = [
     "pull_request",
-    "pull_request_sync",
+    "pull_request_assign",
+    "pull_request_comment",
+    "pull_request_label",
+    "pull_request_milestone",
     "pull_request_review_approved",
+    "pull_request_review_comment",
     "pull_request_review_rejected",
+    "pull_request_review_request",
+    "pull_request_sync",
   ]
   config = {
     content_type = "json"

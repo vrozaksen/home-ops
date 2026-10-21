@@ -274,7 +274,7 @@
     {
       // forge wraps nixos/nix; NixOS/nix publishes no GitHub releases
       description: "Changelog link for forge (nixos/nix)",
-      matchPackageNames: ["/containers/forge/"],
+      matchPackageNames: ["/containers/forge$/"],
       changelogUrl: "https://nix.dev/manual/nix/latest/release-notes/",
     },
     {

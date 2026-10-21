@@ -9,7 +9,7 @@ spec:
   provider:
     name: forgejo
     endpoint: https://git.vzkn.eu
-  image: ghcr.io/renovatebot/renovate:44.175.5@sha256:b6634b68ba121a930c6285425fb37d49b50b4130d7b1efcc393e0380f1ad2aad
+  image: ghcr.io/renovatebot/renovate:44.176.1@sha256:b022a120627da9b9199c9d4c799ea7e05e64f667c4d9f6b40ed0cdab9f70d5fa
   schedule: "0 * * * *"
   parallelism: 3
   secretRef: renovate-forgejo-token

@@ -7,3 +7,5 @@ resources:
   - ./refs-text.yaml
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
+  - ./kubeconfig.yaml
+  - ./rbac.yaml

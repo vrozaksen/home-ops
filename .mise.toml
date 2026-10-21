@@ -1,6 +1,6 @@
 [env]
 # File paths
-KUBECONFIG = "{{config_root}}/kubeconfig"
+KUBECONFIG = "{{ get_env(name='KUBECONFIG', default=config_root ~ '/kubeconfig') }}"
 MINIJINJA_CONFIG_FILE = "{{config_root}}/.minijinja.toml"
 TALOSCONFIG = "{{config_root}}/talosconfig"
 KANIDM_URL = "https://idm.vzkn.eu"

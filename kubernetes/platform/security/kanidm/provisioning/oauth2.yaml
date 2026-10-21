@@ -13,7 +13,7 @@ data:
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "coder": {
-          "present": true, "displayName": "Coder",
+          "present": false, "displayName": "Coder",
           "originUrl": "https://coder.vzkn.eu/api/v2/users/oidc/callback",
           "originLanding": "https://coder.vzkn.eu/",
           "scopeMaps": {

@@ -1,0 +1,188 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: multica
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      backend:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/multica-ai/multica-backend
+              tag: v0.6.5@sha256:090bd4ee8efdf45e29e831e87d9ce6b3b82bda3ebbe988016f9d3c3c50fce781
+            env:
+              PORT: &apiPort 8080
+              APP_ENV: production
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-multica-app
+                    key: uri
+              MULTICA_APP_URL: &url https://multica.vzkn.eu
+              FRONTEND_ORIGIN: *url
+              LOCAL_UPLOAD_BASE_URL: *url
+              # Owner only; codes come from the backend log (no mail provider).
+              ALLOW_SIGNUP: "true"
+              ALLOWED_EMAILS: vrozaksen@protonmail.com
+              DISABLE_WORKSPACE_CREATION: "false"
+              # No phone-home: self-host telemetry and PostHog off.
+              DO_NOT_TRACK: "1"
+              ANALYTICS_DISABLED: "true"
+              AUTH_TOKEN_TTL: 168h
+              # Rate limits per client IP, not per Envoy pod.
+              RATE_LIMIT_TRUSTED_PROXIES: &pods 10.69.0.0/16
+              MULTICA_TRUSTED_PROXIES: *pods
+              MULTICA_VCS_INTEGRATION_ENABLED: "false"
+              MULTICA_DATABASE_STARTUP_TIMEOUT: 3m
+            envFrom:
+              - secretRef:
+                  name: multica-secret
+            probes:
+              # Migrations run before the server listens; startup allows 10 min.
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: {path: /healthz, port: *apiPort}
+                  periodSeconds: 10
+                  failureThreshold: 60
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: {path: /health, port: *apiPort}
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: {path: /healthz, port: *apiPort}
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+      web:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/multica-ai/multica-web
+              tag: v0.6.5@sha256:f38d02584705984a89193cba191d6b070a643f566bd9dfebb13094d727895846
+            env:
+              HOSTNAME: 0.0.0.0
+              PORT: &webPort 3000
+              REMOTE_API_URL: http://multica-backend.ai.svc.cluster.local:8080
+            probes:
+              liveness: &webProbe
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *webPort
+                  periodSeconds: 30
+              readiness: *webProbe
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 20m
+                memory: 256Mi
+              limits:
+                memory: 768Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    service:
+      backend:
+        controller: backend
+        ports:
+          http:
+            port: *apiPort
+      web:
+        controller: web
+        ports:
+          http:
+            port: *webPort
+    route:
+      # Browser UI, home and away: behind Kanidm OIDC (securitypolicy.yaml).
+      app:
+        annotations:
+          # behind Kanidm OIDC: a probe would only ever see the IdP redirect
+          gatus.home-operations.com/enabled: "false"
+        hostnames:
+          - multica.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          # API, auth, uploads and the WebSocket go straight to the backend.
+          - matches:
+              - path: {type: PathPrefix, value: /api}
+              - path: {type: PathPrefix, value: /v1}
+              - path: {type: PathPrefix, value: /auth}
+              - path: {type: PathPrefix, value: /uploads}
+              - path: {type: PathPrefix, value: /ws}
+            backendRefs:
+              - identifier: backend
+                port: *apiPort
+          - backendRefs:
+              - identifier: web
+                port: *webPort
+      # LAN only, no OIDC: daemons and the CLI authenticate with Multica PATs.
+      api:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: ai
+            url: https://multica-api.vzkn.eu/healthz
+        hostnames:
+          - multica-api.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: backend
+                port: *apiPort
+    persistence:
+      uploads:
+        existingClaim: multica
+        advancedMounts:
+          backend:
+            app:
+              - path: /app/data/uploads
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          backend:
+            app:
+              - path: /tmp
+          web:
+            app:
+              - path: /tmp

@@ -15,3 +15,4 @@ resources:
   - ./toolhive/ks.yaml
   - ./toolhive/mcp-servers
   - ./paperclip/ks.yaml
+  - ./multica/ks.yaml

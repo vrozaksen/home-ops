@@ -57,7 +57,7 @@ spec:
               # Login codes by mail (smtp-relay, no auth in-cluster).
               SMTP_HOST: smtp-relay.network.svc.cluster.local
               SMTP_PORT: "25"
-              SMTP_FROM_EMAIL: Multica <noreply@vzkn.eu>
+              SMTP_FROM_EMAIL: noreply@vzkn.eu  # bare address: Multica rejects "Name <addr>"
               MULTICA_DATABASE_STARTUP_TIMEOUT: 3m
             envFrom:
               - secretRef:

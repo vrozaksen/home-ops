@@ -30,7 +30,7 @@ spec:
     substitute:
       APP: *app
       NS: &ns media
-      KOPIUR_CAPACITY: 2Gi
+      KOPIUR_CAPACITY: 10Gi
   prune: true
   sourceRef:
     kind: OCIRepository

@@ -207,6 +207,13 @@ spec:
           backend:
             app:
               - path: /app/data/uploads
+      # Next.js image/fetch cache; the image dir is not writable for uid 1000.
+      next-cache:
+        type: emptyDir
+        advancedMounts:
+          web:
+            app:
+              - path: /app/apps/web/.next/cache
       tmp:
         type: emptyDir
         advancedMounts:

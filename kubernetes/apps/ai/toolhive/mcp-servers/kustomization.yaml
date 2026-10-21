@@ -8,6 +8,5 @@ resources:
   - ./forgejo/ks.yaml
   - ./kubectl/ks.yaml
   - ./nixos/ks.yaml
-  - ./plane/ks.yaml
   - ./siderolabs-docs/ks.yaml
   - ./talos/ks.yaml

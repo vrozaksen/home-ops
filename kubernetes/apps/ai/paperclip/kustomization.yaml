@@ -5,6 +5,5 @@ kind: Kustomization
 resources:
   - ./github-app.yaml
   - ./refs-text.yaml
-  - ./usage-guard.yaml
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml

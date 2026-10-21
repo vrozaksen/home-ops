@@ -216,7 +216,7 @@ resource "kubernetes_deployment_v1" "main" {
           name = "dev"
           # Any image works if it has bash, curl and a uid-1000 user. sudo is
           # blocked by allowPrivilegeEscalation below: bake tools into the image.
-          image             = "docker.io/codercom/enterprise-base:ubuntu@sha256:0ba48a9d21a8c4037cb871f1d9fa902b039af8964cc480f6155f481ce09ad17c"
+          image             = "docker.io/codercom/enterprise-base:ubuntu@sha256:191967da651ec0a567de173ef8a029080da8cd4992de192b65df54ef189be769"
           image_pull_policy = "IfNotPresent"
           command           = ["sh", "-c", coder_agent.main.init_script]
 

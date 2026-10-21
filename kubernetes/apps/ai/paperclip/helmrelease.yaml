@@ -12,8 +12,6 @@ spec:
   values:
     controllers:
       paperclip:
-        serviceAccount:
-          name: paperclip
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
@@ -57,6 +55,9 @@ spec:
               GIT_CONFIG_VALUE_3: "!/etc/github-app-bin/forgejo-cred"
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
               GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
+              # Read-only cluster access (rbac.yaml). Agent runs get a filtered env without
+              # KUBERNETES_SERVICE_HOST, so they need KUBECONFIG set in their adapter env.
+              KUBECONFIG: /etc/kube/kubeconfig
               # memini plugin for claude_local agents; namespace is set per agent env.
               MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
               MEMINI_HOME: personal/vrozaksen
@@ -90,7 +91,7 @@ spec:
               limits:
                 memory: 8Gi
     defaultPodOptions:
-      # Token for the read-only paperclip SA (rbac.yaml); kubectl/flux fall back to in-cluster config.
+      # Token for the read-only paperclip SA (rbac.yaml), used through the kubeconfig below.
       automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
@@ -145,6 +146,12 @@ spec:
             path: token
         globalMounts:
           - path: /etc/forgejo-bot
+            readOnly: true
+      kubeconfig:
+        type: configMap
+        name: paperclip-kubeconfig
+        globalMounts:
+          - path: /etc/kube
             readOnly: true
       refs:
         type: nfs

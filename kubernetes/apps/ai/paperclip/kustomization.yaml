@@ -8,4 +8,5 @@ resources:
   - ./usage-guard.yaml
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
+  - ./kubeconfig.yaml
   - ./rbac.yaml

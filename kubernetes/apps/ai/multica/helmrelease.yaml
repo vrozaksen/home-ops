@@ -38,10 +38,10 @@ spec:
               MULTICA_PLUGIN_API_URL: https://multica-api.vzkn.eu/v1
               # Sandboxed plugin iframes need their own cookie-less origin.
               MULTICA_PLUGIN_SURFACE_ORIGIN: https://multica-plugins.vzkn.eu
-              # Owner only.
-              ALLOW_SIGNUP: "true"
+              # Owner account and both workspaces exist; nothing new gets created.
+              ALLOW_SIGNUP: "false"
               ALLOWED_EMAILS: vrozaksen@protonmail.com
-              DISABLE_WORKSPACE_CREATION: "false"
+              DISABLE_WORKSPACE_CREATION: "true"
               # No phone-home: self-host telemetry and PostHog off.
               DO_NOT_TRACK: "1"
               ANALYTICS_DISABLED: "true"

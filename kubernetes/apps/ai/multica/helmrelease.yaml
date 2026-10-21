@@ -38,7 +38,6 @@ spec:
               MULTICA_PLUGIN_API_URL: https://multica-api.vzkn.eu/v1
               # Sandboxed plugin iframes need their own cookie-less origin.
               MULTICA_PLUGIN_SURFACE_ORIGIN: https://multica-plugins.vzkn.eu
-              LOCAL_UPLOAD_BASE_URL: *url
               # Owner only.
               ALLOW_SIGNUP: "true"
               ALLOWED_EMAILS: vrozaksen@protonmail.com
@@ -59,9 +58,17 @@ spec:
               SMTP_PORT: "25"
               SMTP_FROM_EMAIL: noreply@vzkn.eu  # bare address: Multica rejects "Name <addr>"
               MULTICA_DATABASE_STARTUP_TIMEOUT: 3m
+              # Attachments in Garage; the backend proxies downloads (browsers never hit S3).
+              S3_BUCKET: multica
+              S3_REGION: eu-central-1
+              AWS_ENDPOINT_URL: https://api.s3.vzkn.eu
+              S3_USE_PATH_STYLE: "true"
+              ATTACHMENT_DOWNLOAD_MODE: proxy
             envFrom:
               - secretRef:
                   name: multica-secret
+              - secretRef:
+                  name: multica-s3-secret
             probes:
               # Migrations run before the server listens; startup allows 10 min.
               startup:
@@ -201,12 +208,6 @@ spec:
               - identifier: backend
                 port: *apiPort
     persistence:
-      uploads:
-        existingClaim: multica
-        advancedMounts:
-          backend:
-            app:
-              - path: /app/data/uploads
       # Next.js image/fetch cache; the image dir is not writable for uid 1000.
       next-cache:
         type: emptyDir

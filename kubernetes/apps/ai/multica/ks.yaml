@@ -8,14 +8,11 @@ spec:
   components:
     - ../../../components/cnpg/initdb
     - ../../../components/dragonfly
-    - ../../../components/kopiur
   dependsOn:
     - name: dragonfly-operator
       namespace: database
     - name: infisical-operator
       namespace: security
-    - name: kopiur
-      namespace: kopiur-system
     - name: plugin-barman-cloud
       namespace: database
     - name: rook-ceph-cluster
@@ -36,9 +33,6 @@ spec:
       APP: *app
       NS: &ns ai
       CNPG_SIZE: 5Gi
-      KOPIUR_CAPACITY: 5Gi
-      KOPIUR_PUID: "1000"
-      KOPIUR_PGID: "1000"
   prune: true
   sourceRef:
     kind: OCIRepository

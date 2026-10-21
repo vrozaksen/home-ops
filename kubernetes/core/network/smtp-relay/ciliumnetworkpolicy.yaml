@@ -32,6 +32,9 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: security
             app.kubernetes.io/name: kanidm
+        - matchLabels:
+            io.kubernetes.pod.namespace: ai
+            app.kubernetes.io/name: multica
       toPorts:
         - ports:
             - protocol: TCP

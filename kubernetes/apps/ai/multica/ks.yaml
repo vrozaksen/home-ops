@@ -7,8 +7,11 @@ metadata:
 spec:
   components:
     - ../../../components/cnpg/initdb
+    - ../../../components/dragonfly
     - ../../../components/kopiur
   dependsOn:
+    - name: dragonfly-operator
+      namespace: database
     - name: infisical-operator
       namespace: security
     - name: kopiur
@@ -18,6 +21,10 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   healthCheckExprs:
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      failed: status.phase != 'ready'
+      current: status.phase == 'ready'
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')

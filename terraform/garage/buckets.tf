@@ -2,6 +2,7 @@ locals {
   buckets = [
     "cnpg",
     "kopiur",
+    "multica",
     "rxresume",
     "tfstate-mikrotik-terraform"
   ]

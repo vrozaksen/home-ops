@@ -96,8 +96,8 @@ spec:
               value: "true"
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
-# Internal gateway — for in-cluster clients (Hermes, Paperclip agents).
-# Anonymous auth (NetworkPolicy isolates); no OIDC friction.
+# Internal gateway — for agents (Hermes, Multica): in-cluster directly, LAN via
+# mcp-agents.vzkn.eu with an API key (httproute-agents.yaml). Read-only kubectl.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
@@ -119,7 +119,10 @@ spec:
             name: forgejo-tools
         - workload: kubectl
           toolConfigRef:
-            name: kubectl-tools
+            name: kubectl-tools-readonly
+        - workload: flux
+          toolConfigRef:
+            name: flux-tools-readonly
     operational:
       failureHandling:
         healthCheckInterval: 30s

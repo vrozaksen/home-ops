@@ -96,3 +96,69 @@ spec:
     - remove_issue_label
     - search_repos
     - update_file
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
+# kubectl for agents (internal gateway): read and debug only. Agents run with
+# bypassPermissions, so no apply/patch/delete/exec/scale/rollout/generic.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: kubectl-tools-readonly
+spec:
+  toolsFilter:
+    - check_dns_resolution
+    - detect_pending_pods
+    - diagnose_network_connectivity
+    - diagnose_pod_crash
+    - get_api_resources
+    - get_configmaps
+    - get_crds
+    - get_daemonsets
+    - get_deployments
+    - get_endpoints
+    - get_events
+    - get_jobs
+    - get_logs
+    - get_namespaces
+    - get_node_metrics
+    - get_nodes
+    - get_nodes_summary
+    - get_persistent_volumes
+    - get_pod_events
+    - get_pod_metrics
+    - get_pods
+    - get_previous_logs
+    - get_pvcs
+    - get_resource_usage
+    - get_services
+    - get_statefulsets
+    - get_storage_classes
+    - helm_get_values
+    - helm_history
+    - helm_list
+    - helm_status
+    - hubble_flows_query_tool
+    - kubectl_describe
+    - kubectl_explain
+    - node_logs_tool
+    - node_top_tool
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
+# flux for agents: read, diff and reconcile; no apply/delete/patch/suspend/install.
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: flux-tools-readonly
+spec:
+  toolsFilter:
+    - diff_kubernetes_manifest
+    - get_flux_instance
+    - get_kubernetes_api_versions
+    - get_kubernetes_events
+    - get_kubernetes_logs
+    - get_kubernetes_metrics
+    - get_kubernetes_resources
+    - read_flux_doc
+    - reconcile_flux_resource
+    - search_flux_docs
+    - trace_kubernetes_resource

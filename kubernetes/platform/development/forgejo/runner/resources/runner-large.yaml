@@ -1,8 +1,10 @@
 ---
 cache:
   enabled: true
-  # Pinned so the job-pod CNP can allow it (random port otherwise).
+  # Pinned so the job-pod CNP can allow them (random ports otherwise).
   port: 8088
+  # Job pods reach the cache through this proxy, not the cache server.
+  proxy_port: 8089
   dir: /data/cache
 container:
   docker_host: "-"

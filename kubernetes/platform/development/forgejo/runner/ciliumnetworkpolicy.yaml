@@ -39,14 +39,15 @@ spec:
         - ports:
             - protocol: TCP
               port: "443"
-    - # Runner cache server (cache.port in resources/runner-*.yaml)
+    - # Runner cache proxy (cache.proxy_port in resources/runner-*.yaml);
+      # job pods get ACTIONS_CACHE_URL pointing at the proxy, not the server.
       toEndpoints:
         - matchLabels:
             app.kubernetes.io/component: forgejo-runner
       toPorts:
         - ports:
             - protocol: TCP
-              port: "8088"
+              port: "8089"
     - # Buildkit
       toEndpoints:
         - matchLabels:

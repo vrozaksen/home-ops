@@ -35,12 +35,12 @@ resource "forgejo_repository_webhook" "multica" {
   repository_id = each.value.id
   type          = "forgejo"
   active        = true
+  # Multica also reads "status" (CI state), but svalabs/forgejo 1.7.0 rejects it.
   events = [
     "pull_request",
     "pull_request_sync",
     "pull_request_review_approved",
     "pull_request_review_rejected",
-    "status",
   ]
   config = {
     content_type = "json"

@@ -1,0 +1,109 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# Multica agent daemon (runtime "cluster"): runs Claude Code for agents 24/7.
+# Multica starts Claude with bypassPermissions and the daemon's env, so secrets
+# are files only and the pod has no ServiceAccount token.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: multica-agent
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      multica-agent:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: registry.vzkn.eu/containers/multica-agent
+              tag: 0.6.5
+            command:
+              - "/usr/bin/tini"
+              - "--"
+              - "sh"
+              - "-c"
+            args:
+              - |
+                set -e
+                mkdir -p ~/.config/memini ~/.config/mcp-agents
+                install -m600 /etc/agent-secrets/memini-token ~/.config/memini/token
+                install -m600 /etc/agent-secrets/mcp-agents-api-key ~/.config/mcp-agents/api-key
+                multica login --token < /etc/agent-secrets/multica-token > /dev/null
+                exec multica daemon start --foreground
+            env:
+              MULTICA_SERVER_URL: http://multica-backend.ai.svc.cluster.local:8080
+              MULTICA_DAEMON_DEVICE_NAME: &name cluster
+              MULTICA_AGENT_RUNTIME_NAME: *name
+              MULTICA_AGENT_TIMEOUT: 2h
+              # One Max subscription behind every run (shared with ragnarok).
+              MULTICA_DAEMON_MAX_CONCURRENT_TASKS: "3"
+              PATH: /etc/github-app-bin:/home/node/.local/share/mise/shims:/home/node/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              GIT_CONFIG_COUNT: "5"
+              GIT_CONFIG_KEY_0: credential.https://github.com.helper
+              GIT_CONFIG_VALUE_0: "!node /etc/github-app-bin/gh-app-token.mjs"
+              GIT_CONFIG_KEY_1: user.name
+              GIT_CONFIG_VALUE_1: vzkn-agents[bot]
+              GIT_CONFIG_KEY_2: user.email
+              GIT_CONFIG_VALUE_2: 344950406+vzkn-agents[bot]@users.noreply.github.com
+              GIT_CONFIG_KEY_3: credential.http://forgejo-http.development.svc.cluster.local:3000.helper
+              GIT_CONFIG_VALUE_3: "!/etc/github-app-bin/forgejo-cred"
+              GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
+              GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
+              MEMINI_HOME: personal/vrozaksen
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 6Gi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    persistence:
+      home:
+        existingClaim: multica-agent
+        globalMounts:
+          - path: /home/node
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      secrets:
+        type: secret
+        name: multica-agent-secret
+        defaultMode: 0400
+        globalMounts:
+          - path: /etc/agent-secrets
+            readOnly: true
+      github-app-bin:
+        type: configMap
+        name: multica-agent-git
+        defaultMode: 0755
+        globalMounts:
+          - path: /etc/github-app-bin
+            readOnly: true
+      # Reference specs (AUTOSAR, OSEK, ST) for agents; never committed anywhere.
+      refs:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/blaze/refs
+        globalMounts:
+          - path: /refs
+            readOnly: true

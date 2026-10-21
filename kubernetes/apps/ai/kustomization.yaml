@@ -16,3 +16,4 @@ resources:
   - ./toolhive/mcp-servers
   - ./paperclip/ks.yaml
   - ./multica/ks.yaml
+  - ./multica-agent/ks.yaml

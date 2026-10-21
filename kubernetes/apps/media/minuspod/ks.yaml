@@ -12,6 +12,8 @@ spec:
       namespace: security
     - name: kopiur
       namespace: kopiur-system
+    - name: litellm-operator
+      namespace: ai
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

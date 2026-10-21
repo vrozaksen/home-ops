@@ -18,6 +18,8 @@ spec:
       namespace: security
     - name: kopiur
       namespace: kopiur-system
+    - name: litellm-operator
+      namespace: ai
     - name: plugin-barman-cloud
       namespace: database
     - name: rook-ceph-cluster

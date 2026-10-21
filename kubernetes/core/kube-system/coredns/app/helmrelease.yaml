@@ -52,8 +52,8 @@ spec:
             configBlock: |-
               pods verified
               fallthrough in-addr.arpa ip6.arpa
-          - name: autopath
-            parameters: "@kubernetes"
+          # No autopath: since chart 1.49.0 its answers carry the search-expanded name
+          # (x.<ns>.svc.cluster.local), so Cilium toFQDNs matchName never matches.
           - name: forward
             parameters: . /etc/resolv.conf
           - name: cache

@@ -44,12 +44,6 @@ spec:
 
     defaultPodOptions:
       automountServiceAccountToken: false
-      # Resolve smtp.protonmail.ch as-is: search-domain expansion names the answer
-      # *.svc.cluster.local, which the toFQDNs matchName never matches (egress times out).
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "1"
       # Opts out of the cluster-wide allow-cluster-egress CCNP so this pod's own
       # default-deny egress policy (DNS + smtp.protonmail.ch:587) actually applies.
       labels:

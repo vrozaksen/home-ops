@@ -24,7 +24,7 @@ spec:
             image:
               # renovate: datasource=docker depName=registry.vzkn.eu/containers/forge
               repository: registry.vzkn.eu/containers/forge
-              tag: 2.35.3@sha256:315b626d65dbbc95ce4410e58e2560107ef6624079081e66a3794c8c88e626ee
+              tag: 2.35.4@sha256:72a16934dddb1ed88a7a0e9e5fc13886787877b0c1ad5e5fc504ba8e11880d4c
             env:
               FORGE_HM_FLAKE: git+https://git.vzkn.eu/vrozaksen/nix-config
               FORGE_HM_PROFILE: vrozaksen-forge

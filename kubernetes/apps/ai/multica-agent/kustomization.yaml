@@ -6,3 +6,4 @@ resources:
   - ./git-credentials.yaml
   - ./helmrelease.yaml
   - ./infisicalsecret.yaml
+  - ./refs-text.yaml

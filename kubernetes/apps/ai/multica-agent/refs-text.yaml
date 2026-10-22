@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: paperclip-refs-text
+  name: refs-text
 data:
   convert.py: |-
     import pathlib
@@ -34,7 +34,7 @@ data:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: paperclip-refs-text
+  name: refs-text
 spec:
   schedule: "41 4 * * *"
   concurrencyPolicy: Forbid
@@ -86,7 +86,7 @@ spec:
           volumes:
             - name: script
               configMap:
-                name: paperclip-refs-text
+                name: refs-text
             - name: refs
               nfs:
                 server: aincrad.home.vzkn.eu

@@ -31,6 +31,9 @@ spec:
             args:
               - |
                 set -e
+                # emptyDir /tmp is 2777 without the sticky bit (fsGroup); Claude refuses
+                # to put its sockets there, so runs get a private TMPDIR.
+                mkdir -p -m 700 /tmp/node && export TMPDIR=/tmp/node
                 mkdir -p ~/.config/memini ~/.config/mcp-agents
                 install -m600 /etc/agent-secrets/memini-token ~/.config/memini/token
                 install -m600 /etc/agent-secrets/mcp-agents-api-key ~/.config/mcp-agents/api-key

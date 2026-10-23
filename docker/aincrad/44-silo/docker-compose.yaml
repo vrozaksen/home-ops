@@ -7,7 +7,7 @@ services:
   silo:
     # Upstream publishes only commit-SHA tags plus latest/nightly; pinned by
     # digest (Renovate docker-compose manager bumps the digest).
-    image: ghcr.io/silo-server/silo-server:latest@sha256:986b9afbf6a05435b0fd3c204832e6caaf2b1c3ff5907879a981d9731351d1c3
+    image: ghcr.io/silo-server/silo-server:latest@sha256:86c6f7c3b57645206518da5250cb6342e25bf723203477d56b51be934cb82a9d
     container_name: silo
     restart: unless-stopped
     labels:

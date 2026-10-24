@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/networking.k8s.io/service_v1.json
-# Internal gateway service — for in-cluster clients (Hermes, Paperclip).
+# Internal gateway service — for in-cluster agent clients (Multica).
 apiVersion: v1
 kind: Service
 metadata:

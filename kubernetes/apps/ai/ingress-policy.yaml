@@ -1,0 +1,87 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+# Default-deny ingress for the whole namespace: selecting every pod with any ingress rule flips
+# them to deny-by-default, the rules below are the allow-list derived from Hubble flows (VZK-194).
+# Ingress-only: egress stays governed by allow-cluster-egress (unioned, so it stays open).
+# Additive with the per-app NetworkPolicies (e.g. components/dragonfly).
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  endpointSelector: {}
+  ingress:
+    # Everything inside the namespace: agents, LiteLLM, MCP gateway and servers, CNPG poolers, Dragonfly.
+    - fromEndpoints:
+        - {}
+    # Kubelet probes, API server webhooks (litellm-operator :9443, toolhive), cilium-health.
+    - fromEntities:
+        - host
+        - remote-node
+        - kube-apiserver
+    # envoy-internal HTTPRoutes: litellm :4000, mcp-gateway :4483, multica-api :8080, memini :8081.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+            gateway.envoyproxy.io/owning-gateway-namespace: network
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
+            - port: "4483"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+            - port: "8081"
+              protocol: TCP
+    # envoy-external HTTPRoutes: multica.vzkn.eu and multica-plugins.vzkn.eu -> multica-web :3000, multica-backend :8080.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+            gateway.envoyproxy.io/owning-gateway-namespace: network
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    # Prometheus scrapes: litellm :4000, mcp-gateway :4483, headroom :8787, memini :9090,
+    # CNPG exporter :9187, Dragonfly :9999.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
+            - port: "4483"
+              protocol: TCP
+            - port: "8787"
+              protocol: TCP
+            - port: "9090"
+              protocol: TCP
+            - port: "9187"
+              protocol: TCP
+            - port: "9999"
+              protocol: TCP
+    # LLM API consumers in other namespaces: media/minuspod, self-hosted/sure -> litellm.ai.svc:4000.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+        - matchLabels:
+            io.kubernetes.pod.namespace: self-hosted
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
+    # CNPG operator polling the instance manager status endpoint on the Postgres pods.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP

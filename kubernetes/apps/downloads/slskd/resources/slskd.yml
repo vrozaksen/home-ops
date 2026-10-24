@@ -40,4 +40,5 @@ web:
     api_keys:
       my_api_key:
         key: ${SLSKD_API_KEY}
+        role: administrator  # 0.26.2 requires admin for /options, logs and server endpoints (Tubifarry)
         cidr: 0.0.0.0/0,::/0

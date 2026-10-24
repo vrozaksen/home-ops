@@ -6,7 +6,7 @@ metadata:
   name: litellm
 spec:
   applyMode: file
-  image: ghcr.io/berriai/litellm-non_root:v1.106.2@sha256:07fabea33dfc2b127e865c03112dfc76936334b29028ec05cdd355af2385dc04
+  image: ghcr.io/berriai/litellm-non_root:v1.106.3@sha256:4fe2270c8b66d25654514744ee6629445c255c0303c292fcbd2d973117a04207
   replicas: 1
   volumes:
     - name: migrations

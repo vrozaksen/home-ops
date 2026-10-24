@@ -22,6 +22,9 @@ spec:
     spec:
       containers:
         - name: mcp
+          # 2.0 stats ./.env at start (pydantic-settings); the image workdir is not readable
+          # for uid 1000, so the server crashed with PermissionError before listening.
+          workingDir: /tmp
           args:
             - --transport
             - streamable-http

@@ -11,17 +11,17 @@ spec:
     name: app-template
   values:
     controllers:
-      # web (Rails) + sidekiq worker share the same RWO PVC → one pod, two containers
+      # Since 1.17.0 Sidekiq runs embedded in the web process (no worker container)
       dawarich:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          app: &container
+          app:
             image:
               # renovate: datasource=docker depName=mirror.gcr.io/freikin/dawarich
               repository: mirror.gcr.io/freikin/dawarich
               tag: 1.17.0@sha256:207dc86f8baa8fcf5b585f31186bf81b55added9c102a96f308d640e964ea60f
-            env: &env
+            env:
               RAILS_ENV: production
               SELF_HOSTED: "true"
               STORE_GEODATA: "true"
@@ -37,21 +37,20 @@ spec:
               # instance caps at 1 req/s and would see the whole location history.
               PHOTON_API_HOST: photon.self-hosted.svc.cluster.local:2322
               PHOTON_API_USE_HTTPS: "false"
-              # One preloaded Puma worker is plenty for a household instance
-              WEB_CONCURRENCY: "1"
-              # Password resets, family invites, year-end digests. Delivery
-              # happens in sidekiq, which shares this env block.
+              # Background jobs run inside the web process. WEB_CONCURRENCY must
+              # stay 0: every extra Puma worker would start its own job threads.
+              SIDEKIQ_EMBEDDED: "true"
+              WEB_CONCURRENCY: "0"
+              # 3 job threads keep idle memory and DB connections low; raise
+              # temporarily for large imports. RAILS_MAX_THREADS stays unset so
+              # the DB pool is sized for web plus job threads.
+              BACKGROUND_PROCESSING_CONCURRENCY: "3"
+              # Password resets, family invites, year-end digests (sent by jobs).
               SMTP_SERVER: smtp-relay.network.svc.cluster.local
               SMTP_PORT: "25"
               SMTP_FROM: Dawarich <noreply@vzkn.eu>
               # In-cluster relay, no auth and no TLS on 25.
               SMTP_STARTTLS: "false"
-              # The web container fetches sidekiq's metrics and concatenates
-              # them into its own /metrics. Same pod here, so loopback.
-              PROMETHEUS_EXPORTER_ENABLED: "true"
-              SIDEKIQ_METRICS_URL: http://127.0.0.1:9394/metrics
-              # Pool must cover sidekiq concurrency on the worker container
-              RAILS_MAX_THREADS: "5"
               RAILS_LOG_TO_STDOUT: "true"
               REDIS_URL: redis://dawarich-dragonfly.self-hosted.svc.cluster.local:6379/0
               # Dragonfly runs emulated-cluster mode (DB 0 only) → pin all logical DBs to 0
@@ -139,33 +138,13 @@ spec:
               - "0.0.0.0"
             resources:
               requests:
-                cpu: 250m
-                memory: 384Mi
-              limits:
-                memory: 4Gi
-          sidekiq:
-            <<: *container
-            env:
-              <<: *env
-              # 3 job threads keep idle memory and DB connections low; raise
-              # temporarily for large imports.
-              BACKGROUND_PROCESSING_CONCURRENCY: "3"
-            probes:
-              liveness:
-                enabled: false
-              readiness:
-                enabled: false
-            command:
-              - "sidekiq-entrypoint.sh"
-            args:
-              - "sidekiq"
-            resources:
-              requests:
-                cpu: 250m
-                memory: 384Mi
+                cpu: 500m
+                memory: 512Mi
               limits:
                 memory: 4Gi
     defaultPodOptions:
+      # Let running jobs finish or return to the queue on restart
+      terminationGracePeriodSeconds: 60
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -179,24 +158,6 @@ spec:
         ports:
           http:
             port: *port
-          metrics:
-            port: 9394
-    serviceMonitor:
-      app:
-        endpoints:
-          - port: metrics
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
-            # /metrics returns 401 without these.
-            basicAuth:
-              username:
-                name: dawarich-secret
-                key: METRICS_USERNAME
-              password:
-                name: dawarich-secret
-                key: METRICS_PASSWORD
     route:
       app:
         annotations:

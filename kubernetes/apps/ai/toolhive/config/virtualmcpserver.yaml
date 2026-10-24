@@ -61,7 +61,7 @@ spec:
             name: forgejo-tools
         - workload: kubectl
           toolConfigRef:
-            name: kubectl-tools
+            name: kubectl-tools-readonly
     # Embedding-based optimizer
     operational:
       failureHandling:

@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
         - name: mcp
-          # 2.0 stats ./.env at start (pydantic-settings); the image workdir is not readable
-          # for uid 1000, so the server crashed with PermissionError before listening.
+          # 2.0 stats ./.env and ~/.config/kubectl-mcp-server/config.toml at start; the image
+          # workdir and /home/mcp are unreadable for uid 1000 (toolhive), so it crashed.
           workingDir: /tmp
           args:
             - --transport
@@ -36,6 +36,8 @@ spec:
             # 2.0 refuses a non-loopback bind without OAuth; the pod is fronted by the toolhive proxy.
             - --allow-unauthenticated
           env:
+            - name: HOME
+              value: /tmp
             - name: MCP_K8S_PROVIDER
               value: in-cluster
             # 2.0 registers only core+helm by default; add the read-only toolsets agents use.

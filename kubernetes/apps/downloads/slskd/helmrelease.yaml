@@ -98,7 +98,10 @@ spec:
                       - /bin/sh
                       - -c
                       # slskd treats an empty public IP as "VPN down" and never connects; restart gluetun to redo the lookup
-                      - /gluetun-entrypoint healthcheck && wget -qO- http://localhost:8000/v1/publicip/ip | grep -q '"public_ip":"[0-9a-f]'
+                      - >-
+                        /gluetun-entrypoint healthcheck &&
+                        K=$(echo "$HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE" | sed -n 's/.*"apikey":"\([^"]*\)".*/\1/p') &&
+                        wget -qO- --header "X-API-Key: $K" http://localhost:8000/v1/publicip/ip | grep -q '"public_ip":"[0-9a-f]'
                   initialDelaySeconds: 30
                   periodSeconds: 30
                   timeoutSeconds: 10

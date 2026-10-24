@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: ghcr.io/paperclipai/paperclip
-              tag: 2026.1012.0
+              tag: 2026.1023.0
               digest: sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
             env:
               HOST: 0.0.0.0

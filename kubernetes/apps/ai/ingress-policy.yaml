@@ -19,7 +19,7 @@ spec:
         - host
         - remote-node
         - kube-apiserver
-    # envoy-internal HTTPRoutes: paperclip :3100, litellm :4000, mcp-gateway :4483, memini :8081.
+    # envoy-internal HTTPRoutes: litellm :4000, mcp-gateway :4483, multica-api :8080, memini :8081.
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: network
@@ -27,13 +27,25 @@ spec:
             gateway.envoyproxy.io/owning-gateway-namespace: network
       toPorts:
         - ports:
-            - port: "3100"
-              protocol: TCP
             - port: "4000"
               protocol: TCP
             - port: "4483"
               protocol: TCP
+            - port: "8080"
+              protocol: TCP
             - port: "8081"
+              protocol: TCP
+    # envoy-external HTTPRoutes: multica.vzkn.eu and multica-plugins.vzkn.eu -> multica-web :3000, multica-backend :8080.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+            gateway.envoyproxy.io/owning-gateway-namespace: network
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "8080"
               protocol: TCP
     # Prometheus scrapes: litellm :4000, mcp-gateway :4483, headroom :8787, memini :9090,
     # CNPG exporter :9187, Dragonfly :9999.

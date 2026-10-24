@@ -81,7 +81,7 @@ spec:
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
               DNS_UPSTREAM_RESOLVERS: cloudflare
               HEALTH_SUCCESS_WAIT_DURATION: 10s
-              PUBLICIP_PERIOD: 5m
+              PUBLICIP_API: ifconfigco,ip2location,cloudflare,ipinfo  # fallbacks; gluetun 3.41 looks the IP up only once per VPN connect
               FIREWALL_INPUT_PORTS: "80"
               PUID: "1000"
               PGID: "100"
@@ -95,8 +95,10 @@ spec:
                 spec:
                   exec:
                     command:
-                      - "/gluetun-entrypoint"
-                      - "healthcheck"
+                      - /bin/sh
+                      - -c
+                      # slskd treats an empty public IP as "VPN down" and never connects; restart gluetun to redo the lookup
+                      - /gluetun-entrypoint healthcheck && wget -qO- http://localhost:8000/v1/publicip/ip | grep -q '"public_ip":"[0-9a-f]'
                   initialDelaySeconds: 30
                   periodSeconds: 30
                   timeoutSeconds: 10

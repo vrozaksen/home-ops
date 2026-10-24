@@ -1,59 +1,5 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
-# Allow-lists for the fattest backends; shared by both VirtualMCPServers.
-# kubectl: 275 -> read/debug + basic ops. No get_secrets, no kind/vind/capi/istio.
-apiVersion: toolhive.stacklok.dev/v1beta1
-kind: MCPToolConfig
-metadata:
-  name: kubectl-tools
-spec:
-  toolsFilter:
-    - check_dns_resolution
-    - delete_resource
-    - detect_pending_pods
-    - diagnose_network_connectivity
-    - diagnose_pod_crash
-    - exec_in_pod
-    - get_api_resources
-    - get_configmaps
-    - get_crds
-    - get_daemonsets
-    - get_deployments
-    - get_endpoints
-    - get_events
-    - get_jobs
-    - get_logs
-    - get_namespaces
-    - get_node_metrics
-    - get_nodes
-    - get_nodes_summary
-    - get_persistent_volumes
-    - get_pod_events
-    - get_pod_metrics
-    - get_pods
-    - get_previous_logs
-    - get_pvcs
-    - get_resource_usage
-    - get_services
-    - get_statefulsets
-    - get_storage_classes
-    - helm_get_values
-    - helm_history
-    - helm_list
-    - helm_status
-    - hubble_flows_query_tool
-    - kubectl_apply
-    - kubectl_describe
-    - kubectl_explain
-    - kubectl_generic
-    - kubectl_patch
-    - kubectl_rollout
-    - node_logs_tool
-    - node_top_tool
-    - restart_deployment
-    - scale_deployment
----
-# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
 # forgejo: 103 -> repos/issues/PRs. No admin_*, org/team mgmt, repo delete/transfer.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPToolConfig
@@ -98,8 +44,8 @@ spec:
     - update_file
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
-# kubectl for agents (internal gateway): read and debug only. Agents run with
-# bypassPermissions, so no apply/patch/delete/exec/scale/rollout/generic.
+# kubectl for both gateways: read and debug only (kubectl-mcp-server 2.0 names). Agents run
+# with bypassPermissions, so no kubectl_generic and no write tools.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPToolConfig
 metadata:
@@ -107,41 +53,35 @@ metadata:
 spec:
   toolsFilter:
     - check_dns_resolution
+    - check_pod_health
+    - cilium_get_policy
+    - cilium_get_status
+    - cilium_list_endpoints
+    - cilium_list_identities
+    - cilium_list_nodes
+    - cilium_list_policies
+    - compare_namespaces
+    - detect_ecosystem
     - detect_pending_pods
     - diagnose_network_connectivity
     - diagnose_pod_crash
     - get_api_resources
-    - get_configmaps
-    - get_crds
-    - get_daemonsets
-    - get_deployments
-    - get_endpoints
-    - get_events
-    - get_jobs
-    - get_logs
-    - get_namespaces
-    - get_node_metrics
-    - get_nodes
+    - get_evicted_pods
+    - get_hubble_flows
     - get_nodes_summary
-    - get_persistent_volumes
-    - get_pod_events
-    - get_pod_metrics
-    - get_pods
-    - get_previous_logs
-    - get_pvcs
-    - get_resource_usage
-    - get_services
-    - get_statefulsets
-    - get_storage_classes
-    - helm_get_values
+    - health_check
+    - helm_get
     - helm_history
     - helm_list
     - helm_status
-    - hubble_flows_query_tool
     - kubectl_describe
     - kubectl_explain
-    - node_logs_tool
-    - node_top_tool
+    - kubectl_get
+    - kubectl_logs
+    - kubectl_top
+    - node_logs
+    - node_stats_summary
+    - trace_service_chain
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcptoolconfig_v1beta1.json
 # flux for agents: read, diff and reconcile; no apply/delete/patch/suspend/install.

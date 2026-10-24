@@ -30,9 +30,14 @@ spec:
             - --port
             - "8000"
             - --read-only
+            # 2.0 refuses a non-loopback bind without OAuth; the pod is fronted by the toolhive proxy.
+            - --allow-unauthenticated
           env:
             - name: MCP_K8S_PROVIDER
               value: in-cluster
+            # 2.0 registers only core+helm by default; add the read-only toolsets agents use.
+            - name: MCP_TOOLSETS
+              value: core,helm,diagnostics,cilium
             - name: PYTHONUNBUFFERED
               value: "1"
   groupRef:

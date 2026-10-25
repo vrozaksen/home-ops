@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: inventree
+spec:
+  components:
+    - ../../../components/cnpg/initdb
+    - ../../../components/dragonfly
+    - ../../../components/kopiur
+  dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+    - name: kanidm
+      namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      failed: status.phase != 'ready'
+      current: status.phase == 'ready'
+  interval: 1h
+  path: ./kubernetes/apps/self-hosted/inventree
+  postBuild:
+    substitute:
+      APP: inventree
+      NS: &ns self-hosted
+      # InvenTree CI and the docker stack target PostgreSQL 17 (18 is untested upstream)
+      CNPG_VERSION: 17.11-system-trixie
+      CNPG_SIZE: 5Gi
+      # Data dir only holds config, plugins.txt and backups; media lives in Garage S3
+      KOPIUR_CAPACITY: 1Gi
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

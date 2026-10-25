@@ -241,6 +241,14 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/homebox.svg" }
         },
+        "inventree": {
+          "present": true, "displayName": "InvenTree",
+          "originUrl": "https://inventree.vzkn.eu/accounts/kanidm/login/callback/",
+          "originLanding": "https://inventree.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "preferShortUsername": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/inventree.svg" }
+        },
         "memos": {
           "present": true, "displayName": "Memos",
           "originUrl": "https://memos.vzkn.eu/auth/callback",

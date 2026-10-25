@@ -10,6 +10,7 @@ resources:
   - ./atuin/ks.yaml
   - ./dawarich/ks.yaml
   # - ./homebox/ks.yaml
+  - ./inventree/ks.yaml
   - ./it-tools/ks.yaml
   - ./memos/ks.yaml
   - ./photon/ks.yaml

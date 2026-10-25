@@ -1,7 +1,6 @@
 locals {
   buckets = [
     "cnpg",
-    "inventree",
     "kopiur",
     "multica",
     "rxresume",

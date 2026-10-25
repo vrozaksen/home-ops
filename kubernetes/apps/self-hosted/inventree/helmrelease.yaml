@@ -71,12 +71,6 @@ spec:
               INVENTREE_EMAIL_TLS: "False"
               INVENTREE_EMAIL_SSL: "False"
               INVENTREE_EMAIL_SENDER: InvenTree <noreply@vzkn.eu>
-              # Media in Garage; browsers fetch presigned URLs from api.s3.vzkn.eu (LAN/VPN only)
-              INVENTREE_STORAGE_TARGET: s3
-              INVENTREE_S3_ENDPOINT_URL: https://api.s3.vzkn.eu
-              INVENTREE_S3_BUCKET_NAME: inventree
-              INVENTREE_S3_REGION_NAME: eu-central-1
-              INVENTREE_S3_LOCATION: media
               # Read-only in the UI, so SSO and currency survive a database restore
               INVENTREE_GLOBAL_SETTINGS: '{"INVENTREE_COMPANY_NAME":"Vzkn.eu","INVENTREE_DEFAULT_CURRENCY":"EUR","CURRENCY_CODES":"EUR,PLN,USD","LOGIN_ENABLE_REG":false,"LOGIN_ENABLE_SSO":true,"LOGIN_ENABLE_SSO_REG":true}'
               # Kanidm OIDC without a DB social app. $(VAR) only expands variables listed before
@@ -91,8 +85,6 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: inventree-secret
-              - secretRef:
-                  name: inventree-s3-secret
             # The image starts as root and does not drop privileges
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -195,7 +187,7 @@ spec:
                 memory: 384Mi
               limits:
                 memory: 1Gi
-          # Static files plus reverse proxy; media is served from S3
+          # Static + authenticated media files, reverse proxy to gunicorn
           proxy:
             image:
               repository: docker.io/library/caddy
@@ -273,6 +265,16 @@ spec:
                     file_server
                 }
 
+                # Media is only served after gunicorn confirms the session (/auth/)
+                handle_path /media/* {
+                    root * /media
+                    file_server
+                    header Content-Disposition attachment
+                    forward_auth 127.0.0.1:8000 {
+                        uri /auth/
+                    }
+                }
+
                 reverse_proxy 127.0.0.1:8000
             }
     persistence:
@@ -286,6 +288,10 @@ spec:
               - path: /home/inventree/data
             worker:
               - path: /home/inventree/data
+            proxy:
+              - path: /media
+                subPath: media
+                readOnly: true
       static:
         type: emptyDir
         advancedMounts:

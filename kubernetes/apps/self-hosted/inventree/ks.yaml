@@ -34,8 +34,8 @@ spec:
       # InvenTree CI and the docker stack target PostgreSQL 17 (18 is untested upstream)
       CNPG_VERSION: 17.11-system-trixie
       CNPG_SIZE: 5Gi
-      # Data dir only holds config, plugins.txt and backups; media lives in Garage S3
-      KOPIUR_CAPACITY: 1Gi
+      # Data dir holds config, plugins.txt, backups and uploaded media
+      KOPIUR_CAPACITY: 10Gi
   prune: true
   sourceRef:
     kind: OCIRepository

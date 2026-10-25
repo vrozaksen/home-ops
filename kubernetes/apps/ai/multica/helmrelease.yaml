@@ -34,7 +34,7 @@ spec:
               MULTICA_PUBLIC_URL: *url
               # Shown in the UI's daemon setup commands: daemons use the LAN API host.
               MULTICA_DAEMON_SERVER_URL: https://multica-api.vzkn.eu
-              # Hook servers call back on the LAN API host (the app host is OIDC-gated).
+              # Hook servers call back on the LAN API host.
               MULTICA_PLUGIN_API_URL: https://multica-api.vzkn.eu/v1
               # Sandboxed plugin iframes need their own cookie-less origin.
               MULTICA_PLUGIN_SURFACE_ORIGIN: https://multica-plugins.vzkn.eu
@@ -153,11 +153,9 @@ spec:
           http:
             port: *webPort
     route:
-      # Browser UI, home and away: behind Kanidm OIDC (securitypolicy.yaml).
+      # Browser UI, home and away. No gateway OIDC: Kanidm kills the session when
+      # parallel SPA requests replay one refresh token, so Multica's own login guards it.
       app:
-        annotations:
-          # behind Kanidm OIDC: a probe would only ever see the IdP redirect
-          gatus.home-operations.com/enabled: "false"
         hostnames:
           - multica.vzkn.eu
         parentRefs:

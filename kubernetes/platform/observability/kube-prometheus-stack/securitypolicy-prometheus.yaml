@@ -14,6 +14,13 @@ spec:
     redirectURL: https://prometheus.vzkn.eu/oauth2/callback
     logoutPath: /logout
     cookieDomain: prometheus.vzkn.eu
+    # Background fetch/XHR gets 401, not a 302: every redirect sets a fresh nonce
+    # cookie pair and a polling tab overflows HTTP/2 headers (too_many_headers).
+    denyRedirect:
+      headers:
+        - name: Sec-Fetch-Mode
+          type: RegularExpression
+          value: "^(cors|no-cors|same-origin|websocket)$"
     scopes:
       - "openid"
       - "email"

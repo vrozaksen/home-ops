@@ -15,6 +15,13 @@ spec:
     # /logout is taken by TA itself
     logoutPath: /oauth2/logout
     cookieDomain: tubearchivist.vzkn.eu
+    # Background fetch/XHR gets 401, not a 302: every redirect sets a fresh nonce
+    # cookie pair and a polling tab overflows HTTP/2 headers (too_many_headers).
+    denyRedirect:
+      headers:
+        - name: Sec-Fetch-Mode
+          type: RegularExpression
+          value: "^(cors|no-cors|same-origin|websocket)$"
     scopes:
       - "openid"
       - "email"

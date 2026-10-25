@@ -28,6 +28,9 @@ spec:
             app.kubernetes.io/name: nextcloud
         - matchLabels:
             io.kubernetes.pod.namespace: self-hosted
+            app.kubernetes.io/name: inventree
+        - matchLabels:
+            io.kubernetes.pod.namespace: self-hosted
             app.kubernetes.io/name: rxresume
         - matchLabels:
             io.kubernetes.pod.namespace: security

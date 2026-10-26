@@ -65,6 +65,12 @@ spec:
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
               GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
               MEMINI_HOME: personal/vrozaksen
+              INVENTREE_URL: https://inventree.vzkn.eu
+              INVENTREE_API_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: multica-agent-inventree
+                    key: INVENTREE_API_TOKEN
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

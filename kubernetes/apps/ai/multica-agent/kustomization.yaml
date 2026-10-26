@@ -5,5 +5,6 @@ kind: Kustomization
 resources:
   - ./git-credentials.yaml
   - ./helmrelease.yaml
+  - ./infisicalsecret-inventree.yaml
   - ./infisicalsecret.yaml
   - ./refs-text.yaml

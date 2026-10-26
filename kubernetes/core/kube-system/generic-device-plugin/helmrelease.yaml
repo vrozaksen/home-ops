@@ -31,7 +31,7 @@ spec:
       pullPolicy: IfNotPresent
       # No semver upstream, so the digest is the real pin. Must be recent
       # enough to know --config, which the chart passes.
-      tag: latest@sha256:5c48f7a16cfb37c4e07731bfa384b9dba6e12d2b0fb4350d8a321d49f12ac494
+      tag: latest@sha256:8dc84958301f054bf72d9753a7a2c9af3d6642a9844b34d1171b3f2cdb4a15f6
     controller:
       type: daemonset
     # Privileged on purpose: it confines the privilege here so consumers get

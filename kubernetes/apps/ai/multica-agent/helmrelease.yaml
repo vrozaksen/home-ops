@@ -38,6 +38,12 @@ spec:
                 install -m600 /etc/agent-secrets/memini-token ~/.config/memini/token
                 install -m600 /etc/agent-secrets/mcp-agents-api-key ~/.config/mcp-agents/api-key
                 multica login --token < /etc/agent-secrets/multica-token > /dev/null
+                # LSP plugins for agent runs (clangd is in the image, gopls via mise); best effort.
+                (
+                  claude plugin marketplace add anthropics/claude-plugins-official
+                  for p in clangd-lsp gopls-lsp; do claude plugin install "$p@claude-plugins-official" --scope user; done
+                  mise use -g go@latest go:golang.org/x/tools/gopls@latest
+                ) > /tmp/node/lsp-setup.log 2>&1 &
                 exec multica daemon start --foreground
             env:
               MULTICA_SERVER_URL: http://multica-backend.ai.svc.cluster.local:8080

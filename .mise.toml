@@ -14,7 +14,7 @@ postinstall = "lefthook install"
 
 [tools]
 actionlint = "1.7.12"
-flux2 = "2.9.6"
+flux2 = "2.10.0"
 helm = "4.3.1"
 helmfile = "1.8.2"
 infisical = "0.44.9"

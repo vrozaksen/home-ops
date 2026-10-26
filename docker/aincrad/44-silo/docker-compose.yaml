@@ -97,7 +97,7 @@ services:
 
   silo-redis:
     # renovate: datasource=docker depName=redis
-    image: redis:8.10.2-alpine
+    image: redis:8.10.3-alpine
     container_name: silo-redis
     restart: unless-stopped
     volumes:

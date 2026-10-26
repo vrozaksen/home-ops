@@ -37,12 +37,24 @@ spec:
                 mkdir -p ~/.config/memini ~/.config/mcp-agents
                 install -m600 /etc/agent-secrets/memini-token ~/.config/memini/token
                 install -m600 /etc/agent-secrets/mcp-agents-api-key ~/.config/mcp-agents/api-key
+                # DK2 HIL box: `ssh dk2-hil`; the Include must precede any Host block.
+                mkdir -p -m 700 ~/.ssh
+                install -m600 /etc/dk2-hil/dk2-hil-ssh-key ~/.ssh/dk2-hil
+                printf 'Host dk2-hil\n  HostName 10.100.0.105\n  User hil\n  IdentityFile ~/.ssh/dk2-hil\n  IdentitiesOnly yes\n  StrictHostKeyChecking accept-new\n' > ~/.ssh/dk2-hil.conf
+                touch ~/.ssh/config
+                if ! grep -qx 'Include dk2-hil.conf' ~/.ssh/config; then
+                  { echo 'Include dk2-hil.conf'; cat ~/.ssh/config; } > ~/.ssh/config.new
+                  mv ~/.ssh/config.new ~/.ssh/config
+                fi
+                chmod 600 ~/.ssh/config
                 multica login --token < /etc/agent-secrets/multica-token > /dev/null
                 # LSP plugins for agent runs (clangd is in the image, gopls via mise); best effort.
                 (
                   claude plugin marketplace add anthropics/claude-plugins-official
                   for p in clangd-lsp gopls-lsp; do claude plugin install "$p@claude-plugins-official" --scope user; done
                   mise use -g go@latest go:golang.org/x/tools/gopls@latest
+                  # Live flow view for SRE (read-only, via hubble-relay; see HUBBLE_SERVER).
+                  mise use -g cilium-hubble@latest
                 ) > /tmp/node/lsp-setup.log 2>&1 &
                 exec multica daemon start --foreground
             env:
@@ -65,6 +77,7 @@ spec:
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
               GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
               MEMINI_HOME: personal/vrozaksen
+              HUBBLE_SERVER: hubble-relay.kube-system.svc.cluster.local:80
               INVENTREE_URL: https://inventree.vzkn.eu
               INVENTREE_API_TOKEN:
                 valueFrom:
@@ -112,6 +125,13 @@ spec:
         defaultMode: 0400
         globalMounts:
           - path: /etc/agent-secrets
+            readOnly: true
+      dk2-hil:
+        type: secret
+        name: multica-agent-dk2
+        defaultMode: 0400
+        globalMounts:
+          - path: /etc/dk2-hil
             readOnly: true
       github-app-bin:
         type: configMap

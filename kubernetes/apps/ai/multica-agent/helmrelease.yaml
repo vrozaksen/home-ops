@@ -63,7 +63,7 @@ spec:
               MULTICA_AGENT_RUNTIME_NAME: *name
               MULTICA_AGENT_TIMEOUT: 2h
               # One Max subscription behind every run (shared with ragnarok).
-              MULTICA_DAEMON_MAX_CONCURRENT_TASKS: "3"
+              MULTICA_DAEMON_MAX_CONCURRENT_TASKS: "5"
               PATH: /etc/github-app-bin:/home/node/.local/share/mise/shims:/home/node/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
               GIT_CONFIG_COUNT: "5"
               GIT_CONFIG_KEY_0: credential.https://github.com.helper
@@ -99,7 +99,7 @@ spec:
                 cpu: 100m
                 memory: 512Mi
               limits:
-                memory: 6Gi
+                memory: 10Gi
     defaultPodOptions:
       automountServiceAccountToken: false
       securityContext:

@@ -53,6 +53,8 @@ spec:
                   claude plugin marketplace add anthropics/claude-plugins-official
                   for p in clangd-lsp gopls-lsp; do claude plugin install "$p@claude-plugins-official" --scope user; done
                   mise use -g go@latest go:golang.org/x/tools/gopls@latest
+                  # Live flow view for SRE (read-only, via hubble-relay; see HUBBLE_SERVER).
+                  mise use -g cilium-hubble@latest
                 ) > /tmp/node/lsp-setup.log 2>&1 &
                 exec multica daemon start --foreground
             env:
@@ -75,6 +77,7 @@ spec:
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
               GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
               MEMINI_HOME: personal/vrozaksen
+              HUBBLE_SERVER: hubble-relay.kube-system.svc.cluster.local:80
               INVENTREE_URL: https://inventree.vzkn.eu
               INVENTREE_API_TOKEN:
                 valueFrom:

@@ -71,6 +71,12 @@ spec:
                   secretKeyRef:
                     name: multica-agent-inventree
                     key: INVENTREE_API_TOKEN
+              # Vzkn.eu agents use this one (InvenTree user vzkn-agent) for homelab inventory.
+              INVENTREE_API_TOKEN_VZKN:
+                valueFrom:
+                  secretKeyRef:
+                    name: multica-agent-secret
+                    key: inventree-token-vzkn
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

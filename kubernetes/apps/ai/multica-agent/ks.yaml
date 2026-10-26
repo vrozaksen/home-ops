@@ -18,8 +18,8 @@ spec:
     substitute:
       APP: *app
       NS: &ns ai
-      # Claude login, repo checkouts, mise toolchains and caches.
-      KOPIUR_CAPACITY: 40Gi
+      # Claude login, repo checkouts, mise toolchains and caches (40Gi filled up 2026-10-26).
+      KOPIUR_CAPACITY: 80Gi
       KOPIUR_PUID: "1000"
       KOPIUR_PGID: "1000"
   prune: true

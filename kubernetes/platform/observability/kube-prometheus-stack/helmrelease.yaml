@@ -46,6 +46,7 @@ spec:
             - name: envoy-internal
               namespace: network
       alertmanagerSpec:
+        priorityClassName: monitoring
         alertmanagerConfiguration:
           name: alertmanager
         externalUrl: https://alertmanager.vzkn.eu
@@ -158,8 +159,21 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         retention: 14d
         retentionSize: 50GB
+        priorityClassName: monitoring
+        # Any worker; alfheim (64Gi) stays preferred. A hard hostname pin left
+        # Prometheus Pending when alfheim filled up after a node blip (VZKN-220).
         nodeSelector:
-          kubernetes.io/hostname: alfheim
+          topology.kubernetes.io/zone: worker
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - alfheim
         resources:
           requests:
             cpu: 430m

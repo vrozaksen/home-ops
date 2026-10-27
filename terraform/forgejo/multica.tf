@@ -16,18 +16,28 @@ locals {
     vzkn = { id = "4bf73a66-1e4c-4102-899d-703be84c28e8", secret = "WEBHOOK_SECRET_VZKN" }
     omc  = { id = "f48437af-9fd8-466d-8043-f0b6256f8beb", secret = "WEBHOOK_SECRET_OMC" }
   }
+  # agents: collaborator permission of the bot; repos without it keep agents read-only.
   multica_repos = {
     "vrozaksen/agent-skills"       = { id = 250, ws = "vzkn" }
-    "vrozaksen/containers"         = { id = 175, ws = "vzkn" }
+    "vrozaksen/containers"         = { id = 175, ws = "vzkn", agents = "write" }
     "vrozaksen/mikrotik-terraform" = { id = 174, ws = "vzkn" }
     "vrozaksen/nix-config"         = { id = 104, ws = "vzkn" }
-    "Omnichassis/firmware"         = { id = 243, ws = "omc" }
-    "Omnichassis/fleet"            = { id = 248, ws = "omc" }
-    "Omnichassis/hardware"         = { id = 245, ws = "omc" }
-    "Omnichassis/infra"            = { id = 244, ws = "omc" }
-    "Omnichassis/mech"             = { id = 246, ws = "omc" }
-    "Omnichassis/os"               = { id = 249, ws = "omc" }
+    "Omnichassis/engineering"      = { id = 283, ws = "omc", agents = "write" }
+    "Omnichassis/firmware"         = { id = 243, ws = "omc", agents = "write" }
+    "Omnichassis/fleet"            = { id = 248, ws = "omc", agents = "write" }
+    "Omnichassis/hardware"         = { id = 245, ws = "omc", agents = "write" }
+    "Omnichassis/infra"            = { id = 244, ws = "omc", agents = "write" }
+    "Omnichassis/mech"             = { id = 246, ws = "omc", agents = "write" }
+    "Omnichassis/os"               = { id = 249, ws = "omc", agents = "write" }
   }
+}
+
+# Agent bot access per repo, so a new repo in the map gets push and the webhook together.
+resource "forgejo_collaborator" "agents" {
+  for_each      = { for k, v in local.multica_repos : k => v if try(v.agents, null) != null }
+  repository_id = each.value.id
+  user          = "vzkn-agents"
+  permission    = each.value.agents
 }
 
 resource "forgejo_repository_webhook" "multica" {

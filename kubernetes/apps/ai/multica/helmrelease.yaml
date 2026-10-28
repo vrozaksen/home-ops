@@ -19,7 +19,7 @@ spec:
           app:
             image:
               repository: ghcr.io/multica-ai/multica-backend
-              tag: v0.7.0@sha256:1bd213988a0b3290100d38c75122cc9fcfffaeceeabe192e75ae59cf6b4ff9d5
+              tag: v0.7.1@sha256:36dd6d2325b5bb6b6873ef7ee19e0a15a084832771a68bdc2b50b0990a6eba38
             env:
               PORT: &apiPort 8080
               APP_ENV: production

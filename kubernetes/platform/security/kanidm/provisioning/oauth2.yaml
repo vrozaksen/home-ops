@@ -463,5 +463,16 @@ data:
             "fleet-viewer": ["openid", "email", "profile", "groups"]
           },
           "k8s": {}
+        },
+        "engineering": {
+          "present": true, "displayName": "Omnichassis Engineering",
+          "originUrl": "https://eng.omnichassis.dev/api/v1/auth/callback",
+          "originLanding": "https://eng.omnichassis.dev/",
+          "scopeMaps": {
+            "engineering-owner": ["openid", "email", "profile", "groups"],
+            "engineering-engineer": ["openid", "email", "profile", "groups"],
+            "engineering-viewer": ["openid", "email", "profile", "groups"]
+          },
+          "k8s": {}
         }
       } } }

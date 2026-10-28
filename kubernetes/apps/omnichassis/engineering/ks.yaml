@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# Same shape as omnichassis-fleet-db, plus the runtime login role (DatabaseRole).
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: omnichassis-engineering-db
+spec:
+  components:
+    - ../../../components/cnpg/initdb
+  dependsOn:
+    - name: infisical-operator
+      namespace: security
+    - name: plugin-barman-cloud
+      namespace: database
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/omnichassis/engineering
+  postBuild:
+    substitute:
+      APP: engineering
+      NS: &ns omnichassis
+      CNPG_SIZE: 5Gi
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *ns
+  wait: false

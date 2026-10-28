@@ -21,7 +21,10 @@ data:
         "omnichassis":    { "present": true, "members": [], "overwriteMembers": false },
         "fleet-owner":      { "present": true, "members": ["vrozaksen"], "overwriteMembers": false },
         "fleet-technician": { "present": true, "members": [], "overwriteMembers": false },
-        "fleet-viewer":     { "present": true, "members": [], "overwriteMembers": false }
+        "fleet-viewer":     { "present": true, "members": [], "overwriteMembers": false },
+        "engineering-owner":    { "present": true, "members": ["vrozaksen"], "overwriteMembers": false },
+        "engineering-engineer": { "present": true, "members": [], "overwriteMembers": false },
+        "engineering-viewer":   { "present": true, "members": [], "overwriteMembers": false }
       },
       "persons": {},
       "systems": { "oauth2": {} }

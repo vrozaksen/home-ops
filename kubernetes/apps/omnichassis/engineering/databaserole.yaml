@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/postgresql.cnpg.io/databaserole_v1.json
+# Runtime login role (cannot change the schema; the owner is the initdb role
+# "engineering"). Password Secret engineering-db-app is synced by Omnichassis/infra
+# with label cnpg.io/reload, so a late or rotated Secret is picked up.
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: engineering-app
+spec:
+  cluster:
+    name: postgres-${APP}
+  name: engineering_app
+  ensure: present
+  login: true
+  passwordSecret:
+    name: engineering-db-app

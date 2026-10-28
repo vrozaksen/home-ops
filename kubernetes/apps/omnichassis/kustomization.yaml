@@ -8,6 +8,7 @@ components:
 resources:
   - ./namespace.yaml
   - ./rbac.yaml
+  - ./engineering/ks.yaml
   - ./fleet/ks.yaml
   - ./infra/ks.yaml
   - ./sil-runner/ks.yaml

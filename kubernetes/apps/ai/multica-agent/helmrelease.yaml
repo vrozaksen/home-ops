@@ -18,6 +18,45 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         strategy: Recreate
+        initContainers:
+          # KiCad 3D models (~3.4 GB unpacked) live on the $HOME volume, not in the image;
+          # the marker file skips the download on pod restarts.
+          kicad-3dmodels:
+            image:
+              repository: registry.vzkn.eu/containers/multica-agent
+              tag: 0.6.5@sha256:20cfb5c6885513b089a01f6efaf4cb8808b84358d02afbdcf31383a18fc88f49
+            command:
+              - "sh"
+              - "-ec"
+            args:
+              - |
+                v="$KICAD_3DMODELS_VERSION"
+                d="$HOME/.local/share/kicad/10.0/3dmodels"
+                if [ "$(cat "$d/.version" 2>/dev/null)" = "$v" ]; then
+                  echo "KiCad 3D models $v already present"; exit 0
+                fi
+                mkdir -p "$d.new"
+                curl -fsSL "https://gitlab.com/kicad/libraries/kicad-packages3D/-/archive/$v/kicad-packages3D-$v.tar.gz" -o /tmp/3d.tar.gz
+                echo "$KICAD_3DMODELS_SHA256  /tmp/3d.tar.gz" | sha256sum -c -
+                tar xzf /tmp/3d.tar.gz -C "$d.new" --strip-components=1
+                rm -f /tmp/3d.tar.gz
+                echo "$v" > "$d.new/.version"
+                rm -rf "$d"; mv "$d.new" "$d"
+            env:
+              # renovate: datasource=gitlab-tags depName=kicad/libraries/kicad-packages3D
+              KICAD_3DMODELS_VERSION: 10.0.7
+              # sha256 of the gitlab archive tarball for the version above; update together.
+              KICAD_3DMODELS_SHA256: 72197c01d77def8df098cd0ca87432ac71d740c3da94835e99070757f709bc15
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
         containers:
           app:
             image:
@@ -77,6 +116,8 @@ spec:
               GIT_CONFIG_KEY_4: credential.https://git.vzkn.eu.helper
               GIT_CONFIG_VALUE_4: "!/etc/github-app-bin/forgejo-cred"
               MEMINI_HOME: personal/vrozaksen
+              # 3D models fetched by the kicad-3dmodels initContainer.
+              KICAD10_3DMODEL_DIR: /home/node/.local/share/kicad/10.0/3dmodels
               HUBBLE_SERVER: hubble-relay.kube-system.svc.cluster.local:80
               INVENTREE_URL: https://inventree.vzkn.eu
               INVENTREE_API_TOKEN:

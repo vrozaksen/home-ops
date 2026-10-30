@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/reactive-resume/reactive-resume
-              tag: v6.0.7@sha256:469e5a31b6cdd8d92be4b3799f4af4bd4bdf347493543ffd7b80e806a506ce55
+              tag: v6.0.10@sha256:74f710181ecada7f215b1c52de5c61941ece61818c26a7d103fc0c010fb49a8c
             env:
               NODE_ENV: "production"
               # Refuse startup if post-migration schema check finds missing tables

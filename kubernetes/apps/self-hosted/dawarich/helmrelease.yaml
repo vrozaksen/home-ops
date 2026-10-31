@@ -20,7 +20,7 @@ spec:
             image:
               # renovate: datasource=docker depName=mirror.gcr.io/freikin/dawarich
               repository: mirror.gcr.io/freikin/dawarich
-              tag: 1.17.0@sha256:207dc86f8baa8fcf5b585f31186bf81b55added9c102a96f308d640e964ea60f
+              tag: 1.20.0@sha256:18945f609942056e55fb24988229499be7bbe4703177fac662225dad465b021f
             env:
               RAILS_ENV: production
               SELF_HOSTED: "true"

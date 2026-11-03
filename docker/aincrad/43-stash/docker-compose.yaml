@@ -4,7 +4,7 @@ name: stash
 services:
   stash:
     # renovate: datasource=docker depName=ghcr.io/home-operations/stash
-    image: ghcr.io/home-operations/stash:0.31.1
+    image: ghcr.io/home-operations/stash:0.32.0
     container_name: stash
     restart: unless-stopped
     user: "1000:100"

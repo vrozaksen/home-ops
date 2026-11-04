@@ -71,6 +71,13 @@ spec:
         existingClaim: orcaslicer
         globalMounts:
           - path: /config
+      # Models and sliced gcode, shared with the workstation (/mnt/blaze/refs/3D)
+      models:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/blaze/refs/3D
+        globalMounts:
+          - path: /config/models
       tmpfs:
         type: emptyDir
         globalMounts:

@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: ghcr.io/donkie/spoolman
-              tag: 0.26.1
+              tag: 0.27.1
             env:
               SPOOLMAN_HOST: 0.0.0.0
               # Explicit port; entrypoint otherwise trips over the k8s
@@ -58,6 +58,18 @@ spec:
     service:
       app:
         controller: spoolman
+        # A second Service makes app-template suffix names; keep the one
+        # ServiceMonitor and bambuddy's Spoolman URL point at
+        forceRename: spoolman
+        ports:
+          http:
+            port: 8000
+      # Moonraker on the isolated Qidi Q2 (IoT VLAN); router pinholes only this IP:port
+      printer:
+        controller: spoolman
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 10.10.0.47
         ports:
           http:
             port: 8000
@@ -79,6 +91,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
     persistence:
       data:
         existingClaim: spoolman

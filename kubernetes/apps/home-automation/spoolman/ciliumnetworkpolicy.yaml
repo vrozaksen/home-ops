@@ -34,3 +34,10 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+    # Qidi Q2 Moonraker [spoolman] via the printer LB (DSR keeps the source IP)
+    - fromCIDR:
+        - 10.20.0.221/32
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP

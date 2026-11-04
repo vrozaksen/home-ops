@@ -1,0 +1,32 @@
+---
+# Fluidd runs on the QIDI Q2 itself (nginx :80, proxying Moonraker and the webcam).
+# No selector: the endpoint is the printer, pinned by the EndpointSlice below.
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluidd
+spec:
+  ports:
+    - name: http
+      appProtocol: kubernetes.io/ws
+      port: 80
+      protocol: TCP
+      targetPort: 80
+---
+# Static DHCP lease in mikrotik-terraform (IoT VLAN, isolated). Moonraker sees the
+# envoy node IP via X-Real-IP and trusts it, so the SecurityPolicy is the only gate.
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: fluidd
+  labels:
+    kubernetes.io/service-name: fluidd
+addressType: IPv4
+ports:
+  - name: http
+    appProtocol: kubernetes.io/ws
+    port: 80
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 10.20.0.221

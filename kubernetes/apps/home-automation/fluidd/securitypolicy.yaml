@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: fluidd
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/fluidd
+    clientID: fluidd
+    clientSecret:
+      name: kanidm-fluidd-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://q2.vzkn.eu/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: q2.vzkn.eu
+    # Fluidd polls and holds a websocket: those get 401 instead of a 302, or every
+    # redirect stacks a nonce cookie until HTTP/2 headers overflow.
+    denyRedirect:
+      headers:
+        - name: Sec-Fetch-Mode
+          type: RegularExpression
+          value: "^(cors|no-cors|same-origin|websocket)$"
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+      - "groups"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: fluidd

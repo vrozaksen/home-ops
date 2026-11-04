@@ -12,7 +12,6 @@ spec:
   values:
     controllers:
       orcaslicer:
-        replicas: 0
         containers:
           app:
             image:

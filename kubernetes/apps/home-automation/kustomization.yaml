@@ -9,9 +9,10 @@ resources:
   - ./namespace.yaml
   - ./bambuddy/ks.yaml
   - ./esphome/ks.yaml
+  - ./fluidd/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mesh-bridge/ks.yaml
   - ./music-assistant/ks.yaml
-  # - ./orcaslicer/ks.yaml
+  - ./orcaslicer/ks.yaml
   - ./spoolman/ks.yaml
   - ./zigbee/ks.yaml

@@ -12,13 +12,18 @@ spec:
   values:
     controllers:
       orcaslicer:
+        pod:
+          # iGPU: Xvfb DRI3 for the viewport and VA-API for the stream
+          resourceClaims:
+            - name: gpu
+              resourceClaimTemplateName: orcaslicer-gpu
         containers:
           app:
             image:
               repository: registry.vzkn.eu/containers/orcaslicer-web
-              tag: 2.4.2
+              tag: 2.4.2-a4df8ee
             env:
-              GEOMETRY: 1920x1080
+              TZ: Europe/Warsaw
             probes:
               liveness: &probes
                 enabled: true
@@ -36,7 +41,14 @@ spec:
                 spec:
                   failureThreshold: 30
                   periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - "ALL"
             resources:
+              claims:
+                - name: gpu
               requests:
                 cpu: 100m
                 memory: 512Mi
@@ -70,15 +82,17 @@ spec:
       config:
         existingClaim: orcaslicer
         globalMounts:
-          - path: /config
+          - path: /home/ubuntu
       # Models and sliced gcode, shared with the workstation (/mnt/blaze/refs/3D)
       models:
         type: nfs
         server: aincrad.home.vzkn.eu
         path: /mnt/blaze/refs/3D
         globalMounts:
-          - path: /config/models
-      tmpfs:
+          - path: /home/ubuntu/models
+      shm:
         type: emptyDir
+        medium: Memory
+        sizeLimit: 1Gi
         globalMounts:
-          - path: /tmp
+          - path: /dev/shm

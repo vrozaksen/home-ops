@@ -43,7 +43,7 @@ spec:
         emptyDir: {}
     extraContainers:
       - name: caddy
-        image: caddy:2.11.7@sha256:5e5286cb37d44086d651a5363f05f43a692ce4d649d88fb1bd844579f45fa9e8
+        image: caddy:2.11.9@sha256:c2aeffaeb80d5403e9c8d1d908b50e191aad204e16129f991ae357ada642094d
         ports:
           - containerPort: 80
             protocol: TCP

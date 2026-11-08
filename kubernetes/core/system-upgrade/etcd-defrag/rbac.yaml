@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: etcd-defrag
+---
+# EtcdDefragment accepts os:operator; Talos writes the talosconfig into the
+# same-named Secret. Namespace is already allowed by kube-talos-api-access.yaml.
+apiVersion: talos.dev/v1alpha1
+kind: ServiceAccount
+metadata:
+  name: etcd-defrag
+spec:
+  roles:
+    - "os:operator"

@@ -156,6 +156,10 @@ spec:
       # Browser UI, home and away. No gateway OIDC: Kanidm kills the session when
       # parallel SPA requests replay one refresh token, so Multica's own login guards it.
       app:
+        # gatus-sidecar probes the first rule's path (/api -> 404); pin the UI root.
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            url: https://multica.vzkn.eu/
         hostnames:
           - multica.vzkn.eu
         parentRefs:

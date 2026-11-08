@@ -156,6 +156,12 @@ spec:
       # Browser UI, home and away. No gateway OIDC: Kanidm kills the session when
       # parallel SPA requests replay one refresh token, so Multica's own login guards it.
       app:
+        # Explicit URL: the auto-generated one uses the first path match (/api), which 404s on GET.
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: external
+            url: https://multica.vzkn.eu/
+            conditions: ["[STATUS] == 200"]
         hostnames:
           - multica.vzkn.eu
         parentRefs:

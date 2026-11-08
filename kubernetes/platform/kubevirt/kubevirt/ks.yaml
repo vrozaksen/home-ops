@@ -9,6 +9,9 @@ spec:
   path: ./kubernetes/platform/kubevirt/kubevirt/operator
   # Pruning would delete the CRDs and with them every VM in the cluster.
   prune: false
+  # The operator manifest is fetched from GitHub release assets on every build;
+  # a flaky download otherwise leaves it BuildFailed for a full interval.
+  retryInterval: 5m
   sourceRef:
     kind: OCIRepository
     name: flux-system

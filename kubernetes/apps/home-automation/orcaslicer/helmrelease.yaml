@@ -24,6 +24,8 @@ spec:
               tag: 2.4.2-a4df8ee
             env:
               TZ: Europe/Warsaw
+              # Selkies sidebar uploads/downloads land in the shared models dir
+              FILE_MANAGER_PATH: /home/ubuntu/models
             probes:
               liveness: &probes
                 enabled: true

@@ -30,3 +30,4 @@ spec:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       name: fluidd
+      sectionName: app

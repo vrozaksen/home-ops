@@ -14,6 +14,46 @@ spec:
     - name: envoy-external
       namespace: network
   rules:
-    - backendRefs:
+    # Outside the OIDC gate (SecurityPolicy targets the app rule only)
+    - name: sw
+      matches:
+        - path:
+            type: Exact
+            value: /sw.js
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: fluidd-sw-killswitch
+    - name: app
+      backendRefs:
         - name: fluidd
           port: 80
+---
+# Fluidd's PWA service worker serves index.html from cache, so once the OIDC
+# session expires no navigation reaches Envoy, every API call gets 401 and
+# Fluidd shows Moonraker's login form. This worker replaces it, unregisters
+# itself and reloads the tabs through the gate.
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/httproutefilter_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: fluidd-sw-killswitch
+spec:
+  directResponse:
+    statusCode: 200
+    contentType: application/javascript
+    header:
+      set:
+        - name: Cache-Control
+          value: no-store
+    body:
+      type: Inline
+      inline: |-
+        self.addEventListener("install", () => self.skipWaiting());
+        self.addEventListener("activate", (e) => e.waitUntil(
+          self.registration.unregister()
+            .then(() => self.clients.matchAll({ type: "window" }))
+            .then((cs) => cs.forEach((c) => c.navigate(c.url)))
+        ));

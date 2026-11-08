@@ -142,7 +142,8 @@ spec:
                     summary: "No Wazuh alerts received for 6 hours"
                     description: |-
                       Nothing has arrived from wazuh-csyslogd. Either the manager
-                      stopped forwarding or the syslog path to VictoriaLogs broke.
+                      stopped forwarding, the syslog path to VictoriaLogs broke, or
+                      the agents dropped off (check `agent_control -l` in the manager).
 
             # Kernel storage faults via the kmsg bridge. node_filesystem_readonly
             # exports nothing under /var/lib/kubelet, so it misses RBD mounts.

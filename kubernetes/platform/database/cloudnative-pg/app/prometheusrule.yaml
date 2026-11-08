@@ -93,3 +93,26 @@ spec:
           for: 5m
           labels:
             severity: warning
+        # Cluster status stays "healthy" with a dead replica (postgres-arr-2 sat
+        # diverged for 12 days after a failover), so escalate once it persists.
+        - alert: ReplicaStuck
+          annotations:
+            description: Replica {{ $labels.pod }} has had no WAL receiver for over 1h; it will not catch up on its own once its slot is invalidated
+            summary: Replica stuck — rebuild it (delete PVC + pod)
+          expr: |-
+            cnpg_pg_replication_in_recovery > cnpg_pg_replication_is_wal_receiver_up
+          for: 1h
+          labels:
+            severity: critical
+        # Inactive HA slot on the primary retains WAL until max_slot_wal_keep_size
+        # invalidates it; standbys keep synced copies inactive, hence the filter.
+        - alert: ReplicationSlotInactive
+          annotations:
+            description: HA slot {{ $labels.slot_name }} on primary {{ $labels.pod }} has been inactive for 30m
+            summary: Replica not consuming its slot; WAL piling up on primary
+          expr: |-
+            cnpg_pg_replication_slots_active{slot_name=~"_cnpg_.*"} == 0
+            and on (namespace, pod) cnpg_pg_replication_in_recovery == 0
+          for: 30m
+          labels:
+            severity: critical

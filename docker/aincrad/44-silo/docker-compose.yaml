@@ -10,6 +10,9 @@ services:
     image: ghcr.io/silo-server/silo-server:latest@sha256:68a99cde6e5a093970b8280622ec8f6c3f31f3caeac2c05072316610cd154d19
     container_name: silo
     restart: unless-stopped
+    # On stop Silo fails readiness, then drains in-flight requests and
+    # transcodes; Docker's default 10s cuts that short.
+    stop_grace_period: 2m
     # Image entrypoint is s6 /init (bundled Postgres), which needs root; run the
     # server directly since Postgres/Redis are separate services here.
     entrypoint:

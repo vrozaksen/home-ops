@@ -70,7 +70,7 @@ jobs:
           install_args: github:fluxcd/flux2 github:home-operations/flate
           tool_versions: |
             github:fluxcd/flux2 2.9.6
-            github:home-operations/flate 0.6.5
+            github:home-operations/flate 0.7.3
 
       - name: Setup Cosign
         if: steps.check.outputs.skip != 'true'

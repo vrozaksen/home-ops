@@ -17,7 +17,8 @@ services:
       TOWONEL_AGENT_SERVICES: >-
         [
           {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"},
-          {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"}
+          {"hostname":"music.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"},
+          {"hostname":"silo.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"}
         ]
     deploy:
       resources:

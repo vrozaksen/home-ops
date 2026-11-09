@@ -54,6 +54,12 @@ music.vzkn.eu {
 	reverse_proxy 10.10.0.11:8080
 }
 
+silo.vzkn.eu {
+	import tls_wildcard
+	import security_headers
+	reverse_proxy silo:8080
+}
+
 # === garage S3 ===========================================================
 api.s3.vzkn.eu {
 	import tls_wildcard
@@ -100,13 +106,6 @@ tdarr.vzkn.eu {
 	import security_headers
 	import block_world
 	reverse_proxy tdarr:8265
-}
-
-silo.vzkn.eu {
-	import tls_wildcard
-	import security_headers
-	import block_world
-	reverse_proxy silo:8080
 }
 
 dedupe.vzkn.eu {

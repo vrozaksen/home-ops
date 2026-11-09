@@ -109,13 +109,6 @@ silo.vzkn.eu {
 	reverse_proxy silo:8080
 }
 
-crosswatch.vzkn.eu {
-	import tls_wildcard
-	import security_headers
-	import block_world
-	reverse_proxy crosswatch:8787
-}
-
 dedupe.vzkn.eu {
 	import tls_wildcard
 	import security_headers

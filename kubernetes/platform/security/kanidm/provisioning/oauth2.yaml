@@ -362,7 +362,7 @@ data:
           "preferShortUsername": true
         },
         "crosswatch": {
-          "present": true, "displayName": "CrossWatch",
+          "present": false, "displayName": "CrossWatch",
           "originUrl": "https://crosswatch.vzkn.eu/api/app-auth/oidc/callback",
           "originLanding": "https://crosswatch.vzkn.eu/",
           "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] },

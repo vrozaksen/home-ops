@@ -1,0 +1,43 @@
+---
+# Watch-state sync between Emby and Silo (history, progress, ratings,
+# watchlist; both directions). Configured in its web UI (crosswatch.vzkn.eu).
+# Upstream: github.com/cenodude/CrossWatch
+name: crosswatch
+
+services:
+  crosswatch:
+    image: ghcr.io/cenodude/crosswatch:0.14.2@sha256:7c79553e0bb74008d97061681c18a73cdf7ba5ee712664f3c1b80a37c09e966d
+    container_name: crosswatch
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/crosswatch.png"
+      net.unraid.docker.webui: "https://crosswatch.vzkn.eu"
+    # Entrypoint chowns /config, then drops to APP_UID:APP_GID via setpriv.
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    environment:
+      TZ: Europe/Warsaw
+      APP_UID: "1000"
+      APP_GID: "100"
+    volumes:
+      - /mnt/blaze/appdata/crosswatch:/config
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: aincrad
+    external: true

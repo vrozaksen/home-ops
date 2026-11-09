@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/intel-hub
-              tag: 1.0.0
+              tag: 1.1.0
             env:
               ABUSEIPDB_API_KEY:
                 valueFrom:

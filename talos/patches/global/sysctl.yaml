@@ -22,5 +22,5 @@ params:
   sunrpc.tcp_max_slot_table_entries: "128"
   sunrpc.tcp_slot_table_entries: "128"
   user.max_user_namespaces: "11255"  # User Namespaces
-  vm.max_map_count: "262144"  # OpenSearch (Wazuh indexer)
+  vm.max_map_count: "262144"  # Elasticsearch (TubeArchivist)
   vm.nr_hugepages: "1024"  # PostgreSQL

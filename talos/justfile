@@ -182,8 +182,8 @@ _wait-for-ceph timeout='600' on_timeout='fail':
         sleep 5
     done
 
-# Bounded on purpose: a Job whose container never exits (a retry loop such as
-# wazuh-indexer's securityadmin.sh) would otherwise block a reboot forever.
+# Bounded on purpose: a Job whose container never exits (e.g. a retry loop
+# in a setup Job) would otherwise block a reboot forever.
 [private]
 _wait-for-jobs timeout='600':
     #!/usr/bin/env bash

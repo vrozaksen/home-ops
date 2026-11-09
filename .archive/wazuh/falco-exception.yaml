@@ -1,0 +1,20 @@
+---
+# Removed from kubernetes/platform/falco/falco/app/helmrelease.yaml customRules
+# Wazuh's own file-integrity monitoring reads /etc/shadow inside its
+# container -- that is the product working, not credential theft.
+- rule: Read sensitive file untrusted
+  override:
+    exceptions: append
+  exceptions:
+    - name: wazuh_fim
+      fields:
+        - container.image.repository
+        - proc.name
+      comps:
+        - =
+        - in
+      values:
+        - - docker.io/wazuh/wazuh-manager
+          - - wazuh-syscheckd
+            - wazuh-modulesd
+

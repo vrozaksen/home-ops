@@ -380,12 +380,13 @@ metadata:
     reloader.stakater.com/match: "true"
 data:
   targetNamespace: security
-  # Key names match what the Wazuh chart reads from its OIDC existingSecret.
+  # Wazuh retired: present=false makes kanidm-provision delete the client.
+  # Remove this ConfigMap once the client is gone.
   oauth2.json: |-
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "wazuh": {
-          "present": true, "displayName": "Wazuh",
+          "present": false, "displayName": "Wazuh",
           "originUrl": "https://wazuh.vzkn.eu/auth/openid/login",
           "originLanding": "https://wazuh.vzkn.eu/",
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },

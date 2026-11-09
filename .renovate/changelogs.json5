@@ -73,12 +73,6 @@
       sourceUrl: "https://github.com/atuinsh/atuin",
     },
     {
-      // Agent images are built out of the wazuh-docker repo, not wazuh/wazuh
-      description: "Source for Wazuh agent",
-      matchPackageNames: ["/wazuh-agent/"],
-      sourceUrl: "https://github.com/wazuh/wazuh-docker",
-    },
-    {
       // factory.talos.dev is remapped to siderolabs/installer in overrides.json5
       description: "Source for Talos Linux",
       matchPackageNames: ["/siderolabs/installer/", "/metal-installer/", "/talosctl/"],

@@ -13,4 +13,3 @@ resources:
   - ./kanidm/ks.yaml
   - ./step-ca/ks.yaml
   - ./trivy-operator/ks.yaml
-  - ./wazuh/ks.yaml

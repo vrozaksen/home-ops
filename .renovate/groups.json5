@@ -181,20 +181,6 @@
         "commitMessageTopic": "{{{groupName}}} group"
       },
       "minimumGroupSize": 2
-    },
-    {
-      // The chart's appVersion lags upstream, so manager/indexer/dashboard tags
-      // are pinned in the HelmRelease values and tracked via the annotated-deps
-      // custom manager. Grouping keeps them moving with the agent, which Wazuh
-      // requires to be no newer than the manager.
-      "description": ["Wazuh Group (chart + components + agent)"],
-      "groupName": "wazuh",
-      "matchDatasources": ["docker", "helm"],
-      "matchPackageNames": ["/wazuh/"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 2
     }
   ]
 }

@@ -45,7 +45,9 @@ services:
     volumes:
       - /mnt/user/data/media:/mnt/media:ro
       - /mnt/blaze/appdata/silo/plugins:/var/lib/silo/plugins
-      - /mnt/blaze/appdata/silo/artwork:/var/lib/silo/artwork
+      # Rebuildable blobs on cache; Silo backups stay on blaze.
+      - /mnt/cache/silo-meta:/var/lib/silo/artwork
+      - /mnt/blaze/appdata/silo/backups:/var/lib/silo/artwork/backups
       - /mnt/blaze/appdata/silo/compat:/var/lib/silo/compat
       - /mnt/blaze/temp/silo:/tmp/silo-transcode
     depends_on:

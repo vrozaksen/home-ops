@@ -3,7 +3,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - https://github.com/kubevirt/containerized-data-importer/releases/download/v1.66.1/cdi-operator.yaml
+  # Vendored from https://github.com/kubevirt/containerized-data-importer/releases/download/v1.66.1/cdi-operator.yaml
+  # (GitHub release downloads time out and block flux-publish). On a version
+  # bump, re-download the file from the URL above.
+  - cdi-operator.yaml
 patches:
   # The namespace is owned by ../../namespace.yaml (prune disabled).
   - patch: |-

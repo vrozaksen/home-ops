@@ -10,6 +10,10 @@ services:
     image: ghcr.io/silo-server/silo-server:latest@sha256:68a99cde6e5a093970b8280622ec8f6c3f31f3caeac2c05072316610cd154d19
     container_name: silo
     restart: unless-stopped
+    # Image entrypoint is s6 /init (bundled Postgres), which needs root; run the
+    # server directly since Postgres/Redis are separate services here.
+    entrypoint:
+      - "silo"
     labels:
       net.unraid.docker.icon: "https://raw.githubusercontent.com/Silo-Server/silo-server/main/assets/icon.png"
       net.unraid.docker.webui: "http://[IP]:[PORT:8090]"

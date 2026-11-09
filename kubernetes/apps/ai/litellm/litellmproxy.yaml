@@ -89,6 +89,8 @@ spec:
     httpGet:
       path: /health/liveliness
       port: 4000
+    # CRD has no startupProbe; slow boots on a loaded node got killed before listening.
+    initialDelaySeconds: 120
     periodSeconds: 30
     timeoutSeconds: 10
     failureThreshold: 3

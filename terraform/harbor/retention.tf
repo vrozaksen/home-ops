@@ -1,3 +1,4 @@
+# Untagged artifacts count too: digest pins outlive a re-pushed tag only if they are kept.
 resource "harbor_retention_policy" "private" {
   for_each = harbor_project.private
 
@@ -5,10 +6,10 @@ resource "harbor_retention_policy" "private" {
   schedule = "Daily"
 
   rule {
-    most_recently_pushed = 10
+    most_recently_pushed = 20
     repo_matching        = "**"
     tag_matching         = "**"
-    untagged_artifacts   = false
+    untagged_artifacts   = true
   }
 }
 

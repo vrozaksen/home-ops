@@ -22,7 +22,7 @@ spec:
           app:
             image:
               repository: registry.vzkn.eu/containers/multica-agent
-              tag: 0.6.5@sha256:20cfb5c6885513b089a01f6efaf4cb8808b84358d02afbdcf31383a18fc88f49
+              tag: 0.6.5@sha256:6b8a0553cb65194061be1313e4d87825f509decfcb043b2bf81b9c5a7103d976
             command:
               - "/usr/bin/tini"
               - "--"

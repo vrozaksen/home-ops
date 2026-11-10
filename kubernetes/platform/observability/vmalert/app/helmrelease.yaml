@@ -165,25 +165,46 @@ spec:
                       reach the OSDs and I/O is degraded. Reboot the node to remap
                       every volume with the current cephx key.
 
-            # Mirrors VmalertDown in prometheusrule.yaml. Silence is a safe signal:
-            # Prometheus logs ~1000 lines per 10 min at steady state.
+            # Mirrors VmalertDown in prometheusrule.yaml. Prometheus logs >= ~6 lines
+            # per hour, so 3h of silence is down or wedged. Keep the exact `:=` match:
+            # a phrase match also hit prometheus-adapter and the alert never fired.
             - name: prometheus-deadman
               type: vlogs
               interval: 1m
               rules:
                 - alert: PrometheusDeadman
                   expr: >-
-                    kubernetes.container_name:"prometheus" AND _time:15m
+                    kubernetes.pod_name:="prometheus-kube-prometheus-stack-0" AND
+                    kubernetes.container_name:="prometheus" AND _time:3h
                     | stats count() as hits
                     | filter hits:<1
                   labels:
                     severity: critical
                     category: observability
                   annotations:
-                    summary: "Prometheus has logged nothing for 15 minutes"
+                    summary: "Prometheus has logged nothing for 3 hours"
                     description: |-
                       Nothing from the prometheus container. It is down, wedged,
                       or its node is gone -- and nothing it evaluates is firing.
+
+                # A read-only or full TSDB volume (2026-09-20) leaves Prometheus
+                # logging, so the deadman above stays quiet; alert on the errors.
+                - alert: PrometheusStorageError
+                  expr: >-
+                    kubernetes.pod_name:="prometheus-kube-prometheus-stack-0" AND
+                    kubernetes.container_name:="prometheus" AND _time:10m AND
+                    ("read-only file system" OR "no space left on device")
+                    | stats count() as hits
+                    | filter hits:>0
+                  labels:
+                    severity: critical
+                    category: observability
+                  annotations:
+                    summary: "Prometheus cannot write to its storage"
+                    description: |-
+                      {{ $value }} storage write errors in 10 minutes. Check
+                      `talosctl -n <node> read /proc/mounts | grep emergency_ro`
+                      on the node running prometheus-kube-prometheus-stack-0.
 
             - name: backup-integrity
               type: vlogs

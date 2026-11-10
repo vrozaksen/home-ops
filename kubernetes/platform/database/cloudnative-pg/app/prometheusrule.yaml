@@ -116,3 +116,27 @@ spec:
           for: 30m
           labels:
             severity: critical
+        # Pods are owned by the CNPG Cluster, so this needs no CRD metrics.
+        - alert: CNPGInstanceNotReady
+          annotations:
+            description: Pod {{ $labels.namespace }}/{{ $labels.pod }} of cluster {{ $labels.owner_name }} has been not Ready for 15 minutes; the cluster runs with reduced redundancy.
+            summary: A CNPG instance is not Ready
+          expr: |-
+            (kube_pod_status_ready{condition="false"} == 1)
+            * on (namespace, pod) group_left (owner_name)
+            kube_pod_owner{owner_kind="Cluster", owner_name=~"postgres-.*"}
+          for: 15m
+          labels:
+            severity: warning
+        # Warnings go to the silent channel; a replica down for days (2026-09-16) must page.
+        - alert: CNPGInstanceNotReadyLong
+          annotations:
+            description: Pod {{ $labels.namespace }}/{{ $labels.pod }} of cluster {{ $labels.owner_name }} has been not Ready for 3 hours. Check for read-only RBD mounts (`talosctl read /proc/mounts | grep emergency_ro`) and the Ceph blocklist.
+            summary: A CNPG instance has been down for hours
+          expr: |-
+            (kube_pod_status_ready{condition="false"} == 1)
+            * on (namespace, pod) group_left (owner_name)
+            kube_pod_owner{owner_kind="Cluster", owner_name=~"postgres-.*"}
+          for: 3h
+          labels:
+            severity: critical

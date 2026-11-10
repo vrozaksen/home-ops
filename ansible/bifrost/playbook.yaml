@@ -456,36 +456,6 @@
             special_time: reboot
             job: /opt/geo-block/update-country-blocks.sh {{ blocked_countries | join(' ') }} >> /var/log/geo-block.log 2>&1
 
-    # Wazuh was retired; this block uninstalls the agent. Drop it once bifrost is clean.
-    - name: Wazuh agent (removal)
-      tags:
-        - wazuh
-      block:
-        - name: Release the version hold
-          ansible.builtin.dpkg_selections:
-            name: wazuh-agent
-            selection: install
-          failed_when: false
-
-        - name: Purge Wazuh agent
-          ansible.builtin.apt:
-            name: wazuh-agent
-            state: absent
-            purge: true
-
-        - name: Remove Wazuh apt repository
-          ansible.builtin.deb822_repository:
-            name: wazuh
-            state: absent
-
-        - name: Remove Wazuh leftovers
-          ansible.builtin.file:
-            path: "{{ item }}"
-            state: absent
-          loop:
-            - /etc/apt/keyrings/wazuh.asc
-            - /var/ossec
-
   handlers:
     - name: Reload systemd daemon
       ansible.builtin.systemd:

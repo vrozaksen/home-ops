@@ -180,7 +180,7 @@ spec:
         hostnames:
           - bambuddy.vzkn.eu
         parentRefs:
-          - name: envoy-external
+          - name: envoy-internal
             namespace: network
         rules:
           - backendRefs:

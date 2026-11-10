@@ -8,6 +8,8 @@
   //   (^|/)(<packageName>|<name-without-host>|<last-path-segment>)[@_/-]v?<version>
   // or equal <version> / v<version>. `sourceDirectory` does NOT affect tag
   // matching — it only locates a CHANGELOG.md inside a monorepo subdirectory.
+  // Not auto-detected as Forgejo; required for release notes from git.ow-ops.eu
+  hostRules: [{ matchHost: "git.ow-ops.eu", hostType: "forgejo" }],
   packageRules: [
     //
     // ── Release notes fetched from the source repo ──────────────────────────
@@ -79,10 +81,17 @@
       sourceUrl: "https://github.com/siderolabs/talos",
     },
     {
-      // Codeberg is a Forgejo instance; detectPlatform() supports it natively
-      description: "Source for Towonel (codeberg)",
+      // Repo moved from Codeberg (stale after v1.6.1); images still come from codeberg.org.
+      // git.ow-ops.eu needs the hostRules entry below to be detected as Forgejo.
+      description: "Source for Towonel",
       matchPackageNames: ["/towonel/"],
-      sourceUrl: "https://codeberg.org/towonel/towonel",
+      sourceUrl: "https://git.ow-ops.eu/towonel/towonel",
+    },
+    {
+      // Release tags are "infisical-k8-operator/vX.Y.Z", which no tag pattern matches.
+      description: "Changelog link for Infisical operator",
+      matchPackageNames: ["/infisical/kubernetes-operator/", "/secrets-operator/"],
+      changelogUrl: "https://github.com/Infisical/kubernetes-operator/releases",
     },
     {
       // Chart lives in its own repo, doubled path segment is intentional

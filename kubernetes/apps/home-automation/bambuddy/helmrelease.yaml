@@ -50,10 +50,11 @@ spec:
                 memory: 1Gi
           # Server-side slicing sidecar (BambuStudio CLI + HTTP wrapper).
           # Bambuddy UI: Settings -> Workflow -> Slicer -> http://localhost:3001
+          # Pinned to 1.3.0: the 1.3.1 image ships 0700 dirs in squashfs-root (Permission denied as uid 1000).
           bambu-studio:
             image:
               repository: ghcr.io/maziggy/bambu-studio-api
-              tag: bambuddy-1.3.1
+              tag: bambuddy-1.3.0@sha256:36d16b7c723be10b823deb0e60b5c827eed2b6fd7ea75e4570445439e55f96fe
             env:
               NODE_ENV: production
               PORT: &bambuPort 3001
@@ -79,10 +80,11 @@ spec:
                 memory: 2Gi
           # Server-side slicing sidecar (OrcaSlicer CLI + HTTP wrapper).
           # Bambuddy UI: Settings -> Workflow -> Slicer -> http://localhost:3003
+          # Pinned to 1.3.0 for the same 0700 dir regression as bambu-studio.
           slicer:
             image:
               repository: ghcr.io/maziggy/orca-slicer-api
-              tag: bambuddy-1.3.1
+              tag: bambuddy-1.3.0@sha256:cbe114741495e873d3723888edc48df6e3961e766ccd38986c4384cdd8423990
             env:
               NODE_ENV: production
               PORT: &slicerPort 3003

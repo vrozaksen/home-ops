@@ -26,6 +26,12 @@
       versioning: "regex:^bambuddy-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:\\.(?<build>\\d+))?$",
     },
     {
+      description: "Skip sidecar bambuddy-1.3.1 (0700 dirs in squashfs-root break uid 1000); remove once a fixed tag ships",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/maziggy/orca-slicer-api/", "/maziggy/bambu-studio-api/"],
+      allowedVersions: "!/^bambuddy-1\\.3\\.1$/",
+    },
+    {
       description: "Custom registry for garage Terraform provider",
       matchDatasources: ["terraform-provider"],
       matchPackageNames: ["schwitzd/garage"],

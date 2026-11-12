@@ -43,8 +43,10 @@ spec:
       scanJobTTL: ""
       # 5m too short for large media images (emby ~1.5GB, plex). Bump to 10m.
       scanJobTimeout: 10m
-      scanJobsRetryDelay: 30s  # -- Built-in Trivy server mode
-      builtInTrivyServer: true
+      scanJobsRetryDelay: 30s
+
+      # No image-scanning consumers left; the server only held an idle vuln DB.
+      builtInTrivyServer: false
 
       # -- Scanner feature flags
       # Vulnerability + SBOM scanning offloaded to Harbor (registry-side scan
@@ -108,8 +110,8 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/aquasecurity/trivy
         tag: 0.76.2
 
-      # -- Mode: ClientServer uses built-in server
-      mode: ClientServer
+      # Standalone: ClientServer would require trivy.serverURL once the built-in server is off.
+      mode: Standalone
 
       # -- Severity levels to report
       severity: HIGH,CRITICAL
@@ -145,17 +147,6 @@ spec:
 
       # -- Command type for scanning
       command: image
-
-      # -- Server configuration (for ClientServer mode)
-      server:
-        resources:
-          requests:
-            cpu: 20m
-            memory: 192Mi
-          limits:
-            cpu: 1
-            memory: 1Gi
-        replicas: 1
 
     trivyOperator:
       # -- Scanning configuration

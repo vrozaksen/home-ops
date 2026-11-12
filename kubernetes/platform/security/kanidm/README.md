@@ -1,9 +1,9 @@
 # Kanidm
 
-Identity provider (Authentik replacement). Deployment pattern based on bjw-s / eleboucher,
+Identity provider (replaced Authentik, which was shut down in 2026-06). Deployment pattern based on bjw-s / eleboucher,
 adapted to home-ops (Infisical, Envoy Gateway, Volsync, schemas.vzkn.eu).
 
-- Host: `idm.vzkn.eu` (envoy-external) — runs in parallel with Authentik (`sso.vzkn.eu`) during migration.
+- Host: `idm.vzkn.eu` (envoy-external).
 - TLS: Kanidm terminates its own TLS (mandatory). cert-manager `idm-vzkn-eu` → secret mounted at `/certs`.
   `BackendTLSPolicy` makes Envoy re-encrypt to the HTTPS backend.
 - Storage: `/data` PVC `kanidm` (ceph-block) via `components/volsync`.
@@ -40,7 +40,7 @@ Push the printed token to Infisical:
 
 Then bump the provision controller `replicas: 0 → 1` in `helmrelease.yaml` and reconcile.
 
-### 3. Core groups (mirrors terraform/authentik hierarchy)
+### 3. Core groups (mirrors the former Authentik hierarchy)
 ```bash
 for g in pending users admins ff household; do
   kanidm group create "$g" -D idm_admin

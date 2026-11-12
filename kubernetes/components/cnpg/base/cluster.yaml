@@ -88,7 +88,7 @@ spec:
       max_slot_wal_keep_size: ${CNPG_MAX_SLOT_WAL_KEEP:="3GB"}
   resources:
     requests:
-      cpu: ${CNPG_REQUESTS_CPU:=100m}
+      cpu: ${CNPG_REQUESTS_CPU:=50m}
       memory: ${CNPG_REQUESTS_MEMORY:=256Mi}
     limits:
       memory: ${CNPG_LIMITS_MEMORY:=2Gi}

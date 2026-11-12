@@ -71,7 +71,7 @@ spec:
             resources:
               requests:
                 # Workers sit at ~95% CPU requested; 1 core never schedules.
-                cpu: 250m
+                cpu: 100m
                 memory: 3Gi
               limits:
                 cpu: "4"

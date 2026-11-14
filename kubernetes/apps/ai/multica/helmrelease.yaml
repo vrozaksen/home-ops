@@ -108,7 +108,7 @@ spec:
           app:
             image:
               repository: ghcr.io/multica-ai/multica-web
-              tag: v0.7.1@sha256:a474b3874e2de19b9019a2b07ec07c22247ecc61f0f39fb6cf4d814504aaf316
+              tag: v0.9.0@sha256:e772342310148e87ca86532b29e2ca8591a43e2206df5832e1b36759f576c4cb
             env:
               HOSTNAME: 0.0.0.0
               PORT: &webPort 3000

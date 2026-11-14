@@ -13,7 +13,7 @@ services:
       RUST_LOG: info
       TOWONEL_INVITE_TOKEN: ${TOWONEL_INVITE_TOKEN}
       TOWONEL_AGENT_HEALTH_LISTEN_ADDR: 0.0.0.0:9090
-      TOWONEL_AGENT_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://relay.towonel.erwanleboucher.dev/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
+      TOWONEL_AGENT_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
       TOWONEL_AGENT_SERVICES: >-
         [
           {"hostname":"emby.vzkn.eu","origin":"caddy:443","proxy_protocol":"v2"},

@@ -43,5 +43,12 @@
       matchPackageNames: ["sentry"],
       registryUrls: ["https://sentry-kubernetes.github.io/charts"],
     },
+    {
+      description: "Hold Alert/Provider at notification v1beta3 until Flux 2.10 serves v1",
+      matchDatasources: ["kubernetes-api"],
+      matchPackageNames: ["/^(alert|provider)$/i"],
+      matchCurrentValue: "notification.toolkit.fluxcd.io/v1beta3",
+      enabled: false,
+    },
   ],
 }

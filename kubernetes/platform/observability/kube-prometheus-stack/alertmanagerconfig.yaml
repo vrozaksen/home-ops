@@ -99,6 +99,17 @@ spec:
           value: warning
           matchType: =
 
+    # Slow CP disks fan out into etcdNoLeader/commit/gRPC/leader-change alerts
+    # by the hundred; EtcdQuorumDisksSlow names the cause, so page only for it.
+    - sourceMatch:
+        - name: alertname
+          value: EtcdQuorumDisksSlow
+          matchType: =
+      targetMatch:
+        - name: alertname
+          value: etcd(NoLeader|HighNumberOfLeaderChanges|HighCommitDurations|HighFsyncDurations|HighNumberOfFailedGRPCRequests|MemberCommunicationSlow)
+          matchType: =~
+
   receivers:
     - name: blackhole
     - name: heartbeat

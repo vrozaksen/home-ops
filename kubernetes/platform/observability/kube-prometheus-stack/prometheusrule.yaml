@@ -40,3 +40,25 @@ spec:
               kube-apiserver on {{ $labels.node }} using {{ $value | humanize1024 }}B — approaching OOM on 8.8Gi allocatable CP
           labels:
             severity: warning
+
+    - name: etcd-disk.rules
+      rules:
+        - alert: EtcdQuorumDisksSlow
+          # One slow CP disk is tolerated (skuld has sat at ~4-5ms for weeks).
+          # Two means every quorum waits on a slow fsync -> leader elections and
+          # the etcd* alert storm, which the AlertmanagerConfig inhibits behind this.
+          expr: |-
+            count(
+              (
+                rate(node_disk_write_time_seconds_total{device=~"sd.|nvme.n."}[15m])
+                / rate(node_disk_writes_completed_total{device=~"sd.|nvme.n."}[15m])
+              ) * on (instance) group_left (nodename) node_uname_info
+              and on (nodename) label_replace(kube_node_role{role="control-plane"}, "nodename", "$1", "node", "(.*)")
+              > 0.002
+            ) >= 2
+          for: 30m
+          annotations:
+            summary: >-
+              {{ $value }} control-plane disks average >2ms per write — etcd quorum is fsync-bound, expect leader elections
+          labels:
+            severity: critical

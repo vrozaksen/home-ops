@@ -10,6 +10,8 @@ spec:
     ignoreRules:
       - /lost+found
       - /.cache/
+      - /.claude/cache/
+      - /.claude/shell-snapshots/
       - /.vscode/*.*-[0-9]*/
       - /.vscode/Cached*/
       - /.vscode/logs/

@@ -43,7 +43,7 @@ spec:
               limits:
                 memory: 1280Mi
           codeserver:
-            image:
+            image: &codeserverImage
               repository: ghcr.io/coder/code-server
               tag: 4.145.2@sha256:09565f9e07f5624554e295e8bab0e2fec4a7c533eb3cff459ed6596a4d3d7c1c
             args:
@@ -56,6 +56,16 @@ spec:
               - "--port"
               - "12321"
               - "/config"
+            env:
+              # HOME is ephemeral; keep Claude Code sessions/settings on the PVC
+              CLAUDE_CONFIG_DIR: /config/.claude
+              <<: &miseEnv
+                MISE_DATA_DIR: /mise
+                MISE_CACHE_DIR: /mise/cache
+                MISE_STATE_DIR: /mise/state
+                # writable global config, so `mise use -g` persists
+                MISE_CONFIG_DIR: /mise/config
+                PATH: /mise/bin:/mise/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             probes:
               liveness: &codeserver-probes
                 enabled: true
@@ -80,6 +90,42 @@ spec:
               limits:
                 # headroom for Claude Code (node process) in the terminal
                 memory: 2Gi
+          # Installs the toolchain from /etc/mise/config.toml onto /mise in the
+          # background; best effort, never blocks or fails the pod.
+          tools:
+            image: *codeserverImage
+            command:
+              - /bin/sh
+              - -c
+              - |
+                set -u
+                bin=/mise/bin/mise
+                if [ "v$($bin --version 2>/dev/null | cut -d' ' -f1)" != "$MISE_VERSION" ]; then
+                  mkdir -p /mise/bin /tmp/mise-dl && cd /tmp/mise-dl &&
+                  base="https://github.com/jdx/mise/releases/download/$MISE_VERSION" &&
+                  curl -fsSLO "$base/mise-$MISE_VERSION-linux-x64" &&
+                  curl -fsSL "$base/SHASUMS256.txt" | grep " \./mise-$MISE_VERSION-linux-x64\$" | sed 's# \./# #' | sha256sum -c - &&
+                  install -m 0755 "mise-$MISE_VERSION-linux-x64" "$bin" ||
+                  echo "mise $MISE_VERSION download failed"
+                  rm -rf /tmp/mise-dl
+                fi
+                $bin install --yes || echo "mise install failed"
+                exec sleep infinity
+            env:
+              <<: *miseEnv
+              # renovate: datasource=github-releases depName=jdx/mise
+              MISE_VERSION: v2026.11.8
+            securityContext:
+              allowPrivilegeEscalation: false
+              # mise/curl write to /tmp and $HOME
+              readOnlyRootFilesystem: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 5m
+                memory: 16Mi
+              limits:
+                memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -129,7 +175,38 @@ spec:
           - backendRefs:
               - name: *app
                 port: *codeserverPort
+    configMaps:
+      mise:
+        data:
+          # Baseline CLI tools for Claude Code in the code-server terminal.
+          config.toml: |
+            [tools]
+            bun = "latest"
+            deno = "latest"
+            jq = "latest"
+            node = "lts"
+            python = "3.14"
+            uv = "latest"
+            yq = "latest"
     persistence:
+      mise:
+        existingClaim: "{{ .Release.Name }}-tools"
+        advancedMounts:
+          home-assistant:
+            codeserver:
+              - path: /mise
+            tools:
+              - path: /mise
+      mise-config:
+        type: configMap
+        identifier: mise
+        advancedMounts:
+          home-assistant:
+            codeserver: &miseConfigMount
+              - path: /etc/mise/config.toml
+                subPath: config.toml
+                readOnly: true
+            tools: *miseConfigMount
       config:
         existingClaim: "{{ .Release.Name }}"
         globalMounts:

@@ -10,3 +10,16 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: ceph-block
+---
+# mise toolchains for the code-server terminal; rebuildable, not backed up
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-tools
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ceph-block

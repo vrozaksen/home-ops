@@ -26,7 +26,8 @@ services:
     volumes:
       - /mnt/blaze/appdata/syncthing:/config
       - /mnt/blaze/personal:/private
-      - /mnt/cache/z_media/roms:/roms
+      - /mnt/cache/roms:/roms  # replaceable: ROMs, ports, emulator APKs
+      - /mnt/blaze/retro:/retro  # irreplaceable: saves, BIOS, device backups
     healthcheck:
       test:
         - "CMD"

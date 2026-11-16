@@ -104,6 +104,18 @@ spec:
               comps: [=, =]
               values:
                 - [ghcr.io/flaresolverr/flaresolverr, /app/chromedriver]
+            # containerbase installs toolchains (rust, node...) on demand per job.
+            - name: renovate_containerbase
+              fields: [container.image.repository, proc.exepath]
+              comps: [=, startswith]
+              values:
+                - [ghcr.io/renovatebot/renovate, /opt/containerbase/tools/]
+            # Selkies unpacks its bundled cupsd into the runtime dir on start.
+            - name: orcaslicer_selkies_cups
+              fields: [container.image.repository, proc.exepath]
+              comps: [=, startswith]
+              values:
+                - [registry.vzkn.eu/containers/orcaslicer-web, /tmp/runtime-ubuntu/selkies-cups/]
 
     falcoctl:
       artifact:

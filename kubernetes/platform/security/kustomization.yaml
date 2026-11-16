@@ -11,5 +11,4 @@ resources:
   - ./intel-hub/ks.yaml
   - ./infisical-operator/ks.yaml
   - ./kanidm/ks.yaml
-  - ./step-ca/ks.yaml
   - ./trivy-operator/ks.yaml

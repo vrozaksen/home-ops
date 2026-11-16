@@ -36,7 +36,6 @@ services:
       TOWONEL_EDGE_RELAY_URL: "https://relay.towonel.vzkn.eu/,https://euc1-1.relay.n0.iroh-canary.iroh.link/"
     ports:
       - "22:22/tcp"
-      - "2222:2222/tcp"
       - "3478:3478/tcp"
       - "3478:3478/udp"
       - "5349:5349/tcp"

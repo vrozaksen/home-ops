@@ -275,12 +275,6 @@
       changelogUrl: "https://github.com/HaveAGitGat/Tdarr/releases",
     },
     {
-      // forge wraps nixos/nix; NixOS/nix publishes no GitHub releases
-      description: "Changelog link for forge (nixos/nix)",
-      matchPackageNames: ["/containers/forge$/"],
-      changelogUrl: "https://nix.dev/manual/nix/latest/release-notes/",
-    },
-    {
       // Sidecar tags are "bambuddy-X.Y.Z.W" and the repos carry no releases
       description: "Changelog link for Bambuddy slicer sidecars",
       matchPackageNames: ["/maziggy/orca-slicer-api/", "/maziggy/bambu-studio-api/"],

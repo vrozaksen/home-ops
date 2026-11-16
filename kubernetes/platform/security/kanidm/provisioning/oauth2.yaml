@@ -401,10 +401,7 @@ data:
         }
       } } }
 ---
-# step-ca issues SSH certificates after a login here, so this account's TOTP
-# is the second factor on the SSH path. The cert principal is the local part
-# of the email, so the account must be named `vrozaksen` to map onto forge's
-# unix user. 127.0.0.1 is where `step ssh login` listens for the callback.
+# step-ca archived: present=false deletes the client; drop this ConfigMap once applied.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -419,7 +416,7 @@ data:
     {
       "groups": {}, "persons": {}, "systems": { "oauth2": {
         "step-ca": {
-          "present": true, "public": true, "displayName": "step-ca (SSH certificates)",
+          "present": false, "public": true, "displayName": "step-ca (SSH certificates)",
           "originUrl": "http://127.0.0.1:10000/",
           "originLanding": "https://ca.vzkn.eu/",
           "enableLocalhostRedirects": true,

@@ -6,7 +6,7 @@ metadata:
   name: &app romm
 spec:
   components:
-    - ../../../components/cnpg/initdb
+    - ../../../components/cnpg/restore
     - ../../../components/dragonfly
     - ../../../components/kopiur
   dependsOn:

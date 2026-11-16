@@ -146,8 +146,8 @@ spec:
           - path: /romm/resources
             subPath: resources
       config:
-        type: configMap
-        name: "{{ .Release.Name }}-configmap"
+        type: secret
+        name: "{{ .Release.Name }}-config"
         globalMounts:
           - path: /romm/config/config.yml
             subPath: config.yml

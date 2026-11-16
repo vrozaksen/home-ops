@@ -5,9 +5,3 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./helmrelease.yaml
-configMapGenerator:
-  - name: romm-configmap
-    files:
-      - ./resources/config.yml
-generatorOptions:
-  disableNameSuffixHash: true

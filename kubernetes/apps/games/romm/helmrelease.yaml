@@ -49,7 +49,8 @@ spec:
               REDIS_PORT: "6379"
               # OIDC (Kanidm)
               OIDC_ENABLED: "true"
-              OIDC_PROVIDER: generic
+              DISABLE_USERPASS_LOGIN: "true"
+              OIDC_PROVIDER: Kanidm
               OIDC_SERVER_APPLICATION_URL: https://idm.vzkn.eu/oauth2/openid/romm
               OIDC_SERVER_METADATA_URL: https://idm.vzkn.eu/oauth2/openid/romm/.well-known/openid-configuration
               OIDC_REDIRECT_URI: https://romm.vzkn.eu/api/oauth/openid

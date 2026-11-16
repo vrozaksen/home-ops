@@ -1,5 +1,6 @@
 exclude:
   platforms:
+    - .stfolder
     - Doom
     - ports
     - psvita
@@ -23,8 +24,3 @@ exclude:
         - sdmc
         - shaders
         - sysdata
-
-system:
-  platforms:
-    amiga1200: amiga
-    ps: psx

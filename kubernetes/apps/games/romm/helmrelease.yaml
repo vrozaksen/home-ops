@@ -1,0 +1,157 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: romm
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    defaultPodOptions:
+      # Service "romm" would inject ROMM_PORT=tcp://... and break nginx
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+    controllers:
+      romm:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/rommapp/romm
+              tag: 5.4.1@sha256:8677fb7b81b1d3db20b849e989a1dadc2a11159e51eb34a2acdcb01102274edf
+            env:
+              TZ: Europe/Warsaw
+              ROMM_BASE_URL: https://romm.vzkn.eu
+              ROMM_DB_DRIVER: postgresql
+              DB_HOST: pooler-romm-rw.games.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: romm
+              DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-romm-app
+                    key: username
+              DB_PASSWD:
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-romm-app
+                    key: password
+              REDIS_HOST: romm-dragonfly.games.svc.cluster.local
+              REDIS_PORT: "6379"
+              # OIDC (Kanidm)
+              OIDC_ENABLED: "true"
+              OIDC_PROVIDER: generic
+              OIDC_SERVER_APPLICATION_URL: https://idm.vzkn.eu/oauth2/openid/romm
+              OIDC_SERVER_METADATA_URL: https://idm.vzkn.eu/oauth2/openid/romm/.well-known/openid-configuration
+              OIDC_REDIRECT_URI: https://romm.vzkn.eu/api/oauth/openid
+              OIDC_CLAIM_ROLES: groups
+              OIDC_ROLE_ADMIN: romm-admins@idm.vzkn.eu
+              OIDC_ROLE_VIEWER: romm-users@idm.vzkn.eu
+              OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-romm-oidc
+                    key: client-id
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: kanidm-romm-oidc
+                    key: client-secret
+              HASHEOUS_API_ENABLED: "true"
+              LAUNCHBOX_API_ENABLED: "true"
+              ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA: "true"
+              PLAYMATCH_API_ENABLED: "true"
+              HLTB_API_ENABLED: "true"
+              ENABLE_SCHEDULED_UPDATE_SWITCH_TITLEDB: "true"
+              ENABLE_SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC: "true"
+              # no inotify over NFS
+              ENABLE_SCHEDULED_RESCAN: "true"
+              ENABLE_RESCAN_ON_FILESYSTEM_CHANGE: "false"
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/heartbeat
+                    port: &port 8080
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/heartbeat
+                    port: *port
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 3Gi
+    service:
+      app:
+        controller: romm
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: games
+        hostnames:
+          - "romm.vzkn.eu"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+          - path: /romm/assets
+            subPath: assets
+          - path: /romm/resources
+            subPath: resources
+      config:
+        type: configMap
+        name: "{{ .Release.Name }}-configmap"
+        globalMounts:
+          - path: /romm/config/config.yml
+            subPath: config.yml
+            readOnly: true
+      library:
+        type: nfs
+        server: aincrad.home.vzkn.eu
+        path: /mnt/cache/roms
+        globalMounts:
+          - path: /romm/library
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

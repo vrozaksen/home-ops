@@ -463,3 +463,29 @@ data:
           "k8s": {}
         }
       } } }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-provision-oauth2-games
+  labels:
+    kanidm_config: "1"
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  targetNamespace: games
+  oauth2.json: |-
+    {
+      "groups": {}, "persons": {}, "systems": { "oauth2": {
+        "romm": {
+          "present": true, "displayName": "RomM",
+          "originUrl": "https://romm.vzkn.eu/api/oauth/openid",
+          "originLanding": "https://romm.vzkn.eu/",
+          "preferShortUsername": true,
+          "scopeMaps": {
+            "romm-admins": ["openid", "email", "profile", "groups"],
+            "romm-users": ["openid", "email", "profile", "groups"]
+          },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/romm.svg" }
+        }
+      } } }

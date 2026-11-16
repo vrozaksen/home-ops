@@ -184,7 +184,8 @@ spec:
             bun = "latest"
             deno = "latest"
             jq = "latest"
-            node = "lts"
+            # node 26+ needs libatomic.so.1, absent from the code-server image
+            node = "24"
             python = "3.14"
             uv = "latest"
             yq = "latest"

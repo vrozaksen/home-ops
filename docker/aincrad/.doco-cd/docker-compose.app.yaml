@@ -59,7 +59,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256m
+          # go-git keeps the fetch in memory; 256m OOM-looped after a 5-day backlog.
+          memory: 1g
         reservations:
           memory: 64m
     logging:

@@ -401,30 +401,6 @@ data:
         }
       } } }
 ---
-# step-ca archived: present=false deletes the client; drop this ConfigMap once applied.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kanidm-provision-oauth2-step-ca
-  labels:
-    kanidm_config: "1"
-  annotations:
-    reloader.stakater.com/match: "true"
-data:
-  targetNamespace: security
-  oauth2.json: |-
-    {
-      "groups": {}, "persons": {}, "systems": { "oauth2": {
-        "step-ca": {
-          "present": false, "public": true, "displayName": "step-ca (SSH certificates)",
-          "originUrl": "http://127.0.0.1:10000/",
-          "originLanding": "https://ca.vzkn.eu/",
-          "enableLocalhostRedirects": true,
-          "scopeMaps": { "users": ["openid", "email", "profile"] },
-          "k8s": { "clientIdKey": "key" }
-        }
-      } } }
----
 # Omnichassis fleet back end (Go, confidential client with PKCE). Roles come from
 # the groups claim as SPNs (fleet-owner@idm.vzkn.eu); no mapped group = no access.
 apiVersion: v1

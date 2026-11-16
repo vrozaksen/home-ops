@@ -71,6 +71,12 @@ spec:
               ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA: "true"
               PLAYMATCH_API_ENABLED: "true"
               HLTB_API_ENABLED: "true"
+              FLASHPOINT_API_ENABLED: "true"
+              STEAM_API_ENABLED: "true"
+              TGDB_API_ENABLED: "true"
+              DEMOZOO_API_ENABLED: "true"
+              POUET_API_ENABLED: "true"
+              CSDB_API_ENABLED: "true"
               ENABLE_SCHEDULED_UPDATE_SWITCH_TITLEDB: "true"
               ENABLE_SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC: "true"
               # no inotify over NFS

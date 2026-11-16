@@ -24,9 +24,7 @@ data:
         "fleet-viewer":     { "present": true, "members": [], "overwriteMembers": false },
         "engineering-owner":    { "present": true, "members": ["vrozaksen"], "overwriteMembers": false },
         "engineering-engineer": { "present": true, "members": [], "overwriteMembers": false },
-        "engineering-viewer":   { "present": true, "members": [], "overwriteMembers": false },
-        "romm-admins": { "present": true, "members": ["vrozaksen"], "overwriteMembers": false },
-        "romm-users":  { "present": true, "members": [], "overwriteMembers": false }
+        "engineering-viewer":   { "present": true, "members": [], "overwriteMembers": false }
       },
       "persons": {},
       "systems": { "oauth2": {} }

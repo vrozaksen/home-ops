@@ -459,8 +459,8 @@ data:
           "originLanding": "https://romm.vzkn.eu/",
           "preferShortUsername": true,
           "scopeMaps": {
-            "romm-admins": ["openid", "email", "profile", "groups"],
-            "romm-users": ["openid", "email", "profile", "groups"]
+            "admins": ["openid", "email", "profile", "groups"],
+            "users": ["openid", "email", "profile", "groups"]
           },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/romm.svg" }
         }

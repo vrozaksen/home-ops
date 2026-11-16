@@ -55,8 +55,8 @@ spec:
               OIDC_SERVER_METADATA_URL: https://idm.vzkn.eu/oauth2/openid/romm/.well-known/openid-configuration
               OIDC_REDIRECT_URI: https://romm.vzkn.eu/api/oauth/openid
               OIDC_CLAIM_ROLES: groups
-              OIDC_ROLE_ADMIN: romm-admins@idm.vzkn.eu
-              OIDC_ROLE_VIEWER: romm-users@idm.vzkn.eu
+              OIDC_ROLE_ADMIN: admins@idm.vzkn.eu
+              OIDC_ROLE_VIEWER: users@idm.vzkn.eu
               OIDC_CLIENT_ID:
                 valueFrom:
                   secretKeyRef:

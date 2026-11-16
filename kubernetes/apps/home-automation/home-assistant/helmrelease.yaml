@@ -146,6 +146,10 @@ spec:
             port: *port
           codeserver:
             port: *codeserverPort
+          # Shelly gen1 CoIoT push; DSR keeps the device source IP HA matches on
+          coiot:
+            port: 5683
+            protocol: UDP
     route:
       app:
         annotations:

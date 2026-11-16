@@ -32,7 +32,6 @@ spec:
       APP: *app
       NS: games
       CNPG_SIZE: 2Gi
-      DRAGONFLY_MEMORY: 256Mi
       KOPIUR_CAPACITY: 20Gi
       KOPIUR_PUID: "1000"
       KOPIUR_PGID: "100"

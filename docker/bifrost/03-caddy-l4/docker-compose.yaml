@@ -3,8 +3,10 @@ name: caddy-l4
 
 services:
   caddy:
+    # ghcr, not registry.vzkn.eu: Harbor is reached through this caddy, so a
+    # rebuilt VPS could never pull it. ghcr has no build newer than 2.11.4.
     # renovate: datasource=docker depName=ghcr.io/vrozaksen/caddy-l4-ovh
-    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.7
+    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.4
     container_name: caddy-l4
     restart: unless-stopped
     environment:

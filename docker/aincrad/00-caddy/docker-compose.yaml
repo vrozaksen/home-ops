@@ -3,8 +3,8 @@ name: caddy
 
 services:
   caddy:
-    # renovate: datasource=docker depName=ghcr.io/vrozaksen/caddy-l4-ovh
-    image: ghcr.io/vrozaksen/caddy-l4-ovh:2.11.7
+    # renovate: datasource=docker depName=registry.vzkn.eu/containers/caddy-l4-ovh
+    image: registry.vzkn.eu/containers/caddy-l4-ovh:2.11.7
     container_name: caddy
     restart: unless-stopped
     labels:

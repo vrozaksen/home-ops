@@ -8,13 +8,13 @@ spec:
   modelName: embed
   proxyRef: litellm
   params:
-    model: openai/BAAI/bge-m3
+    model: openai/intfloat/multilingual-e5-small
     apiBase: http://text-embeddings-inference.ai.svc.cluster.local:8080/v1
     # TEI doesn't authenticate, but LiteLLM's OpenAI client requires a non-empty key.
     apiKey: not-needed
   info:
     mode: embedding
-    maxInputTokens: 8192
+    maxInputTokens: 512
     extra:
       input_cost_per_token: 0
       output_cost_per_token: 0

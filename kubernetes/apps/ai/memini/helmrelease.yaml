@@ -19,10 +19,13 @@ spec:
             env:
               MEMINI_BACKEND: sqlite
               MEMINI_DEFAULT_NAMESPACE: default
-              # Embeddings via in-cluster TEI (bge-m3, 1024-dim) — zero cost, no LLM.
+              # Embeddings via in-cluster TEI (multilingual-e5-small, 384-dim) — zero cost, no LLM.
+              # Store width is fixed at creation: a dims change needs a new DB + export/import
+              # (old 1024-dim store kept at /data/memini.db for rollback).
+              MEMINI_SQLITE_PATH: /data/memini-e5.db
               MEMINI_EMBED_BASE_URL: http://text-embeddings-inference.ai.svc.cluster.local:8080/v1
-              MEMINI_EMBED_MODEL: BAAI/bge-m3
-              MEMINI_EMBED_DIMS: "1024"
+              MEMINI_EMBED_MODEL: intfloat/multilingual-e5-small
+              MEMINI_EMBED_DIMS: "384"
               # LLM pipeline (consolidation, memory_answer, query rewrite).
               # Local Ollama first via LiteLLM "assistant" alias; Haiku fallback
               # when ragnarok is off (tiny background cost only, never per-message).

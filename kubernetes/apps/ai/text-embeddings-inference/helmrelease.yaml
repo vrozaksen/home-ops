@@ -21,8 +21,12 @@ spec:
               repository: ghcr.io/huggingface/text-embeddings-inference
               tag: cpu-1.7.0
             args:
+              # bge-m3 (568M) took 3-6s per request on contended CPU and timed out memini.
+              # e5 expects a "query: " prefix; applied to both sides for symmetric search.
               - --model-id
-              - BAAI/bge-m3
+              - intfloat/multilingual-e5-small
+              - --default-prompt
+              - "query: "
               - --port
               - "8080"
               - --hostname
@@ -72,10 +76,10 @@ spec:
               requests:
                 # Workers sit at ~95% CPU requested; 1 core never schedules.
                 cpu: 100m
-                memory: 3Gi
+                memory: 1Gi
               limits:
                 cpu: "4"
-                memory: 8Gi
+                memory: 2Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

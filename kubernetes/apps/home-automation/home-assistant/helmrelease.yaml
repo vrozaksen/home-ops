@@ -114,7 +114,7 @@ spec:
             env:
               <<: *miseEnv
               # renovate: datasource=github-releases depName=jdx/mise
-              MISE_VERSION: v2026.11.8
+              MISE_VERSION: v2026.11.9
             securityContext:
               allowPrivilegeEscalation: false
               # mise/curl write to /tmp and $HOME

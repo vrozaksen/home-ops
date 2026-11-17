@@ -79,7 +79,8 @@ spec:
                 memory: 1Gi
               limits:
                 cpu: "4"
-                memory: 2Gi
+                # Idles at ~1.9Gi after a bulk import.
+                memory: 3Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

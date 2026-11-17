@@ -122,8 +122,10 @@ spec:
           requests:
             cpu: 500m
             memory: 6Gi
+          # Limit above request: OSDs spike +4Gi within a minute (osd.1/osd.0 OOMs
+          # every ~2h); alne has no room for a bigger request.
           limits:
-            memory: 6Gi
+            memory: 10Gi
       healthCheck:
         livenessProbe:
           mon:

@@ -25,7 +25,7 @@ spec:
           migrate:
             image: &image
               repository: docker.io/inventree/inventree
-              tag: 1.6.4@sha256:eb947570e80ce057e99fac51ee349885cbeab7afbd2e6857775f6bb50d83f646
+              tag: 1.7.3@sha256:bd58a1d1891dac39a19b5c40a7fa6bd9fc4d6752ae0bd69da4582a4afce5dfb7
             args:
               - invoke
               - update

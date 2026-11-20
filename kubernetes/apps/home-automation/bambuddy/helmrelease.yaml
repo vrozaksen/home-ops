@@ -16,7 +16,7 @@ spec:
           app:
             image:
               repository: ghcr.io/maziggy/bambuddy
-              tag: 1.3.1
+              tag: 1.3.2
             env:
               PORT: &httpPort 8000
               HA_URL: https://hass.vzkn.eu
@@ -54,7 +54,7 @@ spec:
           bambu-studio:
             image:
               repository: ghcr.io/maziggy/bambu-studio-api
-              tag: bambuddy-1.3.0@sha256:36d16b7c723be10b823deb0e60b5c827eed2b6fd7ea75e4570445439e55f96fe
+              tag: bambuddy-1.3.2@sha256:c28c16d9e11e5d7c326e05f4fb30838e2d918e6a3c301feedbb321b56bcbf647
             env:
               NODE_ENV: production
               PORT: &bambuPort 3001
@@ -84,7 +84,7 @@ spec:
           slicer:
             image:
               repository: ghcr.io/maziggy/orca-slicer-api
-              tag: bambuddy-1.3.0@sha256:cbe114741495e873d3723888edc48df6e3961e766ccd38986c4384cdd8423990
+              tag: bambuddy-1.3.2@sha256:e42c1522e7f00a24400346a3342483ada265528808168c3fdc11473c9b212515
             env:
               NODE_ENV: production
               PORT: &slicerPort 3003

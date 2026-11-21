@@ -26,7 +26,7 @@ services:
     # Needs noq-udp >= 1.1.1: v1.0.3 (noq-udp 1.1.0) panicked on musl cmsg
     # align_of and restart-looped (exit 139); fixed upstream in noq#774.
     # renovate: datasource=docker depName=docker.io/n0computer/iroh-relay
-    image: docker.io/n0computer/iroh-relay:v1.4.1
+    image: docker.io/n0computer/iroh-relay:v1.5.0
     container_name: iroh-relay
     restart: unless-stopped
     depends_on:

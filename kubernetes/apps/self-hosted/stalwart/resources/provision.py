@@ -2,7 +2,7 @@
 """Idempotently create the DAV collections Stalwart does not create on its own.
 
 Owner gets plan/praca/prywatne (VEVENT), todo (VTODO), notatki (VJOURNAL) and the
-kontakty address book; the moodle account owns uczelnia and shares it read-only.
+kontakty address book. Moodle stays a client-side iCal subscription.
 """
 import base64
 import logging
@@ -22,7 +22,6 @@ OWNER_CALENDARS = {
     "todo": ("Todo", ["VTODO"], "#8E24AA"),
     "notatki": ("Notatki", ["VJOURNAL"], "#F6BF26"),
 }
-MOODLE_CALENDAR = ("uczelnia", "Uczelnia", ["VEVENT"], "#616161")
 
 log = logging.getLogger("provision")
 
@@ -90,36 +89,17 @@ class Dav:
             raise RuntimeError(f"{self.user}: MKCALENDAR {name} returned {status}: {data[:300]!r}")
         log.info("%s: created calendar %s %s", self.user, name, components)
 
-    def grant_read(self, path: str, principal: str) -> None:
-        body = (
-            '<?xml version="1.0"?><d:acl xmlns:d="DAV:"><d:ace>'
-            f"<d:principal><d:href>{principal}</d:href></d:principal>"
-            "<d:grant><d:privilege><d:read/></d:privilege></d:grant></d:ace></d:acl>"
-        )
-        status, data = self.request("ACL", path, body)
-        if status not in (200, 204):
-            raise RuntimeError(f"{self.user}: ACL {path} returned {status}: {data[:300]!r}")
-        log.info("%s: %s readable by %s", self.user, path, principal)
-
 
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     base = os.environ["DAV_URL"]
     owner = Dav(base, os.environ["OWNER_USER"], os.environ["OWNER_PASSWORD"])
-    moodle = Dav(base, os.environ["MOODLE_USER"], os.environ["MOODLE_PASSWORD"])
 
     cal_home = owner.home("cal")
     for name, (display, comps, color) in OWNER_CALENDARS.items():
         owner.ensure_calendar(cal_home, name, display, comps, color)
     # Listing the address book home makes Stalwart create the default "kontakty" book.
     log.info("%s: address books %s", owner.user, sorted(owner.children(owner.home("card"))))
-
-    m_home = moodle.home("cal")
-    name, display, comps, color = MOODLE_CALENDAR
-    moodle.ensure_calendar(m_home, name, display, comps, color)
-    # OWNER_USER must be the full address: principals are named after it.
-    owner_principal = "/dav/pal/" + urllib.parse.quote(owner.user, safe="") + "/"
-    moodle.grant_read(f"{m_home}{name}/", owner_principal)
     return 0
 
 

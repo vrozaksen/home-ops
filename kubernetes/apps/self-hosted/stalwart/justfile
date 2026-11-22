@@ -1,0 +1,81 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Stalwart (CalDAV/CardDAV) secrets and first-run helpers.
+#
+#     just stalwart                       # list recipes
+#     just stalwart init-secrets          # before the first Flux reconcile
+#     just stalwart first-run             # once the pod is up
+#     just stalwart app-password "Phone (DAVx5)"
+#
+# Secret values never hit stdout or shell history: they go through a 0600 temp file
+# into `infisical secrets set KEY=@file`. Needs `infisical login` (EU) and kubectl.
+# ─────────────────────────────────────────────────────────────────────────────
+
+set quiet
+set shell := ['bash', '-euo', 'pipefail', '-c']
+
+export INFISICAL_API_URL := "https://eu.infisical.com/api"
+project := "da94b011-9a7d-408b-92d9-55be47efe750"
+env := "prod"
+folder := "/kubernetes/self-hosted/stalwart"
+ns := "self-hosted"
+
+# List recipes
+default:
+    @just --list --unsorted --justfile {{source_file()}}
+
+# Create the Infisical folder and a random recovery-admin password (re-running rotates it)
+init-secrets:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    infisical secrets folders create --silent --env={{env}} --projectId={{project}} \
+        --path=/kubernetes/self-hosted --name=stalwart >/dev/null 2>&1 || true
+    tmp=$(mktemp); trap 'shred -u "$tmp" 2>/dev/null || rm -f "$tmp"' EXIT
+    openssl rand -base64 36 | tr -d '\n/+=' > "$tmp"
+    infisical secrets set --silent --env={{env}} --projectId={{project}} --path={{folder}} \
+        "STALWART_ADMIN_PASSWORD=@$tmp" >/dev/null
+    echo "✓ STALWART_ADMIN_PASSWORD set in {{folder}}"
+
+# Store an app password for the owner in Infisical (used by the provision CronJob)
+owner-app-password:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp=$(mktemp); trap 'shred -u "$tmp" 2>/dev/null || rm -f "$tmp"' EXIT
+    just --justfile {{source_file()}} _create vrozaksen "k8s provision" | tr -d "\n" > "$tmp"
+    [[ $(head -c4 "$tmp") == app_ ]] || { echo "✗ no app password returned" >&2; exit 1; }
+    infisical secrets set --silent --env={{env}} --projectId={{project}} --path={{folder}} \
+        "STALWART_OWNER_APP_PASSWORD=@$tmp" >/dev/null
+    echo "✓ STALWART_OWNER_APP_PASSWORD set in {{folder}}"
+
+# Create an app password for a device and print it ONCE (paste into the client, not chat)
+app-password description account="vrozaksen":
+    just --justfile {{source_file()}} _create {{account}} "{{description}}"
+
+# First deploy: apply the plan, restart (listener changes need it), provision calendars
+first-run:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    run_job() {
+        local job="stalwart-$1-manual-$(date +%s)"
+        kubectl -n {{ns}} create job --from=cronjob/stalwart-$1 "$job" >/dev/null
+        kubectl -n {{ns}} wait --for=condition=complete --timeout=5m "job/$job"
+        kubectl -n {{ns}} logs "job/$job" --all-containers --prefix | tail -20
+    }
+    kubectl -n {{ns}} rollout status deploy/stalwart --timeout=5m
+    run_job configure
+    kubectl -n {{ns}} rollout restart deploy/stalwart
+    kubectl -n {{ns}} rollout status deploy/stalwart --timeout=5m
+    just --justfile {{source_file()}} owner-app-password
+    echo "… waiting for the InfisicalSecret resync (1m)"; sleep 75
+    run_job provision
+
+# Create an app password as the recovery admin from inside the pod; prints only the secret
+[private]
+_create account description:
+    kubectl -n {{ns}} exec -i deploy/stalwart -c app -- sh -c '\
+      set -e; \
+      api() { curl -sf -u "$STALWART_RECOVERY_ADMIN" -H "Content-Type: application/json" http://127.0.0.1:8080/jmap/ -d "$1"; }; \
+      id=$(api "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Account/query\",{\"filter\":{\"name\":\"$1\"}},\"q\"]]}" \
+        | sed -n "s/.*\"ids\":\[\"\([^\"]*\)\".*/\1/p"); \
+      [ -n "$id" ] || { echo "account $1 not found" >&2; exit 1; }; \
+      api "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:AppPassword/set\",{\"accountId\":\"$id\",\"create\":{\"p1\":{\"description\":\"$2\",\"permissions\":{\"@type\":\"Inherit\"},\"allowedIps\":{}}}},\"0\"]]}" \
+        | sed -n "s/.*\"secret\":\"\([^\"]*\)\".*/\1/p"' _ "{{account}}" "{{description}}"

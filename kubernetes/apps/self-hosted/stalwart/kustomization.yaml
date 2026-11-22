@@ -12,7 +12,6 @@ configMapGenerator:
       - ./resources/plan.ndjson
   - name: stalwart-scripts
     files:
-      - ./resources/moodle_sync.py
       - ./resources/provision.py
 generatorOptions:
   disableNameSuffixHash: true

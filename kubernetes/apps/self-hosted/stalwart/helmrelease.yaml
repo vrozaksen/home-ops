@@ -129,7 +129,7 @@ spec:
           restartPolicy: Never
         containers:
           app:
-            image:
+            image: &uv
               # renovate: datasource=docker depName=ghcr.io/astral-sh/uv
               repository: ghcr.io/astral-sh/uv
               tag: 0.13.9-python3.14-alpine@sha256:cf4d33eb056b454a922b80e3594c0621ac56e83e118ec4e7415c58ae65466ede
@@ -138,7 +138,7 @@ spec:
               - "-I"
               - "/scripts/provision.py"
             env:
-              DAV_URL: http://stalwart.self-hosted.svc.cluster.local:8080
+              DAV_URL: &dav-url http://stalwart.self-hosted.svc.cluster.local:8080
               OWNER_USER: vrozaksen@vzkn.eu
               MOODLE_USER: moodle@vzkn.eu
               OWNER_PASSWORD:
@@ -153,6 +153,45 @@ spec:
                     key: MOODLE_PASSWORD
             securityContext: *job-sc
             resources: *job-res
+      # Mirrors the Moodle iCal export into moodle@vzkn.eu/uczelnia (shared read-only).
+      moodle-sync:
+        type: cronjob
+        cronjob:
+          <<: *cronjob
+          schedule: "7 * * * *"
+        pod:
+          restartPolicy: Never
+        containers:
+          app:
+            image: *uv
+            command:
+              - "uv"
+              - "run"
+              - "--script"
+              - "/scripts/moodle_sync.py"
+            env:
+              DAV_URL: *dav-url
+              MOODLE_USER: moodle@vzkn.eu
+              HOME: /tmp
+              UV_CACHE_DIR: /tmp/uv-cache
+              UV_PYTHON_DOWNLOADS: never
+              MOODLE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: MOODLE_PASSWORD
+              MOODLE_ICAL_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: MOODLE_ICAL_URL
+            securityContext: *job-sc
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -224,18 +263,24 @@ spec:
               - path: /config/plan.ndjson
                 subPath: plan.ndjson
                 readOnly: true
-      provision:
+      scripts:
         type: configMap
-        name: stalwart-provision
+        name: stalwart-scripts
         advancedMounts:
           provision:
             app:
-              - path: /scripts/provision.py
-                subPath: provision.py
+              - path: /scripts
+                readOnly: true
+          moodle-sync:
+            app:
+              - path: /scripts
                 readOnly: true
       tmp:
         type: emptyDir
         advancedMounts:
           stalwart:
+            app:
+              - path: /tmp
+          moodle-sync:
             app:
               - path: /tmp

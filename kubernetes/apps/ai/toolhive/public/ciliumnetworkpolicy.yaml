@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+# Additive to ai/default-deny-ingress: only the public gateway pod takes envoy-external traffic on :4483.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-public-external
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: mcp-public
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+            gateway.envoyproxy.io/owning-gateway-namespace: network
+      toPorts:
+        - ports:
+            - port: "4483"
+              protocol: TCP

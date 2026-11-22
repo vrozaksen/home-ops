@@ -37,14 +37,13 @@ init-secrets:
 
 # Store an app password for the owner in Infisical (used by the provision CronJob)
 owner-app-password:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    tmp=$(mktemp); trap 'shred -u "$tmp" 2>/dev/null || rm -f "$tmp"' EXIT
-    just --justfile {{source_file()}} _create vrozaksen "k8s provision" | tr -d "\n" > "$tmp"
-    [[ $(head -c4 "$tmp") == app_ ]] || { echo "✗ no app password returned" >&2; exit 1; }
-    infisical secrets set --silent --env={{env}} --projectId={{project}} --path={{folder}} \
-        "STALWART_OWNER_APP_PASSWORD=@$tmp" >/dev/null
-    echo "✓ STALWART_OWNER_APP_PASSWORD set in {{folder}}"
+    just --justfile {{source_file()}} _store "k8s provision" {{folder}} STALWART_OWNER_APP_PASSWORD
+
+# Store an app password for the caldav MCP server (public claude.ai gateway) in Infisical
+mcp-app-password:
+    infisical secrets folders create --silent --env={{env}} --projectId={{project}} \
+        --path=/ai/mcp --name=caldav >/dev/null 2>&1 || true
+    just --justfile {{source_file()}} _store "claude.ai MCP" /ai/mcp/caldav CALDAV_PASSWORD
 
 # Create an app password for a device and print it ONCE (paste into the client, not chat)
 app-password description account="vrozaksen":
@@ -83,5 +82,19 @@ _create account description:
       id=$(api "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Account/query\",{\"filter\":{\"name\":\"$1\"}},\"q\"]]}" \
         | sed -n "s/.*\"ids\":\[\"\([^\"]*\)\".*/\1/p"); \
       [ -n "$id" ] || { echo "account $1 not found" >&2; exit 1; }; \
-      api "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:AppPassword/set\",{\"accountId\":\"$id\",\"create\":{\"p1\":{\"description\":\"$2\",\"permissions\":{\"@type\":\"Inherit\"},\"allowedIps\":{}}}},\"0\"]]}" \
-        | sed -n "s/.*\"secret\":\"\([^\"]*\)\".*/\1/p"' _ "{{account}}" "{{description}}"
+      r=$(api "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:AppPassword/set\",{\"accountId\":\"$id\",\"create\":{\"p1\":{\"description\":\"$2\",\"permissions\":{\"@type\":\"Inherit\"},\"allowedIps\":{}}}},\"0\"]]}"); \
+      s=$(printf %s "$r" | sed -n "s/.*\"secret\":\"\([^\"]*\)\".*/\1/p"); \
+      [ -n "$s" ] || { printf "%s\n" "$r" | sed -n "s/.*\"description\":\"\([^\"]*\)\".*/✗ \1/p" >&2; exit 1; }; \
+      printf %s "$s"' _ "{{account}}" "{{description}}"
+
+# Create an owner app password and write it to Infisical <path>/<key> without printing it
+[private]
+_store description path key:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp=$(mktemp); trap 'shred -u "$tmp" 2>/dev/null || rm -f "$tmp"' EXIT
+    just --justfile {{source_file()}} _create vrozaksen "{{description}}" | tr -d "\n" > "$tmp"
+    [[ $(head -c4 "$tmp") == app_ ]] || { echo "✗ no app password returned" >&2; exit 1; }
+    infisical secrets set --silent --env={{env}} --projectId={{project}} --path={{path}} \
+        "{{key}}=@$tmp" >/dev/null
+    echo "✓ {{key}} set in {{path}}"

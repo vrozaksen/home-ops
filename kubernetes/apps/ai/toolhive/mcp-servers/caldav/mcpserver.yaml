@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/mcpserver_v1alpha1.json
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: caldav
+spec:
+  # renovate: datasource=docker depName=ghcr.io/ni-c/caldav-mcp
+  image: ghcr.io/ni-c/caldav-mcp:0.2.0@sha256:1589a3102de8e1c8b8cfd2c3dccb65dbf02236e199072ed73cc1cf2aa733bba7
+  transport: stdio
+  proxyPort: 8080
+  groupRef:
+    name: mcp-public
+  permissionProfile:
+    type: builtin
+    name: network
+  resources:
+    requests:
+      cpu: 10m
+      memory: 96Mi
+    limits:
+      memory: 256Mi
+  env:
+    # In-cluster service; plain HTTP never leaves the cluster.
+    - name: CALDAV_URL
+      value: http://stalwart.self-hosted.svc.cluster.local:8080
+    - name: CALDAV_ALLOW_PLAINTEXT
+      value: "true"
+    - name: CALDAV_USERNAME
+      value: vrozaksen@vzkn.eu
+    - name: CALDAV_TIMEZONE
+      value: Europe/Warsaw
+  secrets:
+    - name: caldav-mcp-secret
+      key: CALDAV_PASSWORD
+      targetEnvName: CALDAV_PASSWORD

@@ -109,6 +109,13 @@ data:
           "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/anthropic.svg" }
         },
+        "mcp-public": {
+          "present": true, "displayName": "MCP Public (claude.ai)",
+          "originUrl": "https://mcp-pub.vzkn.eu/oauth/callback",
+          "originLanding": "https://mcp-pub.vzkn.eu/",
+          "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] },
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/anthropic.svg" }
+        },
         "litellm": {
           "present": true, "displayName": "LiteLLM",
           "originUrl": "https://litellm.vzkn.eu/sso/callback",

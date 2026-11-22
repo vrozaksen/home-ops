@@ -25,6 +25,7 @@ mod bootstrap 'bootstrap/justfile'
 mod kube 'kubernetes/justfile'
 mod talos 'talos/justfile'
 mod kanidm 'kubernetes/platform/security/kanidm/justfile'
+mod stalwart 'kubernetes/apps/self-hosted/stalwart/justfile'
 mod stunner 'kubernetes/core/network/stunner/justfile'
 
 [private]

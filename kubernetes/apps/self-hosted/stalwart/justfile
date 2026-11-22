@@ -57,7 +57,13 @@ first-run:
     run_job() {
         local job="stalwart-$1-manual-$(date +%s)"
         kubectl -n {{ns}} create job --from=cronjob/stalwart-$1 "$job" >/dev/null
-        kubectl -n {{ns}} wait --for=condition=complete --timeout=5m "job/$job"
+        echo "… job/$job"
+        for _ in $(seq 60); do
+            s=$(kubectl -n {{ns}} get "job/$job" -o jsonpath='{.status.succeeded}/{.status.failed}')
+            [[ $s == 1/* ]] && break
+            [[ ${s#*/} -ge 3 ]] && { kubectl -n {{ns}} logs "job/$job" --all-containers --prefix | tail -20; exit 1; }
+            sleep 5
+        done
         kubectl -n {{ns}} logs "job/$job" --all-containers --prefix | tail -20
     }
     kubectl -n {{ns}} rollout status deploy/stalwart --timeout=5m

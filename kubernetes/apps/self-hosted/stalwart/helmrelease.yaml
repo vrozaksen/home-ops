@@ -91,6 +91,8 @@ spec:
               - "--file"
               - "/config/plan.ndjson"
             env: &cli-env
+              # The CLI caches the server schema under $HOME; root fs is read-only.
+              HOME: /tmp
               STALWART_URL: http://stalwart.self-hosted.svc.cluster.local:8080
               STALWART_AUTH: basic
               STALWART_USER: admin
@@ -232,4 +234,9 @@ spec:
         advancedMounts:
           stalwart:
             app:
+              - path: /tmp
+          configure:
+            apply:
+              - path: /tmp
+            reload:
               - path: /tmp

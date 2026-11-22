@@ -65,9 +65,6 @@ spec:
               app.kubernetes.io/instance: mcp-gateway
         - podSelector:
             matchLabels:
-              app.kubernetes.io/instance: mcp-public
-        - podSelector:
-            matchLabels:
               app.kubernetes.io/instance: mcp-gateway-internal
         - podSelector:
             matchLabels:

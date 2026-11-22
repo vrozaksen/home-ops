@@ -8,7 +8,7 @@ spec:
   dependsOn:
     - name: stalwart
       namespace: self-hosted
-    - name: toolhive-public
+    - name: toolhive-config
       namespace: ai
   interval: 1h
   path: ./kubernetes/apps/ai/toolhive/mcp-servers/caldav

@@ -257,6 +257,17 @@ data:
           "preferShortUsername": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/memos.svg" }
         },
+        "stalwart": {
+          "present": true, "displayName": "Stalwart", "public": true,
+          "originUrl": [
+            "https://stalwart.vzkn.eu/admin/oauth/callback",
+            "https://stalwart.vzkn.eu/account/oauth/callback"
+          ],
+          "originLanding": "https://stalwart.vzkn.eu/account",
+          "scopeMaps": { "users": ["openid", "email", "profile"] },
+          "preferShortUsername": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/stalwart.svg" }
+        },
         "rxresume": {
           "present": true, "displayName": "Reactive Resume",
           "originUrl": "https://rxresume.vzkn.eu/api/auth/callback/custom",

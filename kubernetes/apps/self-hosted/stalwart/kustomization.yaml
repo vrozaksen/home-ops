@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./infisicalsecret.yaml
+  - ./helmrelease.yaml
+configMapGenerator:
+  - name: stalwart-config
+    files:
+      - ./resources/config.json
+      - ./resources/plan.ndjson
+  - name: stalwart-provision
+    files:
+      - ./resources/provision.py
+generatorOptions:
+  disableNameSuffixHash: true

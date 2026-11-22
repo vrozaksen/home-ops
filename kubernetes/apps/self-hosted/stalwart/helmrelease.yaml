@@ -1,0 +1,241 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stalwart
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      stalwart:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=docker.io/stalwartlabs/stalwart
+              repository: docker.io/stalwartlabs/stalwart
+              tag: v1.1.1@sha256:5ebdf474b237161742fe4309396af4ae8797c938e8e6eb7e2d4837332c4f9851
+            env:
+              TZ: Europe/Warsaw
+              STALWART_PUBLIC_URL: https://stalwart.vzkn.eu
+              STALWART_RECOVERY_ADMIN:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: STALWART_RECOVERY_ADMIN
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz/live
+                    port: &port 8080
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                <<: *probe
+                spec:
+                  httpGet:
+                    path: /healthz/ready
+                    port: *port
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                <<: *probe
+                spec:
+                  httpGet:
+                    path: /healthz/live
+                    port: *port
+                  periodSeconds: 5
+                  failureThreshold: 60
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 20m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+      # Converges server settings to resources/plan.ndjson (upsert/reconcile, idempotent).
+      configure:
+        type: cronjob
+        cronjob: &cronjob
+          schedule: "*/30 * * * *"
+          backoffLimit: 2
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+          ttlSecondsAfterFinished: 86400
+        pod:
+          restartPolicy: Never
+        initContainers:
+          apply:
+            image: &cli
+              # renovate: datasource=docker depName=docker.io/stalwartlabs/cli
+              repository: docker.io/stalwartlabs/cli
+              tag: 2.0.0@sha256:8588aa3ea88ed740f83292ab37760869541df3da39cd1c8e6494fb43ece888c9
+            args:
+              - "apply"
+              - "--file"
+              - "/config/plan.ndjson"
+            env: &cli-env
+              STALWART_URL: http://stalwart.self-hosted.svc.cluster.local:8080
+              STALWART_AUTH: basic
+              STALWART_USER: admin
+              STALWART_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: STALWART_PASSWORD
+            securityContext: &job-sc
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources: &job-res
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+        containers:
+          reload:
+            image: *cli
+            args:
+              - "create"
+              - "Action/ReloadSettings"
+              - "--json"
+              - "{}"
+            env: *cli-env
+            securityContext: *job-sc
+            resources: *job-res
+      # Creates the calendars/address book from resources/provision.py (idempotent).
+      provision:
+        type: cronjob
+        cronjob:
+          <<: *cronjob
+          schedule: "15 4 * * *"
+        pod:
+          restartPolicy: Never
+        containers:
+          app:
+            image:
+              # renovate: datasource=docker depName=ghcr.io/astral-sh/uv
+              repository: ghcr.io/astral-sh/uv
+              tag: 0.13.9-python3.14-alpine@sha256:cf4d33eb056b454a922b80e3594c0621ac56e83e118ec4e7415c58ae65466ede
+            command:
+              - "python3"
+              - "-I"
+              - "/scripts/provision.py"
+            env:
+              DAV_URL: http://stalwart.self-hosted.svc.cluster.local:8080
+              OWNER_USER: vrozaksen@vzkn.eu
+              MOODLE_USER: moodle@vzkn.eu
+              OWNER_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: OWNER_PASSWORD
+              MOODLE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: stalwart-secret
+                    key: MOODLE_PASSWORD
+            securityContext: *job-sc
+            resources: *job-res
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 2000
+        runAsGroup: 2000
+        fsGroup: 2000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: stalwart
+        ports:
+          http:
+            port: *port
+    route:
+      # Admin WebUI, Account Manager (app passwords) and API: LAN/VPN only.
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+            url: https://stalwart.vzkn.eu/healthz/ready
+        hostnames:
+          - stalwart.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+      # Internet-facing: only CalDAV/CardDAV/WebDAV and their discovery, auth = app passwords.
+      dav:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+            url: https://dav.vzkn.eu/dav/cal
+            conditions: ["[STATUS] == 401"]
+        hostnames:
+          - dav.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - matches:
+              - path: {type: PathPrefix, value: /dav}
+              - path: {type: Exact, value: /.well-known/caldav}
+              - path: {type: Exact, value: /.well-known/carddav}
+            backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: stalwart
+        advancedMounts:
+          stalwart:
+            app:
+              - path: /var/lib/stalwart
+      config:
+        type: configMap
+        name: stalwart-config
+        advancedMounts:
+          stalwart:
+            app:
+              - path: /etc/stalwart/config.json
+                subPath: config.json
+                readOnly: true
+          configure:
+            apply:
+              - path: /config/plan.ndjson
+                subPath: plan.ndjson
+                readOnly: true
+      provision:
+        type: configMap
+        name: stalwart-provision
+        advancedMounts:
+          provision:
+            app:
+              - path: /scripts/provision.py
+                subPath: provision.py
+                readOnly: true
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          stalwart:
+            app:
+              - path: /tmp

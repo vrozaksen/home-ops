@@ -10,7 +10,7 @@ spec:
   transport: stdio
   proxyPort: 8080
   groupRef:
-    name: mcp-public
+    name: mcp-tools
   permissionProfile:
     type: builtin
     name: network

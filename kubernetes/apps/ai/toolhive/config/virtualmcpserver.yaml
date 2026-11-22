@@ -1,6 +1,7 @@
 ---
 # yaml-language-server: $schema=https://schemas.vzkn.eu/toolhive.stacklok.dev/virtualmcpserver_v1beta1.json
-# External gateway — upstream OIDC via Kanidm. mcp.vzkn.eu exposed publicly.
+# The one OIDC gateway (Claude Code, claude.ai): login via Kanidm, envoy-external.
+# Cedar sees only the Kanidm access token, so access is per Kanidm group via supplementary scopes.
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
@@ -79,6 +80,18 @@ spec:
         - profile
         - email
         - offline_access
+    # tools/list is filtered by these too. mcp_full: everything; mcp_web (claude.ai account): no cluster access.
+    authzConfig:
+      type: inline
+      inline:
+        policies:
+          - >-
+            permit(principal, action, resource)
+            when { principal has claim_scope && principal.claim_scope like "*mcp_full*" };
+          - >-
+            permit(principal, action == Action::"call_tool", resource)
+            when { principal has claim_scope && principal.claim_scope like "*mcp_web*" &&
+              (resource in Backend::"caldav" || resource in Backend::"context7" || resource in Backend::"siderolabs-docs") };
   outgoingAuth:
     source: discovered
   podTemplateSpec:
@@ -130,6 +143,12 @@ spec:
         statusReportingInterval: 5m
   incomingAuth:
     type: anonymous
+    # The owner's calendar stays off the agents' gateway.
+    authzConfig:
+      type: inline
+      inline:
+        policies:
+          - permit(principal, action, resource) unless { resource in Backend::"caldav" };
   outgoingAuth:
     source: discovered
   podTemplateSpec:

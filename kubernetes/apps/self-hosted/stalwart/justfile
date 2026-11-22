@@ -39,7 +39,7 @@ init-secrets:
 owner-app-password:
     just --justfile {{source_file()}} _store "k8s provision" {{folder}} STALWART_OWNER_APP_PASSWORD
 
-# Store an app password for the caldav MCP server (public claude.ai gateway) in Infisical
+# Store an app password for the caldav MCP server (claude.ai via mcp.vzkn.eu) in Infisical
 mcp-app-password:
     infisical secrets folders create --silent --env={{env}} --projectId={{project}} \
         --path=/ai/mcp --name=caldav >/dev/null 2>&1 || true

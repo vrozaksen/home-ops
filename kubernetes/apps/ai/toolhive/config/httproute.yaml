@@ -7,12 +7,13 @@ metadata:
   annotations:
     gatus.home-operations.com/endpoint: |-
       group: ai
-      conditions: ["[STATUS] == 406"]
+      # In-cluster probes come from pod IPs, which the SecurityPolicy denies.
+      conditions: ["[STATUS] == any(403, 406)"]
 spec:
   hostnames:
     - mcp.vzkn.eu
   parentRefs:
-    - name: envoy-internal
+    - name: envoy-external
       namespace: network
   rules:
     - backendRefs:

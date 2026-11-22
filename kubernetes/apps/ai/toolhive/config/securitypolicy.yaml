@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# LAN and the owner's PC get in; claude.ai egress only with the claudeai identity, so a
+# full-access login from claude.ai is refused even though Cedar would allow it.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: mcp-gateway
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: mcp-gateway
+  # Optional: discovery, DCR and the first unauthenticated /mcp call (401 + resource_metadata) carry no token.
+  jwt:
+    optional: true
+    providers:
+      - name: mcp
+        issuer: https://mcp.vzkn.eu
+        audiences:
+          - https://mcp.vzkn.eu/mcp
+        remoteJWKS:
+          uri: http://vmcp-mcp-gateway.ai.svc.cluster.local:4483/.well-known/jwks.json
+          backendRefs:
+            - group: ""
+              kind: Service
+              name: vmcp-mcp-gateway
+              port: 4483
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: claude-ai-connector
+        action: Allow
+        principal:
+          clientCIDRs:
+            - 160.79.104.0/21
+          jwt:
+            provider: mcp
+            claims:
+              - name: email
+                values:
+                  - claudeai@vzkn.eu
+      - name: claude-ai-other-identity
+        action: Deny
+        principal:
+          clientCIDRs:
+            - 160.79.104.0/21
+          jwt:
+            provider: mcp
+            claims:
+              - name: iss
+                values:
+                  - https://mcp.vzkn.eu
+      - name: lan-and-claude-ai-tokenless
+        action: Allow
+        principal:
+          clientCIDRs:
+            - 10.10.0.0/16
+            - 10.100.0.0/16
+            - 160.79.104.0/21

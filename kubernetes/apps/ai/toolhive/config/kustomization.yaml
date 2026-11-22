@@ -3,6 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./ciliumnetworkpolicy.yaml
   - ./dashboard
   - ./dragonfly.yaml
   - ./mcpgroup.yaml
@@ -13,6 +14,7 @@ resources:
   - ./infisicalsecret-apikeys.yaml
   - ./mcp-telemetry.yaml
   - ./podmonitor.yaml
+  - ./securitypolicy.yaml
   - ./httproute.yaml
   - ./httproute-agents.yaml
   - ./service-internal.yaml

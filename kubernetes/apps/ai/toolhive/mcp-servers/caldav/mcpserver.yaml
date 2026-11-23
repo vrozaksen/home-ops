@@ -6,7 +6,7 @@ metadata:
   name: caldav
 spec:
   # renovate: datasource=docker depName=ghcr.io/ni-c/caldav-mcp
-  image: ghcr.io/ni-c/caldav-mcp:0.2.0@sha256:1589a3102de8e1c8b8cfd2c3dccb65dbf02236e199072ed73cc1cf2aa733bba7
+  image: ghcr.io/ni-c/caldav-mcp:0.2.1@sha256:65a53de3855f9f9eb3a388930976f2427211daa655bb3b446c8446b1b39382a6
   transport: stdio
   proxyPort: 8080
   groupRef:

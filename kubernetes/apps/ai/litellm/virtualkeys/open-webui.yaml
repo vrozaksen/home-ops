@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# Open WebUI (chat.vzkn.eu): every chat alias, local first where one exists, plus
+# `embed` for RAG. No free-pool (public data only).
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: open-webui
+spec:
+  proxyRef: litellm
+  keyAlias: open-webui
+  secretName: litellm-key-open-webui
+  secretKey: api-key
+  models:
+    - assistant
+    - claude-haiku
+    - claude-sonnet
+    - code-pool
+    - embed
+    - local-pool
+    - research
+    - writer

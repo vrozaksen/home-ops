@@ -1,0 +1,33 @@
+---
+# ComfyUI runs on ragnarok (nix-config modules/services/comfyui.nix, RX 9070 XT).
+# No selector: the endpoint is the workstation, pinned by the EndpointSlice below.
+apiVersion: v1
+kind: Service
+metadata:
+  name: comfyui
+spec:
+  ports:
+    - name: http
+      appProtocol: kubernetes.io/ws
+      port: 8188
+      protocol: TCP
+      targetPort: 8188
+---
+# Reachable from the cluster only: ragnarok's firewall admits 10.10.0.0/24 on 8188 and
+# mikrotik-terraform allows st_k8s_services -> 10.100.0.102:8188. ComfyUI has no auth
+# (and custom nodes run code), so the SecurityPolicy is the only gate.
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: comfyui
+  labels:
+    kubernetes.io/service-name: comfyui
+addressType: IPv4
+ports:
+  - name: http
+    appProtocol: kubernetes.io/ws
+    port: 8188
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 10.100.0.102

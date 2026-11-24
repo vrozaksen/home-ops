@@ -8,6 +8,7 @@ components:
 resources:
   - ./namespace.yaml
   - ./ingress-policy.yaml
+  - ./comfyui/ks.yaml
   - ./headroom/ks.yaml
   - ./litellm-operator/ks.yaml
   - ./litellm/ks.yaml
@@ -17,3 +18,4 @@ resources:
   - ./toolhive/mcp-servers
   - ./multica/ks.yaml
   - ./multica-agent/ks.yaml
+  - ./open-webui/ks.yaml

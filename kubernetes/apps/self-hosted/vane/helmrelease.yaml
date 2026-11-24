@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vane
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    controllers:
+      vane:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              # slim = without the bundled SearXNG; ours is in this namespace
+              # renovate: datasource=docker depName=docker.io/itzcrazykns1337/vane
+              repository: docker.io/itzcrazykns1337/vane
+              tag: slim-v1.12.2@sha256:d2878cf9c91962aa3fc053b59bc9b89adcbdcaeb7ee36b54906e853464b2c190
+            # Env only seeds the providers on first start; picking the chat
+            # (`research`) and embedding (`embed`) models happens in the setup screen.
+            env:
+              TZ: Europe/Warsaw
+              SEARXNG_API_URL: http://searxng.self-hosted.svc.cluster.local:8080
+              OPENAI_BASE_URL: http://litellm.ai.svc.cluster.local:4000/v1
+              OPENAI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: litellm-key-vane
+                    key: api-key
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *probe
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+    service:
+      app:
+        controller: vane
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            group: self-hosted
+        hostnames:
+          - vane.vzkn.eu
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    persistence:
+      # config.json, db.sqlite (chat history) and uploads/
+      data:
+        existingClaim: vane
+        globalMounts:
+          - path: /home/vane/data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

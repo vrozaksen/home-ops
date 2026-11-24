@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# Vane has no auth of its own.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: vane
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/vane
+    clientID: vane
+    clientSecret:
+      name: kanidm-vane-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://vane.vzkn.eu/oauth2/callback
+    logoutPath: /oauth2/logout
+    cookieDomain: vane.vzkn.eu
+    # Background fetch/XHR gets 401, not a 302: every redirect sets a fresh nonce
+    # cookie pair and a polling tab overflows HTTP/2 headers (too_many_headers).
+    denyRedirect:
+      headers:
+        - name: Sec-Fetch-Mode
+          type: RegularExpression
+          value: "^(cors|no-cors|same-origin|websocket)$"
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+  # app-template names the route `vane` with one route and `vane-app` with
+  # several; cover both so the app is never left ungated
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: vane
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: vane-app

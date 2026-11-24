@@ -19,3 +19,4 @@ resources:
   - ./searxng/ks.yaml
   - ./stalwart/ks.yaml
   - ./sure/ks.yaml
+  - ./vane/ks.yaml

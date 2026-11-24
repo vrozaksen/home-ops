@@ -35,7 +35,8 @@ spec:
               protocol: TCP
             - port: "8081"
               protocol: TCP
-    # envoy-external HTTPRoutes: multica.vzkn.eu and multica-plugins.vzkn.eu -> multica-web :3000, multica-backend :8080.
+    # envoy-external HTTPRoutes: multica.vzkn.eu and multica-plugins.vzkn.eu -> multica-web :3000, multica-backend :8080;
+    # chat.vzkn.eu -> open-webui :8080.
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: network

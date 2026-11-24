@@ -140,8 +140,10 @@ spec:
             group: ai
         hostnames:
           - chat.vzkn.eu
+        # Internet-facing: auth is Kanidm OIDC in the app (no local login form,
+        # signup only via OAuth, roles from Kanidm groups), like inventree/romm.
         parentRefs:
-          - name: envoy-internal
+          - name: envoy-external
             namespace: network
     persistence:
       # webui.db (SQLite), uploads/, vector_db/, cache/

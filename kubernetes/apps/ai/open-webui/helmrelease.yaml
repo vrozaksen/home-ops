@@ -28,6 +28,8 @@ spec:
               WEBUI_URL: https://chat.vzkn.eu
               HF_HOME: /app/backend/data/cache/hf
               ENABLE_OLLAMA_API: "false"
+              # names/icons/descriptions per alias live in the Open WebUI DB (admin import)
+              DEFAULT_MODELS: assistant
               # Chat: LiteLLM aliases (local Qwen on ragnarok first, API fallback)
               OPENAI_API_BASE_URL: &litellm http://litellm.ai.svc.cluster.local:4000/v1
               OPENAI_API_KEY: &key

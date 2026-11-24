@@ -20,10 +20,11 @@ spec:
               # renovate: datasource=docker depName=ghcr.io/open-webui/open-webui
               repository: ghcr.io/open-webui/open-webui
               tag: 0.13.4@sha256:d5168bfbc28609eff5bea1b438dd864cf64d185cf6582c02244865e18385b901
-            # Most of these are PersistentConfig: they seed the DB on first start,
-            # after that the admin panel wins.
+            # Most of these are PersistentConfig; with it off the env always wins
+            # (config lives here, admin-panel edits do not survive a restart).
             env:
               TZ: Europe/Warsaw
+              ENABLE_PERSISTENT_CONFIG: "false"
               WEBUI_URL: https://chat.vzkn.eu
               HF_HOME: /app/backend/data/cache/hf
               ENABLE_OLLAMA_API: "false"
@@ -43,7 +44,7 @@ spec:
               WEB_SEARCH_ENGINE: searxng
               SEARXNG_QUERY_URL: http://searxng.self-hosted.svc.cluster.local:8080/search?q=<query>
               # Images: ComfyUI on ragnarok (nix-config modules/services/comfyui.nix),
-              # Qwen Image 2.1 Turbo, workflow in resources/comfyui-workflow.json
+              # Krea-2 Turbo fp8 (8 steps, ~15 s warm), workflow in resources/comfyui-workflow.json
               ENABLE_IMAGE_GENERATION: "true"
               IMAGE_GENERATION_ENGINE: comfyui
               COMFYUI_BASE_URL: http://10.100.0.102:8188
@@ -53,13 +54,13 @@ spec:
                     name: open-webui-comfyui
                     key: comfyui-workflow.json
               COMFYUI_WORKFLOW_NODES: >-
-                [{"type":"prompt","key":"prompt","node_ids":["5"]},
+                [{"type":"prompt","key":"text","node_ids":["4"]},
                 {"type":"model","key":"unet_name","node_ids":["1"]},
                 {"type":"width","key":"width","node_ids":["6"]},
                 {"type":"height","key":"height","node_ids":["6"]},
                 {"type":"n","key":"batch_size","node_ids":["6"]},
-                {"type":"seed","key":"noise_seed","node_ids":["10"]}]
-              IMAGE_GENERATION_MODEL: qwen_image_2.1_turbo_int8_convrot.safetensors
+                {"type":"seed","key":"seed","node_ids":["7"]}]
+              IMAGE_GENERATION_MODEL: krea2_turbo_fp8_scaled.safetensors
               IMAGE_SIZE: 1024x1024
               # Login: Kanidm only (no local accounts)
               ENABLE_LOGIN_FORM: "false"

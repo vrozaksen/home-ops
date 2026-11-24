@@ -116,6 +116,8 @@ spec:
           - claude-haiku
       - code-pool:
           - claude-haiku
+      - research:
+          - claude-haiku
   litellmSettings:
     drop_params: true
     json_logs: true

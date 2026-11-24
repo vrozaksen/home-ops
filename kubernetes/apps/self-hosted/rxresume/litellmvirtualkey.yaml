@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/litellm.home-operations.com/litellmvirtualkey_v1alpha1.json
+# Reactive Resume AI (set in the app's AI settings: OpenAI-compatible,
+# base URL http://litellm.ai.svc.cluster.local:4000/v1, model `writer`).
+# CVs: local first, Haiku fallback via the writer alias.
+apiVersion: litellm.home-operations.com/v1alpha1
+kind: LiteLLMVirtualKey
+metadata:
+  name: rxresume
+spec:
+  proxyRef: litellm
+  proxyNamespace: ai
+  keyAlias: rxresume
+  secretName: litellm-key-rxresume
+  secretKey: api-key
+  models:
+    - writer

@@ -58,7 +58,7 @@ spec:
               # Redis / Sidekiq (dedicated Dragonfly instance)
               REDIS_URL: redis://sure-dragonfly.self-hosted.svc.cluster.local:6379/0
               OPENAI_URI_BASE: http://litellm.ai.svc.cluster.local:4000/v1
-              OPENAI_MODEL: qwen3-local
+              OPENAI_MODEL: local-pool
               OPENAI_ACCESS_TOKEN:
                 valueFrom:
                   secretKeyRef:

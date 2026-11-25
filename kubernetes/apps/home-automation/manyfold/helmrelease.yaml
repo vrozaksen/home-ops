@@ -155,8 +155,12 @@ spec:
         type: nfs
         server: aincrad.home.vzkn.eu
         path: /mnt/blaze/3dprint
+        # scan validates the library path on boot, so the CronJob needs the share too
         advancedMounts:
           manyfold:
+            app:
+              - path: /libraries/3dprint
+          scan:
             app:
               - path: /libraries/3dprint
       scratch:

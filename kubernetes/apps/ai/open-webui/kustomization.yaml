@@ -9,5 +9,6 @@ configMapGenerator:
   - name: open-webui-comfyui
     files:
       - ./resources/comfyui-workflow.json
+      - ./resources/comfyui-edit-workflow.json
 generatorOptions:
   disableNameSuffixHash: true

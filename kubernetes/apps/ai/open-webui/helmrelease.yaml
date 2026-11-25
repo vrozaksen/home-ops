@@ -64,6 +64,25 @@ spec:
                 {"type":"seed","key":"seed","node_ids":["7"]}]
               IMAGE_GENERATION_MODEL: krea2_turbo_fp8_scaled.safetensors
               IMAGE_SIZE: 1024x1024
+              # Editing (image in the chat + "change X"): Qwen-Image 2.1 takes reference
+              # images natively; output keeps the input's aspect at ~1 MP. With persistent
+              # config off these env vars are turned into image connections on every start;
+              # the trailing slash keeps edit a separate connection (same URL would merge
+              # it into the Krea one and mark Krea as an edit model too).
+              ENABLE_IMAGE_EDIT: "true"
+              IMAGE_EDIT_ENGINE: comfyui
+              IMAGES_EDIT_COMFYUI_BASE_URL: http://10.100.0.102:8188/
+              IMAGES_EDIT_COMFYUI_WORKFLOW:
+                valueFrom:
+                  configMapKeyRef:
+                    name: open-webui-comfyui
+                    key: comfyui-edit-workflow.json
+              IMAGES_EDIT_COMFYUI_WORKFLOW_NODES: >-
+                [{"type":"prompt","key":"prompt","node_ids":["5"]},
+                {"type":"image","key":"image","node_ids":["14"]},
+                {"type":"model","key":"unet_name","node_ids":["1"]},
+                {"type":"seed","key":"noise_seed","node_ids":["10"]}]
+              IMAGE_EDIT_MODEL: qwen_image_2.1_turbo_int8_convrot.safetensors
               # Login: Kanidm only (no local accounts)
               ENABLE_LOGIN_FORM: "false"
               ENABLE_OAUTH_SIGNUP: "true"

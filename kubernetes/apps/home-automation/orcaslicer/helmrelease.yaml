@@ -85,11 +85,11 @@ spec:
         existingClaim: orcaslicer
         globalMounts:
           - path: /home/ubuntu
-      # Models and sliced gcode, shared with the workstation (/mnt/blaze/refs/3D)
+      # 3dprint share: library/ (Manyfold), prints/ (sliced gcode), inbox/; also on the workstation
       models:
         type: nfs
         server: aincrad.home.vzkn.eu
-        path: /mnt/blaze/refs/3D
+        path: /mnt/blaze/3dprint
         globalMounts:
           - path: /home/ubuntu/models
       shm:

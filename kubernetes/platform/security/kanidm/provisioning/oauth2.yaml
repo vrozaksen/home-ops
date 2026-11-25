@@ -429,6 +429,17 @@ data:
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/fluidd.svg" }
         },
+        "manyfold": {
+          "present": true, "displayName": "Manyfold",
+          "originUrl": "https://manyfold.vzkn.eu/users/auth/openid_connect/callback",
+          "originLanding": "https://manyfold.vzkn.eu/",
+          "scopeMaps": {
+            "users": ["openid", "email", "profile"],
+            "makers": ["openid", "email", "profile"]
+          },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/manyfold.svg" }
+        },
         "orcaslicer": {
           "present": true, "displayName": "OrcaSlicer",
           "originUrl": "https://orcaslicer.vzkn.eu/oauth2/callback",

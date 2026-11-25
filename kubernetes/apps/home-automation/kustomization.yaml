@@ -11,6 +11,7 @@ resources:
   - ./esphome/ks.yaml
   - ./fluidd/ks.yaml
   - ./home-assistant/ks.yaml
+  - ./manyfold/ks.yaml
   - ./mesh-bridge/ks.yaml
   - ./music-assistant/ks.yaml
   - ./orcaslicer/ks.yaml

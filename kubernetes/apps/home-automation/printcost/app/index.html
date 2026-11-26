@@ -58,6 +58,8 @@
   .item .name { overflow-wrap: anywhere; }
   .item .meta { color: var(--muted); font-size: 13px; white-space: nowrap; text-align: right; }
   .bad { color: var(--warn); }
+  input[readonly] { color: var(--muted); border-style: dashed; }
+  td button.ghost { padding: 4px 9px; }
 </style>
 </head>
 <body>
@@ -97,9 +99,10 @@
       <label>Obróbka [min] <input id="postMin" type="number" min="0" step="1" value="0"></label>
     </div>
     <table style="margin-top:14px">
-      <thead><tr><th>#</th><th>Materiał</th><th>Szpula (cena ze Spoolmana)</th><th class="num">Gramy</th><th class="num">zł/kg</th></tr></thead>
+      <thead><tr><th>#</th><th>Szpula ze Spoolmana albo własny filament</th><th>Materiał</th><th class="num">Gramy</th><th class="num">zł/kg</th><th></th></tr></thead>
       <tbody id="fils"></tbody>
     </table>
+    <datalist id="spoolOpts"></datalist>
     <div class="actions">
       <button class="ghost" id="addFil">+ filament</button>
     </div>
@@ -309,29 +312,41 @@ async function onFile(file) {
 }
 
 function renderFils() {
-  const opts = (sel) => `<option value="">— ręcznie —</option>` + spools.map((s) =>
-    `<option value="${s.id}"${String(s.id) === String(sel) ? " selected" : ""}>${esc(spoolLabel(s))}</option>`).join("");
-  $("fils").innerHTML = state.fils.map((f, i) => `
+  // One shared datalist: type to filter spools; text that matches no spool = own filament
+  $("spoolOpts").innerHTML = spools.map((s) => `<option value="${esc(spoolLabel(s))}"></option>`).join("");
+  $("fils").innerHTML = state.fils.map((f, i) => {
+    const s = spoolById(f.spoolId);
+    const ro = s ? " readonly" : "";
+    return `
     <tr>
       <td>${i + 1}</td>
-      <td><input data-i="${i}" data-k="material" value="${esc(f.material)}" style="max-width:90px"></td>
-      <td><select data-i="${i}" data-k="spoolId">${opts(f.spoolId)}</select></td>
+      <td><input data-i="${i}" data-k="spool" list="spoolOpts" value="${esc(s ? spoolLabel(s) : f.custom || "")}"
+                 placeholder="Szukaj szpuli albo wpisz własny filament…" autocomplete="off"></td>
+      <td><input data-i="${i}" data-k="material" value="${esc(f.material)}" style="max-width:90px"${ro}></td>
       <td class="num"><input data-i="${i}" data-k="grams" type="number" min="0" step="0.1" value="${f.grams}" style="max-width:90px;text-align:right"></td>
-      <td class="num"><input data-i="${i}" data-k="pricePerKg" type="number" min="0" step="0.5" value="${(+f.pricePerKg).toFixed(2)}" style="max-width:90px;text-align:right"></td>
-    </tr>`).join("");
+      <td class="num"><input data-i="${i}" data-k="pricePerKg" type="number" min="0" step="0.5" value="${(+f.pricePerKg).toFixed(2)}" style="max-width:90px;text-align:right"${ro}></td>
+      <td><button class="ghost" data-del="${i}" title="Usuń">×</button></td>
+    </tr>`;
+  }).join("");
 }
 $("fils").addEventListener("change", (e) => {
   const { i, k } = e.target.dataset; if (i === undefined) return;
   const f = state.fils[+i];
-  if (k === "spoolId") {
-    f.spoolId = e.target.value;
-    const s = spools.find((x) => String(x.id) === f.spoolId);
-    if (s) { f.pricePerKg = spoolPricePerKg(s) || 0; f.material = s.filament.material || f.material; }
+  if (k === "spool") {
+    const v = e.target.value.trim();
+    const m = v.match(/^#(\d+) /);
+    const s = m ? spoolById(m[1]) : null;
+    if (s) { f.spoolId = s.id; f.custom = ""; f.pricePerKg = spoolPricePerKg(s) || 0; f.material = s.filament.material || f.material; }
+    else { f.spoolId = ""; f.custom = v; }
     renderFils();
   } else f[k] = k === "material" ? e.target.value : parseFloat(e.target.value) || 0;
   recalc();
 });
-$("addFil").onclick = () => { const s = bestSpool("PLA"); state.fils.push({ grams: 0, material: "PLA", spoolId: s ? s.id : "", pricePerKg: s ? spoolPricePerKg(s) : 0 }); renderFils(); recalc(); };
+$("fils").addEventListener("click", (e) => {
+  const d = e.target.dataset.del; if (d === undefined) return;
+  state.fils.splice(+d, 1); renderFils(); recalc();
+});
+$("addFil").onclick = () => { state.fils.push({ grams: 0, material: "", spoolId: "", custom: "", pricePerKg: 0 }); renderFils(); recalc(); };
 
 const RATE_FIELDS = [
   ["energyPricePerKwh", "Prąd [zł/kWh]"], ["failureBufferPct", "Ryzyko nieudanego wydruku [%]"],
@@ -407,7 +422,7 @@ $("quotes").addEventListener("click", async (e) => {
   const id = e.target.dataset.copy; if (!id) return;
   const pr = cfg.profiles[id], q = quote(pr);
   const grams = state.fils.reduce((a, f) => a + f.grams, 0) * q.qty;
-  const mats = [...new Set(state.fils.map((f) => f.material).filter(Boolean))].join(" + ");
+  const mats = [...new Set(state.fils.map((f) => f.material || f.custom).filter(Boolean))].join(" + ");
   const lines = [
     `Wycena druku 3D${q.qty > 1 ? ` (${q.qty} szt.)` : ""}`,
     `Materiał: ${mats || "?"}, ${grams.toFixed(0)} g, czas druku ok. ${(q.hours * q.qty).toFixed(1)} h`,

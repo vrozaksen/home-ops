@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./infisicalsecret.yaml
   - ./home-ops.yaml
+  - ./vzkn-games.yaml
   - ./infisicalsecret-forgejo.yaml
   - ./infisicalsecret-webhook.yaml
   - ./forgejo.yaml

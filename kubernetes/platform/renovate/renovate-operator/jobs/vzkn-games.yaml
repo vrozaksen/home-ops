@@ -1,0 +1,30 @@
+---
+apiVersion: renovate-operator.mogenius.com/v1alpha1
+kind: RenovateJob
+metadata:
+  name: vzkn-games
+spec:
+  # Separate job: an org installation of the GitHub App has its own installation ID.
+  discoveryFilters:
+    - "vzkn-games/*"
+  provider:
+    name: github
+  image: ghcr.io/renovatebot/renovate:44.264.0@sha256:36a32b0c9c79a97d488631a898cb47b6772f8eb37fcadd7297c2e4865e7c33f0
+  schedule: "30 * * * *"
+  parallelism: 1
+  githubAppReference:
+    secretName: repo-killer-app-secret
+    appIdSecretKey: GITHUB_APP_ID
+    installationIdSecretKey: INSTALL_ID_VZKN_GAMES
+    pemSecretKey: private-key.pem
+  extraEnv:
+    - name: LOG_LEVEL
+      value: info
+    - name: RENOVATE_PLATFORM_COMMIT
+      value: enabled
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 2Gi

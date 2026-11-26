@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vzkn-games-runner
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: gha-runner-scale-set
+  values:
+    githubConfigUrl: https://github.com/vzkn-games
+    githubConfigSecret: vzkn-games-runner-secret
+    # Label for `runs-on:` in vzkn-games workflows
+    runnerScaleSetName: vzkn-games
+    minRunners: 0
+    maxRunners: 2
+    controllerServiceAccount:
+      name: actions-runner-controller
+      namespace: actions-runner-system
+    template:
+      spec:
+        initContainers:
+          # Native sidecar: sqlx::test needs Postgres on localhost; dies with the ephemeral runner pod
+          - name: postgres
+            image: docker.io/library/postgres:19.0
+            restartPolicy: Always
+            env:
+              - name: POSTGRES_PASSWORD
+                value: postgres
+            readinessProbe:
+              exec:
+                command:
+                  - "pg_isready"
+                  - "-U"
+                  - "postgres"
+              periodSeconds: 2
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+            volumeMounts:
+              - mountPath: /var/lib/postgresql
+                name: pgdata
+        containers:
+          - name: runner
+            image: ghcr.io/home-operations/actions-runner:2.338.2@sha256:2dd7caa094a425c041539447cb0e6ae63cda10b5242773764683b695b8fa5613
+            command:
+              - "/home/runner/run.sh"
+            env:
+              - name: RUNNER_TOOL_CACHE
+                value: /tmp/runner-tool-cache
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        volumes:
+          - name: pgdata
+            emptyDir: {}

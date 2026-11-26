@@ -27,7 +27,14 @@
 	}
 	handle @moonraker {
 		uri strip_prefix /api/moonraker
-		reverse_proxy 10.20.0.221:7125
+		reverse_proxy 10.20.0.221:7125 {
+			# Moonraker trusts this pod's node IP; a forwarded client IP or the
+			# browser's session cookies make it treat the call as untrusted (401)
+			header_up -X-Forwarded-For
+			header_up -X-Real-IP
+			header_up -Authorization
+			header_up -Cookie
+		}
 	}
 	handle /api/moonraker/* {
 		respond 403

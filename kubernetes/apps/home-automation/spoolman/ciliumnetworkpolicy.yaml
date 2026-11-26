@@ -26,6 +26,14 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+    # printcost quote calculator reads spool prices (proxy allows GET only)
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: printcost
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: observability

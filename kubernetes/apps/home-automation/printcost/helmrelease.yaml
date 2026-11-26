@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: printcost
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+    controllers:
+      printcost:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            # Static quote calculator (app/index.html) + read-only Spoolman proxy
+            image:
+              repository: docker.io/library/caddy
+              tag: 2.11.9-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
+            env:
+              XDG_CONFIG_HOME: /tmp/config
+              XDG_DATA_HOME: /tmp/data
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 9090
+                  periodSeconds: 15
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *probes
+              startup: {enabled: false}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 5m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+    service:
+      app:
+        controller: printcost
+        ports:
+          http:
+            port: 8080
+    route:
+      app:
+        annotations:
+          # Behind OIDC: a probe only ever sees the login redirect
+          gatus.home-operations.com/enabled: "false"
+        hostnames:
+          - printcost.vzkn.eu
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+    persistence:
+      app:
+        type: configMap
+        name: printcost-app
+        globalMounts:
+          - path: /etc/caddy/Caddyfile
+            subPath: Caddyfile
+            readOnly: true
+          - path: /srv/index.html
+            subPath: index.html
+            readOnly: true
+          - path: /srv/config.json
+            subPath: config.json
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

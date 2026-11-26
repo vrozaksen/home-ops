@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: printcost
+spec:
+  oidc:
+    provider:
+      issuer: https://idm.vzkn.eu/oauth2/openid/printcost
+    clientID: printcost
+    clientSecret:
+      name: kanidm-printcost-oidc  # secret written by kanidm-provision, key client-secret
+    redirectURL: https://printcost.vzkn.eu/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: printcost.vzkn.eu
+    # fetch() calls get 401 instead of a 302 to the IdP
+    denyRedirect:
+      headers:
+        - name: Sec-Fetch-Mode
+          type: RegularExpression
+          value: "^(cors|no-cors|same-origin)$"
+    scopes:
+      - "openid"
+      - "email"
+      - "profile"
+      - "groups"
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: printcost

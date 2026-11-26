@@ -15,6 +15,7 @@ resources:
   - ./mesh-bridge/ks.yaml
   - ./music-assistant/ks.yaml
   - ./orcaslicer/ks.yaml
+  - ./printcost/ks.yaml
   - ./printguard/ks.yaml
   - ./spoolman/ks.yaml
   - ./zigbee/ks.yaml

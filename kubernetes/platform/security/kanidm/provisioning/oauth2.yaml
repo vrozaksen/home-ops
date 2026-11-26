@@ -440,6 +440,14 @@ data:
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/manyfold.svg" }
         },
+        "printcost": {
+          "present": true, "displayName": "Wycena druku",
+          "originUrl": "https://printcost.vzkn.eu/oauth2/callback",
+          "originLanding": "https://printcost.vzkn.eu/",
+          "scopeMaps": { "admins": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/spoolman.svg" }
+        },
         "printguard": {
           "present": true, "displayName": "PrintGuard",
           "originUrl": "https://printguard.vzkn.eu/oauth2/callback",

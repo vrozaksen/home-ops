@@ -1,0 +1,13 @@
+{
+  "currency": "zł",
+  "energyPricePerKwh": 1.10,
+  "printers": {
+    "Qidi Q2": { "kwhPerHour": 0.20, "wearPerHour": 1.00 }
+  },
+  "failureBufferPct": 5,
+  "postProcessingPerMinute": 0.50,
+  "profiles": {
+    "friend":   { "label": "Kolega", "markupPct": 20,  "handlingFee": 0,  "chargeLabor": false, "minimum": 0,  "roundTo": 1 },
+    "stranger": { "label": "Obcy",   "markupPct": 100, "handlingFee": 15, "chargeLabor": true,  "minimum": 30, "roundTo": 5 }
+  }
+}

@@ -47,18 +47,45 @@
   .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   details summary { cursor: pointer; color: var(--muted); }
   @media (max-width: 560px) { .hide-sm { display: none; } }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tab { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .tab.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .list { max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .item { display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px;
+          border-bottom: 1px solid var(--line); cursor: pointer; }
+  .item:last-child { border-bottom: 0; }
+  .item:hover, .item.sel { background: var(--bg); }
+  .item .name { overflow-wrap: anywhere; }
+  .item .meta { color: var(--muted); font-size: 13px; white-space: nowrap; text-align: right; }
+  .bad { color: var(--warn); }
 </style>
 </head>
 <body>
 <main>
   <h1>Wycena druku</h1>
-  <p class="sub">Wrzuć pocięty plik z Orki (.gcode, Qidi Q2) albo wpisz gramy i czas ręcznie.</p>
+  <p class="sub">Wybierz wydruk z historii Q2, plik czekający na drukarce, wrzuć gcode z Orki albo wpisz gramy i czas ręcznie.</p>
 
   <div class="card">
-    <div id="drop" class="drop">Upuść plik .gcode tutaj albo kliknij, żeby wybrać
-      <input id="file" type="file" accept=".gcode" hidden>
+    <div class="tabs">
+      <button class="tab active" data-tab="history">Historia druku</button>
+      <button class="tab" data-tab="files">Na drukarce</button>
+      <button class="tab" data-tab="upload">Plik .gcode</button>
+    </div>
+    <div id="tab-history" class="pane">
+      <input id="histFilter" placeholder="Szukaj po nazwie…" style="margin-bottom:8px">
+      <div class="list" id="histList"><p class="muted">Ładuję historię z Moonrakera…</p></div>
+    </div>
+    <div id="tab-files" class="pane" hidden>
+      <input id="fileFilter" placeholder="Szukaj po nazwie…" style="margin-bottom:8px">
+      <div class="list" id="fileList"><p class="muted">Ładuję pliki z drukarki…</p></div>
+    </div>
+    <div id="tab-upload" class="pane" hidden>
+      <div id="drop" class="drop">Upuść plik .gcode tutaj albo kliknij, żeby wybrać
+        <input id="file" type="file" accept=".gcode" hidden>
+      </div>
     </div>
     <p id="fileinfo" class="muted" style="margin:10px 0 0"></p>
+    <p id="energyinfo" class="muted" style="margin:4px 0 0"></p>
   </div>
 
   <div class="card">
@@ -93,7 +120,8 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
 let cfg, spools = [];
-const state = { fils: [] };
+// energyKwh: measured plug energy of a history job; null = estimate from kWh/h
+const state = { fils: [], energyKwh: null };
 
 const money = (v) => v.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cfg.currency;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -107,8 +135,9 @@ function spoolPricePerKg(s) {
 function spoolLabel(s) {
   const f = s.filament;
   const p = spoolPricePerKg(s);
+  const left = Math.round(s.remaining_weight || 0);
   return `#${s.id} ${f.vendor ? f.vendor.name + " " : ""}${f.name} ${f.material}` +
-         ` (${Math.round(s.remaining_weight || 0)} g${p ? ", " + p.toFixed(0) + " zł/kg" : ""})`;
+         ` (${left ? left + " g" : "pusta"}${s.archived ? ", archiwum" : ""}${p ? ", " + p.toFixed(0) + " zł/kg" : ""})`;
 }
 function bestSpool(material) {
   const m = (material || "").toUpperCase();
@@ -116,6 +145,135 @@ function bestSpool(material) {
   cands.sort((a, b) => (b.remaining_weight || 0) - (a.remaining_weight || 0));
   return cands[0] || null;
 }
+const spoolById = (id) => spools.find((s) => s.id === +id) || null;
+// mm of filament -> grams, from the spool's own density/diameter
+function mmToGrams(mm, spool) {
+  const f = spool ? spool.filament : {};
+  const r = (f.diameter || 1.75) / 2;
+  return (mm * Math.PI * r * r * (f.density || 1.24)) / 1000;
+}
+function filRow(grams, material, spool) {
+  const s = spool || bestSpool(material);
+  return { grams: +grams.toFixed(2), material: s ? s.filament.material : material, spoolId: s ? s.id : "", pricePerKg: s ? spoolPricePerKg(s) || 0 : 0 };
+}
+const fmtH = (h) => `${Math.floor(h)}h ${String(Math.round((h % 1) * 60)).padStart(2, "0")}m`;
+const fmtDate = (ts) => new Date(ts * 1000).toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" });
+const moon = async (path) => (await (await fetch("api/moonraker" + path)).json()).result;
+
+// Weights per extruder from slicer metadata, or the total split evenly
+function splitWeights(meta, totalG) {
+  const types = String(meta.filament_type || "").split(";").map((t) => t.trim()).filter(Boolean);
+  const w = Array.isArray(meta.filament_weights) && meta.filament_weights.length ? meta.filament_weights : null;
+  if (w) return w.map((g, i) => [totalG == null ? g : (g / w.reduce((a, b) => a + b, 0)) * totalG, types[i] || types[0] || ""]);
+  const n = Math.max(1, types.length);
+  return Array.from({ length: n }, (_, i) => [(totalG ?? meta.filament_weight_total ?? 0) / n, types[i] || ""]);
+}
+
+let jobs = [], files = [];
+async function loadHistory() {
+  try {
+    jobs = (await moon("/server/history/list?limit=200&order=desc")).jobs || [];
+    renderHistory();
+  } catch { $("histList").innerHTML = `<p class="warn" style="padding:8px">Moonraker niedostępny.</p>`; }
+}
+function renderHistory() {
+  const q = $("histFilter").value.toLowerCase();
+  const rows = jobs.filter((j) => j.filename.toLowerCase().includes(q));
+  $("histList").innerHTML = rows.map((j) => {
+    const g = j.metadata && j.metadata.filament_total ? (j.filament_used / j.metadata.filament_total) * (j.metadata.filament_weight_total || 0) : null;
+    const st = j.status === "completed" ? "" : ` <span class="bad">${esc(j.status)}</span>`;
+    return `<div class="item" data-job="${esc(j.job_id)}"><span class="name">${esc(j.filename)}${st}</span>
+      <span class="meta">${fmtDate(j.start_time)} · ${fmtH(j.print_duration / 3600)}${g != null ? " · " + g.toFixed(0) + " g" : ""}</span></div>`;
+  }).join("") || `<p class="muted" style="padding:8px">Brak wydruków.</p>`;
+}
+function applyJob(j) {
+  const meta = j.metadata || {};
+  // grams actually extruded: used mm scaled by the slicer's g/mm, else spool density
+  const ids = ((j.auxiliary_data || []).find((a) => a.name === "spool_ids") || {}).value || [];
+  const firstSpool = spoolById(ids[0]);
+  const totalG = meta.filament_total ? (j.filament_used / meta.filament_total) * (meta.filament_weight_total || 0) : mmToGrams(j.filament_used, firstSpool);
+  const parts = splitWeights(meta, totalG);
+  state.fils = parts.map(([g, t], i) => filRow(g, t, spoolById(ids[i] ?? ids[0])));
+  $("hours").value = (j.print_duration / 3600).toFixed(2);
+  $("printer").value = Object.keys(cfg.printers)[0];
+  state.energyKwh = null;
+  measureEnergy(j);
+  const missing = ids.filter((id) => !spoolById(id));
+  $("fileinfo").innerHTML = `${esc(j.filename)} · ${fmtDate(j.start_time)} · rzeczywisty czas ${fmtH(j.print_duration / 3600)}, zużyte ${totalG.toFixed(1)} g` +
+    (ids.length ? ` · szpula ${ids.map((i) => "#" + i).join(", ")}` : " · <span class=\"warn\">brak szpuli w historii, dobrana po materiale</span>") +
+    (missing.length ? ` <span class="warn">(szpula ${missing.join(", ")} usunięta ze Spoolmana)</span>` : "") +
+    (j.status !== "completed" ? ` <span class="warn">status: ${esc(j.status)}</span>` : "");
+  renderFils(); recalc();
+}
+
+// Real energy of a finished job: plug kWh counter at end minus at start (Home Assistant)
+let haEntity = null;
+async function measureEnergy(j) {
+  $("energyinfo").textContent = "";
+  try {
+    haEntity = haEntity || (await (await fetch("api/ha-entity")).text()).trim();
+    const end = j.end_time || j.start_time + j.total_duration;
+    const url = `api/ha/api/history/period/${new Date(j.start_time * 1000 - 300000).toISOString()}` +
+      `?end_time=${encodeURIComponent(new Date(end * 1000 + 300000).toISOString())}` +
+      `&filter_entity_id=${encodeURIComponent(haEntity)}&minimal_response&no_attributes`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const pts = ((await r.json())[0] || []).map((p) => [Date.parse(p.last_changed) / 1000, parseFloat(p.state)]).filter((p) => !isNaN(p[1]));
+    // last reading at/before start, first reading at/after end
+    const before = pts.filter((p) => p[0] <= j.start_time).pop() || pts[0];
+    const after = pts.find((p) => p[0] >= end) || pts[pts.length - 1];
+    if (!before || !after || after[1] < before[1]) throw new Error("brak odczytów");
+    if (state.fils.length && $("fileinfo").textContent.startsWith(j.filename)) {
+      state.energyKwh = after[1] - before[1];
+      $("energyinfo").textContent = `Prąd z gniazdka Q2: ${state.energyKwh.toFixed(3)} kWh (cały wydruk z nagrzewaniem).`;
+      recalc();
+    }
+  } catch (e) {
+    $("energyinfo").innerHTML = `<span class="warn">Brak odczytu z gniazdka (${esc(e.message)}), prąd liczony z kWh/h.</span>`;
+  }
+}
+
+async function loadFiles() {
+  try {
+    files = ((await moon("/server/files/list?root=gcodes")) || []).sort((a, b) => b.modified - a.modified);
+    renderFiles();
+  } catch { $("fileList").innerHTML = `<p class="warn" style="padding:8px">Moonraker niedostępny.</p>`; }
+}
+function renderFiles() {
+  const q = $("fileFilter").value.toLowerCase();
+  const rows = files.filter((f) => f.path.toLowerCase().includes(q));
+  $("fileList").innerHTML = rows.map((f) => `<div class="item" data-file="${esc(f.path)}"><span class="name">${esc(f.path)}</span>
+      <span class="meta">${fmtDate(f.modified)}</span></div>`).join("") || `<p class="muted" style="padding:8px">Brak plików.</p>`;
+}
+async function applyFile(path) {
+  const meta = await moon("/server/files/metadata?filename=" + encodeURIComponent(path));
+  state.energyKwh = null; $("energyinfo").textContent = "";
+  state.fils = splitWeights(meta, null).map(([g, t]) => filRow(g, t));
+  $("hours").value = ((meta.estimated_time || 0) / 3600).toFixed(2);
+  $("printer").value = Object.keys(cfg.printers)[0];
+  $("fileinfo").innerHTML = `${esc(path)} · szacowany czas ${fmtH((meta.estimated_time || 0) / 3600)}, ${(meta.filament_weight_total || 0).toFixed(1)} g`;
+  renderFils(); recalc();
+}
+
+function selectIn(list, el) {
+  list.querySelectorAll(".item.sel").forEach((x) => x.classList.remove("sel"));
+  el.classList.add("sel");
+}
+$("histList").addEventListener("click", (e) => {
+  const el = e.target.closest(".item"); if (!el) return;
+  selectIn($("histList"), el); applyJob(jobs.find((j) => j.job_id === el.dataset.job));
+});
+$("fileList").addEventListener("click", (e) => {
+  const el = e.target.closest(".item"); if (!el) return;
+  selectIn($("fileList"), el); applyFile(el.dataset.file);
+});
+$("histFilter").addEventListener("input", renderHistory);
+$("fileFilter").addEventListener("input", renderFiles);
+document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x === t));
+  document.querySelectorAll(".pane").forEach((p) => (p.hidden = p.id !== "tab-" + t.dataset.tab));
+  if (t.dataset.tab === "files" && !files.length) loadFiles();
+}));
 
 function parseDuration(s) {
   let h = 0;
@@ -137,6 +295,7 @@ async function readGcode(file) {
 async function onFile(file) {
   const g = await readGcode(file);
   if (!g.grams.length) { $("fileinfo").innerHTML = `<span class="warn">Nie znalazłem zużycia filamentu w ${esc(file.name)}. To na pewno gcode z Orki?</span>`; return; }
+  state.energyKwh = null; $("energyinfo").textContent = "";
   state.fils = g.grams.map((grams, i) => {
     const material = g.types[i] || g.types[0] || "";
     const s = bestSpool(material);
@@ -205,7 +364,8 @@ function quote(profile) {
   const qty = Math.max(1, parseInt($("qty").value) || 1);
   const minutes = parseFloat($("postMin").value) || 0;
   const material = state.fils.reduce((a, f) => a + (f.grams * f.pricePerKg) / 1000, 0) * qty;
-  const energy = hours * p.kwhPerHour * cfg.energyPricePerKwh * qty;
+  const kwh = state.energyKwh != null ? state.energyKwh : hours * p.kwhPerHour;
+  const energy = kwh * cfg.energyPricePerKwh * qty;
   const wear = hours * p.wearPerHour * qty;
   const buffer = (material + energy + wear) * cfg.failureBufferPct / 100;
   const cost = material + energy + wear + buffer;
@@ -273,15 +433,18 @@ drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); e.data
   cfg = await (await fetch("config.json", { cache: "no-store" })).json();
   $("printer").innerHTML = Object.keys(cfg.printers).map((n) => `<option>${esc(n)}</option>`).join("");
   try {
-    const r = await fetch("api/spoolman/api/v1/spool?allow_archived=false");
-    spools = (await r.json()).filter((s) => (s.remaining_weight || 0) > 0);
-    $("spoolinfo").textContent = `Spoolman: ${spools.length} aktywnych szpul.`;
+    // Empty and archived spools stay: a past print may have used one up
+    const r = await fetch("api/spoolman/api/v1/spool?allow_archived=true");
+    spools = (await r.json()).sort((a, b) => ((b.remaining_weight || 0) > 0) - ((a.remaining_weight || 0) > 0) || a.id - b.id);
+    const active = spools.filter((s) => (s.remaining_weight || 0) > 0).length;
+    $("spoolinfo").textContent = `Spoolman: ${active} szpul z filamentem, ${spools.length - active} pustych lub w archiwum.`;
   } catch {
     $("spoolinfo").innerHTML = `<span class="warn">Spoolman niedostępny, wpisz ceny ręcznie.</span>`;
   }
   const s = bestSpool("ASA") || bestSpool("PLA");
   state.fils = [{ grams: 0, material: s ? s.filament.material : "PLA", spoolId: s ? s.id : "", pricePerKg: s ? spoolPricePerKg(s) : 0 }];
   renderRates(); renderFils(); recalc();
+  loadHistory();
 })();
 </script>
 </body>

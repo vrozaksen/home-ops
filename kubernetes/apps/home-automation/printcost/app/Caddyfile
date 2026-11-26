@@ -20,6 +20,39 @@
 		reverse_proxy spoolman.home-automation.svc.cluster.local:8000
 	}
 
+	# Qidi Q2 Moonraker: only these read endpoints (Moonraker runs gcode on plain GETs too)
+	@moonraker {
+		method GET
+		path /api/moonraker/server/history/list /api/moonraker/server/history/job /api/moonraker/server/files/list /api/moonraker/server/files/metadata
+	}
+	handle @moonraker {
+		uri strip_prefix /api/moonraker
+		reverse_proxy 10.20.0.221:7125
+	}
+	handle /api/moonraker/* {
+		respond 403
+	}
+
+	# Home Assistant: history of the Q2 plug energy counter only
+	@ha {
+		method GET
+		path /api/ha/api/history/period/*
+		expression {query.filter_entity_id} == "{$HA_ENERGY_ENTITY}"
+	}
+	handle @ha {
+		uri strip_prefix /api/ha
+		reverse_proxy home-assistant.home-automation.svc.cluster.local:8123 {
+			header_up Authorization "Bearer {$HA_TOKEN}"
+			header_up -Cookie
+		}
+	}
+	handle /api/ha/* {
+		respond 403
+	}
+	handle /api/ha-entity {
+		respond "{$HA_ENERGY_ENTITY}"
+	}
+
 	handle {
 		root * /srv
 		header /config.json Cache-Control no-store

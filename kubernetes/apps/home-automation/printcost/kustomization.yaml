@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./ciliumnetworkpolicy.yaml
   - ./helmrelease.yaml
+  - ./infisicalsecret.yaml
   - ./securitypolicy.yaml
 configMapGenerator:
   - name: printcost-app

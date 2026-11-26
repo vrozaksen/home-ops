@@ -28,6 +28,13 @@ spec:
             env:
               XDG_CONFIG_HOME: /tmp/config
               XDG_DATA_HOME: /tmp/data
+              # Q2 smart-plug energy counter; Caddy refuses history reads of any other entity
+              HA_ENERGY_ENTITY: sensor.qidi_q2_meter_energy
+            envFrom:
+              # Optional: without the token, energy falls back to the kWh/h estimate
+              - secretRef:
+                  name: printcost-secret
+                  optional: true
             probes:
               liveness: &probes
                 enabled: true

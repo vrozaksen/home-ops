@@ -440,6 +440,14 @@ data:
           "allowInsecureClientDisablePkce": true,
           "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/manyfold.svg" }
         },
+        "printguard": {
+          "present": true, "displayName": "PrintGuard",
+          "originUrl": "https://printguard.vzkn.eu/oauth2/callback",
+          "originLanding": "https://printguard.vzkn.eu/",
+          "scopeMaps": { "users": ["openid", "email", "profile", "groups"] },
+          "allowInsecureClientDisablePkce": true,
+          "k8s": { "imageUrl": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/obico.svg" }
+        },
         "orcaslicer": {
           "present": true, "displayName": "OrcaSlicer",
           "originUrl": "https://orcaslicer.vzkn.eu/oauth2/callback",

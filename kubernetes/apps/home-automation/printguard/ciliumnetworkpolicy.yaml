@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://schemas.vzkn.eu/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: printguard
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: printguard
+      app.kubernetes.io/instance: printguard
+  # No auth of its own: only the OIDC-gated gateway may reach it.
+  # RTSP/RTMP push (8554/1935) accept unauthenticated publishes, so they stay closed.
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.networking.k8s.io/gateway-name: envoy-external
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP

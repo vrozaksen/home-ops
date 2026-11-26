@@ -14,9 +14,20 @@
             --accent: #5fb39c; --accent-fg: #0d1a16; --warn: #e08a63; }
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body { margin: 0; background: var(--bg); color: var(--fg);
          font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  main { max-width: 1440px; margin: 0 auto; padding: 24px 16px 64px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: 16px; align-items: start; }
+  .side { position: sticky; top: 16px; }
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } .side { position: static; } }
+  .preview { position: relative; height: 340px; border-radius: 8px; background: var(--bg); overflow: hidden; }
+  .preview canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+  .preview canvas:active { cursor: grabbing; }
+  .preview img { position: absolute; top: 8px; right: 8px; width: 96px; height: 96px; object-fit: contain;
+                 background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+  .preview .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: var(--muted); }
+  .preview .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); padding: 16px; text-align: center; }
   h1 { font-size: 22px; margin: 0 0 4px; }
   h2 { font-size: 15px; margin: 0 0 12px; color: var(--muted); font-weight: 600;
        text-transform: uppercase; letter-spacing: .04em; }
@@ -34,8 +45,9 @@
   th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: middle; }
   th { font-size: 12px; color: var(--muted); font-weight: 600; }
   td.num, th.num { text-align: right; white-space: nowrap; }
-  .quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-  .price { font-size: 34px; font-weight: 700; margin: 4px 0 8px; }
+  .quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .quotes .card { margin-bottom: 0; }
+  .price { font-size: 30px; font-weight: 700; margin: 4px 0 8px; }
   .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
   .row span:first-child { color: var(--muted); }
   .total { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; font-weight: 600; }
@@ -67,6 +79,8 @@
   <h1>Wycena druku</h1>
   <p class="sub">Wybierz wydruk z historii Q2, plik czekający na drukarce, wrzuć gcode z Orki albo wpisz gramy i czas ręcznie.</p>
 
+  <div class="layout">
+  <div>
   <div class="card">
     <div class="tabs">
       <button class="tab active" data-tab="history">Historia druku</button>
@@ -109,13 +123,27 @@
     <p id="spoolinfo" class="muted" style="margin:8px 0 0"></p>
   </div>
 
-  <div class="quotes" id="quotes"></div>
-
   <div class="card">
     <details>
       <summary>Stawki (domyślne z config.json, zmiany tylko dla tej wyceny)</summary>
       <div class="grid" style="margin-top:12px" id="rates"></div>
     </details>
+  </div>
+  </div>
+
+  <aside class="side">
+    <div class="card">
+      <h2>Podgląd</h2>
+      <div class="preview">
+        <canvas id="gcv"></canvas>
+        <img id="thumb" alt="" hidden onerror="this.hidden=true">
+        <div class="empty" id="pvEmpty">Wybierz wydruk albo wrzuć gcode.</div>
+        <span class="hint" id="pvHint" hidden>przeciągnij, żeby obrócić</span>
+      </div>
+      <p id="pvInfo" class="muted" style="margin:8px 0 0;font-size:13px"></p>
+    </div>
+    <div class="quotes" id="quotes"></div>
+  </aside>
   </div>
 </main>
 
@@ -207,6 +235,8 @@ function applyJob(j) {
     (missing.length ? ` <span class="warn">(szpula ${missing.join(", ")} usunięta ze Spoolmana)</span>` : "") +
     (j.status !== "completed" ? ` <span class="warn">status: ${esc(j.status)}</span>` : "");
   renderFils(); recalc();
+  if (j.exists === false) { showThumb(null); pvMessage("Pliku tego wydruku nie ma już na drukarce."); }
+  else previewFromMoonraker(j.filename, meta);
 }
 
 // Real energy of a finished job: plug kWh counter at end minus at start (Home Assistant)
@@ -256,6 +286,7 @@ async function applyFile(path) {
   $("printer").value = Object.keys(cfg.printers)[0];
   $("fileinfo").innerHTML = `${esc(path)} · szacowany czas ${fmtH((meta.estimated_time || 0) / 3600)}, ${(meta.filament_weight_total || 0).toFixed(1)} g`;
   renderFils(); recalc();
+  previewFromMoonraker(path, meta);
 }
 
 function selectIn(list, el) {
@@ -277,6 +308,164 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
   document.querySelectorAll(".pane").forEach((p) => (p.hidden = p.id !== "tab-" + t.dataset.tab));
   if (t.dataset.tab === "files" && !files.length) loadFiles();
 }));
+
+// ---- G-code preview: extrusion moves in an isometric view, coloured by height ----
+const pv = { segs: null, n: 0, zMin: 0, zMax: 1, yaw: -Math.PI / 4, token: 0 };
+const gfile = (path) => "api/moonraker/server/files/gcodes/" + path.split("/").map(encodeURIComponent).join("/");
+
+function showThumb(src) {
+  const t = $("thumb");
+  if (src) { t.src = src; t.hidden = false; } else { t.hidden = true; t.removeAttribute("src"); }
+}
+function pvMessage(msg) {
+  pv.segs = null; drawPreview();
+  $("pvEmpty").textContent = msg; $("pvEmpty").hidden = !msg; $("pvHint").hidden = true;
+}
+
+// Orca embeds PNG/JPG thumbnails as base64 comment blocks in the header
+function thumbFromText(head) {
+  let best = null;
+  for (const m of head.matchAll(/^; thumbnail(?:_(\w+))? begin (\d+)x(\d+) \d+\r?\n([\s\S]*?)^; thumbnail(?:_\w+)? end/gm)) {
+    const kind = (m[1] || "PNG").toUpperCase();
+    if (kind === "QOI") continue;
+    const area = +m[2] * +m[3];
+    if (!best || area > best.area) best = { area, src: `data:image/${kind === "JPG" ? "jpeg" : "png"};base64,` + m[4].replace(/[;\s]/g, "") };
+  }
+  return best && best.src;
+}
+
+function parseToolpath(text) {
+  let cap = 1 << 18, segs = new Float32Array(cap * 6), n = 0;
+  let x = 0, y = 0, z = 0, e = 0, absPos = true, absE = true, zMin = Infinity, zMax = -Infinity;
+  let start = 0;
+  const len = text.length;
+  while (start < len) {
+    let end = text.indexOf("\n", start); if (end < 0) end = len;
+    const c0 = text.charCodeAt(start);
+    if (c0 === 71 || c0 === 77) { // G / M
+      const sc = text.indexOf(";", start);
+      const line = text.slice(start, sc >= 0 && sc < end ? sc : end).trim();
+      const cmd = line.split(/\s/, 1)[0];
+      if (cmd === "G90") absPos = true;
+      else if (cmd === "G91") absPos = false;
+      else if (cmd === "M82") absE = true;
+      else if (cmd === "M83") absE = false;
+      else if (cmd === "G92") { const m = line.match(/E(-?[\d.]+)/); if (m) e = +m[1]; }
+      else if (cmd === "G0" || cmd === "G1" || cmd === "G2" || cmd === "G3") {
+        let nx = x, ny = y, nz = z, ext = false;
+        for (const [, k, v] of line.matchAll(/([XYZE])(-?[\d.]+)/g)) {
+          const f = +v;
+          if (k === "X") nx = absPos ? f : x + f;
+          else if (k === "Y") ny = absPos ? f : y + f;
+          else if (k === "Z") nz = absPos ? f : z + f;
+          else { if (absE) { ext = f > e; e = f; } else ext = f > 0; }
+        }
+        if (ext && (nx !== x || ny !== y)) {
+          if (n === cap) { cap *= 2; const g = new Float32Array(cap * 6); g.set(segs); segs = g; }
+          segs.set([x, y, z, nx, ny, nz], n * 6); n++;
+          if (nz < zMin) zMin = nz; if (nz > zMax) zMax = nz;
+        }
+        x = nx; y = ny; z = nz;
+      }
+    }
+    start = end + 1;
+  }
+  return { segs, n, zMin: isFinite(zMin) ? zMin : 0, zMax: isFinite(zMax) ? zMax : 1 };
+}
+
+const BUCKETS = 24;
+function groupByHeight(tp) {
+  const span = tp.zMax - tp.zMin || 1, bucket = new Uint8Array(tp.n), count = new Uint32Array(BUCKETS + 1);
+  for (let i = 0; i < tp.n; i++) {
+    const b = Math.min(BUCKETS - 1, Math.floor(((tp.segs[i * 6 + 5] - tp.zMin) / span) * BUCKETS));
+    bucket[i] = b; count[b + 1]++;
+  }
+  for (let b = 0; b < BUCKETS; b++) count[b + 1] += count[b];
+  const fill = count.slice(0, BUCKETS), order = new Uint32Array(tp.n);
+  for (let i = 0; i < tp.n; i++) order[fill[bucket[i]]++] = i;
+  return { order, bStart: count };
+}
+
+function drawPreview() {
+  const cv = $("gcv"), dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  if (!pv.segs || !pv.n) return;
+  const cy = Math.cos(pv.yaw), sy = Math.sin(pv.yaw), tilt = Math.sin(Math.PI / 6), up = Math.cos(Math.PI / 6);
+  const proj = (X, Y, Z) => [X * cy - Y * sy, (X * sy + Y * cy) * tilt - Z * up];
+  // fit to canvas from a sample of the segments
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  const step = Math.max(1, Math.floor(pv.n / 20000));
+  for (let i = 0; i < pv.n; i += step) {
+    const [px, py] = proj(pv.segs[i * 6 + 3], pv.segs[i * 6 + 4], pv.segs[i * 6 + 5]);
+    if (px < minX) minX = px; if (px > maxX) maxX = px; if (py < minY) minY = py; if (py > maxY) maxY = py;
+  }
+  const sc = Math.min((w - 24) / (maxX - minX || 1), (h - 24) / (maxY - minY || 1));
+  const ox = (w - (maxX - minX) * sc) / 2 - minX * sc, oy = (h - (maxY - minY) * sc) / 2 - minY * sc;
+  ctx.lineWidth = Math.max(0.6, Math.min(1.5, sc * 0.4));
+  // bottom-up, one stroke per height bucket (segments pre-grouped in groupByHeight)
+  for (let b = 0; b < BUCKETS; b++) {
+    ctx.beginPath();
+    for (let k = pv.bStart[b]; k < pv.bStart[b + 1]; k++) {
+      const o = pv.order[k] * 6;
+      const [ax, ay] = proj(pv.segs[o], pv.segs[o + 1], pv.segs[o + 2]);
+      const [bx, by] = proj(pv.segs[o + 3], pv.segs[o + 4], pv.segs[o + 5]);
+      ctx.moveTo(ax * sc + ox, ay * sc + oy); ctx.lineTo(bx * sc + ox, by * sc + oy);
+    }
+    ctx.strokeStyle = `hsl(${205 - (b / (BUCKETS - 1)) * 175}, 65%, 52%)`;
+    ctx.stroke();
+  }
+}
+
+async function loadToolpath(getText, label) {
+  const token = ++pv.token;
+  pvMessage("Ładuję ścieżki…");
+  try {
+    const text = await getText();
+    if (token !== pv.token) return;
+    const tp = parseToolpath(text);
+    if (token !== pv.token) return;
+    if (!tp.n) { pvMessage("W pliku nie ma ruchów z ekstruzją."); return; }
+    Object.assign(pv, tp, groupByHeight(tp));
+    $("pvEmpty").hidden = true; $("pvHint").hidden = false;
+    $("pvInfo").textContent = `${label} · ${tp.n.toLocaleString("pl-PL")} odcinków, wysokość ${(tp.zMax).toFixed(1)} mm`;
+    drawPreview();
+  } catch (e) {
+    if (token === pv.token) pvMessage(`Nie udało się wczytać gcode (${e.message}).`);
+  }
+}
+
+function previewFromMoonraker(path, meta) {
+  $("pvInfo").textContent = "";
+  const th = (meta.thumbnails || []).slice().sort((a, b) => b.width - a.width)[0];
+  const dir = path.includes("/") ? path.slice(0, path.lastIndexOf("/") + 1) : "";
+  showThumb(th ? gfile(dir + th.relative_path) : null);
+  loadToolpath(async () => {
+    const r = await fetch(gfile(path));
+    if (r.status === 404) throw new Error("pliku nie ma już na drukarce");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.text();
+  }, path);
+}
+function previewFromFile(file) {
+  $("pvInfo").textContent = "";
+  file.slice(0, 512 * 1024).text().then((head) => showThumb(thumbFromText(head)));
+  loadToolpath(() => file.text(), file.name);
+}
+
+const cvEl = $("gcv");
+let drag = null;
+cvEl.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, yaw: pv.yaw }; cvEl.setPointerCapture(e.pointerId); });
+cvEl.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  pv.yaw = drag.yaw + (e.clientX - drag.x) * 0.01;
+  if (!pv.raf) pv.raf = requestAnimationFrame(() => { pv.raf = 0; drawPreview(); });
+});
+cvEl.addEventListener("pointerup", () => (drag = null));
+window.addEventListener("resize", drawPreview);
 
 function parseDuration(s) {
   let h = 0;
@@ -309,6 +498,7 @@ async function onFile(file) {
   const warn = g.printer && !cfg.printers[g.printer] ? ` <span class="warn">Drukarka „${esc(g.printer)}” nie jest w config.json, liczę stawkami wybranej.</span>` : "";
   $("fileinfo").innerHTML = `${esc(file.name)}: ${esc(g.printer || "?")}, ${esc(g.time || "?")}, ${g.grams.reduce((a, b) => a + b, 0).toFixed(1)} g${warn}`;
   renderFils(); recalc();
+  previewFromFile(file);
 }
 
 function renderFils() {
@@ -342,6 +532,7 @@ $("fils").addEventListener("change", (e) => {
   } else f[k] = k === "material" ? e.target.value : parseFloat(e.target.value) || 0;
   recalc();
 });
+$("fils").addEventListener("focusin", (e) => { if (e.target.dataset.k === "spool") e.target.select(); });
 $("fils").addEventListener("click", (e) => {
   const d = e.target.dataset.del; if (d === undefined) return;
   state.fils.splice(+d, 1); renderFils(); recalc();

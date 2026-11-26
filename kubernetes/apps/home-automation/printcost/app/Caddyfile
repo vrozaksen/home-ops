@@ -23,7 +23,7 @@
 	# Qidi Q2 Moonraker: only these read endpoints (Moonraker runs gcode on plain GETs too)
 	@moonraker {
 		method GET
-		path /api/moonraker/server/history/list /api/moonraker/server/history/job /api/moonraker/server/files/list /api/moonraker/server/files/metadata
+		path /api/moonraker/server/history/list /api/moonraker/server/history/job /api/moonraker/server/files/list /api/moonraker/server/files/metadata /api/moonraker/server/files/gcodes/*
 	}
 	handle @moonraker {
 		uri strip_prefix /api/moonraker

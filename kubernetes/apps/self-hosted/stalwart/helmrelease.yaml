@@ -20,7 +20,7 @@ spec:
             image:
               # renovate: datasource=docker depName=docker.io/stalwartlabs/stalwart
               repository: docker.io/stalwartlabs/stalwart
-              tag: v1.1.1@sha256:5ebdf474b237161742fe4309396af4ae8797c938e8e6eb7e2d4837332c4f9851
+              tag: v1.2.1@sha256:ed3153af935f0125ed0424b2a6d7d5891915a9249189dda76860a27f906b64ea
             env:
               TZ: Europe/Warsaw
               STALWART_PUBLIC_URL: https://stalwart.vzkn.eu

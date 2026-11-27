@@ -9,7 +9,7 @@ spec:
     - "vzkn-games/*"
   provider:
     name: github
-  image: ghcr.io/renovatebot/renovate:44.264.1@sha256:7c6e6274efc81ba9c6c4e7a2124c40a3a04e88d3745a4d1e4c97cb0c6cd33820
+  image: ghcr.io/renovatebot/renovate:45.3.2@sha256:03574aa8ce69bfd39c13cbc9ab9599ded5c0f4772481914ddcfd920882305240
   schedule: "30 * * * *"
   parallelism: 1
   githubAppReference:

@@ -20,14 +20,28 @@ spec:
             severity: critical
 
         - alert: SmartDeviceTestFailed
+          # Excluded: alne Talos disk (Crucial 164614B4BE51) fails on wear-out only
+          # (erase count past threshold, 0 errors); no spare yet. SmartDeviceErrorsGrowing
+          # covers real failure. A replacement has a new serial, so this re-arms itself.
           expr: |-
             (smartctl_device_smart_status != 1 or smartctl_device_status != 1)
+              unless on (instance, device) smartctl_device{serial_number="164614B4BE51"}
           for: 5m
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} did not pass its SMART test
           labels:
             severity: critical
+
+        - alert: SmartDeviceErrorsGrowing
+          # Growth, not a static >0: eir sda already carries 1 reallocated + 1 pending sector.
+          expr: |-
+            delta(smartctl_device_attribute{attribute_value_type="raw",attribute_name=~"Reallocate.*|Reallocated_Sector_Ct|Reported_Uncorrect|Offline_Uncorrectable|Current_Pending_Sector"}[1d]) > 0
+          annotations:
+            summary: >-
+              Drive {{ $labels.device }} on {{ $labels.instance }}: {{ $labels.attribute_name }} grew in the last 24h
+          labels:
+            severity: warning
 
         - alert: SmartDeviceCriticalWarning
           expr: |-

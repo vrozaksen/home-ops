@@ -41,6 +41,19 @@ spec:
           labels:
             severity: warning
 
+        - alert: NasArrayAlmostFull
+          # Stock NodeFilesystem* % thresholds are silenced for /mnt/user: on a 62TB
+          # array 1% is ~600GB and free space has sat at 1.1-1.5% for months.
+          expr: |-
+            node_filesystem_avail_bytes{instance="aincrad.home.vzkn.eu:9100",mountpoint="/mnt/user"}
+              / node_filesystem_size_bytes{instance="aincrad.home.vzkn.eu:9100",mountpoint="/mnt/user"} * 100 < 0.5
+          for: 1h
+          annotations:
+            summary: >-
+              aincrad /mnt/user has only {{ $value | printf "%.2f" }}% free
+          labels:
+            severity: warning
+
     - name: etcd-disk.rules
       rules:
         - alert: EtcdQuorumDisksSlow

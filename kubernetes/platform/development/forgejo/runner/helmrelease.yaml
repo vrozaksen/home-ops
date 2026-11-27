@@ -34,7 +34,7 @@ spec:
           k8s-plugin:
             image:
               repository: git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
-              tag: 13.2.1@sha256:d62811841a20fd1a311b2c90c6ffcec37d09e52ebb46834b0c04f3ad2a3bcbe7
+              tag: 13.2.3@sha256:9ea0acc43f34fa12514ba2ec5f110a1386bcf7cf8fd081dd3b2294e195518e24
             args:
               - --listen
               - unix:///plugin/forgejo-runner-k8s.sock
@@ -53,7 +53,7 @@ spec:
           runner: &runner
             image:
               repository: data.forgejo.org/forgejo/runner
-              tag: 13.2.1@sha256:568cea8c15ddc01fc8f330124892f572af7db37fa28344a2c1914405793bf61d
+              tag: 13.2.2@sha256:a8543a45fe62bebef0534d5c223cf485d3294e6dd2e42a82dbcbfd40c54a6a22
             command:
               - sh
               - -ec

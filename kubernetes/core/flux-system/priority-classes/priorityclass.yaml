@@ -18,3 +18,14 @@ value: 0
 globalDefault: false
 preemptionPolicy: Never
 description: "Forgejo CI task pods - never preempt, not preemptible by normal pods"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: monitoring
+# Above unclassed pods (0), far below kubevirt (1e9) and system-* (2e9): after a node
+# loss Prometheus/Alertmanager preempt app pods instead of sitting Pending.
+value: 10000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: "Metrics and alerting core - may preempt normal workloads, never kubevirt or system pods"

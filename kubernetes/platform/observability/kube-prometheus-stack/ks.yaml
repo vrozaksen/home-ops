@@ -8,6 +8,8 @@ spec:
   dependsOn:
     - name: kanidm
       namespace: security
+    - name: priority-classes
+      namespace: flux-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h

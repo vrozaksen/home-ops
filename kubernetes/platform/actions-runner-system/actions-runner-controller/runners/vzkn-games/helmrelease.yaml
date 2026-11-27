@@ -29,12 +29,11 @@ spec:
             env:
               - name: POSTGRES_PASSWORD
                 value: postgres
+            # tcpSocket, not exec pg_isready: /usr/bin/pg_isready is the perl pg_wrapper, which
+            # reads /etc/shadow as root and fires Falco "Read sensitive file untrusted" every probe
             readinessProbe:
-              exec:
-                command:
-                  - "pg_isready"
-                  - "-U"
-                  - "postgres"
+              tcpSocket:
+                port: 5432
               periodSeconds: 2
             resources:
               requests:

@@ -41,7 +41,7 @@ spec:
             env:
               FCOS_STREAM: stable
               # renovate: datasource=custom.fedora-coreos depName=stable
-              FCOS_VERSION: 44.20261023.3.1
+              FCOS_VERSION: 45.20261030.3.1
               HOME: /tmp
             securityContext:
               allowPrivilegeEscalation: false

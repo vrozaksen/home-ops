@@ -26,6 +26,17 @@ spec:
     - name: kubevirt
       namespace: kubevirt
   interval: 1h
+  # Omnichassis work paused: halt the SIL VM (frees ~4.6Gi on its worker); disk is kept.
+  # Drop this patch to start it again.
+  patches:
+    - target:
+        group: kubevirt.io
+        kind: VirtualMachine
+        name: sil-runner
+      patch: |-
+        - op: replace
+          path: /spec/runStrategy
+          value: Halted
   path: ./kubernetes
   prune: true
   serviceAccountName: omnichassis-infra
